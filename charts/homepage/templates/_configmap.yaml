@@ -1,0 +1,83 @@
+{{- define "homepage.configmap" -}}
+{{- if not .Values.config.useExistingConfigMap }}
+{{- $reservedFiles := dict
+  "bookmarks.yaml" true
+  "services.yaml" true
+  "widgets.yaml" true
+  "settings.yaml" true
+  "kubernetes.yaml" true
+  "docker.yaml" true
+  "proxmox.yaml" true
+  "custom.css" true
+  "custom.js" true
+-}}
+---
+{{ $configName := include "bjw-s.common.lib.chart.names.fullname" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $configName }}
+  labels:
+    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+data:
+  bookmarks.yaml: {{- if .Values.config.bookmarks }} |
+{{- .Values.config.bookmarks | toYaml | nindent 4 }}
+{{- else if .Values.config.bookmarksString }} |
+{{- .Values.config.bookmarksString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  services.yaml: {{- if .Values.config.services }} |
+{{- .Values.config.services | toYaml | nindent 4 }}
+{{- else if .Values.config.servicesString }} |
+{{- .Values.config.servicesString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  widgets.yaml: {{- if .Values.config.widgets }} |
+{{- .Values.config.widgets | toYaml | nindent 4 }}
+{{- else if .Values.config.widgetsString }} |
+{{- .Values.config.widgetsString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  settings.yaml: {{- if .Values.config.settings }} |
+{{- .Values.config.settings | toYaml | nindent 4 }}
+{{- else if .Values.config.settingsString }} |
+{{- .Values.config.settingsString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  kubernetes.yaml: {{- if .Values.config.kubernetes }} |
+{{- .Values.config.kubernetes | toYaml | nindent 4 }}
+{{- else if .Values.config.kubernetesString }} |
+{{- .Values.config.kubernetesString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  docker.yaml: {{- if .Values.config.docker }} |
+{{- .Values.config.docker | toYaml | nindent 4 }}
+{{- else if .Values.config.dockerString }} |
+{{- .Values.config.dockerString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  proxmox.yaml: {{- if .Values.config.proxmox }} |
+{{- .Values.config.proxmox | toYaml | nindent 4 }}
+{{- else if .Values.config.proxmoxString }} |
+{{- .Values.config.proxmoxString | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  custom.css: {{- if .Values.config.customCss }} |
+{{- .Values.config.customCss | nindent 4 }}
+{{- else }} ""
+{{- end }}
+  custom.js: {{- if .Values.config.customJs }} |
+{{- .Values.config.customJs | nindent 4 }}
+{{- else }} ""
+{{- end }}
+{{- range $filename, $content := .Values.config.extraFiles }}
+{{- if not (hasKey $reservedFiles $filename) }}
+  {{ $filename }}: {{- if kindIs "string" $content }} |
+{{- $content | nindent 4 }}
+{{- else }} |
+{{- $content | toYaml | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

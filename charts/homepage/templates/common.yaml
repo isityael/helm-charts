@@ -1,0 +1,96 @@
+{{- include "bjw-s.common.loader.init" . }}
+
+{{- define "homepage.hardcodedValues" -}}
+{{- if not .Values.global.nameOverride }}
+global:
+  nameOverride: "{{ .Release.Name }}"
+{{- end }}
+{{- end -}}
+{{- $_ := mergeOverwrite .Values (include "homepage.hardcodedValues" . | fromYaml) -}}
+
+{{- if not (kindIs "map" .Values.persistence) -}}
+{{- $_ := set .Values "persistence" dict -}}
+{{- end -}}
+
+{{- if not (hasKey .Values.persistence "config") -}}
+{{- $_ := set .Values.persistence "config" (dict
+    "enabled" true
+    "type" "emptyDir"
+    "globalMounts" (list (dict "path" "/app/config"))
+  ) -}}
+{{- end -}}
+
+{{- $reservedFiles := dict
+  "bookmarks.yaml" true
+  "services.yaml" true
+  "widgets.yaml" true
+  "settings.yaml" true
+  "kubernetes.yaml" true
+  "docker.yaml" true
+  "proxmox.yaml" true
+  "custom.css" true
+  "custom.js" true
+-}}
+
+{{- $configFiles := list
+  (dict "path" "/app/config/bookmarks.yaml" "subPath" "bookmarks.yaml")
+  (dict "path" "/app/config/services.yaml" "subPath" "services.yaml")
+  (dict "path" "/app/config/widgets.yaml" "subPath" "widgets.yaml")
+  (dict "path" "/app/config/settings.yaml" "subPath" "settings.yaml")
+  (dict "path" "/app/config/kubernetes.yaml" "subPath" "kubernetes.yaml")
+  (dict "path" "/app/config/docker.yaml" "subPath" "docker.yaml")
+-}}
+
+{{- if or .Values.config.proxmox .Values.config.proxmoxString -}}
+{{- $configFiles = append $configFiles (dict "path" "/app/config/proxmox.yaml" "subPath" "proxmox.yaml") -}}
+{{- end -}}
+{{- if .Values.config.customCss -}}
+{{- $configFiles = append $configFiles (dict "path" "/app/config/custom.css" "subPath" "custom.css") -}}
+{{- end -}}
+{{- if .Values.config.customJs -}}
+{{- $configFiles = append $configFiles (dict "path" "/app/config/custom.js" "subPath" "custom.js") -}}
+{{- end -}}
+{{- range $filename, $_ := .Values.config.extraFiles -}}
+  {{- if not (hasKey $reservedFiles $filename) -}}
+    {{- $configFiles = append $configFiles (dict "path" (printf "/app/config/%s" $filename) "subPath" $filename) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $configMapName := default (include "bjw-s.common.lib.chart.names.fullname" .) .Values.config.useExistingConfigMap -}}
+{{- $configFilesDefaults := dict
+  "enabled" true
+  "type" "configMap"
+  "name" $configMapName
+  "advancedMounts" (dict "main" (dict "main" $configFiles))
+-}}
+{{- $existingConfigFiles := get .Values.persistence "config-files" | default dict -}}
+{{- $configFilesMerged := mergeOverwrite $configFilesDefaults $existingConfigFiles -}}
+{{- if hasKey $existingConfigFiles "advancedMounts" -}}
+{{- $_ := set $configFilesMerged "advancedMounts" $existingConfigFiles.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "config-files" $configFilesMerged -}}
+
+{{- if .Values.rbac.enabled -}}
+  {{- if not (kindIs "map" .Values.serviceAccount) -}}
+  {{- $_ := set .Values "serviceAccount" dict -}}
+  {{- end -}}
+  {{- $sa := get .Values.serviceAccount "homepage" | default dict -}}
+  {{- if not (hasKey $sa "enabled") -}}
+    {{- $_ := set $sa "enabled" true -}}
+  {{- end -}}
+  {{- $_ := set .Values.serviceAccount "homepage" $sa -}}
+
+  {{- if not (kindIs "map" .Values.controllers) -}}
+  {{- $_ := set .Values "controllers" dict -}}
+  {{- end -}}
+  {{- $controller := get .Values.controllers "main" | default dict -}}
+  {{- if not (hasKey $controller "serviceAccount") -}}
+    {{- $_ := set $controller "serviceAccount" (dict "identifier" "homepage") -}}
+  {{- end -}}
+  {{- $_ := set .Values.controllers "main" $controller -}}
+{{- end -}}
+
+{{ include "homepage.configmap" . }}
+{{ include "homepage.rbac" . }}
+
+{{- include "bjw-s.common.loader.generate" . }}

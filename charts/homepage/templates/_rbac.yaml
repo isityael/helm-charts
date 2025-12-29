@@ -1,0 +1,73 @@
+{{- define "homepage.rbac" -}}
+{{- if .Values.rbac.enabled }}
+{{- $controllerObject := (include "bjw-s.common.lib.controller.getByIdentifier" (dict "rootContext" . "id" "main") | fromYaml) -}}
+{{- $serviceAccountName := include "bjw-s.common.lib.pod.field.serviceAccountName" (dict "ctx" (dict "rootContext" . "controllerObject" $controllerObject)) -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "bjw-s.common.lib.chart.names.fullname" . }}
+  labels:
+    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - pods
+      - nodes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - extensions
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - traefik.io
+      - traefik.containo.us
+    resources:
+      - ingressroutes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - httproutes
+      - gateways
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - metrics.k8s.io
+    resources:
+      - nodes
+      - pods
+    verbs:
+      - get
+      - list
+{{- if .Values.rbac.extraRules }}
+  {{- .Values.rbac.extraRules | toYaml | nindent 2 }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "bjw-s.common.lib.chart.names.fullname" . }}
+  labels:
+    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "bjw-s.common.lib.chart.names.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $serviceAccountName }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
