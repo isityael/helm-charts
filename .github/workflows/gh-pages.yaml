@@ -1,0 +1,11 @@
+name: GitHub Pages (Disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disabled
+        run: echo "This repo publishes Helm charts via gh-pages. Pages build from main is disabled."

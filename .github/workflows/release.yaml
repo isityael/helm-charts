@@ -25,6 +25,15 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      - name: Ensure gh-pages branch exists
+        run: |
+          if ! git ls-remote --exit-code origin gh-pages >/dev/null 2>&1; then
+            blob=$(printf '' | git hash-object -w --stdin)
+            tree=$(printf "100644 blob %s\t.nojekyll\n" "$blob" | git mktree)
+            commit=$(echo "Initialize gh-pages" | git commit-tree "$tree")
+            git push origin "$commit:refs/heads/gh-pages"
+          fi
+
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
