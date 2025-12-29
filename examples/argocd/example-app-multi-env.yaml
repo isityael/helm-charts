@@ -1,24 +1,33 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: example-app-of-apps
-  namespace: argocd
-spec:
-  project: default
-  
-  source:
-    repoURL: 'https://github.com/isityael/helm-charts'
-    path: examples/argocd/apps
-    targetRevision: main
-    
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
+# This file demonstrates deploying the same chart to multiple environments
+# with different configurations.
 
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+# OPTIONAL: App of Apps Pattern
+# Uncomment the following section if you want to use the App of Apps pattern.
+# You'll need to create the 'examples/argocd/apps' directory and place
+# individual Application manifests there.
+#
+# ---
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: example-app-of-apps
+#   namespace: argocd
+# spec:
+#   project: default
+#   
+#   source:
+#     repoURL: 'https://github.com/isityael/helm-charts'
+#     path: examples/argocd/apps
+#     targetRevision: main
+#     
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: argocd
+#
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
 
 ---
 # Development Environment Application

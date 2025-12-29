@@ -55,6 +55,8 @@ service:
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
+  # This sets the target port for the container (defaults to 80 for nginx)
+  targetPort: 80
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -94,7 +96,7 @@ httpRoute:
   - matches:
     - path:
         type: PathPrefix
-        value: /headers
+        value: /
   #   filters:
   #   - type: RequestHeaderModifier
   #     requestHeaderModifier:
