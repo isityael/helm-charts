@@ -1,0 +1,154 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app-of-apps
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: 'https://github.com/isityael/helm-charts'
+    path: examples/argocd/apps
+    targetRevision: main
+    
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+---
+# Development Environment Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app-dev
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: 'https://github.com/isityael/helm-charts'
+    path: charts/example-app
+    targetRevision: main
+    
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: replicaCount
+          value: "1"
+        - name: image.tag
+          value: "latest"
+        - name: resources.requests.memory
+          value: "128Mi"
+        - name: resources.requests.cpu
+          value: "100m"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+# Staging Environment Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app-staging
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: 'https://github.com/isityael/helm-charts'
+    path: charts/example-app
+    targetRevision: main
+    
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: replicaCount
+          value: "2"
+        - name: image.tag
+          value: "v1.0.0"
+        - name: resources.requests.memory
+          value: "256Mi"
+        - name: resources.requests.cpu
+          value: "200m"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false  # Require manual approval for staging
+    syncOptions:
+      - CreateNamespace=true
+
+---
+# Production Environment Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app-production
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: 'https://github.com/isityael/helm-charts'
+    path: charts/example-app
+    targetRevision: main
+    
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: replicaCount
+          value: "3"
+        - name: image.tag
+          value: "v1.0.0"
+        - name: autoscaling.enabled
+          value: "true"
+        - name: autoscaling.minReplicas
+          value: "3"
+        - name: autoscaling.maxReplicas
+          value: "10"
+        - name: resources.requests.memory
+          value: "512Mi"
+        - name: resources.requests.cpu
+          value: "500m"
+        - name: resources.limits.memory
+          value: "1Gi"
+        - name: resources.limits.cpu
+          value: "1000m"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+
+  syncPolicy:
+    automated:
+      prune: false  # Never auto-prune in production
+      selfHeal: false  # Require manual approval for production
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

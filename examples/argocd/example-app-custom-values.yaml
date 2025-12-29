@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app-with-custom-values
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: 'https://github.com/isityael/helm-charts'
+    path: charts/example-app
+    targetRevision: main
+    
+    helm:
+      # Use default values.yaml plus custom overrides
+      valueFiles:
+        - values.yaml
+      
+      # Override specific values using parameters
+      parameters:
+        - name: replicaCount
+          value: "3"
+        - name: image.tag
+          value: "v2.0.0"
+        - name: service.type
+          value: "LoadBalancer"
+        - name: ingress.enabled
+          value: "true"
+        - name: autoscaling.enabled
+          value: "true"
+        - name: autoscaling.minReplicas
+          value: "2"
+        - name: autoscaling.maxReplicas
+          value: "10"
+      
+      # Alternatively, you can provide inline values
+      # values: |
+      #   replicaCount: 3
+      #   image:
+      #     tag: v2.0.0
+      #   service:
+      #     type: LoadBalancer
+      #   ingress:
+      #     enabled: true
+      #     className: nginx
+      #     hosts:
+      #       - host: example.local
+      #         paths:
+      #           - path: /
+      #             pathType: Prefix
+      #   autoscaling:
+      #     enabled: true
+      #     minReplicas: 2
+      #     maxReplicas: 10
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
