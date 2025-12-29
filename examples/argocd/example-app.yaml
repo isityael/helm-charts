@@ -1,0 +1,94 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-app
+  namespace: argocd
+  # Optional: Add finalizers for cascade deletion
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # The project the application belongs to
+  project: default
+
+  # Source of the application manifests
+  source:
+    # Repository URL
+    repoURL: 'https://github.com/isityael/helm-charts'
+    
+    # Path to the Helm chart
+    path: charts/example-app
+    
+    # Git branch/tag/commit to use
+    targetRevision: main
+    
+    # Helm specific configuration
+    helm:
+      # Values files to use (relative to the chart path)
+      valueFiles:
+        - values.yaml
+      
+      # Optional: Override specific values
+      # parameters:
+      #   - name: image.tag
+      #     value: "v1.0.0"
+      #   - name: replicaCount
+      #     value: "3"
+      
+      # Optional: Pass values inline
+      # values: |
+      #   replicaCount: 3
+      #   image:
+      #     tag: v1.0.0
+
+  # Destination cluster and namespace
+  destination:
+    # Kubernetes API server URL
+    # Use 'https://kubernetes.default.svc' for in-cluster deployment
+    server: https://kubernetes.default.svc
+    
+    # Target namespace
+    namespace: default
+
+  # Sync policy
+  syncPolicy:
+    # Automated sync configuration
+    automated:
+      # Automatically prune resources that are no longer defined in Git
+      prune: true
+      
+      # Automatically sync when the Git repository changes
+      selfHeal: true
+      
+      # Allow empty resources to be synced
+      allowEmpty: false
+    
+    # Sync options
+    syncOptions:
+      # Create namespace if it doesn't exist
+      - CreateNamespace=true
+      
+      # Validate resources before applying
+      - Validate=true
+      
+      # Use server-side apply
+      # - ServerSideApply=true
+    
+    # Retry configuration for failed syncs
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Health assessment and sync waves
+  # ignoreDifferences:
+  #   - group: apps
+  #     kind: Deployment
+  #     jsonPointers:
+  #       - /spec/replicas
+
+  # Optional: Configure how ArgoCD displays resource health
+  # info:
+  #   - name: 'Chart Version'
+  #     value: '0.1.0'
