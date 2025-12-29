@@ -3,7 +3,7 @@ name: homepage
 description: Helm chart for Homepage dashboard
 icon: https://github.com/gethomepage/homepage/blob/main/public/mstile-150x150.png
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "v1.8.0"
 kubeVersion: ">=1.28.0-0"
 

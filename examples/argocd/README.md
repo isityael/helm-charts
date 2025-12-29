@@ -24,7 +24,19 @@ kubectl apply -f examples/argocd/example-app.yaml
 - Retry configuration for failed syncs
 - Comprehensive comments explaining each option
 
-### 2. Custom Values (`example-app-custom-values.yaml`)
+### 2. Homepage (`homepage.yaml`)
+
+Example showing how to deploy the Homepage chart and set the required `HOMEPAGE_ALLOWED_HOSTS`.
+
+```bash
+kubectl apply -f examples/argocd/homepage.yaml
+```
+
+**Features:**
+- Sets required `HOMEPAGE_ALLOWED_HOSTS`
+- Optional ingress values shown (disabled by default)
+
+### 3. Custom Values (`example-app-custom-values.yaml`)
 
 Demonstrates how to override default chart values using ArgoCD parameters.
 
@@ -39,7 +51,7 @@ kubectl apply -f examples/argocd/example-app-custom-values.yaml
 - Ingress and autoscaling enabled
 - Multiple value override methods shown
 
-### 3. Multi-Environment (`example-app-multi-env.yaml`)
+### 4. Multi-Environment (`example-app-multi-env.yaml`)
 
 Shows the "App of Apps" pattern for managing multiple environments.
 

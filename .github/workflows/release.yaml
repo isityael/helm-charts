@@ -30,12 +30,20 @@ jobs:
         with:
           version: v4.0.4
 
-      - name: Add Helm dependency repos
+      - name: Package charts (vendored dependencies)
         run: |
-          helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts
-          helm repo update
+          mkdir -p .cr-release-packages
+          for chart in charts/*; do
+            if [[ -d "$chart" ]]; then
+              helm package "$chart" --destination .cr-release-packages
+            fi
+          done
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
+        with:
+          config: .cr.yaml
+          skip_packaging: true
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

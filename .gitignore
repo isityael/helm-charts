@@ -1,5 +1,3 @@
 .vscode/mise-tools/
 .repomix/
 *.log
-charts/*/charts/
-*.tgz

@@ -153,6 +153,16 @@ Every chart must include:
 - Usage examples
 - Configuration options table
 
+#### 8. Dependencies (Vendored)
+
+If your chart uses dependencies, vendor them before committing:
+
+```bash
+helm dependency update charts/<chart-name>
+```
+
+Commit the generated `Chart.lock` and the packaged charts under `charts/<chart-name>/charts/`. The release workflow packages charts without fetching dependency repos.
+
 ## Testing Your Changes
 
 ### 1. Lint Your Chart
