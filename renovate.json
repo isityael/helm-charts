@@ -1,0 +1,42 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":preserveSemverRanges",
+    "group:allNonMajor"
+  ],
+  "platformAutomerge": false,
+  "dependencyDashboard": true,
+  "dependencyDashboardAutoclose": true,
+  "timezone": "Europe/Berlin",
+  "schedule": ["at any time"],
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5,
+  "rangeStrategy": "bump",
+  "enabledManagers": [
+    "helmv3",
+    "helm-values",
+    "github-actions"
+  ],
+  "labels": ["dependencies"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 0 * * *"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["helmv3", "helm-values"],
+      "groupName": "Helm charts",
+      "groupSlug": "helm-charts",
+      "separateMinorPatch": true,
+      "labels": ["dependencies", "helm"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions",
+      "separateMinorPatch": true,
+      "labels": ["dependencies", "ci"]
+    }
+  ]
+}
