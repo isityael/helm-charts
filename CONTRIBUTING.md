@@ -28,15 +28,20 @@ Before contributing, ensure you have the following installed:
 
 1. Fork the repository on GitHub
 2. Clone your fork locally:
+
    ```bash
    git clone https://github.com/<your-username>/helm-charts.git
    cd helm-charts
    ```
+
 3. Add the upstream repository:
+
    ```bash
    git remote add upstream https://github.com/isityael/helm-charts.git
    ```
+
 4. Create a new branch for your changes:
+
    ```bash
    git checkout -b feature/my-new-chart
    ```
@@ -46,12 +51,14 @@ Before contributing, ensure you have the following installed:
 ### Creating a New Chart
 
 1. Create your chart in the `charts/` directory:
+
    ```bash
    cd charts/
    helm create my-new-chart
    ```
 
 2. Update `Chart.yaml` with accurate information:
+
    ```yaml
    apiVersion: v2
    name: my-new-chart
@@ -68,6 +75,7 @@ Before contributing, ensure you have the following installed:
    ```
 
 3. Document all values in `values.yaml` with comments:
+
    ```yaml
    # Number of replicas to deploy
    replicaCount: 1
@@ -103,6 +111,7 @@ Follow these best practices when developing charts:
 #### 3. Labels and Annotations
 
 Include standard labels on all resources:
+
 ```yaml
 labels:
   helm.sh/chart: {{ include "chart.chart" . }}
@@ -137,6 +146,7 @@ labels:
 #### 7. Documentation
 
 Every chart must include:
+
 - Comprehensive `README.md`
 - Description in `Chart.yaml`
 - Comments in `values.yaml`
@@ -231,6 +241,7 @@ git commit -m "Add new chart for my-application"
 - Add detailed description if needed
 
 Examples:
+
 ```
 Add Redis chart for caching layer
 Update nginx chart to version 1.2.0
@@ -273,6 +284,7 @@ git push origin feature/my-new-chart
 ### Review Criteria
 
 Reviewers will check:
+
 - Chart follows best practices
 - Documentation is comprehensive
 - Tests are included
@@ -292,6 +304,7 @@ When updating an existing chart:
 2. Update the `CHANGELOG.md` (if present) or include changes in PR description
 
 3. Test the upgrade path:
+
    ```bash
    # Install old version
    helm install test charts/my-chart

@@ -155,6 +155,7 @@ resources:
 ```
 
 With values:
+
 ```yaml
 resources:
   limits:

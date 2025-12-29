@@ -28,6 +28,7 @@ This repository hosts Helm charts for deployment in Kubernetes clusters using Ar
 ### Creating a New Chart
 
 1. Create a new chart in the `charts/` directory:
+
    ```bash
    cd charts/
    helm create <chart-name>
@@ -39,11 +40,13 @@ This repository hosts Helm charts for deployment in Kubernetes clusters using Ar
    - Modify templates in the `templates/` directory
 
 3. Validate your chart:
+
    ```bash
    helm lint charts/<chart-name>
    ```
 
 4. Package the chart (optional):
+
    ```bash
    helm package charts/<chart-name>
    ```
@@ -94,6 +97,7 @@ spec:
 ```
 
 Apply the Application:
+
 ```bash
 kubectl apply -f argocd-application.yaml
 ```
@@ -104,13 +108,13 @@ If this repository is configured with GitHub Pages, you can add it as a Helm rep
 
 ```bash
 # Add the repository
-helm repo add <repo-name> https://<username>.github.io/helm-charts
+helm repo add isityael https://isityael.github.io/helm-charts
 
 # Update repository cache
 helm repo update
 
 # Install a chart
-helm install <release-name> <repo-name>/<chart-name>
+helm install <release-name> isityael/<chart-name>
 ```
 
 ## Chart Development Best Practices
@@ -141,15 +145,20 @@ helm install test-release charts/<chart-name> -n test --create-namespace
 ## ArgoCD Integration Patterns
 
 ### Pattern 1: Single Application
+
 Point ArgoCD directly to a chart path in this repository.
 
 ### Pattern 2: App of Apps
+
 Use ArgoCD's "App of Apps" pattern to manage multiple charts:
+
 - Create a parent application that references child applications
 - Each child application points to a chart in this repository
 
 ### Pattern 3: Environment-Specific Values
+
 Store environment-specific values files alongside charts or in separate directories:
+
 ```yaml
 helm:
   valueFiles:
