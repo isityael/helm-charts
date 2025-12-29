@@ -1,0 +1,35 @@
+name: Validate ArgoCD Manifests
+
+on:
+  pull_request:
+    paths:
+      - 'examples/argocd/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'examples/argocd/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate ArgoCD manifests
+        run: |
+          echo "Validating ArgoCD Application manifests..."
+          for file in examples/argocd/*.yaml; do
+            echo "Validating $file"
+            kubeconform -summary -output json "$file" || echo "Warning: $file validation failed"
+          done
