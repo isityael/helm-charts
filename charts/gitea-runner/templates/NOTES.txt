@@ -1,0 +1,8 @@
+Thank you for installing the Gitea Actions runner!
+
+1. Ensure the registration token secret is present and values.runner.instanceURL is set.
+2. Watch the runner pod logs for successful registration.
+
+{{- if .Values.service.main.enabled }}
+A service is enabled for this release. You can port-forward if you exposed any ports.
+{{- end }}

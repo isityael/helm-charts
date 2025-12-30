@@ -1,0 +1,23 @@
+apiVersion: v2
+name: gitea-runner
+description: Helm chart for Gitea Actions runner with optional Docker-in-Docker
+home: https://gitea.com/gitea/act_runner
+icon: https://raw.githubusercontent.com/go-gitea/gitea/refs/heads/main/assets/favicon.svg
+type: application
+version: 0.1.0
+appVersion: "0.2.13"
+kubeVersion: ">=1.28.0-0"
+maintainers:
+  - name: m0sh1
+    email: yael@m0sh1.cc
+sources:
+  - https://gitea.com/gitea/act_runner
+keywords:
+  - gitea
+  - actions
+  - runner
+  - ci
+dependencies:
+  - name: common
+    version: 4.5.0
+    repository: https://bjw-s-labs.github.io/helm-charts

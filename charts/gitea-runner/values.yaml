@@ -1,0 +1,75 @@
+global: {}
+
+imagePullSecrets: []
+
+runner:
+  instanceURL: ""
+  registrationTokenSecret: ""
+  registrationTokenKey: REGISTRATION_TOKEN
+  name: ""
+  baseLabels: self-hosted
+  jobLabel: ""
+  jobImage: ""
+  extraEnv: []
+
+controllers:
+  main:
+    containers:
+      dind:
+        enabled: true
+        image:
+          repository: docker
+          tag: "29-dind"
+          pullPolicy: IfNotPresent
+        args:
+          - --host=unix:///var/run/docker.sock
+          - --tls=false
+        env:
+          - name: DOCKER_TLS_CERTDIR
+            value: ""
+        securityContext:
+          privileged: true
+        resources: {}
+      runner:
+        image:
+          repository: gitea/act_runner
+          tag: "0.2.13"
+          pullPolicy: IfNotPresent
+        command:
+          - /entrypoint.sh
+        env: []
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+          allowPrivilegeEscalation: true
+          privileged: true
+        resources: {}
+
+daemonConfig:
+  registryMirrors: []
+  insecureRegistries: []
+  features:
+    buildkit: true
+
+registryAuthSecret: ""
+registryAuthSecretKey: .dockerconfigjson
+registryAuthMountPath: /root/.docker/config.json
+
+registryCASecret: ""
+registryCAKey: ca.crt
+registryCAMounts: []
+
+service:
+  main:
+    enabled: false
+
+serviceAccount:
+  gitea-runner:
+    enabled: false
+    annotations: {}
+    labels: {}
+    # forceRename: ""
+
+podAnnotations: {}
+podLabels: {}

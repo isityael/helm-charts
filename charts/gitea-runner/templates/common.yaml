@@ -1,0 +1,154 @@
+{{- include "bjw-s.common.loader.init" . }}
+
+{{- if not (kindIs "map" .Values.global) -}}
+{{- $_ := set .Values "global" dict -}}
+{{- end -}}
+
+{{- if not (kindIs "map" .Values.serviceAccount) -}}
+{{- $_ := set .Values "serviceAccount" dict -}}
+{{- end -}}
+{{- $sa := get .Values.serviceAccount "gitea-runner" | default dict -}}
+{{- if and $sa.enabled (not (kindIs "map" .Values.controllers)) -}}
+{{- $_ := set .Values "controllers" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers "main")) -}}
+{{- $_ := set .Values.controllers "main" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers.main "serviceAccount")) -}}
+{{- $_ := set .Values.controllers.main "serviceAccount" (dict "identifier" "gitea-runner") -}}
+{{- end -}}
+
+{{- if not (kindIs "map" .Values.defaultPodOptions) -}}
+{{- $_ := set .Values "defaultPodOptions" dict -}}
+{{- end -}}
+{{- if and (not (hasKey .Values.defaultPodOptions "imagePullSecrets")) (gt (len .Values.imagePullSecrets) 0) -}}
+{{- $_ := set .Values.defaultPodOptions "imagePullSecrets" .Values.imagePullSecrets -}}
+{{- end -}}
+
+{{- $controller := get .Values.controllers "main" | default dict -}}
+{{- $containers := get $controller "containers" | default dict -}}
+{{- $runner := get $containers "runner" | default dict -}}
+{{- $env := get $runner "env" | default list -}}
+{{- if .Values.runner.instanceURL }}
+{{- $env = append $env (dict "name" "GITEA_INSTANCE_URL" "value" .Values.runner.instanceURL) -}}
+{{- end -}}
+{{- if .Values.runner.name }}
+{{- $env = append $env (dict "name" "GITEA_RUNNER_NAME" "value" .Values.runner.name) -}}
+{{- end -}}
+{{- if .Values.runner.baseLabels }}
+{{- $env = append $env (dict "name" "RUNNER_BASE_LABELS" "value" .Values.runner.baseLabels) -}}
+{{- end -}}
+{{- if .Values.runner.jobLabel }}
+{{- $env = append $env (dict "name" "RUNNER_JOB_LABEL" "value" .Values.runner.jobLabel) -}}
+{{- end -}}
+{{- if .Values.runner.jobImage }}
+{{- $env = append $env (dict "name" "RUNNER_JOB_IMAGE" "value" .Values.runner.jobImage) -}}
+{{- end -}}
+{{- if .Values.runner.registrationTokenSecret }}
+{{- $env = append $env (dict "name" "GITEA_RUNNER_REGISTRATION_TOKEN" "valueFrom" (dict "secretKeyRef" (dict "name" .Values.runner.registrationTokenSecret "key" .Values.runner.registrationTokenKey))) -}}
+{{- end -}}
+{{- $env = append $env (dict "name" "DOCKER_HOST" "value" "unix:///var/run/docker.sock") -}}
+{{- $env = append $env (dict "name" "DOCKER_CONFIG" "value" "/root/.docker") -}}
+{{- range .Values.runner.extraEnv }}
+{{- $env = append $env . -}}
+{{- end -}}
+{{- $_ := set $runner "env" $env -}}
+{{- $_ := set $containers "runner" $runner -}}
+{{- $_ := set $controller "containers" $containers -}}
+{{- $_ := set .Values.controllers "main" $controller -}}
+
+{{- if not (kindIs "map" .Values.persistence) -}}
+{{- $_ := set .Values "persistence" dict -}}
+{{- end -}}
+
+{{- $dockerGraphDefaults := dict
+  "enabled" true
+  "type" "emptyDir"
+  "advancedMounts" (dict "main" (dict "dind" (list (dict "path" "/var/lib/docker"))))
+-}}
+{{- $dockerGraphExisting := get .Values.persistence "docker-graph" | default dict -}}
+{{- $dockerGraphMerged := mergeOverwrite $dockerGraphDefaults $dockerGraphExisting -}}
+{{- if hasKey $dockerGraphExisting "advancedMounts" -}}
+{{- $_ := set $dockerGraphMerged "advancedMounts" $dockerGraphExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "docker-graph" $dockerGraphMerged -}}
+
+{{- $dockerSocketDefaults := dict
+  "enabled" true
+  "type" "emptyDir"
+  "advancedMounts" (dict "main" (dict
+    "dind" (list (dict "path" "/var/run"))
+    "runner" (list (dict "path" "/var/run"))
+  ))
+-}}
+{{- $dockerSocketExisting := get .Values.persistence "docker-socket" | default dict -}}
+{{- $dockerSocketMerged := mergeOverwrite $dockerSocketDefaults $dockerSocketExisting -}}
+{{- if hasKey $dockerSocketExisting "advancedMounts" -}}
+{{- $_ := set $dockerSocketMerged "advancedMounts" $dockerSocketExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "docker-socket" $dockerSocketMerged -}}
+
+{{- $dockerConfigDefaults := dict
+  "enabled" true
+  "type" "emptyDir"
+  "advancedMounts" (dict "main" (dict "runner" (list (dict "path" "/tmp/.docker"))))
+-}}
+{{- $dockerConfigExisting := get .Values.persistence "docker-config" | default dict -}}
+{{- $dockerConfigMerged := mergeOverwrite $dockerConfigDefaults $dockerConfigExisting -}}
+{{- if hasKey $dockerConfigExisting "advancedMounts" -}}
+{{- $_ := set $dockerConfigMerged "advancedMounts" $dockerConfigExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "docker-config" $dockerConfigMerged -}}
+
+{{- $daemonConfigName := printf "%s-docker-daemon" (include "bjw-s.common.lib.chart.names.fullname" .) -}}
+{{- $daemonConfigDefaults := dict
+  "enabled" true
+  "type" "configMap"
+  "name" $daemonConfigName
+  "items" (list (dict "key" "daemon.json" "path" "daemon.json"))
+  "advancedMounts" (dict "main" (dict "dind" (list (dict "path" "/etc/docker/daemon.json" "subPath" "daemon.json"))))
+-}}
+{{- $daemonConfigExisting := get .Values.persistence "docker-daemon-config" | default dict -}}
+{{- $daemonConfigMerged := mergeOverwrite $daemonConfigDefaults $daemonConfigExisting -}}
+{{- if hasKey $daemonConfigExisting "advancedMounts" -}}
+{{- $_ := set $daemonConfigMerged "advancedMounts" $daemonConfigExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "docker-daemon-config" $daemonConfigMerged -}}
+
+{{- if .Values.registryAuthSecret }}
+{{- $authDefaults := dict
+  "enabled" true
+  "type" "secret"
+  "name" .Values.registryAuthSecret
+  "items" (list (dict "key" .Values.registryAuthSecretKey "path" "config.json"))
+  "advancedMounts" (dict "main" (dict "runner" (list (dict "path" .Values.registryAuthMountPath "readOnly" true "subPath" "config.json"))))
+-}}
+{{- $authExisting := get .Values.persistence "registry-auth" | default dict -}}
+{{- $authMerged := mergeOverwrite $authDefaults $authExisting -}}
+{{- if hasKey $authExisting "advancedMounts" -}}
+{{- $_ := set $authMerged "advancedMounts" $authExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "registry-auth" $authMerged -}}
+{{- end -}}
+
+{{- if .Values.registryCASecret }}
+{{- $caMounts := list -}}
+{{- range .Values.registryCAMounts }}
+{{- $caMounts = append $caMounts (dict "path" . "readOnly" true "subPath" $.Values.registryCAKey) -}}
+{{- end -}}
+{{- $caDefaults := dict
+  "enabled" true
+  "type" "secret"
+  "name" .Values.registryCASecret
+  "items" (list (dict "key" .Values.registryCAKey "path" .Values.registryCAKey))
+  "advancedMounts" (dict "main" (dict "dind" $caMounts "runner" $caMounts))
+-}}
+{{- $caExisting := get .Values.persistence "registry-ca" | default dict -}}
+{{- $caMerged := mergeOverwrite $caDefaults $caExisting -}}
+{{- if hasKey $caExisting "advancedMounts" -}}
+{{- $_ := set $caMerged "advancedMounts" $caExisting.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "registry-ca" $caMerged -}}
+{{- end -}}
+
+{{- include "bjw-s.common.loader.generate" . }}
