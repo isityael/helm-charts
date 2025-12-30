@@ -1,0 +1,36 @@
+controllers:
+  main:
+    containers:
+      main:
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: v1.8.0
+          pullPolicy: IfNotPresent
+        env:
+          - name: HOMEPAGE_ALLOWED_HOSTS
+            value: homepage.bogusdomain.test
+
+rbac:
+  enabled: true
+
+serviceAccount:
+  homepage:
+    enabled: true
+    forceRename: homepage-test
+
+ingress:
+  main:
+    enabled: true
+    annotations:
+      homepage/name: "Homepage"
+      homepage/description: "A modern, secure, highly customizable application dashboard."
+      homepage/group: "My Group"
+      homepage/icon: "homepage.png"
+    hosts:
+      - host: homepage.bogusdomain.test
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: main
+              port: http

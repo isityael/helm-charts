@@ -1,5 +1,9 @@
 {{- include "bjw-s.common.loader.init" . }}
 
+{{- if not (kindIs "map" .Values.global) -}}
+{{- $_ := set .Values "global" dict -}}
+{{- end -}}
+
 {{- define "homepage.hardcodedValues" -}}
 {{- if not .Values.global.nameOverride }}
 global:
