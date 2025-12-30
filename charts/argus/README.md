@@ -12,6 +12,7 @@ Helm chart for [Release-Argus](https://github.com/release-argus/Argus) using the
 - Argus reads its config from `/config/config.yml` (mounted from a ConfigMap by default).
 - Set `config.raw` to provide the full YAML string, or use `config.data` for a structured map.
 - Secrets are not stored in this repo. Provide them via an existing Secret or create one at install time.
+ - You can keep the `service` block in a separate file and load it with `config.serviceFromFile`.
 
 ## Install
 
@@ -50,6 +51,26 @@ config:
           url: owner/repo
         notify:
           discord_main: {}
+```
+
+### Split service block into a separate file
+
+Create a file (example included at `config/service.example.yaml`) and load it with `--set-file`:
+
+```bash
+helm install argus isityael/argus \
+  --set-file config.serviceFromFile=charts/argus/config/service.example.yaml
+```
+
+Or in a values file:
+
+```yaml
+config:
+  serviceFromFile: |
+    service:
+      example_release:
+        options:
+          active: true
 ```
 
 ### Use an existing Secret for Discord

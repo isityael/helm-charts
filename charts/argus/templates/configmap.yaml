@@ -13,7 +13,13 @@ data:
 {{- if .Values.config.raw }}
 {{- tpl .Values.config.raw . | nindent 4 }}
 {{- else }}
-{{- toYaml .Values.config.data | nindent 4 }}
+{{- $configData := deepCopy .Values.config.data -}}
+{{- if .Values.config.serviceFromFile }}
+{{- $serviceFile := fromYaml .Values.config.serviceFromFile | default dict -}}
+{{- $serviceValues := $serviceFile.service | default $serviceFile -}}
+{{- $_ := set $configData "service" $serviceValues -}}
+{{- end }}
+{{- toYaml $configData | nindent 4 }}
 {{- end }}
 {{- end }}
 {{- end }}

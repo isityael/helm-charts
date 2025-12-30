@@ -1,0 +1,20 @@
+service:
+  example_release:
+    comment: "Monitor an upstream release"
+    options:
+      active: true
+      interval: 12h
+      semantic_versioning: true
+    latest_version:
+      type: github
+      url: owner/repo
+      use_prerelease: false
+      url_commands:
+        - type: regex
+          regex: ^v?([0-9.]+)$
+      require:
+        regex_version: ^[0-9.]+[0-9]$
+    notify: {}
+    dashboard:
+      auto_approve: true
+      web_url: "https://github.com/owner/repo/releases/tag/v{{ version }}"
