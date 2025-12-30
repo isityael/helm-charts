@@ -19,6 +19,40 @@ data:
 {{- $serviceValues := $serviceFile.service | default $serviceFile -}}
 {{- $_ := set $configData "service" $serviceValues -}}
 {{- end }}
+{{- if .Values.config.autoIcons.enabled }}
+{{- $services := get $configData "service" | default dict -}}
+{{- range $name, $svc := $services -}}
+  {{- $dashboard := get $svc "dashboard" | default dict -}}
+  {{- if not (hasKey $dashboard "icon") -}}
+    {{- $lv := get $svc "latest_version" | default dict -}}
+    {{- $lvType := get $lv "type" | default "" -}}
+    {{- if and (eq $lvType "github") (or (not (hasKey .Values.config.autoIcons "github")) .Values.config.autoIcons.github) -}}
+      {{- $repo := get $lv "url" | default "" -}}
+      {{- $owner := index (splitList "/" $repo) 0 | default "" -}}
+      {{- if $owner -}}
+        {{- $_ := set $dashboard "icon" (printf "https://avatars.githubusercontent.com/%s?s=200&v=4" $owner) -}}
+        {{- if not (hasKey $dashboard "icon_link_to") -}}
+          {{- $_ := set $dashboard "icon_link_to" (printf "https://github.com/%s" $repo) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- else if and (eq $lvType "web") (or (not (hasKey .Values.config.autoIcons "webFavicon")) .Values.config.autoIcons.webFavicon) -}}
+      {{- $url := get $lv "url" | default "" -}}
+      {{- if regexMatch "^https?://" $url -}}
+        {{- $domain := regexReplaceAll "^https?://([^/]+).*" "$1" $url -}}
+        {{- if $domain -}}
+          {{- $_ := set $dashboard "icon" (printf "https://www.google.com/s2/favicons?sz=128&domain=%s" $domain) -}}
+          {{- if not (hasKey $dashboard "icon_link_to") -}}
+            {{- $_ := set $dashboard "icon_link_to" $url -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $_ := set $svc "dashboard" $dashboard -}}
+  {{- end -}}
+  {{- $_ := set $services $name $svc -}}
+{{- end -}}
+{{- $_ := set $configData "service" $services -}}
+{{- end }}
 {{- toYaml $configData | nindent 4 }}
 {{- end }}
 {{- end }}

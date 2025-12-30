@@ -60,6 +60,10 @@ config:
   # Optional: load the service block from a separate file/string
   # Use --set-file config.serviceFromFile=path/to/services.yaml
   serviceFromFile: ""
+  autoIcons:
+    enabled: false
+    github: true
+    webFavicon: true
   data:
     settings:
       web:
