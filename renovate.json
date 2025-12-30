@@ -31,7 +31,6 @@
       "groupName": "Helm charts",
       "groupSlug": "helm-charts",
       "separateMinorPatch": true,
-      "matchUpdateTypes": ["minor", "patch"],
       "labels": ["dependencies", "helm"]
     },
     {
@@ -39,7 +38,6 @@
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
       "separateMinorPatch": true,
-      "matchUpdateTypes": ["minor", "patch"],
       "labels": ["dependencies", "ci"]
     }
   ]
