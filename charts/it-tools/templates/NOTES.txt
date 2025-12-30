@@ -1,0 +1,9 @@
+Thank you for installing IT-Tools!
+
+{{- if .Values.ingress.main.enabled }}
+1. Open your browser at the configured ingress host(s).
+{{- else }}
+1. Port-forward the service:
+   kubectl port-forward svc/{{ include "bjw-s.common.lib.chart.names.fullname" . }} 8080:80
+2. Open http://127.0.0.1:8080
+{{- end }}

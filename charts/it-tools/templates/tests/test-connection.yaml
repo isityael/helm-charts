@@ -1,0 +1,20 @@
+{{- if not (kindIs "map" .Values.global) -}}
+{{- $_ := set .Values "global" dict -}}
+{{- end -}}
+{{- $service := include "bjw-s.common.lib.service.getByIdentifier" (dict "rootContext" . "id" "main") | fromYaml -}}
+{{- $port := include "bjw-s.common.lib.service.getPortNumberByName" (dict "rootContext" . "serviceID" "main" "portName" "http") -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "bjw-s.common.lib.chart.names.fullname" . }}-test-connection
+  labels:
+    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox:1.36
+      command: ["wget"]
+      args: ["-qO-", "{{ $service.name }}:{{ $port }}"]
+  restartPolicy: Never

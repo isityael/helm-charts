@@ -1,0 +1,21 @@
+{{- include "bjw-s.common.loader.init" . }}
+
+{{- if not (kindIs "map" .Values.global) -}}
+{{- $_ := set .Values "global" dict -}}
+{{- end -}}
+
+{{- if not (kindIs "map" .Values.serviceAccount) -}}
+{{- $_ := set .Values "serviceAccount" dict -}}
+{{- end -}}
+{{- $sa := get .Values.serviceAccount "it-tools" | default dict -}}
+{{- if and $sa.enabled (not (kindIs "map" .Values.controllers)) -}}
+{{- $_ := set .Values "controllers" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers "main")) -}}
+{{- $_ := set .Values.controllers "main" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers.main "serviceAccount")) -}}
+{{- $_ := set .Values.controllers.main "serviceAccount" (dict "identifier" "it-tools") -}}
+{{- end -}}
+
+{{- include "bjw-s.common.loader.generate" . }}
