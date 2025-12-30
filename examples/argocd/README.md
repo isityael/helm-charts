@@ -50,7 +50,44 @@ kubectl apply -f examples/argocd/it-tools.yaml
 
 - Optional ingress values shown (disabled by default)
 
-### 4. Custom Values (`example-app-custom-values.yaml`)
+### 4. CyberChef (`cyberchef.yaml`)
+
+Example showing how to deploy the CyberChef chart.
+
+```bash
+kubectl apply -f examples/argocd/cyberchef.yaml
+```
+
+**Features:**
+
+- Optional ingress values shown (disabled by default)
+### 6. WUD (`wud.yaml`)
+
+Example showing how to deploy the WUD chart.
+
+```bash
+kubectl apply -f examples/argocd/wud.yaml
+```
+
+**Features:**
+
+- Optional ingress values shown (disabled by default)
+- `envFromSecret` example
+
+### 7. Gitea Runner (`gitea-runner.yaml`)
+
+Example showing how to deploy the Gitea runner chart.
+
+```bash
+kubectl apply -f examples/argocd/gitea-runner.yaml
+```
+
+**Features:**
+
+- Runner registration settings
+- Optional registry auth and CA examples
+
+### 8. Custom Values (`example-app-custom-values.yaml`)
 
 Demonstrates how to override default chart values using ArgoCD parameters.
 
