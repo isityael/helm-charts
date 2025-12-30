@@ -5,3 +5,4 @@
 charts/**/charts/
 AGENTS.md
 .venv/
+.rumdl_cache/

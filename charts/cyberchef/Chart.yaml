@@ -1,10 +1,10 @@
 apiVersion: v2
 name: cyberchef
 description: Helm chart for CyberChef
+icon: https://github.com/gchq/CyberChef.png
 home: https://github.com/gchq/CyberChef
-icon: https://raw.githubusercontent.com/gchq/CyberChef/refs/heads/master/src/web/static/images/logo/cyberchef_human.svg
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "v10.19.4"
 kubeVersion: ">=1.28.0-0"
 maintainers:
