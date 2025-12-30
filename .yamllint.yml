@@ -6,6 +6,7 @@ ignore: |
   charts/**/Chart.lock
   charts/**/templates/**
   .git/
+  **/*.tpl
 
 rules:
   document-start: disable
@@ -13,6 +14,10 @@ rules:
     max: 120
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
+  braces: disable
+  brackets: disable
   truthy:
-    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    allowed-values: [ 'true', 'false', 'yes', 'no', 'on', 'off' ]
+  comments:
+    min-spaces-from-content: 1
   comments-indentation: disable

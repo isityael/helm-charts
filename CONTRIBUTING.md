@@ -49,7 +49,7 @@ Pull requests run:
 
 To exercise non-default paths, add a CI values file at:
 
-```
+```text
 charts/<chart>/ci/test-values.yaml
 ```
 
