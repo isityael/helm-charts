@@ -5,17 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  
+
   source:
     repoURL: 'https://github.com/isityael/helm-charts'
     path: charts/example-app
     targetRevision: main
-    
+
     helm:
       # Use default values.yaml plus custom overrides
       valueFiles:
         - values.yaml
-      
+
       # Override specific values using parameters
       parameters:
         - name: replicaCount
@@ -32,7 +32,7 @@ spec:
           value: "2"
         - name: autoscaling.maxReplicas
           value: "10"
-      
+
       # Alternatively, you can provide inline values
       # values: |
       #   replicaCount: 3

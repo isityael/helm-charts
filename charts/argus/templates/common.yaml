@@ -1,0 +1,53 @@
+{{- include "bjw-s.common.loader.init" . }}
+
+{{- if not (kindIs "map" .Values.persistence) -}}
+{{- $_ := set .Values "persistence" dict -}}
+{{- end -}}
+
+{{- $configMapName := default (include "bjw-s.common.lib.chart.names.fullname" .) .Values.config.useExistingConfigMap -}}
+{{- $configPath := printf "%s/%s" .Values.config.mountPath .Values.config.filename -}}
+{{- $configMounts := list (dict "path" $configPath "subPath" .Values.config.filename) -}}
+{{- $configDefaults := dict
+  "enabled" true
+  "type" "configMap"
+  "name" $configMapName
+  "advancedMounts" (dict "main" (dict "main" $configMounts))
+-}}
+{{- $existingConfig := get .Values.persistence "config" | default dict -}}
+{{- $configMerged := mergeOverwrite $configDefaults $existingConfig -}}
+{{- if hasKey $existingConfig "advancedMounts" -}}
+{{- $_ := set $configMerged "advancedMounts" $existingConfig.advancedMounts -}}
+{{- end -}}
+{{- $_ := set .Values.persistence "config" $configMerged -}}
+
+{{- if not (kindIs "map" .Values.serviceAccount) -}}
+{{- $_ := set .Values "serviceAccount" dict -}}
+{{- end -}}
+{{- $sa := get .Values.serviceAccount "argus" | default dict -}}
+{{- if and $sa.enabled (not (kindIs "map" .Values.controllers)) -}}
+{{- $_ := set .Values "controllers" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers "main")) -}}
+{{- $_ := set .Values.controllers "main" dict -}}
+{{- end -}}
+{{- if and $sa.enabled (not (hasKey .Values.controllers.main "serviceAccount")) -}}
+{{- $_ := set .Values.controllers.main "serviceAccount" (dict "identifier" "argus") -}}
+{{- end -}}
+
+{{- if .Values.secret.envFrom }}
+{{- $secretName := .Values.secret.existingSecret | default (.Values.secret.name | default (include "bjw-s.common.lib.chart.names.fullname" .)) -}}
+{{- $controller := get .Values.controllers "main" | default dict -}}
+{{- $container := get $controller "containers" | default dict -}}
+{{- $main := get $container "main" | default dict -}}
+{{- $envFrom := get $main "envFrom" | default list -}}
+{{- $envFrom = append $envFrom (dict "secretRef" (dict "name" $secretName)) -}}
+{{- $_ := set $main "envFrom" $envFrom -}}
+{{- $_ := set $container "main" $main -}}
+{{- $_ := set $controller "containers" $container -}}
+{{- $_ := set .Values.controllers "main" $controller -}}
+{{- end }}
+
+{{ include "argus.configmap" . }}
+{{ include "argus.secret" . }}
+
+{{- include "bjw-s.common.loader.generate" . }}
