@@ -1,10 +1,10 @@
 apiVersion: v2
 name: wud
 description: Helm chart for WUD (What's Up Docker)
-icon: https://github.com/getwud/wud.png
+icon: https://raw.githubusercontent.com/getwud/wud/refs/heads/main/ui/public/img/icons/apple-touch-icon.png
 home: https://github.com/getwud/wud
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: "8.1.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:

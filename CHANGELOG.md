@@ -1,4 +1,4 @@
-## [unreleased]
+## [wud-0.1.1] - 2025-12-30
 
 ### 💼 Other
 
@@ -18,6 +18,7 @@ Fix Renovate configuration: remove conflicting matchUpdateTypes
 - Add CyberChef chart
 - Add Gitea runner chart
 - Add WUD chart
+- ~icons
 ## [argus-0.4.0] - 2025-12-30
 
 ### 💼 Other
