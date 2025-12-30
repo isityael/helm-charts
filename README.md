@@ -1,5 +1,7 @@
 # Helm Charts
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/m0sh1-helm-charts)](https://artifacthub.io/packages/search?repo=m0sh1-helm-charts)
+
 This repository hosts Helm charts published via GitHub Pages.
 
 ## Usage

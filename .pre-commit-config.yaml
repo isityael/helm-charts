@@ -11,7 +11,9 @@ repos:
     rev: v1.35.1
     hooks:
       - id: yamllint
-        args: [ -c, .yamllint.yml ]
+        args:
+          - -c
+          - .yamllint.yml
         files: \.(yml|yaml)$
 
   - repo: local

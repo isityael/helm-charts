@@ -3,25 +3,27 @@
   "extends": [
     "config:recommended",
     ":preserveSemverRanges",
-    "group:allNonMajor"
+    "group:allNonMajor",
+    "helpers:pinGitHubActionDigests"
   ],
-  "platformAutomerge": false,
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
   "timezone": "Europe/Berlin",
-  "schedule": ["at any time"],
-  "prHourlyLimit": 3,
-  "prConcurrentLimit": 5,
+  "schedule": ["before 04:00 on monday"],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 2,
   "rangeStrategy": "bump",
   "enabledManagers": [
     "helmv3",
     "helm-values",
     "github-actions"
   ],
+  "ignorePaths": [
+    "charts/**/charts/**"
+  ],
   "labels": ["dependencies"],
   "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": ["* 0 * * *"]
+    "enabled": false
   },
   "packageRules": [
     {
@@ -29,6 +31,7 @@
       "groupName": "Helm charts",
       "groupSlug": "helm-charts",
       "separateMinorPatch": true,
+      "matchUpdateTypes": ["minor", "patch"],
       "labels": ["dependencies", "helm"]
     },
     {
@@ -36,6 +39,7 @@
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
       "separateMinorPatch": true,
+      "matchUpdateTypes": ["minor", "patch"],
       "labels": ["dependencies", "ci"]
     }
   ]

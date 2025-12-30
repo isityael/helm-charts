@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v pre-commit >/dev/null 2>&1; then
+  echo "pre-commit is not installed. Install it to enable hooks:" >&2
+  echo "  pipx install pre-commit" >&2
+  echo "  # or: brew install pre-commit" >&2
+  exit 1
+fi
+
+pre-commit run --hook-stage commit

@@ -4,6 +4,7 @@ extends: default
 ignore: |
   charts/**/charts/
   charts/**/Chart.lock
+  charts/**/templates/**
   .git/
 
 rules:

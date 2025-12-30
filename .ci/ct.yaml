@@ -13,6 +13,5 @@ chart-dirs:
 chart-repos:
   - bjw-s=https://bjw-s-labs.github.io/helm-charts
 
-# Version bumps are handled by the CI workflow after lint passes.
-check-version-increment: false
+check-version-increment: true
 validate-maintainers: false

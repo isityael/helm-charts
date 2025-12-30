@@ -30,7 +30,10 @@ jobs:
       - name: Add dependency repos
         run: |
           set -euo pipefail
-          repos=$(grep -R --no-filename -E '^[[:space:]]*repository:[[:space:]]+https?://' charts/*/Chart.yaml | awk '{print $2}' | sort -u || true)
+          repos=$(
+            grep -R --no-filename -E '^[[:space:]]*repository:[[:space:]]+https?://' charts/*/Chart.yaml \
+              | awk '{print $2}' | sort -u || true
+          )
           if [ -z "${repos}" ]; then
             echo "No http(s) chart repositories found in Chart.yaml dependencies."
             exit 0
@@ -54,3 +57,29 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: "true"
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 0
+
+      - name: Sync Artifact Hub metadata
+        run: |
+          set -euo pipefail
+          if [ ! -f artifacthub-repo.yml ]; then
+            echo "No artifacthub-repo.yml found. Skipping."
+            exit 0
+          fi
+
+          cp artifacthub-repo.yml gh-pages/artifacthub-repo.yml
+          cd gh-pages
+          if git diff --quiet -- artifacthub-repo.yml; then
+            echo "artifacthub-repo.yml is up to date."
+            exit 0
+          fi
+
+          git add artifacthub-repo.yml
+          git commit -m "chore: sync artifacthub metadata"
+          git push origin gh-pages
