@@ -27,6 +27,23 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
+      - name: Add dependency repos
+        run: |
+          set -euo pipefail
+          repos=$(grep -R --no-filename -E '^[[:space:]]*repository:[[:space:]]+https?://' charts/*/Chart.yaml | awk '{print $2}' | sort -u || true)
+          if [ -z "${repos}" ]; then
+            echo "No http(s) chart repositories found in Chart.yaml dependencies."
+            exit 0
+          fi
+          i=0
+          for repo in $repos; do
+            name="repo-${i}"
+            echo "Adding Helm repo: ${name} -> ${repo}"
+            helm repo add "${name}" "${repo}"
+            i=$((i + 1))
+          done
+          helm repo update
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
