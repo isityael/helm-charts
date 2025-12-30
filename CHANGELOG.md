@@ -1,3 +1,13 @@
+## [unreleased]
+
+### 💼 Other
+
+- Bump: cyberchef 0.1.2
+## [wud-0.1.2] - 2025-12-30
+
+### 💼 Other
+
+- Bump: wud 0.1.2
 ## [wud-0.1.1] - 2025-12-30
 
 ### 💼 Other
