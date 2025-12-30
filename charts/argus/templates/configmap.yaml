@@ -1,0 +1,19 @@
+{{- define "argus.configmap" -}}
+{{- if not .Values.config.useExistingConfigMap }}
+---
+{{ $configName := include "bjw-s.common.lib.chart.names.fullname" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $configName }}
+  labels:
+    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+data:
+  {{ .Values.config.filename }}: |
+{{- if .Values.config.raw }}
+{{- tpl .Values.config.raw . | nindent 4 }}
+{{- else }}
+{{- toYaml .Values.config.data | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
