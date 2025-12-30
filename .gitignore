@@ -1,3 +1,5 @@
 .vscode/mise-tools/
 .repomix/
 *.log
+.vscode/settings.json
+charts/**/charts/

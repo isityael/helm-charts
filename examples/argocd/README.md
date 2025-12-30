@@ -19,6 +19,7 @@ kubectl apply -f examples/argocd/example-app.yaml
 ```
 
 **Features:**
+
 - Automated sync with prune and self-heal enabled
 - Namespace auto-creation
 - Retry configuration for failed syncs
@@ -33,6 +34,7 @@ kubectl apply -f examples/argocd/homepage.yaml
 ```
 
 **Features:**
+
 - Sets required `HOMEPAGE_ALLOWED_HOSTS`
 - Optional ingress values shown (disabled by default)
 
@@ -45,6 +47,7 @@ kubectl apply -f examples/argocd/example-app-custom-values.yaml
 ```
 
 **Features:**
+
 - Custom replica count
 - Custom image tag
 - LoadBalancer service type
@@ -60,6 +63,7 @@ kubectl apply -f examples/argocd/example-app-multi-env.yaml
 ```
 
 **Features:**
+
 - Parent application managing child applications
 - Separate applications for dev, staging, and production
 - Environment-specific namespaces
@@ -173,6 +177,7 @@ syncPolicy:
 ```
 
 Then sync manually:
+
 ```bash
 argocd app sync example-app
 ```
