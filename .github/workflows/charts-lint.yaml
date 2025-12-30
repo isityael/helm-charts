@@ -1,0 +1,185 @@
+name: Charts CI
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+      - '.ci/**'
+      - '.github/workflows/**'
+      - '.yamllint.yml'
+      - '.pre-commit-config.yaml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/**'
+      - '.ci/**'
+      - '.github/workflows/**'
+      - '.yamllint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML
+        run: yamllint -c .yamllint.yml .ci .github charts
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Fetch base branch
+        if: ${{ github.event_name == 'pull_request' }}
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config .ci/ct.yaml)
+          if [ -z "$changed" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "charts=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Lint charts
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --config .ci/ct.yaml --charts ${{ steps.list-changed.outputs.charts }}
+
+  bump-version:
+    needs: lint
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config .ci/ct.yaml)
+          if [ -z "$changed" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "charts=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Bump chart versions (patch)
+        if: steps.list-changed.outputs.changed == 'true'
+        env:
+          CHANGED_CHARTS: ${{ steps.list-changed.outputs.charts }}
+        run: |
+          set -euo pipefail
+          bumped=0
+
+          for chart in $CHANGED_CHARTS; do
+            chart_path="$chart"
+            if [ -f "$chart_path/Chart.yaml" ]; then
+              chart_path="$chart_path"
+            elif [ -f "charts/$chart/Chart.yaml" ]; then
+              chart_path="charts/$chart"
+            else
+              continue
+            fi
+            chart_file="$chart_path/Chart.yaml"
+
+            base_version=""
+            if git show "origin/${{ github.base_ref }}:$chart_file" > /tmp/base_chart.yaml 2>/dev/null; then
+              base_version=$(awk -F': ' '$1=="version"{print $2; exit}' /tmp/base_chart.yaml)
+            else
+              echo "Chart $chart is new on this PR; skipping auto-bump."
+              continue
+            fi
+
+            current_version=$(awk -F': ' '$1=="version"{print $2; exit}' "$chart_file")
+
+            if [ -n "$base_version" ] && [ "$current_version" != "$base_version" ]; then
+              echo "Chart $chart already bumped ($base_version -> $current_version)."
+              continue
+            fi
+
+            version="$current_version"
+            suffix=""
+            if [[ "$version" == *-* ]]; then
+              base="${version%%-*}"
+              suffix="-${version#*-}"
+            else
+              base="$version"
+            fi
+            IFS='.' read -r major minor patch <<< "$base"
+            if [ -z "${major:-}" ] || [ -z "${minor:-}" ] || [ -z "${patch:-}" ]; then
+              echo "Unsupported version format in $chart_file: $version"
+              exit 1
+            fi
+            new_patch=$((patch + 1))
+            new_version="${major}.${minor}.${new_patch}${suffix}"
+
+            python - <<PY
+from pathlib import Path
+path = Path("${chart_file}")
+lines = path.read_text().splitlines()
+out = []
+replaced = False
+for line in lines:
+    if line.startswith("version:") and not replaced:
+        out.append(f"version: {new_version}")
+        replaced = True
+    else:
+        out.append(line)
+path.write_text("\n".join(out) + "\n")
+PY
+            echo "Bumped $chart to $new_version"
+            git add "$chart_file"
+            bumped=1
+          done
+
+          if [ "$bumped" -eq 1 ]; then
+            git commit -m "chore(charts): bump chart versions"
+            git push
+          else
+            echo "No chart versions to bump."
+          fi

@@ -1,5 +1,11 @@
 ---
 extends: default
+
+ignore: |
+  charts/**/charts/
+  charts/**/Chart.lock
+  .git/
+
 rules:
   document-start: disable
   line-length:
