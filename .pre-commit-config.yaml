@@ -18,7 +18,7 @@ repos:
       - id: check-case-conflict
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
+    rev: v1.37.1
     hooks:
       - id: yamllint
         args:
@@ -36,7 +36,7 @@ repos:
         files: ^charts/
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 42.66.14
+    rev: 42.74.2
     hooks:
       - id: renovate-config-validator
         args: [ --strict ]

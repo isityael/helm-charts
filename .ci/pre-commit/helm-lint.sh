@@ -42,5 +42,5 @@ for chart in $charts; do
   [ -f "$chart_file" ] || continue
   echo "helm lint: $chart"
   helm dependency build "$chart"
-  helm lint "$chart"
+  helm lint --with-subcharts "$chart"
 done

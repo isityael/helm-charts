@@ -1,5 +1,5 @@
 # Mise configuration for m0sh1.cc/helm-charts
-min_version = "2025.12.12"
+min_version = "2025.12.13"
 
 [settings]
 auto_install           = true
@@ -29,6 +29,32 @@ prek        = "0.2.25"
 
 [env]
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
+
+[tasks.helm-deps-update]
+run = """
+set -euo pipefail
+
+for chart in charts/*/; do
+  if [ -f "${chart}Chart.yaml" ]; then
+    echo "Updating Helm dependencies for ${chart}"
+    helm dependency update "${chart}"
+  fi
+done
+"""
+description = "Update Helm chart dependencies"
+
+[tasks.helm-lint]
+run = """
+set -euo pipefail
+
+for chart in charts/*/; do
+  if [ -f "${chart}Chart.yaml" ]; then
+    echo "Linting Helm chart ${chart}"
+    helm lint "${chart}" --with-subcharts
+  fi
+done
+"""
+description = "Lint Helm charts"
 
 # === Changelog tasks ===
 [tasks.changelog]
