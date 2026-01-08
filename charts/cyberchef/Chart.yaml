@@ -4,7 +4,7 @@ description: Helm chart for CyberChef
 icon: https://raw.githubusercontent.com/gchq/CyberChef/refs/heads/master/src/web/static/images/cyberchef-64x64.png
 home: https://github.com/gchq/CyberChef
 type: application
-version: 0.1.2
+version: 0.2.0
 appVersion: "v10.19.4"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -18,5 +18,5 @@ keywords:
   - utilities
 dependencies:
   - name: common
-    version: 4.5.0
+    version: 4.6.0
     repository: https://bjw-s-labs.github.io/helm-charts
