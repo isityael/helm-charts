@@ -1,5 +1,5 @@
 # Mise configuration for m0sh1.cc/helm-charts
-min_version = "2025.12.13"
+min_version = "2026.01.01"
 
 [settings]
 auto_install           = true
@@ -12,7 +12,7 @@ show_env   = false
 truncate   = true
 
 [tools]
-helm        = "4.0.4"
+helm        = "4.0.5"
 kubectl     = "1.35.0"
 kustomize   = "5.8.0"
 kubeconform = "0.7.0"
@@ -25,34 +25,32 @@ eza         = "0.23.4"
 fd          = "10.3.0"
 rg          = "15.1.0"
 git-cliff   = "2.11.0"
-prek        = "0.2.25"
+prek        = "0.2.30"
 
 [env]
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
 
 [tasks.helm-deps-update]
 run = """
-set -euo pipefail
-
-for chart in charts/*/; do
-  if [ -f "${chart}Chart.yaml" ]; then
-    echo "Updating Helm dependencies for ${chart}"
-    helm dependency update "${chart}"
-  fi
-done
+#!/usr/bin/env fish
+for chart in charts/*/
+  if test -f $chart/Chart.yaml
+    echo "Updating Helm dependencies for $chart"
+    helm dependency update "$chart"
+  end
+end
 """
 description = "Update Helm chart dependencies"
 
 [tasks.helm-lint]
 run = """
-set -euo pipefail
-
-for chart in charts/*/; do
-  if [ -f "${chart}Chart.yaml" ]; then
-    echo "Linting Helm chart ${chart}"
-    helm lint "${chart}" --with-subcharts
-  fi
-done
+#!/usr/bin/env fish
+for chart in charts/*/
+  if test -f $chart/Chart.yaml
+    echo "Linting Helm chart $chart"
+    helm lint "$chart" --with-subcharts --strict
+  end
+end
 """
 description = "Lint Helm charts"
 
@@ -114,6 +112,7 @@ echo "     git tag -a v$VERSION -m 'Release v$VERSION'"
 echo "  5. Push to GitHub:"
 echo "     git push && git push --tags"
 """
+
 [tasks.markdown-lint]
 description = "Lint Markdown files"
 run         = "rumdl check ."

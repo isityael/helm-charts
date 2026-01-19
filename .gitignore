@@ -6,3 +6,5 @@ charts/**/charts/
 AGENTS.md
 .venv/
 .rumdl_cache/
+memory-bank/
+.github/*.chatmode.md

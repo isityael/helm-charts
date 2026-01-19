@@ -19,7 +19,7 @@ controllers:
         enabled: true
         image:
           repository: docker
-          tag: "29.1.5-dind-alpine3.23"
+          tag: "29.2.0-rc.1-dind-alpine3.23"
           pullPolicy: IfNotPresent
         args:
           - --host=unix:///var/run/docker.sock
