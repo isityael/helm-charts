@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: ghcr.io/gethomepage/homepage
-          tag: v1.8.0
+          tag: v1.9.0
           pullPolicy: IfNotPresent
         ports:
           - name: http
