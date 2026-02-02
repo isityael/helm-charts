@@ -4,7 +4,7 @@ description: Helm chart for Gitea Actions runner with optional Docker-in-Docker
 icon: https://github.com/go-gitea.png
 home: https://gitea.com/gitea/act_runner
 type: application
-version: 0.2.0
+version: 0.2.2
 appVersion: "0.2.13"
 kubeVersion: ">=1.28.0-0"
 maintainers:
