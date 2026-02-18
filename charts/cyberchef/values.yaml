@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: mpepping/cyberchef
-          tag: v10.19.4
+          tag: v10.22.1
           pullPolicy: IfNotPresent
         ports:
           - name: http
