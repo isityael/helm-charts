@@ -33,7 +33,7 @@ controllers:
       runner:
         image:
           repository: gitea/act_runner
-          tag: "0.2.13"
+          tag: "0.3.0"
           pullPolicy: IfNotPresent
         command:
           - /entrypoint.sh
