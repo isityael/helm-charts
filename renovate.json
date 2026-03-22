@@ -1,14 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
+    "config:best-practices",
     ":preserveSemverRanges",
-    "group:allNonMajor",
     "helpers:pinGitHubActionDigests"
   ],
-  "dependencyDashboard": true,
-  "dependencyDashboardAutoclose": true,
-  "timezone": "Europe/Berlin",
   "schedule": ["before 04:00 on monday"],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 2,
@@ -21,7 +17,6 @@
   "ignorePaths": [
     "charts/**/charts/**"
   ],
-  "labels": ["dependencies"],
   "lockFileMaintenance": {
     "enabled": false
   },
