@@ -1,0 +1,11 @@
+# CI test values for chart-testing (ct install)
+replica:
+  allNodes: false
+  count: 1
+
+tunnelConfig:
+  name: "test-tunnel"
+
+tunnelSecrets:
+  base64EncodedConfigJsonFile: "eyJBY2NvdW50VGFnIjoiIiwiVHVubmVsSUQiOiIiLCJUdW5uZWxTZWNyZXQiOiIifQo="
+  base64EncodedPemFile: "dGVzdA=="

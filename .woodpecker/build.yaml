@@ -1,0 +1,38 @@
+# helm-charts — CI: lint + semantic-release
+# Triggers on push to main and pull requests (GitHub forge).
+when:
+  - event: pull_request
+  - event: push
+    branch: main
+
+steps:
+  - name: helm-lint
+    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    commands:
+      - |
+        for chart in charts/*/; do
+          echo "==> Linting $chart"
+          helm lint "$chart"
+        done
+
+  - name: release
+    image: dhi.io/node:25.8.1-debian13-dev@sha256:4d774115b2d2a92427fef8eee5ba5385c541a5e2189f4ce89c04de034e5ecd83
+    when:
+      - event: push
+        branch: main
+    environment:
+      GITHUB_TOKEN:
+        from_secret: github_token
+      GH_TOKEN:
+        from_secret: github_token
+    commands:
+      - apt-get update -o Acquire::ForceIPv4=true
+      - apt-get install -y --no-install-recommends git ca-certificates
+      - rm -rf /var/lib/apt/lists/*
+      - rm -f .git/config.lock
+      - git config user.name "woodpecker[bot]"
+      - git config user.email "woodpecker@m0sh1.cc"
+      - git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/sm-moshi/helm-charts.git"
+      - git fetch --tags origin
+      - npm ci
+      - node node_modules/.bin/semantic-release

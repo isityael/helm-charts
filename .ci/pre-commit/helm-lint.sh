@@ -16,7 +16,7 @@ charts=$(echo "$changed_files" | awk -F/ 'NF>=2 {print $1"/"$2}' | sort -u)
 repos=$(for chart in $charts; do
   chart_file="$chart/Chart.yaml"
   [ -f "$chart_file" ] || continue
-  grep -E '^[[:space:]]*repository:[[:space:]]+https?://' "$chart_file" | awk '{print $2}'
+  grep -E '^[[:space:]]*repository:[[:space:]]+https?://' "$chart_file" 2>/dev/null | awk '{print $2}' || true
 done | sort -u)
 
 if [ -n "$repos" ]; then
