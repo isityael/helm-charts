@@ -1,3 +1,15 @@
+# 1.0.0 (2026-03-23)
+
+
+### Bug Fixes
+
+* **ci:** add helm dependency build before linting ([576d16e](https://github.com/sm-moshi/helm-charts/commit/576d16e59e0fe3be9568818338c444d9d4bec8ba))
+
+
+### Features
+
+* **cloudflared:** fork community chart with rolling update fixes ([3dd9d88](https://github.com/sm-moshi/helm-charts/commit/3dd9d88df44031cdbc2ac6356c83f4ac7b2d2267))
+
 ## [it-tools-0.2.0] - 2026-01-08
 
 ### 💼 Other
