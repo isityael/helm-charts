@@ -4,7 +4,7 @@ controllers:
       main:
         image:
           repository: releaseargus/argus
-          tag: "0.29.3"
+          tag: "0.29.3@sha256:cde2addd5a4e7a0eeaf053901a22faff8c79002e81aeae8199538a390ca4d006"
           pullPolicy: IfNotPresent
         ports:
           - name: http
