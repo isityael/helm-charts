@@ -12,7 +12,8 @@
   "enabledManagers": [
     "helmv3",
     "helm-values",
-    "github-actions"
+    "github-actions",
+    "npm"
   ],
   "ignorePaths": [
     "charts/**/charts/**"
@@ -34,6 +35,12 @@
       "groupSlug": "github-actions",
       "separateMinorPatch": true,
       "labels": ["dependencies", "ci"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "groupName": "npm dependencies",
+      "groupSlug": "npm-deps",
+      "labels": ["dependencies", "npm"]
     }
   ]
 }

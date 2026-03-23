@@ -1,0 +1,14 @@
+cloudflared has been deployed.
+
+Chart version: {{ .Chart.Version }}
+App version:   {{ .Chart.AppVersion }}
+
+{{- if .Values.replica.allNodes }}
+Mode: DaemonSet (running on all nodes)
+{{- else }}
+Mode: Deployment ({{ .Values.replica.count }} replicas)
+{{- end }}
+
+Tunnel name: {{ .Values.tunnelConfig.name }}
+
+Metrics endpoint: http://<pod-ip>:2000/ready

@@ -1,0 +1,172 @@
+# yaml-language-server: $schema=values.schema.json
+# Default values for cloudflared.
+# This is a YAML-formatted file.
+
+# -- Replica configuration
+replica:
+  # -- Use DaemonSet to deploy cloudflared to all nodes
+  allNodes: true
+  # -- If allNodes is false, use Deployment with this replica count
+  count: 1
+
+# -- Seconds to wait after SIGTERM before SIGKILL
+terminationGracePeriodSeconds: 30
+
+# -- Seconds a pod must be Ready before the rollout considers it available
+minReadySeconds: 30
+
+# -- Container image configuration
+image:
+  # -- Docker image repository
+  repository: cloudflare/cloudflared
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag (defaults to chart appVersion)
+  tag: ""
+
+# -- DaemonSet update strategy (only used when replica.allNodes: true)
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+
+# -- Deployment rolling update strategy (only used when replica.allNodes: false)
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+# -- Override chart name
+nameOverride: ""
+# -- Override fully qualified chart name
+fullnameOverride: ""
+
+# -- Service account configuration
+serviceAccount:
+  # -- Create a service account
+  create: true
+  # -- Automatically mount API credentials
+  automount: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Service account name (auto-generated if not set)
+  name: ""
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  fsGroup: 65532
+  fsGroupChangePolicy: "OnRootMismatch"
+  sysctls:
+    - name: net.ipv4.ping_group_range
+      value: "0 2147483647"
+
+# -- Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+    add: []
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  privileged: false
+  runAsUser: 65532
+  runAsGroup: 65532
+
+# -- Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /ready
+    port: 2000
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+# -- Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 2000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+# -- PodDisruptionBudget configuration (only used when replica.allNodes: false)
+pdb:
+  # -- Enable PDB
+  enabled: true
+  # -- Minimum available pods
+  minAvailable: 1
+  # -- Maximum unavailable pods (alternative to minAvailable)
+  # maxUnavailable: 1
+
+# -- Tunnel secrets configuration
+tunnelSecrets:
+  # -- Base64-encoded tunnel certificate PEM file
+  base64EncodedPemFile: ""
+  # -- Base64-encoded tunnel credentials JSON file
+  base64EncodedConfigJsonFile: ""
+  # -- Use an existing secret for the PEM file
+  existingPemFileSecret:
+    name: ""
+    key: "cert.pem"
+  # -- Use an existing secret for the credentials JSON file
+  existingConfigJsonFileSecret:
+    name: ""
+    key: "credentials.json"
+
+# -- Tunnel configuration
+tunnelConfig:
+  # -- Tunnel name (required)
+  name: ""
+  metricsUpdateFrequency: 5s
+  autoUpdateFrequency: 24h
+  noAutoUpdate: true
+  gracePeriod: 30s
+  retries: 5
+  # -- Protocol: auto, http2, h2mux, quic
+  protocol: auto
+  # -- Log level: info, warn, error, fatal, panic
+  logLevel: info
+  transportLogLevel: warn
+  connectTimeout: 30s
+  warpRouting: false
+
+# -- Ingress rules for the tunnel
+ingress:
+  - hostname: example.com
+    service: http://traefik.kube-system.svc.cluster.local:80
+  - service: http_status:404
+
+# -- Container resource limits and requests
+resources: {}
+
+# -- Extra environment variables
+extraEnv: []
+
+# -- Extra volume mounts for the cloudflared container
+extraVolumeMounts: []
+
+# -- Extra volumes for the pod
+extraVolumes: []
+
+# -- Node selector
+nodeSelector:
+  kubernetes.io/os: linux
+
+# -- Tolerations
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+# -- Affinity rules
+affinity: {}
