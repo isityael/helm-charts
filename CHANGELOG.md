@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/sm-moshi/helm-charts/compare/cloudflared-v1.0.0...cloudflared-v1.1.0) (2026-03-24)
+
+
+### Features
+
+* **csi-driver-nfs:** add forked chart with configurable fsGroupPolicy ([659c2f9](https://github.com/sm-moshi/helm-charts/commit/659c2f9ef9404d0c12d3cf711f4bcd307dabd0b7))
+
 # 1.0.0 (2026-03-23)
 
 
