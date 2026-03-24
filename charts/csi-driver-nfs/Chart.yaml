@@ -1,0 +1,20 @@
+apiVersion: v2
+name: csi-driver-nfs
+description: CSI NFS Driver for Kubernetes (sm-moshi fork with configurable fsGroupPolicy)
+icon: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/logo/logo.png
+home: https://github.com/kubernetes-sigs/csi-driver-nfs
+type: application
+version: 4.13.2
+appVersion: "4.13.1"
+kubeVersion: ">=1.21.0-0"
+maintainers:
+  - name: m0sh1
+    email: sm@m0sh1.cc
+sources:
+  - https://github.com/kubernetes-sigs/csi-driver-nfs
+  - https://github.com/sm-moshi/csi-driver-nfs
+keywords:
+  - nfs
+  - csi
+  - storage
+  - kubernetes

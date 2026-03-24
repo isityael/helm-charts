@@ -1,0 +1,196 @@
+customLabels: {}
+image:
+  baseRepo: registry.k8s.io
+  nfs:
+    repository: registry.k8s.io/sig-storage/nfsplugin
+    tag: v4.13.1
+    pullPolicy: IfNotPresent
+  csiProvisioner:
+    repository: /sig-storage/csi-provisioner
+    tag: v6.1.0
+    pullPolicy: IfNotPresent
+  csiResizer:
+    repository: /sig-storage/csi-resizer
+    tag: v2.0.0
+    pullPolicy: IfNotPresent
+  csiSnapshotter:
+    repository: /sig-storage/csi-snapshotter
+    tag: v8.4.0
+    pullPolicy: IfNotPresent
+  livenessProbe:
+    repository: /sig-storage/livenessprobe
+    tag: v2.17.0
+    pullPolicy: IfNotPresent
+  nodeDriverRegistrar:
+    repository: /sig-storage/csi-node-driver-registrar
+    tag: v2.15.0
+    pullPolicy: IfNotPresent
+  externalSnapshotter:
+    repository: /sig-storage/snapshot-controller
+    tag: v8.4.0
+    pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  controller: csi-nfs-controller-sa
+  node: csi-nfs-node-sa
+
+rbac:
+  create: true
+  name: nfs
+
+driver:
+  name: nfs.csi.k8s.io
+  mountPermissions: 0
+
+feature:
+  enableFSGroupPolicy: true
+  # fsGroupPolicy controls how the kubelet applies fsGroup to volumes from this
+  # CSI driver. Allowed values: File (default, always apply), None (skip entirely),
+  # ReadWriteOnceWithFSType (only RWO with fsType set).
+  # Set to "None" for NFS to avoid slow recursive chown on every pod mount.
+  fsGroupPolicy: File
+  enableInlineVolume: false
+  propagateHostMountOptions: false
+
+kubeletDir: /var/lib/kubelet
+
+controller:
+  name: csi-nfs-controller
+  replicas: 1
+  strategyType: Recreate
+  runOnMaster: false
+  runOnControlPlane: false
+  enableSnapshotter: true
+  podSecurityContext: {}
+  provisioner:
+    featureGates:
+      HonorPVReclaimPolicy: "true"
+      VolumeAttributesClass: "false"
+  resizer:
+    featureGates:
+      VolumeAttributesClass: "false"
+  useTarCommandInSnapshot: false
+  enableSnapshotCompression: true
+  livenessProbe:
+    healthPort: 29652
+  logLevel: 5
+  workingMountDir: /tmp
+  dnsPolicy: ClusterFirstWithHostNet
+  defaultOnDeletePolicy: delete
+  affinity: {}
+  nodeSelector: {}
+  priorityClassName: system-cluster-critical
+  tolerations:
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/controlplane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+      effect: "NoSchedule"
+  resources:
+    csiProvisioner:
+      limits:
+        memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    csiResizer:
+      limits:
+        memory: 400Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    csiSnapshotter:
+      limits:
+        memory: 200Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nfs:
+      limits:
+        memory: 200Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+nodeDriverRegistrar:
+  healthPort: 19809
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 20
+    timeoutSeconds: 10
+    periodSeconds: 5
+    failureThreshold: 2
+
+node:
+  name: csi-nfs-node
+  podSecurityContext: {}
+  dnsPolicy: ClusterFirstWithHostNet
+  maxUnavailable: 1
+  logLevel: 5
+  livenessProbe:
+    healthPort: 29653
+  affinity: {}
+  nodeSelector: {}
+  priorityClassName: system-cluster-critical
+  tolerations:
+    - operator: "Exists"
+  resources:
+    livenessProbe:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nodeDriverRegistrar:
+      limits:
+        memory: 100Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+    nfs:
+      limits:
+        memory: 300Mi
+      requests:
+        cpu: 10m
+        memory: 20Mi
+
+externalSnapshotter:
+  enabled: false
+  name: snapshot-controller
+  priorityClassName: system-cluster-critical
+  deletionPolicy: Delete
+  controller:
+    replicas: 1
+  resources:
+    limits:
+      memory: 300Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+  customResourceDefinitions:
+    # If true, VolumeSnapshot CRDs will be created. Set false if they already exist.
+    enabled: true
+
+volumeSnapshotClass:
+  create: false
+  name: csi-nfs-snapclass
+  deletionPolicy: Delete
+
+imagePullSecrets: []
+
+storageClass:
+  create: false
