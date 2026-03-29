@@ -19,7 +19,7 @@ controllers:
         enabled: true
         image:
           repository: docker
-          tag: "29.3.0-dind-alpine3.23@sha256:1ba18449911d01f477a3fc104123c85d677addc60701b14b3fcb5381f9c4a537"
+          tag: "29.3.1-dind-alpine3.23@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029"
           pullPolicy: IfNotPresent
         args:
           - --host=unix:///var/run/docker.sock
@@ -33,7 +33,7 @@ controllers:
       runner:
         image:
           repository: gitea/act_runner
-          tag: "0.3.0@sha256:8368754bb612a1deb07ed604e3b955338aefc01576d4d0d92e8dd82f29250fcd"
+          tag: "0.3.1@sha256:c2a169c5e99864c25e32527cef3d82203225e09558773022bf3dc164a2e6d762"
           pullPolicy: IfNotPresent
         command:
           - /entrypoint.sh
