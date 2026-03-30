@@ -1,0 +1,36 @@
+# helm-charts — Publish all charts to GHCR OCI
+#
+# Triggered on push to main when charts/ change, or manually.
+# Packages each chart and pushes to oci://ghcr.io/sm-moshi/charts,
+# skipping versions that already exist.
+when:
+  - event: manual
+  - event: push
+    branch: main
+    path: "charts/**"
+
+steps:
+  - name: publish-oci
+    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    environment:
+      GHCR_USERNAME:
+        from_secret: github_username
+      GHCR_TOKEN:
+        from_secret: github_token
+    commands:
+      - |
+        helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
+        for chart in charts/*/; do
+          [ -f "${chart}Chart.yaml" ] || continue
+          name="$(basename "$chart")"
+          version="$(grep '^version:' "${chart}Chart.yaml" | awk '{print $2}')"
+          if helm show chart "oci://ghcr.io/sm-moshi/charts/${name}" --version "${version}" >/dev/null 2>&1; then
+            echo "SKIP ${name}:${version} (already on GHCR)"
+            continue
+          fi
+          echo "Linting ${name}..."
+          helm lint "$chart"
+          echo "Packaging and pushing ${name}:${version}..."
+          pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
+          helm push "$pkg" oci://ghcr.io/sm-moshi/charts
+        done
