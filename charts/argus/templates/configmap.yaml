@@ -1,13 +1,10 @@
-{{- define "argus.configmap" -}}
 {{- if not .Values.config.useExistingConfigMap }}
----
-{{ $configName := include "bjw-s.common.lib.chart.names.fullname" . }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $configName }}
+  name: {{ include "argus.fullname" . }}
   labels:
-    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+    {{- include "argus.labels" . | nindent 4 }}
 data:
   {{ .Values.config.filename }}: |
 {{- if .Values.config.raw }}
@@ -26,7 +23,7 @@ data:
   {{- if not (hasKey $dashboard "icon") -}}
     {{- $lv := get $svc "latest_version" | default dict -}}
     {{- $lvType := get $lv "type" | default "" -}}
-    {{- if and (eq $lvType "github") (or (not (hasKey .Values.config.autoIcons "github")) .Values.config.autoIcons.github) -}}
+    {{- if and (eq $lvType "github") (or (not (hasKey $.Values.config.autoIcons "github")) $.Values.config.autoIcons.github) -}}
       {{- $repo := get $lv "url" | default "" -}}
       {{- $owner := index (splitList "/" $repo) 0 | default "" -}}
       {{- if $owner -}}
@@ -35,7 +32,7 @@ data:
           {{- $_ := set $dashboard "icon_link_to" (printf "https://github.com/%s" $repo) -}}
         {{- end -}}
       {{- end -}}
-    {{- else if and (eq $lvType "web") (or (not (hasKey .Values.config.autoIcons "webFavicon")) .Values.config.autoIcons.webFavicon) -}}
+    {{- else if and (eq $lvType "web") (or (not (hasKey $.Values.config.autoIcons "webFavicon")) $.Values.config.autoIcons.webFavicon) -}}
       {{- $url := get $lv "url" | default "" -}}
       {{- if regexMatch "^https?://" $url -}}
         {{- $domain := regexReplaceAll "^https?://([^/]+).*" "$1" $url -}}
@@ -54,6 +51,5 @@ data:
 {{- $_ := set $configData "service" $services -}}
 {{- end }}
 {{- toYaml $configData | nindent 4 }}
-{{- end }}
 {{- end }}
 {{- end }}

@@ -1,78 +1,83 @@
-controllers:
-  main:
-    containers:
-      main:
-        image:
-          repository: mpepping/cyberchef
-          tag: v10.22.1@sha256:547e6af4bd3037b8bbea1c4823631c49a4381d4fe813c45bb26f1c649a9558a0
-          pullPolicy: IfNotPresent
-        ports:
-          - name: http
-            containerPort: 8000
-            protocol: TCP
-        env: []
-        resources:
-          requests:
-            cpu: 10m
-            memory: 64Mi
-          limits:
-            memory: 256Mi
-        probes:
-          liveness:
-            enabled: true
-            type: HTTP
-            path: /
-            port: 8000
-          readiness:
-            enabled: true
-            type: HTTP
-            path: /
-            port: 8000
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 65532
-          runAsGroup: 65532
-          capabilities:
-            drop:
-              - ALL
+# Default values for cyberchef.
 
-defaultPodOptions:
-  securityContext:
-    fsGroup: 65532
-    seccompProfile:
-      type: RuntimeDefault
+replicaCount: 1
+
+image:
+  repository: mpepping/cyberchef
+  tag: v10.22.1@sha256:547e6af4bd3037b8bbea1c4823631c49a4381d4fe813c45bb26f1c649a9558a0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 8000
 
 service:
-  main:
-    controller: main
-    ports:
-      http:
-        port: 80
-        primary: true
+  type: ClusterIP
+  port: 80
 
 ingress:
-  main:
-    enabled: false
-    className: ""
-    annotations: {}
-    hosts:
-      - host: cyberchef.local
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls: []
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: cyberchef.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 serviceAccount:
-  cyberchef:
-    enabled: false
-    annotations: {}
-    labels: {}
-    # forceRename: ""
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
 
 podAnnotations: {}
 podLabels: {}
+
+podSecurityContext:
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  capabilities:
+    drop:
+      - ALL
+
+env: []
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+imagePullSecrets: []

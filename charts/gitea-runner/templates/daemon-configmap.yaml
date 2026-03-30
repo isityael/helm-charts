@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "bjw-s.common.lib.chart.names.fullname" . }}-docker-daemon
+  name: {{ include "gitea-runner.fullname" . }}-docker-daemon
   labels:
-    {{- include "bjw-s.common.lib.metadata.allLabels" . | nindent 4 }}
+    {{- include "gitea-runner.labels" . | nindent 4 }}
 data:
   daemon.json: |
     {
