@@ -14,18 +14,37 @@ controllers:
           - name: HOMEPAGE_ALLOWED_HOSTS
             # This value must be set
             value: null
-        # envFrom:
-        #   - secretRef:
-        #       name: my-secret
-        #   - configMapRef:
-        #       name: my-configmap
-        # resources:
-        #   requests:
-        #     cpu: 50m
-        #     memory: 128Mi
-        #   limits:
-        #     cpu: 200m
-        #     memory: 512Mi
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /api/healthcheck
+            port: 3000
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /api/healthcheck
+            port: 3000
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          capabilities:
+            drop:
+              - ALL
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
 
 service:
   main:
