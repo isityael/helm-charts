@@ -2,32 +2,34 @@ customLabels: {}
 image:
   baseRepo: registry.k8s.io
   nfs:
+    # No DHI image available for nfsplugin — use upstream
     repository: registry.k8s.io/sig-storage/nfsplugin
     tag: v4.13.1
     pullPolicy: IfNotPresent
   csiProvisioner:
-    repository: /sig-storage/csi-provisioner
-    tag: v6.1.0
+    repository: dhi.io/csi-provisioner
+    tag: 6.2.0
     pullPolicy: IfNotPresent
   csiResizer:
-    repository: /sig-storage/csi-resizer
-    tag: v2.0.0
+    repository: dhi.io/csi-resizer
+    tag: 2.1.0
     pullPolicy: IfNotPresent
   csiSnapshotter:
-    repository: /sig-storage/csi-snapshotter
-    tag: v8.4.0
+    repository: dhi.io/csi-snapshotter
+    tag: 8.5.0
     pullPolicy: IfNotPresent
   livenessProbe:
-    repository: /sig-storage/livenessprobe
-    tag: v2.17.0
+    # DHI livenessprobe:2.18.0 not yet available — use 2.17.0
+    repository: dhi.io/livenessprobe
+    tag: 2.17.0
     pullPolicy: IfNotPresent
   nodeDriverRegistrar:
-    repository: /sig-storage/csi-node-driver-registrar
-    tag: v2.15.0
+    repository: dhi.io/csi-node-driver-registrar
+    tag: 2.16.0
     pullPolicy: IfNotPresent
   externalSnapshotter:
-    repository: /sig-storage/snapshot-controller
-    tag: v8.4.0
+    repository: dhi.io/snapshot-controller
+    tag: 8.5.0
     pullPolicy: IfNotPresent
 
 serviceAccount:
@@ -65,7 +67,6 @@ controller:
   podSecurityContext: {}
   provisioner:
     featureGates:
-      HonorPVReclaimPolicy: "true"
       VolumeAttributesClass: "false"
   resizer:
     featureGates:
