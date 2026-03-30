@@ -31,6 +31,7 @@ steps:
     when:
       - event: push
         branch: main
+        path: "charts/cloudflared/**"
     environment:
       GITHUB_TOKEN:
         from_secret: github_token

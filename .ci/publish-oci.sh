@@ -6,6 +6,16 @@ set -euo pipefail
 
 helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
 
+# Register dependency repos for charts using BJW-S common library
+for chart in charts/*/; do
+  [ -f "${chart}Chart.yaml" ] || continue
+  grep -qE '^\s*repository:\s+https?://' "${chart}Chart.yaml" 2>/dev/null || continue
+  grep -E '^\s*repository:\s+https?://' "${chart}Chart.yaml" | awk '{print $2}' | sort -u | while read -r repo; do
+    rname="repo-$(echo "$repo" | md5sum | cut -c1-8)"
+    helm repo add "$rname" "$repo" 2>/dev/null || true
+  done
+done
+
 for chart in charts/*/; do
   chartfile="${chart}Chart.yaml"
   [ -f "$chartfile" ] || continue
@@ -17,6 +27,9 @@ for chart in charts/*/; do
     echo "SKIP ${name}:${version} (already on GHCR)"
     continue
   fi
+
+  echo "Building deps for ${name}..."
+  helm dependency build "$chart" 2>/dev/null || true
 
   echo "Linting ${name}..."
   helm lint "$chart"
