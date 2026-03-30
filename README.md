@@ -1,36 +1,46 @@
 # Helm Charts
 
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/m0sh1-helm-charts)](https://artifacthub.io/packages/search?repo=m0sh1-helm-charts)
-
-This repository hosts Helm charts published via GitHub Pages.
+Helm charts published as OCI artefacts to `oci://ghcr.io/sm-moshi/charts`.
 
 ## Usage
 
 ```bash
-helm repo add sm-moshi https://sm-moshi.github.io/helm-charts
-helm repo update
+# Pull a chart
+helm pull oci://ghcr.io/sm-moshi/charts/<chart-name> --version <version>
 
-# Install a chart
-helm install <release-name> sm-moshi/<chart-name>
+# Install directly from OCI
+helm install <release-name> oci://ghcr.io/sm-moshi/charts/<chart-name> --version <version>
 ```
 
 ## Charts
 
-- `argus`
-- `homepage`
-- `it-tools`
+| Chart | Version | Description |
+|-------|---------|-------------|
+| `argus` | 0.6.0 | Release monitoring (Release-Argus) |
+| `cloudflared` | 1.1.0 | Cloudflare Tunnel connector |
+| `csi-driver-nfs` | 4.13.3 | NFS CSI driver (DHI-hardened fork) |
+| `cyberchef` | 0.3.0 | CyberChef data utilities |
+| `gitea-runner` | 0.3.0 | Gitea Actions runner with Docker-in-Docker |
+| `homepage` | 0.4.0 | Homepage dashboard |
+| `it-tools` | 0.3.0 | IT utilities dashboard |
+| `wud` | 0.3.0 | What's Up Docker — update monitor |
 
-## Publish a Chart
+## Publishing
 
-1. Bump the version in `charts/<chart-name>/Chart.yaml`.
-2. Push/merge to `main`.
-3. The `Release Charts` workflow packages charts and updates `index.yaml` on `gh-pages`.
+Charts are automatically published to GHCR OCI on push to `main` when `charts/**` files change (via Woodpecker CI). Manual trigger is also supported.
 
-## Contributing
+Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally create GitHub Releases with packaged `.tgz` artefacts.
 
-- Run `helm lint charts/<chart-name>` before opening a PR.
-- Include a short summary of changes in the PR description.
+## Development
 
-## License
+```bash
+# Lint a chart
+helm lint charts/<chart-name>
+
+# Lint all charts
+for chart in charts/*/; do helm lint "$chart"; done
+```
+
+## Licence
 
 See `LICENSE`.
