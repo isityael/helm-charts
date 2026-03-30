@@ -1,84 +1,86 @@
-controllers:
-  main:
-    containers:
-      main:
-        image:
-          repository: ghcr.io/gethomepage/homepage
-          tag: v1.12.1@sha256:9627769818fbfb14147d3e633e57cef9c27c0c5f07585f5a1d6c3d3425b3b33c
-          pullPolicy: IfNotPresent
-        ports:
-          - name: http
-            containerPort: 3000
-            protocol: TCP
-        env:
-          - name: HOMEPAGE_ALLOWED_HOSTS
-            # This value must be set
-            value: null
-        resources:
-          requests:
-            cpu: 10m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-        probes:
-          liveness:
-            enabled: true
-            type: HTTP
-            path: /api/healthcheck
-            port: 3000
-          readiness:
-            enabled: true
-            type: HTTP
-            path: /api/healthcheck
-            port: 3000
-        securityContext:
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          runAsUser: 65532
-          runAsGroup: 65532
-          capabilities:
-            drop:
-              - ALL
+# Default values for homepage dashboard.
 
-defaultPodOptions:
-  securityContext:
-    fsGroup: 65532
-    seccompProfile:
-      type: RuntimeDefault
+replicaCount: 1
+
+image:
+  repository: ghcr.io/gethomepage/homepage
+  tag: v1.12.1@sha256:9627769818fbfb14147d3e633e57cef9c27c0c5f07585f5a1d6c3d3425b3b33c
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 3000
 
 service:
-  main:
-    controller: main
-    ports:
-      http:
-        port: 3000
-        primary: true
+  type: ClusterIP
+  port: 3000
 
 ingress:
-  main:
-    enabled: false
-    className: ""
-    annotations: {}
-    hosts:
-      - host: homepage.local
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls: []
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: homepage.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 rbac:
   enabled: false
   extraRules: []
 
 serviceAccount:
-  homepage:
-    enabled: false
-    annotations: {}
-    labels: {}
-    # forceRename: "" # Override the generated ServiceAccount name
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  capabilities:
+    drop:
+      - ALL
+
+env:
+  - name: HOMEPAGE_ALLOWED_HOSTS
+    # This value must be set
+    value: null
+
+livenessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/healthcheck
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
 
 config:
   # To use an existing ConfigMap, set this to its name
@@ -136,9 +138,8 @@ config:
   # Additional config files (filename -> YAML map or raw string)
   extraFiles: {}
 
-persistence:
-  logs:
-    enabled: true
-    type: emptyDir
-    globalMounts:
-      - path: /app/config/logs
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+imagePullSecrets: []

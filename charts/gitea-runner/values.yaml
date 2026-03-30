@@ -1,8 +1,37 @@
-global: {}
+# Default values for gitea-runner.
+
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
 
 imagePullSecrets: []
 
+# -- Docker-in-Docker sidecar container
+dind:
+  image:
+    repository: docker
+    tag: "29.3.1-dind-alpine3.23@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029"
+    pullPolicy: IfNotPresent
+  args:
+    - --host=unix:///var/run/docker.sock
+    - --tls=false
+  securityContext:
+    privileged: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+# -- Gitea Actions runner container
 runner:
+  image:
+    repository: gitea/act_runner
+    tag: "0.3.1@sha256:c2a169c5e99864c25e32527cef3d82203225e09558773022bf3dc164a2e6d762"
+    pullPolicy: IfNotPresent
   instanceURL: ""
   registrationTokenSecret: ""
   registrationTokenKey: REGISTRATION_TOKEN
@@ -11,56 +40,22 @@ runner:
   jobLabel: ""
   jobImage: ""
   extraEnv: []
-
-controllers:
-  main:
-    containers:
-      dind:
-        enabled: true
-        image:
-          repository: docker
-          tag: "29.3.1-dind-alpine3.23@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029"
-          pullPolicy: IfNotPresent
-        args:
-          - --host=unix:///var/run/docker.sock
-          - --tls=false
-        env:
-          - name: DOCKER_TLS_CERTDIR
-            value: ""
-        securityContext:
-          privileged: true
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: "2"
-            memory: 4Gi
-      runner:
-        image:
-          repository: gitea/act_runner
-          tag: "0.3.1@sha256:c2a169c5e99864c25e32527cef3d82203225e09558773022bf3dc164a2e6d762"
-          pullPolicy: IfNotPresent
-        command:
-          - /entrypoint.sh
-        env: []
-        securityContext:
-          runAsUser: 0
-          runAsGroup: 0
-          runAsNonRoot: false
-          allowPrivilegeEscalation: true
-          privileged: true
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            memory: 1Gi
-
-defaultPodOptions:
   securityContext:
-    seccompProfile:
-      type: RuntimeDefault
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+    allowPrivilegeEscalation: true
+    privileged: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 1Gi
+
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
 
 daemonConfig:
   registryMirrors: []
@@ -76,16 +71,15 @@ registryCASecret: ""
 registryCAKey: ca.crt
 registryCAMounts: []
 
-service:
-  main:
-    enabled: false
-
 serviceAccount:
-  gitea-runner:
-    enabled: false
-    annotations: {}
-    labels: {}
-    # forceRename: ""
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
 
 podAnnotations: {}
 podLabels: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

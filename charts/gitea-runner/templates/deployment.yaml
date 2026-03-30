@@ -1,0 +1,175 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gitea-runner.fullname" . }}
+  labels:
+    {{- include "gitea-runner.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "gitea-runner.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/daemon-config: {{ include (print $.Template.BasePath "/daemon-configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "gitea-runner.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "gitea-runner.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        {{/* Docker-in-Docker sidecar */}}
+        - name: dind
+          image: "{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
+          imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
+          {{- with .Values.dind.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          {{- with .Values.dind.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: docker-graph
+              mountPath: /var/lib/docker
+            - name: docker-socket
+              mountPath: /var/run
+            - name: docker-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
+            {{- if .Values.registryCASecret }}
+            {{- range .Values.registryCAMounts }}
+            - name: registry-ca
+              mountPath: {{ . }}
+              subPath: {{ $.Values.registryCAKey }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.dind.resources | nindent 12 }}
+
+        {{/* Gitea Actions runner */}}
+        - name: runner
+          image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag }}"
+          imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
+          command:
+            - /entrypoint.sh
+          env:
+            {{- if .Values.runner.instanceURL }}
+            - name: GITEA_INSTANCE_URL
+              value: {{ .Values.runner.instanceURL | quote }}
+            {{- end }}
+            {{- if .Values.runner.name }}
+            - name: GITEA_RUNNER_NAME
+              value: {{ .Values.runner.name | quote }}
+            {{- end }}
+            {{- if .Values.runner.baseLabels }}
+            - name: RUNNER_BASE_LABELS
+              value: {{ .Values.runner.baseLabels | quote }}
+            {{- end }}
+            {{- if .Values.runner.jobLabel }}
+            - name: RUNNER_JOB_LABEL
+              value: {{ .Values.runner.jobLabel | quote }}
+            {{- end }}
+            {{- if .Values.runner.jobImage }}
+            - name: RUNNER_JOB_IMAGE
+              value: {{ .Values.runner.jobImage | quote }}
+            {{- end }}
+            {{- if .Values.runner.registrationTokenSecret }}
+            - name: GITEA_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.runner.registrationTokenSecret }}
+                  key: {{ .Values.runner.registrationTokenKey }}
+            {{- end }}
+            - name: DOCKER_HOST
+              value: unix:///var/run/docker.sock
+            - name: DOCKER_CONFIG
+              value: /root/.docker
+            {{- range .Values.runner.extraEnv }}
+            - {{- toYaml . | nindent 14 }}
+            {{- end }}
+          {{- with .Values.runner.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run
+            - name: docker-config
+              mountPath: /tmp/.docker
+            {{- if .Values.registryAuthSecret }}
+            - name: registry-auth
+              mountPath: {{ .Values.registryAuthMountPath }}
+              subPath: config.json
+              readOnly: true
+            {{- end }}
+            {{- if .Values.registryCASecret }}
+            {{- range .Values.registryCAMounts }}
+            - name: registry-ca
+              mountPath: {{ . }}
+              subPath: {{ $.Values.registryCAKey }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.runner.resources | nindent 12 }}
+      volumes:
+        - name: docker-graph
+          emptyDir: {}
+        - name: docker-socket
+          emptyDir: {}
+        - name: docker-config
+          emptyDir: {}
+        - name: docker-daemon-config
+          configMap:
+            name: {{ include "gitea-runner.fullname" . }}-docker-daemon
+            items:
+              - key: daemon.json
+                path: daemon.json
+        {{- if .Values.registryAuthSecret }}
+        - name: registry-auth
+          secret:
+            secretName: {{ .Values.registryAuthSecret }}
+            items:
+              - key: {{ .Values.registryAuthSecretKey }}
+                path: config.json
+        {{- end }}
+        {{- if .Values.registryCASecret }}
+        - name: registry-ca
+          secret:
+            secretName: {{ .Values.registryCASecret }}
+            items:
+              - key: {{ .Values.registryCAKey }}
+                path: {{ .Values.registryCAKey }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,84 +1,90 @@
-controllers:
-  main:
-    containers:
-      main:
-        image:
-          repository: getwud/wud
-          tag: "8.2.2@sha256:2df7cafa0fc84cdd66ad976163abc5390fa5995e0b5788a90e6a5303706bc21a"
-          pullPolicy: IfNotPresent
-        ports:
-          - name: http
-            containerPort: 3000
-            protocol: TCP
-        env:
-          - name: LOG_LEVEL
-            value: "info"
-          - name: WUD_WATCHER__0__TYPE
-            value: "docker"
-        resources:
-          requests:
-            cpu: 10m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-        probes:
-          liveness:
-            enabled: true
-            type: HTTP
-            path: /
-            port: 3000
-          readiness:
-            enabled: true
-            type: HTTP
-            path: /
-            port: 3000
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 65532
-          runAsGroup: 65532
-          capabilities:
-            drop:
-              - ALL
+# Default values for wud (What's Up Docker).
 
-defaultPodOptions:
-  securityContext:
-    fsGroup: 65532
-    seccompProfile:
-      type: RuntimeDefault
+replicaCount: 1
 
-envFromSecret: ""
+image:
+  repository: getwud/wud
+  tag: "8.2.2@sha256:2df7cafa0fc84cdd66ad976163abc5390fa5995e0b5788a90e6a5303706bc21a"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+containerPort: 3000
 
 service:
-  main:
-    controller: main
-    ports:
-      http:
-        port: 3000
-        primary: true
+  type: ClusterIP
+  port: 3000
 
 ingress:
-  main:
-    enabled: false
-    className: ""
-    annotations: {}
-    hosts:
-      - host: wud.local
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls: []
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: wud.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 serviceAccount:
-  wud:
-    enabled: false
-    annotations: {}
-    labels: {}
-    # forceRename: ""
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+# -- Optional: name of an existing Secret to load as environment variables
+envFromSecret: ""
 
 podAnnotations: {}
 podLabels: {}
+
+podSecurityContext:
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  capabilities:
+    drop:
+      - ALL
+
+env:
+  - name: LOG_LEVEL
+    value: "info"
+  - name: WUD_WATCHER__0__TYPE
+    value: "docker"
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+imagePullSecrets: []
