@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/sm-moshi/helm-charts/compare/cloudflared-v1.1.0...cloudflared-v1.2.0) (2026-03-30)
+
+
+### Features
+
+* **csi-driver-nfs:** bump sidecars to upstream master, migrate to DHI ([256fabe](https://github.com/sm-moshi/helm-charts/commit/256fabeba3970ddef434580fa33510397b8ac715))
+
 # [1.1.0](https://github.com/sm-moshi/helm-charts/compare/cloudflared-v1.0.0...cloudflared-v1.1.0) (2026-03-24)
 
 
