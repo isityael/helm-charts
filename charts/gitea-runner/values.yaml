@@ -29,7 +29,13 @@ controllers:
             value: ""
         securityContext:
           privileged: true
-        resources: {}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: "2"
+            memory: 4Gi
       runner:
         image:
           repository: gitea/act_runner
@@ -44,7 +50,17 @@ controllers:
           runAsNonRoot: false
           allowPrivilegeEscalation: true
           privileged: true
-        resources: {}
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 1Gi
+
+defaultPodOptions:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
 
 daemonConfig:
   registryMirrors: []

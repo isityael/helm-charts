@@ -11,7 +11,38 @@ controllers:
             containerPort: 8000
             protocol: TCP
         env: []
-        resources: {}
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        probes:
+          liveness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8000
+          readiness:
+            enabled: true
+            type: HTTP
+            path: /
+            port: 8000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65532
+          runAsGroup: 65532
+          capabilities:
+            drop:
+              - ALL
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
 
 service:
   main:

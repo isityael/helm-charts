@@ -148,7 +148,12 @@ ingress:
   - service: http_status:404
 
 # -- Container resource limits and requests
-resources: {}
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
 
 # -- Extra environment variables
 extraEnv: []
