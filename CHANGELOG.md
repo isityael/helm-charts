@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/sm-moshi/helm-charts/compare/cloudflared-v1.2.0...cloudflared-v1.3.0) (2026-03-30)
+
+
+### Features
+
+* **ci:** push charts to GHCR OCI on release ([2bad482](https://github.com/sm-moshi/helm-charts/commit/2bad482b3e9596b79742c8850d851995da896e27))
+
 # [1.2.0](https://github.com/sm-moshi/helm-charts/compare/cloudflared-v1.1.0...cloudflared-v1.2.0) (2026-03-30)
 
 
