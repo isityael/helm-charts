@@ -21,5 +21,4 @@ steps:
       GHCR_TOKEN:
         from_secret: github_token
     commands:
-      - apk add --no-cache bash
       - bash .ci/publish-oci.sh
