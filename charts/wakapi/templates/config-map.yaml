@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wakapi.fullname" . }}-config
+  labels:
+    {{- include "wakapi.labels" . | nindent 4 }}
+data:
+  ENVIRONMENT: {{ .Values.config.env | quote }}
+  WAKAPI_PORT: {{ .Values.config.server.port | quote }}
+  WAKAPI_LISTEN_IPV4: {{ .Values.config.server.listen_ipv4 | quote }}
+  {{- with .Values.config.server.listen_ipv6 }}
+  WAKAPI_LISTEN_IPV6: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.server.base_path }}
+  WAKAPI_BASE_PATH: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.server.public_url }}
+  WAKAPI_PUBLIC_URL: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.server.timeout_sec }}
+  WAKAPI_TIMEOUT_SEC: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.server.tls_cert_path }}
+  WAKAPI_TLS_CERT_PATH: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.server.tls_key_path }}
+  WAKAPI_TLS_KEY_PATH: {{ . | quote }}
+  {{- end }}
+  # Database (non-sensitive)
+  WAKAPI_DB_TYPE: {{ .Values.config.db.dialect | quote }}
+  {{- with .Values.config.db.host }}
+  WAKAPI_DB_HOST: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.db.port }}
+  WAKAPI_DB_PORT: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.db.user }}
+  WAKAPI_DB_USER: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.db.name }}
+  WAKAPI_DB_NAME: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.db.charset }}
+  WAKAPI_DB_CHARSET: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.db.max_conn }}
+  WAKAPI_DB_MAX_CONNECTIONS: {{ . | quote }}
+  {{- end }}
+  WAKAPI_DB_SSL: {{ .Values.config.db.ssl | quote }}
+  # Security
+  WAKAPI_ALLOW_SIGNUP: {{ .Values.config.security.allow_signup | quote }}
+  WAKAPI_DISABLE_LOCAL_AUTH: {{ .Values.config.security.disable_local_auth | quote }}
+  WAKAPI_INSECURE_COOKIES: {{ .Values.config.security.insecure_cookies | quote }}
+  WAKAPI_COOKIE_MAX_AGE: {{ .Values.config.security.cookie_max_age | quote }}
+  WAKAPI_EXPOSE_METRICS: {{ .Values.config.security.expose_metrics | quote }}
+  {{- with .Values.config.security.disable_frontpage }}
+  WAKAPI_DISABLE_FRONTPAGE: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.signup_captcha }}
+  WAKAPI_SIGNUP_CAPTCHA: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.invite_codes }}
+  WAKAPI_INVITE_CODES: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.trusted_header_auth }}
+  WAKAPI_TRUSTED_HEADER_AUTH: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.trusted_header_auth_key }}
+  WAKAPI_TRUSTED_HEADER_AUTH_KEY: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.trust_reverse_proxy_ips }}
+  WAKAPI_TRUST_REVERSE_PROXY_IPS: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.signup_max_rate }}
+  WAKAPI_SIGNUP_MAX_RATE: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.login_max_rate }}
+  WAKAPI_LOGIN_MAX_RATE: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.security.password_reset_max_rate }}
+  WAKAPI_PASSWORD_RESET_MAX_RATE: {{ . | quote }}
+  {{- end }}
+  # OIDC (non-sensitive — secrets injected separately)
+  {{- with .Values.config.security.oidc }}
+  WAKAPI_OIDC_PROVIDERS_0_NAME: {{ .name | quote }}
+  {{- with .display_name }}
+  WAKAPI_OIDC_PROVIDERS_0_DISPLAY_NAME: {{ . | quote }}
+  {{- end }}
+  WAKAPI_OIDC_PROVIDERS_0_ENDPOINT: {{ .endpoint | quote }}
+  {{- end }}
+  {{- if .Values.config.security.oidc_allow_signup }}
+  WAKAPI_OIDC_ALLOW_SIGNUP: {{ .Values.config.security.oidc_allow_signup | quote }}
+  {{- end }}
+  # Application
+  WAKAPI_AGGREGATION_TIME: {{ .Values.config.app.aggregation_time | quote }}
+  WAKAPI_INACTIVE_DAYS: {{ .Values.config.app.inactive_days | quote }}
+  {{- with .Values.config.app.leaderboard_enabled }}
+  WAKAPI_LEADERBOARD_ENABLED: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.config.app.data_retention_months }}
+  WAKAPI_DATA_RETENTION_MONTHS: {{ . | quote }}
+  {{- end }}
+  # Mail (non-sensitive)
+  {{- if .Values.config.mail.enabled }}
+  WAKAPI_MAIL_ENABLED: "true"
+  WAKAPI_MAIL_SENDER: {{ .Values.config.mail.sender | quote }}
+  WAKAPI_MAIL_PROVIDER: {{ .Values.config.mail.provider | quote }}
+  WAKAPI_MAIL_SMTP_HOST: {{ .Values.config.mail.smtp.host | quote }}
+  WAKAPI_MAIL_SMTP_PORT: {{ .Values.config.mail.smtp.port | quote }}
+  WAKAPI_MAIL_SMTP_TLS: {{ .Values.config.mail.smtp.tls | quote }}
+  {{- end }}
