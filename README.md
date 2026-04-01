@@ -16,14 +16,16 @@ helm install <release-name> oci://ghcr.io/sm-moshi/charts/<chart-name> --version
 
 | Chart | Version | Description |
 |-------|---------|-------------|
-| `argus` | 0.6.0 | Release monitoring (Release-Argus) |
+| `argus` | 0.7.0 | Release monitoring (Release-Argus) |
 | `cloudflared` | 1.1.0 | Cloudflare Tunnel connector |
-| `csi-driver-nfs` | 4.13.3 | NFS CSI driver (DHI-hardened fork) |
-| `cyberchef` | 0.3.0 | CyberChef data utilities |
-| `gitea-runner` | 0.3.0 | Gitea Actions runner with Docker-in-Docker |
-| `homepage` | 0.4.0 | Homepage dashboard |
-| `it-tools` | 0.3.0 | IT utilities dashboard |
-| `wud` | 0.3.0 | What's Up Docker — update monitor |
+| `csi-driver-nfs` | 4.14.0 | NFS CSI driver (sm-moshi fork with configurable fsGroupPolicy) |
+| `cyberchef` | 0.4.0 | CyberChef data utilities |
+| `gitea-runner` | 0.4.0 | Gitea Actions runner with Docker-in-Docker |
+| `homepage` | 0.5.0 | Homepage dashboard |
+| `it-tools` | 0.4.0 | IT utilities dashboard |
+| `tailscale-webhook-relay` | 0.1.0 | Relay Tailscale webhook events to ntfy |
+| `wakapi` | 1.1.0 | WakaTime-compatible coding statistics |
+| `wud` | 0.4.0 | What's Up Docker — update monitor |
 
 ## Publishing
 
