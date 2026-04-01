@@ -85,6 +85,11 @@ spec:
                   name: {{ .secretName }}
                   key: {{ .passwordKey }}
             {{- end }}
+            {{- /* Additional plain env vars */}}
+            {{- range $k, $v := .Values.extraEnv }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
             {{- /* Additional env vars from secrets */}}
             {{- range .Values.extraEnvSecrets }}
             - name: {{ .name }}
