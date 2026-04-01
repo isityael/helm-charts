@@ -94,6 +94,9 @@ existingSecrets: {}
   #   usernameKey: username
   #   passwordKey: password
 
+# Additional plain env vars (map of name: value)
+extraEnv: {}
+
 # Additional env vars from secrets (list of {name, secretName, key})
 extraEnvSecrets: []
 
