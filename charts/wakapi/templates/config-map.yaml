@@ -93,6 +93,9 @@ data:
   {{- end }}
   # Application
   WAKAPI_AGGREGATION_TIME: {{ .Values.config.app.aggregation_time | quote }}
+  {{- with .Values.config.app.import_backoff_min }}
+  WAKAPI_IMPORT_BACKOFF_MIN: {{ . | quote }}
+  {{- end }}
   WAKAPI_INACTIVE_DAYS: {{ .Values.config.app.inactive_days | quote }}
   {{- with .Values.config.app.leaderboard_enabled }}
   WAKAPI_LEADERBOARD_ENABLED: {{ . | quote }}
