@@ -1,0 +1,153 @@
+# Wakapi Helm chart — default values
+# https://github.com/muety/wakapi
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/muety/wakapi
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Set to "Recreate" if using a ReadWriteOnce PVC
+strategyType: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 65532
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+# Persistent storage (disable when using Postgres)
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 2Gi
+  existingClaim: ""
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Prometheus ServiceMonitor
+serviceMonitor:
+  enabled: false
+  interval: "60s"
+  path: /api/metrics
+  additionalLabels: {}
+
+# Existing Kubernetes Secrets for sensitive values.
+# When set, the Deployment injects these as env vars via secretKeyRef
+# instead of putting them in the ConfigMap.
+existingSecrets: {}
+  # dbPassword:
+  #   secretName: wakapi-postgres-auth
+  #   key: password
+  # passwordSalt:
+  #   secretName: wakapi-salt
+  #   key: salt
+  # oidc:
+  #   secretName: wakapi-oidc
+  #   clientIdKey: client_id
+  #   clientSecretKey: client_secret
+  # smtp:
+  #   secretName: wakapi-smtp
+  #   usernameKey: username
+  #   passwordKey: password
+
+# Additional env vars from secrets (list of {name, secretName, key})
+extraEnvSecrets: []
+
+# Wakapi application configuration
+# Non-sensitive values are rendered into a ConfigMap.
+# Sensitive values (db password, OIDC secret, SMTP password) should use existingSecrets above.
+config:
+  env: production
+
+  server:
+    port: 3000
+    listen_ipv4: "0.0.0.0"
+    listen_ipv6: ""
+    base_path: /
+    public_url: ""
+    timeout_sec: 30
+    tls_cert_path: ""
+    tls_key_path: ""
+
+  db:
+    dialect: postgres
+    host: ""
+    port: "5432"
+    user: ""
+    name: ""
+    charset: utf8mb4
+    max_conn: 10
+    ssl: false
+
+  security:
+    allow_signup: true
+    disable_local_auth: false
+    insecure_cookies: false
+    cookie_max_age: 172800
+    expose_metrics: false
+    disable_frontpage: false
+    oidc_allow_signup: true
+    # OIDC provider (non-sensitive fields only — secrets via existingSecrets.oidc)
+    oidc: {}
+      # name: authentik
+      # display_name: Authentik
+      # endpoint: https://auth.example.com/application/o/wakapi/
+
+  app:
+    aggregation_time: "02:15"
+    inactive_days: 7
+    leaderboard_enabled: true
+    data_retention_months: -1
+
+  mail:
+    enabled: false
+    sender: "noreply@example.com"
+    provider: smtp
+    smtp:
+      host: ""
+      port: 587
+      tls: true
