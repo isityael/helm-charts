@@ -7,7 +7,7 @@ image:
   repository: ghcr.io/muety/wakapi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
-  tag: "@sha256:71dc015036efd760ad1a7a3e52a214847c6a601d2e0c5a70fb539a69c2d4d5d2"
+  tag: "@sha256:156e3e60656f6143f58cc849444a0a7992bbaa573dc870d92a9789be5671099d"
 
 imagePullSecrets: []
 nameOverride: ""
