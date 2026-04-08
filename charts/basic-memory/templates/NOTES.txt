@@ -1,0 +1,60 @@
+Basic Memory is installing!
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart:     {{ .Chart.Name }}-{{ .Chart.Version }} (appVersion {{ .Chart.AppVersion }})
+
+Components enabled:
+  - Basic Memory server          (always)
+{{- if .Values.mcpShim.enabled }}
+  - MCP compatibility shim       (mcpShim.enabled=true)
+{{- end }}
+{{- if .Values.obsidianSync.enabled }}
+  - Obsidian LiveSync + CouchDB  (obsidianSync.enabled=true)
+{{- end }}
+
+1. Wait for the pod to become Ready:
+
+    kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "basic-memory.fullname" . }}
+
+   The first startup will run a semantic-model-cache init container that
+   downloads the fastembed ONNX model onto your PVC. This takes 60-120s.
+   Subsequent pod restarts are fast (model is cached, HF_HUB_OFFLINE=1).
+
+2. Port-forward and try it:
+
+    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "basic-memory.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+    curl -sf http://localhost:{{ .Values.service.port }}/mcp -o /dev/null && echo "OK"
+
+{{- if .Values.ingress.enabled }}
+
+3. Ingress is enabled. Configure your MCP client to point at:
+{{- range .Values.ingress.hosts }}
+
+    https://{{ .host }}/mcp
+{{- end }}
+{{- end }}
+
+{{- if .Values.obsidianSync.enabled }}
+
+4. Obsidian LiveSync is enabled.
+
+   Before the pod can come up, the Secret must exist:
+
+     kubectl -n {{ .Release.Namespace }} create secret generic {{ .Values.obsidianSync.couchdb.existingSecret.name }} \
+       --from-literal={{ .Values.obsidianSync.couchdb.existingSecret.userKey }}=admin \
+       --from-literal={{ .Values.obsidianSync.couchdb.existingSecret.passwordKey }}=<STRONG-PASSWORD>
+
+   Then configure the Self-hosted LiveSync plugin in Obsidian:
+     - Remote type:   CouchDB
+     - URI:           {{- if .Values.obsidianSync.couchdb.ingress.enabled }} https://{{ .Values.obsidianSync.couchdb.ingress.host }}{{- else }} (port-forward the couchdb service){{- end }}
+     - Database name: {{ .Values.obsidianSync.livesync.database }}
+     - Username:      admin
+     - Password:      (from the Secret above)
+{{- if .Values.obsidianSync.livesync.passphrase }}
+     - Passphrase:    (matches obsidianSync.livesync.passphrase in your values)
+{{- end }}
+{{- end }}
+
+Upstream docs: https://memory.basicmachines.co
+Chart source:  https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory

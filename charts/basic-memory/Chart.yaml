@@ -1,0 +1,46 @@
+apiVersion: v2
+name: basic-memory
+description: |
+  Helm chart for Basic Memory — a local-first knowledge graph MCP server that
+  lets LLMs like Claude create, read and update notes in a human-readable
+  Markdown filesystem. Ships with opt-in profiles for an MCP JSON-RPC
+  compatibility shim and Obsidian LiveSync integration via CouchDB.
+home: https://memory.basicmachines.co
+icon: https://avatars.githubusercontent.com/u/180160560
+type: application
+version: 0.1.0
+appVersion: "0.20.3"
+kubeVersion: ">=1.28.0-0"
+maintainers:
+  - name: m0sh1
+    email: sm@m0sh1.cc
+    url: https://github.com/sm-moshi
+sources:
+  - https://github.com/basicmachines-co/basic-memory
+  - https://github.com/sm-moshi/helm-charts
+  - https://github.com/sm-moshi/livesync-bridge
+keywords:
+  - basic-memory
+  - mcp
+  - model-context-protocol
+  - knowledge-base
+  - notes
+  - markdown
+  - obsidian
+  - ai
+  - llm
+  - claude
+annotations:
+  category: AI
+  licenses: AGPL-3.0-or-later
+  artifacthub.io/license: AGPL-3.0-or-later
+  artifacthub.io/links: |
+    - name: Basic Memory docs
+      url: https://memory.basicmachines.co
+    - name: Basic Memory source
+      url: https://github.com/basicmachines-co/basic-memory
+    - name: Chart source
+      url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial release — core Basic Memory server with optional MCP shim and Obsidian LiveSync profiles

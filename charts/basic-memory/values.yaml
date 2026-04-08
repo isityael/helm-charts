@@ -1,0 +1,319 @@
+# Basic Memory Helm chart — default values
+#
+# Basic Memory is a local-first knowledge graph MCP server for LLMs.
+# Upstream: https://github.com/basicmachines-co/basic-memory
+#
+# This chart ships three components:
+#   1. Core            — Basic Memory server (always enabled)
+#   2. mcpShim         — Optional JSON-RPC normaliser sidecar, adds policy
+#                        enforcement + default-project injection. Use this if
+#                        your MCP clients are slightly non-compliant or you
+#                        want to restrict which directories the LLM can write
+#                        to. Default: disabled.
+#   3. obsidianSync    — Optional CouchDB + livesync-bridge sidecars that
+#                        bidirectionally sync the Basic Memory notes dir with
+#                        an Obsidian vault via the Self-hosted LiveSync
+#                        plugin. Default: disabled.
+
+replicaCount: 1
+revisionHistoryLimit: 3
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/basicmachines-co/basic-memory
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+
+# Basic Memory upstream (Python) server port inside the pod.
+# The Kubernetes Service does NOT target this directly — it targets either
+# the MCP shim sidecar (if enabled) or the server container itself.
+basicMemory:
+  upstreamPort: 8001
+
+# Environment variables passed to the server container. These are the
+# opinionated upstream tuning knobs plus two hard-won defaults:
+#
+#   HF_HUB_OFFLINE=1
+#     Without this, fastembed re-validates the ONNX model cache on every
+#     pod restart. The unauthenticated HuggingFace download can silently
+#     drop files mid-transfer, corrupting the cache and breaking semantic
+#     search. The semantic-model-cache-init initContainer warms the cache
+#     once, then the runtime container runs offline against the PVC.
+#
+#   BASIC_MEMORY_SYNC_*
+#     Reduces file-watcher thrash during churn-heavy sync bursts. Safe
+#     defaults for single-pod deployments; raise on beefier hosts.
+env:
+  BASIC_MEMORY_HOME: "/app/data/basic-memory"
+  BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR: "/app/data/fastembed_cache"
+  BASIC_MEMORY_DEFAULT_PROJECT: "main"
+  BASIC_MEMORY_LOG_LEVEL: "INFO"
+  HF_HUB_OFFLINE: "1"
+  BASIC_MEMORY_SYNC_THREAD_POOL_SIZE: "2"
+  BASIC_MEMORY_SYNC_MAX_CONCURRENT_FILES: "4"
+  BASIC_MEMORY_WATCH_PROJECT_RELOAD_INTERVAL: "900"
+
+# Semantic search model used by the fastembed initContainer.
+# BAAI/bge-small-en-v1.5 is the Basic Memory default. Change only if you
+# know what you're doing.
+semanticSearch:
+  modelName: "BAAI/bge-small-en-v1.5"
+  cacheDir: "/app/data/fastembed_cache"
+
+# Service configuration.
+#
+# NOTE: The Basic Memory upstream Python server binds 0.0.0.0 on IPv4 only.
+# If Kubernetes picks an IPv6 endpoint for a dual-stack Service, some
+# ingress controllers (notably Traefik) will return 502. Default SingleStack
+# IPv4 avoids this. Change only if you have a dual-stack cluster and have
+# tested IPv6 reachability.
+service:
+  type: ClusterIP
+  port: 8000
+  # When mcpShim.enabled=true, targetPort is the shim sidecar port.
+  # Otherwise it's basicMemory.upstreamPort.
+  targetPort: 8000
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv4
+
+ingress:
+  enabled: false
+  className: ""
+  # Ingress annotations. Add your ingress controller middleware references
+  # here (e.g. Traefik forward-auth, NGINX auth-url, cert-manager, etc.).
+  #
+  # If you enable the MCP shim AND use Traefik, you may want a Middleware
+  # that injects an `Accept: application/json, text/event-stream` header so
+  # Traefik negotiates streaming correctly. See examples/traefik-mcp.yaml.
+  annotations: {}
+  hosts: []
+    # - host: basic-memory.example.com
+    #   paths:
+    #     - path: /
+    #       pathType: Prefix
+  tls: []
+    # - hosts:
+    #     - basic-memory.example.com
+    #   secretName: basic-memory-tls
+
+# Persistent storage for Basic Memory notes + fastembed model cache.
+# This is where your knowledge graph lives. Back it up.
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  mountPath: /app/data
+
+# Separate PVC for /home/appuser/.basic-memory (runtime config + logs).
+# Usually fine to leave enabled; uses very little space.
+basicMemoryHome:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 640Mi
+  limits:
+    memory: 1792Mi
+
+# Single-replica PVC-backed workload: use Recreate to avoid two pods
+# fighting over the same RWO volume during rollouts.
+strategy:
+  type: Recreate
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# The upstream Basic Memory server has no dedicated health endpoint,
+# so we use TCP probes on the listening port.
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 5
+  failureThreshold: 30
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+pdb:
+  enabled: false
+  maxUnavailable: 1
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# -----------------------------------------------------------------------------
+# Profile 1 — MCP compatibility shim (optional)
+# -----------------------------------------------------------------------------
+# A Deno-based sidecar that fronts the Basic Memory /mcp endpoint and:
+#   - Normalises slightly non-compliant JSON-RPC from buggy MCP clients
+#     (e.g. clients that omit `jsonrpc: "2.0"`).
+#   - Injects a default `project` argument for tools that require it.
+#   - Enforces a write-directory allowlist (keeps LLMs writing only into
+#     directories you designate).
+#   - Throttles expensive mutating tools (write_note, edit_note, move_note,
+#     delete_note) with a bounded in-flight queue.
+#   - Blocks delete_note unless explicitly allowed.
+#
+# When enabled, the Kubernetes Service targets the shim (not the upstream
+# Basic Memory server directly). The shim proxies to 127.0.0.1:{upstreamPort}
+# inside the pod.
+#
+# Image: ghcr.io/sm-moshi/livesync-bridge is a community-maintained Deno
+# runtime image used as the base for this shim. See:
+# https://github.com/sm-moshi/livesync-bridge
+mcpShim:
+  enabled: false
+  image:
+    repository: ghcr.io/sm-moshi/livesync-bridge
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  # Cap concurrent throttled tool calls. Protects the upstream DB pool from
+  # request bursts.
+  maxToolCallConcurrency: 4
+  # Queue timeout for the throttled tool slot. Fail fast on saturation.
+  toolCallQueueTimeoutMs: 12000
+  # Upstream request timeout. Prevents hanging client requests.
+  upstreamTimeoutMs: 45000
+  # Tool names that count against the throttled concurrency slot above.
+  # Defaults to mutating tools; reads pass through unthrottled.
+  throttledTools:
+    - write_note
+    - edit_note
+    - move_note
+    - delete_note
+  # Policy enforcement. Keeps LLM writes organised.
+  policy:
+    # Top-level directories (relative to BASIC_MEMORY_HOME) that write_note
+    # and move_note are allowed to target. Empty list = block all writes.
+    # Example: ["notes", "decisions", "inbox"]
+    allowedNoteDirs: []
+    # Set true to allow the MCP client to call delete_note. Default is
+    # false — you have to ask a human before deleting notes.
+    allowDeleteNote: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# -----------------------------------------------------------------------------
+# Profile 2 — Obsidian LiveSync integration (optional)
+# -----------------------------------------------------------------------------
+# Deploys a CouchDB + livesync-bridge pair that bidirectionally syncs the
+# Basic Memory notes directory with an Obsidian vault using the Self-hosted
+# LiveSync plugin (https://github.com/vrtmrz/obsidian-livesync).
+#
+# Architecture when enabled:
+#   Obsidian plugin  <--> CouchDB  <--> livesync-bridge  <--> /app/data/basic-memory
+#
+# You must create a Kubernetes Secret before installing the chart:
+#   kubectl create secret generic basic-memory-couchdb \
+#     --from-literal=COUCHDB_USER=admin \
+#     --from-literal=COUCHDB_PASSWORD=<strong-password>
+#
+# Image: ghcr.io/sm-moshi/livesync-bridge is the community-maintained sync
+# daemon that bridges CouchDB ↔ filesystem. See:
+# https://github.com/sm-moshi/livesync-bridge
+obsidianSync:
+  enabled: false
+
+  couchdb:
+    image:
+      repository: couchdb
+      tag: "3.5.1"
+      pullPolicy: IfNotPresent
+    # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
+    existingSecret:
+      name: basic-memory-couchdb
+      userKey: COUCHDB_USER
+      passwordKey: COUCHDB_PASSWORD
+    persistence:
+      size: 2Gi
+      storageClass: ""
+    service:
+      port: 5984
+    # Optional public ingress to the CouchDB endpoint so Obsidian clients
+    # (phones, desktops) can sync from anywhere. If you don't need external
+    # access, leave disabled and tunnel via port-forward or Tailscale.
+    ingress:
+      enabled: false
+      className: ""
+      annotations: {}
+      host: ""
+      tls: []
+    resources:
+      requests:
+        cpu: 150m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 384Mi
+
+  livesync:
+    image:
+      repository: ghcr.io/sm-moshi/livesync-bridge
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    # Same image is used by an initContainer to render the config.json
+    # safely (password may contain JSON-unsafe characters).
+    configInitImage:
+      repository: ghcr.io/sm-moshi/livesync-bridge
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    # Obsidian LiveSync database name (must match the plugin config).
+    database: obsidian
+    # End-to-end encryption passphrase. Leave empty for no encryption; set
+    # to the same value as your Obsidian plugin configuration otherwise.
+    passphrase: ""
+    # Keep Deno localStorage/cache outside the watched data/ tree to avoid
+    # sync loops on the WAL files.
+    denoDir: /tmp/.deno
+    # Scan for offline changes on startup. Disable to avoid a race condition
+    # on large vaults where many files need syncing at once.
+    scanOfflineChanges: false
+    # Glob patterns for paths to skip during scanning and watching.
+    # Matched against each path segment — ".git" ignores ".git/" at any depth.
+    ignorePaths:
+      - ".git"
+      - ".obsidian"
+      - ".smart-env"
+      - ".trash"
+      - ".deno"
+      - "node_modules"
+      - "fastembed_cache"
+      - "*.tmp"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 96Mi
+      limits:
+        cpu: 250m
+        memory: 384Mi
