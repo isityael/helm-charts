@@ -136,16 +136,45 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 |---|---|---|
 | `image.repository` | `ghcr.io/basicmachines-co/basic-memory` | Upstream Basic Memory image |
 | `image.tag` | `""` (uses chart appVersion) | Override tag |
+| `livesyncBridge.image.repository` | `ghcr.io/sm-moshi/livesync-bridge` | Canonical livesync-bridge image for all optional sidecars |
+| `livesyncBridge.image.tag` | *(pinned SHA)* | See *Image inheritance* below |
 | `persistence.enabled` | `true` | PVC for notes + model cache |
 | `persistence.size` | `5Gi` | Scale this to your vault size |
 | `service.port` | `8000` | ClusterIP port |
 | `service.ipFamilyPolicy` | `SingleStack` | See *Gotchas* below |
 | `mcpShim.enabled` | `false` | Enable the MCP compatibility shim |
+| `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
 | `mcpShim.policy.allowedNoteDirs` | `[]` | Empty = allow all; list to restrict |
 | `mcpShim.policy.allowDeleteNote` | `false` | Set `true` to let LLMs delete notes |
 | `obsidianSync.enabled` | `false` | Enable CouchDB + livesync-bridge |
+| `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
+| `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override for the init container |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
 | `ingress.enabled` | `false` | Standard Helm ingress block |
+
+### Image inheritance
+
+Both optional profiles use the same community-maintained livesync-bridge image, so the chart defines it *once* at `livesyncBridge.image` and all three consumers (the MCP shim sidecar, the LiveSync sidecar, and the LiveSync config-init container) inherit from it by default.
+
+To override the tag for everything at once, just set `livesyncBridge.image.tag`:
+
+```yaml
+livesyncBridge:
+  image:
+    tag: "my-custom-sha"
+```
+
+To override only one consumer, set the relevant subblock — any field you specify is merged on top of `livesyncBridge.image`, so you only need to state what changes:
+
+```yaml
+# Example: use a different tag for the MCP shim sidecar only
+mcpShim:
+  enabled: true
+  image:
+    tag: "alternative-tag"      # repository + pullPolicy inherited
+```
+
+This means a single Renovate entry (or `argocd-image-updater` target) on `livesyncBridge.image` is enough to keep all three containers in lockstep.
 
 ## Gotchas
 

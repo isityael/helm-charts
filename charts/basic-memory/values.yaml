@@ -28,6 +28,30 @@ image:
 
 imagePullSecrets: []
 
+# -----------------------------------------------------------------------------
+# livesync-bridge image — single source of truth
+# -----------------------------------------------------------------------------
+# The community-maintained Deno runtime image used by:
+#   - mcpShim sidecar             (when mcpShim.enabled=true)
+#   - obsidianSync livesync       (when obsidianSync.enabled=true)
+#   - obsidianSync configInitImage (when obsidianSync.enabled=true)
+#
+# All three consumers inherit this block by default. Override per-component
+# via mcpShim.image / obsidianSync.livesync.image / obsidianSync.livesync
+# .configInitImage if you need different images per sidecar (uncommon).
+#
+# Pinned to a full commit SHA for reproducibility. Auto-bumped by Renovate's
+# github-tags + currentDigest pattern.
+#
+# Upstream: https://github.com/sm-moshi/livesync-bridge
+livesyncBridge:
+  image:
+    repository: ghcr.io/sm-moshi/livesync-bridge
+    # Full 40-char commit SHA. Bump to the latest commit from the
+    # sm-moshi/livesync-bridge main branch (or pin to a git tag).
+    tag: "ea529689250e2723dafd3ed2b10ee05b72a7d0a8"
+    pullPolicy: IfNotPresent
+
 # Basic Memory upstream (Python) server port inside the pod.
 # The Kubernetes Service does NOT target this directly — it targets either
 # the MCP shim sidecar (if enabled) or the server container itself.
@@ -184,15 +208,14 @@ affinity: {}
 # Basic Memory server directly). The shim proxies to 127.0.0.1:{upstreamPort}
 # inside the pod.
 #
-# Image: ghcr.io/sm-moshi/livesync-bridge is a community-maintained Deno
-# runtime image used as the base for this shim. See:
-# https://github.com/sm-moshi/livesync-bridge
+# Uses the top-level livesyncBridge.image by default. Override per-
+# component here if you need a different image for the shim (uncommon).
 mcpShim:
   enabled: false
-  image:
-    repository: ghcr.io/sm-moshi/livesync-bridge
-    tag: "latest"
-    pullPolicy: IfNotPresent
+  # Optional image override. Leave empty ({}) to inherit from
+  # .Values.livesyncBridge.image. Fields are merged on top of the root
+  # block, so you can override just `tag` without restating repository etc.
+  image: {}
   # Cap concurrent throttled tool calls. Protects the upstream DB pool from
   # request bursts.
   maxToolCallConcurrency: 4
@@ -239,9 +262,9 @@ mcpShim:
 #     --from-literal=COUCHDB_USER=admin \
 #     --from-literal=COUCHDB_PASSWORD=<strong-password>
 #
-# Image: ghcr.io/sm-moshi/livesync-bridge is the community-maintained sync
-# daemon that bridges CouchDB ↔ filesystem. See:
-# https://github.com/sm-moshi/livesync-bridge
+# Uses the top-level livesyncBridge.image by default for the sync daemon
+# + config-init containers. Override per-component under obsidianSync
+# .livesync.{image,configInitImage} if you need to.
 obsidianSync:
   enabled: false
 
@@ -278,16 +301,14 @@ obsidianSync:
         memory: 384Mi
 
   livesync:
-    image:
-      repository: ghcr.io/sm-moshi/livesync-bridge
-      tag: "latest"
-      pullPolicy: IfNotPresent
-    # Same image is used by an initContainer to render the config.json
-    # safely (password may contain JSON-unsafe characters).
-    configInitImage:
-      repository: ghcr.io/sm-moshi/livesync-bridge
-      tag: "latest"
-      pullPolicy: IfNotPresent
+    # Optional image override for the livesync-bridge sidecar. Leave empty
+    # ({}) to inherit from .Values.livesyncBridge.image.
+    image: {}
+    # Optional image override for the config-init container that renders
+    # config.json with the CouchDB password templated in. Uses the same
+    # livesync-bridge image by default — override only if you need a
+    # different tag for the init step.
+    configInitImage: {}
     # Obsidian LiveSync database name (must match the plugin config).
     database: obsidian
     # End-to-end encryption passphrase. Leave empty for no encryption; set
