@@ -1,0 +1,72 @@
+# Example values: full stack — Basic Memory + MCP shim + Obsidian LiveSync.
+#
+# Before `helm install`, create the CouchDB Secret:
+#
+#   kubectl create secret generic basic-memory-couchdb \
+#     --from-literal=COUCHDB_USER=admin \
+#     --from-literal=COUCHDB_PASSWORD="$(openssl rand -base64 24)"
+
+persistence:
+  enabled: true
+  storageClass: ""        # fill in your preferred storage class
+  size: 20Gi              # sized for a reasonable personal vault
+
+basicMemoryHome:
+  enabled: true
+  storageClass: ""
+  size: 1Gi
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 768Mi
+  limits:
+    memory: 2Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: basic-memory.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - basic-memory.example.com
+      secretName: basic-memory-tls
+
+# Profile 1: MCP shim with a restrictive write policy.
+mcpShim:
+  enabled: true
+  maxToolCallConcurrency: 4
+  policy:
+    allowedNoteDirs:
+      - inbox
+      - journal
+      - decisions
+      - projects
+    allowDeleteNote: false
+
+# Profile 2: Obsidian LiveSync with public ingress so phone/desktop
+# clients can sync from anywhere.
+obsidianSync:
+  enabled: true
+  couchdb:
+    persistence:
+      size: 5Gi
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      host: livesync.example.com
+      tls:
+        - hosts:
+            - livesync.example.com
+          secretName: livesync-tls
+  livesync:
+    database: obsidian-vault
+    passphrase: "change-me-to-match-your-obsidian-plugin"

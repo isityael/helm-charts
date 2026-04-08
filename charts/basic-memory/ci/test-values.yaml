@@ -1,0 +1,35 @@
+# CI test values for chart-testing (ct install).
+#
+# Exercises all three profiles (core + mcpShim + obsidianSync) in a single
+# test so chart-testing catches template regressions across the whole chart.
+#
+# Persistence is disabled to keep the CI cluster simple (no PVC waiting).
+# The semantic-model-cache-init initContainer still runs and writes into an
+# emptyDir, which is fine for template validation but takes ~60s for a
+# real install — adjust ct install timeout if needed.
+
+persistence:
+  enabled: false
+
+basicMemoryHome:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+mcpShim:
+  enabled: true
+  policy:
+    allowedNoteDirs:
+      - ci-test
+    allowDeleteNote: false
+
+obsidianSync:
+  enabled: false
+  # Full obsidianSync profile requires a pre-created Secret which CI can't
+  # provide. Template rendering is still exercised via `helm template` in
+  # the lint stage; install-time coverage is limited to mcpShim here.

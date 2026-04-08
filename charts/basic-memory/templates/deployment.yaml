@@ -1,0 +1,541 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "basic-memory.fullname" . }}
+  labels:
+    {{- include "basic-memory.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- include "basic-memory.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "basic-memory.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      serviceAccountName: {{ include "basic-memory.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      initContainers:
+        # Prepare writable Basic Memory home dir for config + runtime logs.
+        # ConfigMap volumes are read-only, so we copy config.json into the home PVC.
+        - name: basic-memory-home-init
+          image: busybox:1.37
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              mkdir -p /config-home
+              cp /config-src/config.json /config-home/config.json
+              chmod 0644 /config-home/config.json
+          volumeMounts:
+            - name: basic-memory-config
+              mountPath: /config-src
+              readOnly: true
+            - name: basic-memory-home
+              mountPath: /config-home
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+        # Warm the fastembed model cache onto persistent storage BEFORE the
+        # runtime container enters offline mode (HF_HUB_OFFLINE=1). Keeps
+        # semantic search stable on fresh PVCs without re-enabling network
+        # fetches at runtime.
+        - name: semantic-model-cache-init
+          image: "{{ .Values.image.repository }}:{{ include "basic-memory.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: HOME
+              value: /tmp
+            - name: HF_HUB_OFFLINE
+              value: "0"
+            - name: BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR
+              value: {{ .Values.semanticSearch.cacheDir | quote }}
+            - name: BASIC_MEMORY_SEMANTIC_MODEL_NAME
+              value: {{ .Values.semanticSearch.modelName | quote }}
+          command:
+            - /app/.venv/bin/python
+            - -c
+            - |
+              import os
+              from fastembed import TextEmbedding
+              cache_dir = os.environ["BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR"]
+              model_name = os.environ["BASIC_MEMORY_SEMANTIC_MODEL_NAME"]
+              os.makedirs(cache_dir, exist_ok=True)
+              embedding = TextEmbedding(model_name=model_name, cache_dir=cache_dir)
+              next(iter(embedding.embed(["basic-memory semantic cache bootstrap"])))
+              print(f"semantic model cache ready for {model_name} at {cache_dir}")
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath | default "/app/data" }}
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+        {{- if .Values.obsidianSync.enabled }}
+        # CouchDB writes /opt/couchdb/etc/local.d/docker.ini on startup, so we
+        # can't bind-mount a ConfigMap file there directly (would be read-only
+        # and CouchDB would fail with EACCES). Copy the ini into an emptyDir.
+        - name: couchdb-locald-init
+          image: busybox:1.37
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              cp /config-src/livesync.ini /config-dest/livesync.ini
+              chmod 0644 /config-dest/livesync.ini
+              echo "couchdb local.d initialized"
+          volumeMounts:
+            - name: couchdb-config
+              mountPath: /config-src
+            - name: couchdb-locald
+              mountPath: /config-dest
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+        # Generate the livesync-bridge config.json with the CouchDB password
+        # templated in. JSON-safe (passwords can contain '/' or '&').
+        - name: livesync-config-init
+          image: "{{ .Values.obsidianSync.livesync.configInitImage.repository }}:{{ .Values.obsidianSync.livesync.configInitImage.tag }}"
+          imagePullPolicy: {{ .Values.obsidianSync.livesync.configInitImage.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - deno
+            - eval
+            - |
+              const cfg = JSON.parse(await Deno.readTextFile("/config-template/config.json"));
+              const pw = Deno.env.get("COUCHDB_PASSWORD") ?? "";
+              for (const peer of (cfg.peers ?? [])) {
+                if (peer.type === "couchdb") peer.password = pw;
+              }
+              await Deno.writeTextFile(
+                "/config-out/config.json",
+                JSON.stringify(cfg, null, 2) + "\n",
+              );
+              console.log("livesync-bridge config generated");
+          env:
+            - name: HOME
+              value: /tmp
+            - name: COUCHDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.obsidianSync.couchdb.existingSecret.name }}
+                  key: {{ .Values.obsidianSync.couchdb.existingSecret.passwordKey }}
+          volumeMounts:
+            - name: livesync-config-template
+              mountPath: /config-template
+            - name: livesync-config
+              mountPath: /config-out
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        {{- end }}
+      containers:
+        - name: basic-memory
+          image: "{{ .Values.image.repository }}:{{ include "basic-memory.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - basic-memory
+            - mcp
+            - --transport
+            - streamable-http
+            - --port
+            - {{ .Values.basicMemory.upstreamPort | quote }}
+          ports:
+            - name: upstream
+              containerPort: {{ .Values.basicMemory.upstreamPort }}
+              protocol: TCP
+          {{- with .Values.env }}
+          env:
+            {{- range $key, $value := . }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          volumeMounts:
+            - name: basic-memory-home
+              mountPath: /home/appuser/.basic-memory
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath | default "/app/data" }}
+            - name: tmp
+              mountPath: /tmp
+            - name: pip-local
+              mountPath: /home/appuser/.local
+            - name: pip-cache
+              mountPath: /home/appuser/.cache
+          startupProbe:
+            tcpSocket:
+              port: {{ .Values.basicMemory.upstreamPort }}
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.basicMemory.upstreamPort }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.basicMemory.upstreamPort }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.mcpShim.enabled }}
+        # MCP compatibility shim sidecar — normalises non-compliant JSON-RPC
+        # and enforces write/delete policy. The Service targets this container.
+        - name: mcp-shim
+          image: "{{ .Values.mcpShim.image.repository }}:{{ .Values.mcpShim.image.tag }}"
+          imagePullPolicy: {{ .Values.mcpShim.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: HOME
+              value: /tmp
+            - name: MCP_SHIM_LISTEN_PORT
+              value: {{ .Values.service.targetPort | quote }}
+            - name: MCP_SHIM_UPSTREAM_PORT
+              value: {{ .Values.basicMemory.upstreamPort | quote }}
+            - name: MCP_SHIM_DEFAULT_PROJECT
+              value: {{ .Values.env.BASIC_MEMORY_DEFAULT_PROJECT | default "main" | quote }}
+            - name: MCP_SHIM_MAX_TOOL_CALL_CONCURRENCY
+              value: {{ .Values.mcpShim.maxToolCallConcurrency | quote }}
+            - name: MCP_SHIM_TOOL_CALL_QUEUE_TIMEOUT_MS
+              value: {{ .Values.mcpShim.toolCallQueueTimeoutMs | quote }}
+            - name: MCP_SHIM_UPSTREAM_TIMEOUT_MS
+              value: {{ .Values.mcpShim.upstreamTimeoutMs | quote }}
+            - name: MCP_SHIM_THROTTLED_TOOLS
+              value: {{ join "," .Values.mcpShim.throttledTools | quote }}
+            - name: MCP_SHIM_ALLOWED_NOTE_DIRS
+              value: {{ join "," .Values.mcpShim.policy.allowedNoteDirs | quote }}
+            - name: MCP_SHIM_ALLOW_DELETE_NOTE
+              value: {{ .Values.mcpShim.policy.allowDeleteNote | quote }}
+          command:
+            - deno
+            - run
+            - -A
+            - /shim/shim.ts
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: mcp-shim
+              mountPath: /shim
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.mcpShim.resources | nindent 12 }}
+        {{- end }}
+        {{- if .Values.obsidianSync.enabled }}
+        - name: couchdb
+          image: "{{ .Values.obsidianSync.couchdb.image.repository }}:{{ .Values.obsidianSync.couchdb.image.tag }}"
+          imagePullPolicy: {{ .Values.obsidianSync.couchdb.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 5984
+            # Share the pod fsGroup so CouchDB can write to PVCs + emptyDir.
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: couchdb
+              containerPort: {{ .Values.obsidianSync.couchdb.service.port }}
+              protocol: TCP
+          env:
+            # Erlang writes $HOME/.erlang.cookie; without HOME set it defaults
+            # to "/" and fails with EACCES.
+            - name: HOME
+              value: /tmp
+            - name: COUCHDB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.obsidianSync.couchdb.existingSecret.name }}
+                  key: {{ .Values.obsidianSync.couchdb.existingSecret.userKey }}
+            - name: COUCHDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.obsidianSync.couchdb.existingSecret.name }}
+                  key: {{ .Values.obsidianSync.couchdb.existingSecret.passwordKey }}
+          volumeMounts:
+            - name: couchdb-data
+              mountPath: /opt/couchdb/data
+            - name: couchdb-locald
+              mountPath: /opt/couchdb/etc/local.d
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.obsidianSync.couchdb.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.obsidianSync.couchdb.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.obsidianSync.couchdb.resources | nindent 12 }}
+        - name: livesync-bridge
+          image: "{{ .Values.obsidianSync.livesync.image.repository }}:{{ .Values.obsidianSync.livesync.image.tag }}"
+          imagePullPolicy: {{ .Values.obsidianSync.livesync.image.pullPolicy }}
+          workingDir: /app
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: HOME
+              value: /tmp
+            - name: DENO_DIR
+              value: {{ .Values.obsidianSync.livesync.denoDir | default "/tmp/.deno" | quote }}
+            - name: LSB_CONFIG
+              value: /app/dat/config.json
+            - name: LSB_DEBUG
+              value: "false"
+          command:
+            - deno
+            - eval
+            - |
+              // Raise nofile soft limit via setrlimit(2) FFI to prevent EMFILE
+              // crash when livesync-bridge creates filesystem watchers.
+              try {
+                const lib = Deno.dlopen("libc.so.6", {
+                  getrlimit: { parameters: ["i32", "buffer"], result: "i32" },
+                  setrlimit: { parameters: ["i32", "buffer"], result: "i32" },
+                });
+                const RLIMIT_NOFILE = 7;
+                const buf = new BigUint64Array(2);
+                lib.symbols.getrlimit(RLIMIT_NOFILE, buf);
+                const target = 1048576n;
+                buf[0] = target > buf[1] ? buf[1] : target;
+                lib.symbols.setrlimit(RLIMIT_NOFILE, buf);
+                lib.symbols.getrlimit(RLIMIT_NOFILE, buf);
+                console.log(`[nofile] raised to soft=${buf[0]} hard=${buf[1]}`);
+                lib.close();
+              } catch (e) {
+                console.warn(`[nofile] could not raise limit: ${e}`);
+              }
+
+              const port = {{ .Values.obsidianSync.couchdb.service.port }};
+              const url = `http://127.0.0.1:${port}/`;
+              console.log(`waiting for couchdb on ${url} ...`);
+              while (true) {
+                try {
+                  const res = await fetch(url);
+                  if (res.ok) break;
+                } catch (_err) { /* ignore until CouchDB is up */ }
+                await new Promise((r) => setTimeout(r, 2000));
+              }
+
+              console.log("[livesync-bridge] Starting with crash recovery wrapper...");
+              const restartDelayMs = 5000;
+              while (true) {
+                const cmd = new Deno.Command("deno", {
+                  args: ["run", "--no-lock", "-A", "main.ts"],
+                  stdin: "inherit", stdout: "inherit", stderr: "inherit",
+                });
+                const child = cmd.spawn();
+                const { code } = await child.status;
+                if (code === 0) { console.log("[livesync-bridge] exited normally"); break; }
+                console.log(`[livesync-bridge] crashed with exit code ${code} at ${new Date().toISOString()}`);
+                console.log(`[livesync-bridge] restarting in ${restartDelayMs / 1000}s ...`);
+                await new Promise((r) => setTimeout(r, restartDelayMs));
+              }
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: livesync-config
+              mountPath: /app/dat
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.obsidianSync.livesync.resources | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: basic-memory-config
+          configMap:
+            name: {{ include "basic-memory.fullname" . }}-config
+        - name: basic-memory-home
+          {{- if .Values.basicMemoryHome.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "basic-memory.fullname" . }}-home
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: tmp
+          emptyDir: {}
+        - name: pip-local
+          emptyDir: {}
+        - name: pip-cache
+          emptyDir: {}
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "basic-memory.fullname" . }}-data
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- if .Values.mcpShim.enabled }}
+        - name: mcp-shim
+          configMap:
+            name: {{ include "basic-memory.fullname" . }}-mcp-shim
+        {{- end }}
+        {{- if .Values.obsidianSync.enabled }}
+        - name: couchdb-data
+          persistentVolumeClaim:
+            claimName: {{ include "basic-memory.fullname" . }}-couchdb
+        - name: couchdb-config
+          configMap:
+            name: {{ include "basic-memory.fullname" . }}-couchdb-config
+        - name: couchdb-locald
+          emptyDir: {}
+        - name: livesync-config-template
+          configMap:
+            name: {{ include "basic-memory.fullname" . }}-livesync-config
+        - name: livesync-config
+          emptyDir: {}
+        {{- end }}

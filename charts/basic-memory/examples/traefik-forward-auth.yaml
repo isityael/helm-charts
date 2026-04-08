@@ -1,0 +1,43 @@
+# Example values: Basic Memory behind Traefik forward-auth (Authentik/Authelia).
+#
+# Prerequisites:
+#   - Traefik IngressRoute + a forward-auth Middleware exist in your cluster
+#   - Replace the middleware reference below with your own namespace/name
+#
+# This example also shows the optional MCP Accept-header middleware — useful
+# if your clients don't negotiate `text/event-stream` correctly and Traefik
+# falls back to buffering responses.
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # Replace with your own middleware refs. Order matters: forward-auth
+    # runs first, then the Accept-header injector.
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      auth-authentik-forwardauth@kubernetescrd,
+      apps-basic-memory-mcp-accept@kubernetescrd
+  hosts:
+    - host: basic-memory.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - basic-memory.example.com
+      secretName: wildcard-example-com
+
+# Example Traefik Middleware to inject the MCP Accept header.
+# Apply separately with `kubectl apply -f -`, not via this chart:
+#
+# apiVersion: traefik.io/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: basic-memory-mcp-accept
+#   namespace: apps
+# spec:
+#   headers:
+#     customRequestHeaders:
+#       Accept: "application/json, text/event-stream"
