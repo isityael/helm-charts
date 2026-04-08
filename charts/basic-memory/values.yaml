@@ -24,7 +24,7 @@ image:
   repository: ghcr.io/basicmachines-co/basic-memory
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "@sha256:f49d6005be7c849b0a90c3ef027c541abdc437afceff0f99e8aaf5ff60213cbf"
 
 imagePullSecrets: []
 
@@ -271,7 +271,7 @@ obsidianSync:
   couchdb:
     image:
       repository: couchdb
-      tag: "3.5.1"
+      tag: "3.5.1@sha256:297cd556c7ba358a408fd009e7b8e3b91318ccfc4d57c9b0264a2fb051ad9ef7"
       pullPolicy: IfNotPresent
     # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
     existingSecret:
