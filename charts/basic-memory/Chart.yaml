@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,12 +42,9 @@ annotations:
     - name: Chart source
       url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
-    - kind: changed
+    - kind: fixed
       description: >-
-        Single livesyncBridge.image source of truth — mcpShim and
-        obsidianSync sidecars now inherit from a top-level block and
-        can override any subset of fields
-    - kind: changed
-      description: >-
-        Default livesync-bridge tag pinned to a full commit SHA instead
-        of :latest for reproducibility
+        mcpShim write_note policy check now reads args.folder (the
+        actual Basic Memory parameter name) in addition to the
+        non-existent args.directory; write_note with mcpShim.policy
+        .allowedNoteDirs set was always blocked before this fix

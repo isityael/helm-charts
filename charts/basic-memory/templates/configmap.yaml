@@ -268,7 +268,11 @@ data:
               }
 
               if (toolName === "write_note" && args) {
-                const dir = normalizeDir(args.directory);
+                // Basic Memory's write_note tool uses `folder` as the
+                // parameter name; older shim revisions looked at `directory`
+                // (an alias that never existed server-side). Check both so
+                // either spelling works.
+                const dir = normalizeDir(args.folder || args.directory);
                 if (!isAllowedDir(dir)) {
                   const err = jsonRpcError(
                     normalized.id,
