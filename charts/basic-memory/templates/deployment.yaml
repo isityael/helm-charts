@@ -1,3 +1,13 @@
+{{- /*
+  Resolve livesync-bridge image for each consumer sidecar. Each subblock
+  merges on top of the canonical livesyncBridge.image block, so operators
+  can override just one field (e.g. tag) without restating the whole
+  image reference.
+*/ -}}
+{{- $lsbRoot := .Values.livesyncBridge.image -}}
+{{- $shimImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.mcpShim.image | default dict) -}}
+{{- $livesyncImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.obsidianSync.livesync.image | default dict) -}}
+{{- $livesyncInitImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.obsidianSync.livesync.configInitImage | default dict) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -170,8 +180,8 @@ spec:
         # Generate the livesync-bridge config.json with the CouchDB password
         # templated in. JSON-safe (passwords can contain '/' or '&').
         - name: livesync-config-init
-          image: "{{ .Values.obsidianSync.livesync.configInitImage.repository }}:{{ .Values.obsidianSync.livesync.configInitImage.tag }}"
-          imagePullPolicy: {{ .Values.obsidianSync.livesync.configInitImage.pullPolicy }}
+          image: "{{ $livesyncInitImage.repository }}:{{ $livesyncInitImage.tag }}"
+          imagePullPolicy: {{ $livesyncInitImage.pullPolicy }}
           securityContext:
             runAsNonRoot: true
             runAsUser: {{ .Values.securityContext.runAsUser }}
@@ -289,8 +299,8 @@ spec:
         # MCP compatibility shim sidecar — normalises non-compliant JSON-RPC
         # and enforces write/delete policy. The Service targets this container.
         - name: mcp-shim
-          image: "{{ .Values.mcpShim.image.repository }}:{{ .Values.mcpShim.image.tag }}"
-          imagePullPolicy: {{ .Values.mcpShim.image.pullPolicy }}
+          image: "{{ $shimImage.repository }}:{{ $shimImage.tag }}"
+          imagePullPolicy: {{ $shimImage.pullPolicy }}
           securityContext:
             runAsNonRoot: true
             runAsUser: {{ .Values.securityContext.runAsUser }}
@@ -414,8 +424,8 @@ spec:
           resources:
             {{- toYaml .Values.obsidianSync.couchdb.resources | nindent 12 }}
         - name: livesync-bridge
-          image: "{{ .Values.obsidianSync.livesync.image.repository }}:{{ .Values.obsidianSync.livesync.image.tag }}"
-          imagePullPolicy: {{ .Values.obsidianSync.livesync.image.pullPolicy }}
+          image: "{{ $livesyncImage.repository }}:{{ $livesyncImage.tag }}"
+          imagePullPolicy: {{ $livesyncImage.pullPolicy }}
           workingDir: /app
           securityContext:
             runAsNonRoot: true
