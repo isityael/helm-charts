@@ -29,7 +29,8 @@
       "groupName": "Helm charts",
       "groupSlug": "helm-charts",
       "separateMinorPatch": true,
-      "labels": ["dependencies", "helm"]
+      "labels": ["dependencies", "helm"],
+      "bumpVersion": "patch"
     },
     {
       "matchManagers": ["github-actions"],
