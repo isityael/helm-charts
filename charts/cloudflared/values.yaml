@@ -173,5 +173,8 @@ tolerations:
   - effect: NoSchedule
     operator: Exists
 
+# -- Topology spread constraints
+topologySpreadConstraints: []
+
 # -- Affinity rules
 affinity: {}
