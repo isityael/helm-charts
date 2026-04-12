@@ -48,6 +48,18 @@ ingress:
   hosts: []
   tls: []
 
+httpRoute:
+  enabled: false
+  annotations: {}
+  # HTTPRoute path matches reuse ingress.hosts[*].paths.
+  parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: traefik-gateway
+    #   namespace: traefik
+    #   sectionName: websecure
+  hostnames: []
+
 # Persistent storage (disable when using Postgres)
 persistence:
   enabled: false

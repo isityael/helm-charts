@@ -312,6 +312,16 @@ obsidianSync:
       annotations: {}
       host: ""
       tls: []
+    httpRoute:
+      enabled: false
+      annotations: {}
+      parentRefs: []
+        # - group: gateway.networking.k8s.io
+        #   kind: Gateway
+        #   name: traefik-gateway
+        #   namespace: traefik
+        #   sectionName: websecure
+      hostnames: []
     resources:
       requests:
         cpu: 150m

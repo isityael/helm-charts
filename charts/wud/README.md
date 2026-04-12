@@ -7,7 +7,7 @@ Helm chart for [WUD (What's Up Docker)](https://github.com/getwud/wud) using the
 ## Requirements
 
 - Kubernetes >= 1.28
-- An Ingress controller (optional)
+- An Ingress controller or Gateway API implementation (optional)
 
 ## Notes
 
@@ -22,7 +22,7 @@ Helm chart for [WUD (What's Up Docker)](https://github.com/getwud/wud) using the
 | controllers.main.containers.main.image.tag | string | `8.1.1` | Container image tag |
 | envFromSecret | string | `""` | Secret name to mount as envFrom |
 | service.main.ports.http.port | int | `3000` | Service port |
-| ingress.main.enabled | bool | `false` | Enable ingress |
+| ingress.enabled | bool | `false` | Enable ingress |
 | serviceAccount.wud.enabled | bool | `false` | Create service account |
 
 For full configuration options, see `values.yaml`.
@@ -31,22 +31,41 @@ For full configuration options, see `values.yaml`.
 
 ```yaml
 ingress:
-  main:
-    enabled: true
-    className: traefik
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: wud.example.com
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls:
-      - secretName: wildcard-example
-        hosts:
-          - wud.example.com
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: wud.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: wildcard-example
+      hosts:
+        - wud.example.com
+```
+
+## Gateway API example
+
+```yaml
+ingress:
+  enabled: false
+  hosts:
+    - host: wud.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - wud.example.com
 ```

@@ -19,37 +19,4 @@ spec:
   selector:
     {{- include "basic-memory.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: server
-{{- if .Values.obsidianSync.couchdb.ingress.enabled }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{ include "basic-memory.fullname" . }}-couchdb
-  labels:
-    {{- include "basic-memory.labels" . | nindent 4 }}
-    app.kubernetes.io/component: couchdb
-  {{- with .Values.obsidianSync.couchdb.ingress.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  {{- with .Values.obsidianSync.couchdb.ingress.className }}
-  ingressClassName: {{ . }}
-  {{- end }}
-  {{- with .Values.obsidianSync.couchdb.ingress.tls }}
-  tls:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  rules:
-    - host: {{ .Values.obsidianSync.couchdb.ingress.host | quote }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "basic-memory.fullname" . }}-couchdb
-                port:
-                  number: {{ .Values.obsidianSync.couchdb.service.port }}
-{{- end }}
 {{- end }}
