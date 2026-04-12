@@ -52,6 +52,12 @@ ingress:
           pathType: Prefix
   tls: []
 
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+
 resources:
   requests:
     cpu: 5m
