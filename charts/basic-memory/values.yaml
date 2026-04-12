@@ -125,6 +125,26 @@ ingress:
     #     - basic-memory.example.com
     #   secretName: basic-memory-tls
 
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: traefik-gateway
+    #   namespace: traefik
+    #   sectionName: websecure
+  hostnames: []
+    # - basic-memory.example.com
+  rules:
+    - matches:
+        - path:
+            # Accepts Gateway API values: Exact, PathPrefix, RegularExpression.
+            # "Prefix" is also accepted and mapped to PathPrefix.
+            type: PathPrefix
+            value: /
+      filters: []
+
 # Persistent storage for Basic Memory notes + fastembed model cache.
 # This is where your knowledge graph lives. Back it up.
 persistence:

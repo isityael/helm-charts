@@ -61,6 +61,26 @@ helm install basic-memory oci://ghcr.io/sm-moshi/charts/basic-memory -f values.y
 
 Your MCP client (Claude Desktop, Cursor, Continue, etc.) connects to `https://basic-memory.example.com/mcp`.
 
+If your cluster uses Gateway API, configure `httpRoute` instead of `ingress`:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - basic-memory.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+```
+
 ### With the MCP shim (buggy clients or strict policy)
 
 Enable the shim if your client doesn't always emit a valid `jsonrpc: "2.0"` header, or if you want to constrain where the LLM can write notes.
@@ -151,6 +171,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override for the init container |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
 | `ingress.enabled` | `false` | Standard Helm ingress block |
+| `httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure (mutually exclusive with `ingress.enabled`) |
 
 ### Image inheritance
 
@@ -204,6 +225,7 @@ The chart does not create the CouchDB credentials Secret for you (we don't want 
 
 See [`examples/`](./examples/) for full values files covering:
 
+- `gateway-api.yaml` — exposing Basic Memory with Gateway API HTTPRoute
 - `traefik-forward-auth.yaml` — protecting the ingress with Authentik/Authelia forward-auth
 - `full-stack.yaml` — all three components enabled
 

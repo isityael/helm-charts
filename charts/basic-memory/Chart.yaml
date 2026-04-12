@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,6 +42,11 @@ annotations:
     - name: Chart source
       url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
+    - kind: added
+      description: >-
+        Add optional Gateway API HTTPRoute support for exposing basic-memory
+        without Ingress. Path type "Prefix" is accepted and translated to
+        Gateway API "PathPrefix".
     - kind: fixed
       description: >-
         mcpShim write_note policy check now reads args.folder (the
