@@ -1,0 +1,48 @@
+{{- if and .Values.ingress.enabled .Values.httpRoute.enabled }}
+{{- fail "basic-memory chart: only one of ingress.enabled or httpRoute.enabled can be true" }}
+{{- end }}
+{{- if .Values.httpRoute.enabled }}
+{{- if eq (len .Values.httpRoute.parentRefs) 0 }}
+{{- fail "basic-memory chart: httpRoute.parentRefs must contain at least one Gateway parentRef when httpRoute.enabled=true" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "basic-memory.fullname" . }}
+  labels:
+    {{- include "basic-memory.labels" . | nindent 4 }}
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+  {{- with .Values.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.httpRoute.rules }}
+    - matches:
+        {{- range .matches }}
+        {{- $pathType := .path.type | default "PathPrefix" }}
+        {{- if eq $pathType "Prefix" }}
+        {{- $pathType = "PathPrefix" }}
+        {{- end }}
+        - path:
+            type: {{ $pathType }}
+            value: {{ .path.value | default "/" | quote }}
+        {{- end }}
+      {{- with .filters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ include "basic-memory.fullname" $ }}
+          port: {{ $.Values.service.port }}
+          weight: 1
+    {{- end }}
+{{- end }}

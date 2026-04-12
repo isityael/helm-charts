@@ -1,0 +1,21 @@
+# Example values for exposing basic-memory via Gateway API HTTPRoute.
+# Mutually exclusive with ingress.enabled.
+
+ingress:
+  enabled: false
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - basic-memory.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
