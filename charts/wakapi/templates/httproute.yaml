@@ -21,7 +21,13 @@ metadata:
   {{- end }}
 spec:
   parentRefs:
-    {{- toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+    {{- range .Values.httpRoute.parentRefs }}
+    - group: {{ .group | default "gateway.networking.k8s.io" | quote }}
+      kind: {{ .kind | default "Gateway" | quote }}
+      name: {{ .name | quote }}
+      namespace: {{ .namespace | quote }}
+      sectionName: {{ .sectionName | quote }}
+    {{- end }}
   {{- if .Values.httpRoute.hostnames }}
   hostnames:
     {{- toYaml .Values.httpRoute.hostnames | nindent 4 }}
