@@ -130,6 +130,28 @@ obsidianSync:
 
 Point the Self-hosted LiveSync plugin in Obsidian at `https://livesync.example.com`, database `obsidian-vault`, and the same passphrase.
 
+If your cluster uses Gateway API for the CouchDB endpoint, disable `obsidianSync.couchdb.ingress`
+and configure `obsidianSync.couchdb.httpRoute` instead:
+
+```yaml
+obsidianSync:
+  enabled: true
+  couchdb:
+    ingress:
+      enabled: false
+      host: livesync.example.com
+    httpRoute:
+      enabled: true
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: traefik-gateway
+          namespace: traefik
+          sectionName: websecure
+      hostnames:
+        - livesync.example.com
+```
+
 ### Both profiles together
 
 All three components play nicely:
@@ -170,6 +192,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
 | `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override for the init container |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
+| `obsidianSync.couchdb.httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure for the CouchDB endpoint |
 | `ingress.enabled` | `false` | Standard Helm ingress block |
 | `httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure (mutually exclusive with `ingress.enabled`) |
 

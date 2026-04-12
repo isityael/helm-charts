@@ -1,3 +1,6 @@
+{{- if and .Values.ingress.enabled .Values.httpRoute.enabled -}}
+{{- fail "wakapi chart: only one of ingress.enabled or httpRoute.enabled can be true" -}}
+{{- end -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "wakapi.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}

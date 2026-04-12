@@ -5,7 +5,7 @@ Helm chart for [Release-Argus](https://github.com/release-argus/Argus) using the
 ## Requirements
 
 - Kubernetes >= 1.28
-- An Ingress controller (optional)
+- An Ingress controller or Gateway API implementation (optional)
 
 ## Notes
 
@@ -130,22 +130,41 @@ controllers:
 
 ```yaml
 ingress:
-  main:
-    enabled: true
-    className: traefik
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: argus.example.com
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls:
-      - secretName: wildcard-example
-        hosts:
-          - argus.example.com
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: argus.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: wildcard-example
+      hosts:
+        - argus.example.com
+```
+
+## Gateway API example
+
+```yaml
+ingress:
+  enabled: false
+  hosts:
+    - host: argus.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - argus.example.com
 ```

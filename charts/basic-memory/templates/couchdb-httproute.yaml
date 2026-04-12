@@ -1,0 +1,40 @@
+{{- if and .Values.obsidianSync.enabled .Values.obsidianSync.couchdb.ingress.enabled .Values.obsidianSync.couchdb.httpRoute.enabled }}
+{{- fail "basic-memory chart: only one of obsidianSync.couchdb.ingress.enabled or obsidianSync.couchdb.httpRoute.enabled can be true" }}
+{{- end }}
+{{- if and .Values.obsidianSync.enabled .Values.obsidianSync.couchdb.httpRoute.enabled }}
+{{- if eq (len .Values.obsidianSync.couchdb.httpRoute.parentRefs) 0 }}
+{{- fail "basic-memory chart: obsidianSync.couchdb.httpRoute.parentRefs must contain at least one Gateway parentRef when obsidianSync.couchdb.httpRoute.enabled=true" }}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "basic-memory.fullname" . }}-couchdb
+  labels:
+    {{- include "basic-memory.labels" . | nindent 4 }}
+    app.kubernetes.io/component: couchdb
+  {{- with .Values.obsidianSync.couchdb.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml .Values.obsidianSync.couchdb.httpRoute.parentRefs | nindent 4 }}
+  {{- if .Values.obsidianSync.couchdb.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml .Values.obsidianSync.couchdb.httpRoute.hostnames | nindent 4 }}
+  {{- else if .Values.obsidianSync.couchdb.ingress.host }}
+  hostnames:
+    - {{ .Values.obsidianSync.couchdb.ingress.host | quote }}
+  {{- end }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/"
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ include "basic-memory.fullname" . }}-couchdb
+          port: {{ .Values.obsidianSync.couchdb.service.port }}
+          weight: 1
+{{- end }}

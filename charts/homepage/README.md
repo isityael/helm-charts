@@ -7,7 +7,7 @@ Helm chart for [Homepage](https://github.com/gethomepage/homepage) using the `bj
 ## Requirements
 
 - Kubernetes >= 1.28
-- An Ingress controller (optional)
+- An Ingress controller or Gateway API implementation (optional)
 - Metrics server (optional, for Kubernetes widgets)
 
 ## Notes
@@ -24,7 +24,7 @@ Helm chart for [Homepage](https://github.com/gethomepage/homepage) using the `bj
 | controllers.main.containers.main.image.tag | string | `v1.8.0` | Container image tag |
 | controllers.main.containers.main.env | list | `[]` | Environment variables (set `HOMEPAGE_ALLOWED_HOSTS`) |
 | service.main.ports.http.port | int | `3000` | Service port |
-| ingress.main.enabled | bool | `false` | Enable ingress |
+| ingress.enabled | bool | `false` | Enable ingress |
 | rbac.enabled | bool | `false` | Enable RBAC |
 | serviceAccount.homepage.enabled | bool | `false` | Create service account |
 | config.useExistingConfigMap | string | `""` | Use an existing ConfigMap |
@@ -47,21 +47,48 @@ controllers:
             value: home.example.com
 
 ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: home.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - home.example.com
+      secretName: wildcard-example
+```
+
+Gateway API exposure:
+
+```yaml
+controllers:
   main:
-    enabled: true
-    className: traefik
-    hosts:
-      - host: home.example.com
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls:
-      - hosts:
-          - home.example.com
-        secretName: wildcard-example
+    containers:
+      main:
+        env:
+          - name: HOMEPAGE_ALLOWED_HOSTS
+            value: home.example.com
+
+ingress:
+  enabled: false
+  hosts:
+    - host: home.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - home.example.com
 ```
 
 Enable Kubernetes widgets:

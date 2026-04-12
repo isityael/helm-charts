@@ -7,7 +7,7 @@ Helm chart for [CyberChef](https://github.com/gchq/CyberChef) using the `bjw-s/c
 ## Requirements
 
 - Kubernetes >= 1.28
-- An Ingress controller (optional)
+- An Ingress controller or Gateway API implementation (optional)
 
 ## Notes
 
@@ -21,7 +21,7 @@ Helm chart for [CyberChef](https://github.com/gchq/CyberChef) using the `bjw-s/c
 | controllers.main.containers.main.image.repository | string | `mpepping/cyberchef` | Container image repository |
 | controllers.main.containers.main.image.tag | string | `v10.19.4` | Container image tag |
 | service.main.ports.http.port | int | `80` | Service port |
-| ingress.main.enabled | bool | `false` | Enable ingress |
+| ingress.enabled | bool | `false` | Enable ingress |
 | serviceAccount.cyberchef.enabled | bool | `false` | Create service account |
 
 For full configuration options, see `values.yaml`.
@@ -30,22 +30,41 @@ For full configuration options, see `values.yaml`.
 
 ```yaml
 ingress:
-  main:
-    enabled: true
-    className: traefik
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
-      traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: cyberchef.example.com
-        paths:
-          - path: /
-            pathType: Prefix
-            service:
-              identifier: main
-              port: http
-    tls:
-      - secretName: wildcard-example
-        hosts:
-          - cyberchef.example.com
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: cyberchef.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: wildcard-example
+      hosts:
+        - cyberchef.example.com
+```
+
+## Gateway API example
+
+```yaml
+ingress:
+  enabled: false
+  hosts:
+    - host: cyberchef.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - cyberchef.example.com
 ```
