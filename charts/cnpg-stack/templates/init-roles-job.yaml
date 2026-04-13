@@ -1,0 +1,171 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $roles := $cnpg.roles | default list -}}
+{{- if $cluster.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $cluster.name }}-init-roles
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: cloudnative-pg
+    app.kubernetes.io/component: init-roles
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "12"
+    # Jobs are effectively immutable once created (selector + pod template). Model this as a
+    # sync hook so ArgoCD deletes/recreates it on every sync where it is needed.
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    # Ensure ArgoCD uses "replace" semantics (delete + create) rather than patching immutable Job fields.
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudnative-pg
+        app.kubernetes.io/component: init-roles
+        app.kubernetes.io/part-of: {{ $cluster.name }}
+    spec:
+      serviceAccountName: {{ $cluster.name }}-init-roles
+      restartPolicy: Never
+      {{- with $cluster.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: init-roles
+          image: {{ default $cluster.imageName $cluster.psqlImage | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 70
+            runAsGroup: 70
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            # Prevent this hook Job from consuming large default limits from LimitRanges
+            # and tripping the namespace ResourceQuota.
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Keep this POSIX-sh compatible (the DHI postgres image is intentionally minimal).
+              set -eu
+
+              echo "=== Initializing roles and databases ==="
+
+              # Wait for primary to accept connections
+              until pg_isready -h {{ $cluster.name }}-rw.{{ $cluster.namespace }}.svc.cluster.local -U postgres >/dev/null 2>&1; do
+                echo "Waiting for CNPG RW service..."
+                sleep 2
+              done
+
+              export PGHOST="{{ $cluster.name }}-rw.{{ $cluster.namespace }}.svc.cluster.local"
+              export PGUSER="postgres"
+              export PGDATABASE="postgres"
+
+              echo "Connected to $PGHOST"
+
+              {{- range $roles }}
+              {{- if .enabled }}
+              echo "Ensuring role exists: {{ .name }}"
+              role="{{ .name }}"
+              login_flag="{{ if (default true .login) }}LOGIN{{ else }}NOLOGIN{{ end }}"
+              role_password=""
+              {{- if .passwordSecret }}
+              secret_path="/secrets/{{ .passwordSecret.name }}/password"
+              if [ -f "$secret_path" ]; then
+                # Command substitution strips trailing newlines, which is what we want here.
+                role_password="$(cat "$secret_path")"
+              fi
+              {{- end }}
+              if [ "$login_flag" = "NOLOGIN" ]; then
+                role_password=""
+              fi
+
+              if [ -n "$role_password" ]; then
+                role_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
+                  -c "SELECT 1 FROM pg_roles WHERE rolname='${role}'")"
+                if [ "${role_exists}" != "1" ]; then
+                  # Password comes from a generated Secret (base64 charset). We strip newlines above,
+                  # so it is safe to embed in a single-quoted SQL literal here.
+                  psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
+                fi
+
+                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
+              else
+                role_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
+                  -c "SELECT 1 FROM pg_roles WHERE rolname='${role}'")"
+                if [ "${role_exists}" != "1" ]; then
+                  psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag};"
+                fi
+
+                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag};"
+              fi
+              {{- end }}
+              {{- end }}
+
+              {{- range $cnpg.databases }}
+              {{- if .enabled }}
+              echo "Processing database: {{ .name }}"
+              db="{{ .name }}"
+              owner="{{ .owner }}"
+              db_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -Atc "SELECT 1 FROM pg_database WHERE datname='${db}'")"
+              if [ "${db_exists}" != "1" ]; then
+                psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE DATABASE \"${db}\" WITH OWNER \"${owner}\" TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C';"
+              fi
+
+              echo "✓ Database {{ .name }} ready"
+              {{- end }}
+              {{- end }}
+
+              echo "=== Initialization complete ==="
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $cluster.name }}-superuser
+                  key: password
+          volumeMounts:
+            {{- range $roles }}
+            {{- if and .enabled .passwordSecret }}
+            - name: secret-{{ .passwordSecret.name }}
+              mountPath: /secrets/{{ .passwordSecret.name }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+      volumes:
+        {{- range $roles }}
+        {{- if and .enabled .passwordSecret }}
+        - name: secret-{{ .passwordSecret.name }}
+          secret:
+            secretName: {{ .passwordSecret.name }}
+            optional: false
+        {{- end }}
+        {{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $cluster.name }}-init-roles
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: cloudnative-pg
+    app.kubernetes.io/component: init-roles
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "11"
+{{- end }}

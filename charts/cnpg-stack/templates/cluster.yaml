@@ -1,0 +1,133 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $backup := $cluster.backup | default dict -}}
+{{- $objectStoreName := $backup.objectStoreName | default (printf "%s-backups" $cluster.name) -}}
+{{- if $cluster.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ $cluster.name }}
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: cloudnative-pg
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  {{- with $cluster.annotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  instances: {{ $cluster.instances }}
+  imageName: {{ $cluster.imageName | quote }}
+  enableSuperuserAccess: {{ $cluster.enableSuperuserAccess }}
+  {{- with $cluster.livenessProbeTimeout }}
+  # Seconds allowed for the instance-manager's /healthz endpoint to respond
+  # before the postgres container is killed. The failure threshold is derived
+  # as ceil(livenessProbeTimeout / 10), so 90 → 9 consecutive failures over
+  # ~90s grace. Bumped on root01 2026-04-09 after the 4-core VPS CPU spike
+  # crash-looped postgres on probe timeouts while ZFS txg flushes + WAL
+  # archive uploads saturated the scheduler (see investigation note).
+  livenessProbeTimeout: {{ . }}
+  {{- end }}
+
+  {{- with $cluster.imagePullSecrets }}
+  imagePullSecrets:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+
+  storage:
+    storageClass: {{ $cluster.storage.class | quote }}
+    size: {{ $cluster.storage.size | quote }}
+
+  {{- with $cluster.walStorage }}
+  walStorage:
+    storageClass: {{ .class | quote }}
+    size: {{ .size | quote }}
+  {{- end }}
+
+  {{- with $cluster.resources }}
+  resources:
+    {{- with .limits }}
+    limits:
+      cpu: {{ .cpu | quote }}
+      memory: {{ .memory | quote }}
+    {{- end }}
+    {{- with .requests }}
+    requests:
+      cpu: {{ .cpu | quote }}
+      memory: {{ .memory | quote }}
+    {{- end }}
+  {{- end }}
+
+  {{- with $cluster.postgresql }}
+  postgresql:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- with $cluster.tolerations }}
+  tolerations:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- with $cluster.topologySpreadConstraints }}
+  topologySpreadConstraints:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- if $backup.enabled }}
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: {{ $objectStoreName }}
+  {{- end }}
+
+  {{- with $cluster.monitoring }}
+  monitoring:
+    enablePodMonitor: {{ default false .enablePodMonitor }}
+    {{- with .podMonitorMetricRelabelings }}
+    podMonitorMetricRelabelings:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .customQueriesConfigMap }}
+    customQueriesConfigMap:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+
+  {{- with $cluster.affinity }}
+  affinity:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- if $cnpg.roles }}
+  {{- $enabledRoles := list -}}
+  {{- range $cnpg.roles -}}
+  {{- if .enabled -}}
+  {{- $enabledRoles = append $enabledRoles . -}}
+  {{- end -}}
+  {{- end -}}
+  {{- if gt (len $enabledRoles) 0 }}
+  managed:
+    roles:
+    {{- range $enabledRoles }}
+      - name: {{ .name | quote }}
+        ensure: present
+        {{- if .comment }}
+        comment: {{ .comment | quote }}
+        {{- end }}
+        login: {{ default true .login }}
+        {{- if .superuser }}
+        superuser: {{ .superuser }}
+        {{- end }}
+        {{- if .inRoles }}
+        inRoles:
+{{ toYaml .inRoles | nindent 10 }}
+        {{- end }}
+        {{- if .passwordSecret }}
+        passwordSecret:
+          name: {{ .passwordSecret.name | quote }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}

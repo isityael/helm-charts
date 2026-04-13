@@ -1,0 +1,34 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $databases := $cnpg.databases | default list -}}
+{{- if $cluster.enabled }}
+{{- range $databases }}
+{{- if .enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: {{ printf "%s-%s" $cluster.name .name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: cloudnative-pg
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  {{- with $cnpg.databaseAnnotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  name: {{ .name | quote }}
+  owner: {{ .owner | quote }}
+  cluster:
+    name: {{ $cluster.name | quote }}
+  {{- if .databaseReclaimPolicy }}
+  databaseReclaimPolicy: {{ .databaseReclaimPolicy | quote }}
+  {{- end }}
+  {{- if .extensions }}
+  extensions:
+{{ toYaml .extensions | nindent 4 }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $pgbouncer := $cnpg.pgbouncer | default dict -}}
+{{- if and $cluster.enabled $pgbouncer.enabled (dig "metrics" "enabled" false $pgbouncer) }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ $cluster.name }}-pooler
+  namespace: {{ dig "metrics" "namespace" "cnpg-system" $pgbouncer }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $cluster.namespace }}
+  selector:
+    matchLabels:
+      cnpg.io/poolerName: {{ $cluster.name }}-pooler
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ dig "metrics" "interval" "30s" $pgbouncer }}
+{{- end }}

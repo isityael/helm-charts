@@ -1,0 +1,65 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $pgbouncer := $cnpg.pgbouncer | default dict -}}
+{{- if and $cluster.enabled $pgbouncer.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: {{ $cluster.name }}-pooler
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/component: pgbouncer
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"
+spec:
+  cluster:
+    name: {{ $cluster.name }}
+  type: rw
+  instances: {{ $pgbouncer.replicas | default 1 }}
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  serviceTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pgbouncer
+        app.kubernetes.io/component: pgbouncer
+        app.kubernetes.io/part-of: {{ $cluster.name }}
+  pgbouncer:
+    poolMode: {{ $pgbouncer.poolMode | default "transaction" }}
+    parameters:
+      max_client_conn: {{ ($pgbouncer.maxClientConn | default 1000) | quote }}
+      default_pool_size: {{ ($pgbouncer.defaultPoolSize | default 20) | quote }}
+      min_pool_size: {{ ($pgbouncer.minPoolSize | default 5) | quote }}
+      reserve_pool_size: {{ ($pgbouncer.reservePoolSize | default 5) | quote }}
+      max_db_connections: {{ ($pgbouncer.maxDbConnections | default 50) | quote }}
+      server_lifetime: {{ ($pgbouncer.serverLifetime | default 3600) | quote }}
+      server_idle_timeout: {{ ($pgbouncer.serverIdleTimeout | default 600) | quote }}
+      log_connections: "0"
+      log_disconnections: "0"
+      log_pooler_errors: "1"
+      log_stats: "1"
+      stats_period: "60"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pgbouncer
+        app.kubernetes.io/component: pgbouncer
+        app.kubernetes.io/part-of: {{ $cluster.name }}
+    spec:
+      {{- with $cluster.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pgbouncer
+          image: {{ $pgbouncer.image | quote }}
+          imagePullPolicy: IfNotPresent
+          {{- with $pgbouncer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

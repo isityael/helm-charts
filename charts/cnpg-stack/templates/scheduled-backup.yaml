@@ -1,0 +1,27 @@
+{{- $cluster := .Values.cnpg.cluster | default dict -}}
+{{- $backup := $cluster.backup | default dict -}}
+{{- $objectStoreName := $backup.objectStoreName | default (printf "%s-backups" $cluster.name) -}}
+{{- if $backup.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: {{ $cluster.name }}-backup
+  namespace: {{ $cluster.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "15"
+spec:
+  # CNPG expects a 6-field cron with seconds
+  schedule: {{ $backup.schedule | default "0 0 2 * * *" | quote }}
+  backupOwnerReference: self
+  cluster:
+    name: {{ $cluster.name }}
+
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+    parameters:
+      barmanObjectName: {{ $objectStoreName }}
+  target: {{ $backup.target | default "prefer-standby" | quote }}
+
+  immediate: {{ default false $backup.immediate }}
+{{- end }}
