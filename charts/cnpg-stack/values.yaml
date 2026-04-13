@@ -37,7 +37,8 @@ cnpg:
     namespace: apps
     instances: 1
     # CNPG-compatible wrapper around DHI Postgres with UID/GID 26 mapping.
-    imageName: "ghcr.io/sm-moshi/postgres-cnpg:latest"
+    # CNPG admission rejects :latest tags for operand images.
+    imageName: "ghcr.io/sm-moshi/postgres-cnpg:9df3c42"
     psqlImage: "dhi.io/postgres:18-alpine3.22@sha256:786b9abab676afceb217d97d781cf272c39b9c359ae834cb0771b4bb648d7145"
     enableSuperuserAccess: true
     imagePullSecrets: []
@@ -128,7 +129,7 @@ cnpg:
     replicas: 1
     # CNPG Pooler manager needs /usr/bin/pgbouncer. The image below is
     # intended to keep DHI content while adding that compatibility path.
-    image: "ghcr.io/sm-moshi/pgbouncer-cnpg:latest"
+    image: "ghcr.io/sm-moshi/pgbouncer-cnpg:9df3c42"
     poolMode: transaction
     maxClientConn: 1000
     defaultPoolSize: 20
