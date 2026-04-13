@@ -1,0 +1,60 @@
+{{- $cluster := .Values.cnpg.cluster | default dict -}}
+{{- $backup := $cluster.backup | default dict -}}
+{{- if $backup.enabled }}
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: {{ $backup.objectStoreName }}
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: cloudnative-pg
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  configuration:
+    destinationPath: {{ required "cnpg.cluster.backup.destinationPath is required when backups are enabled" $backup.destinationPath | quote }}
+    endpointURL: {{ required "cnpg.cluster.backup.endpointURL is required when backups are enabled" $backup.endpointURL | quote }}
+    {{- with $backup.endpointCA }}
+    endpointCA:
+      name: {{ .name | quote }}
+      key: {{ .key | quote }}
+    {{- end }}
+    s3Credentials:
+      accessKeyId:
+        name: {{ $backup.s3Credentials.accessKeyId.name | quote }}
+        key: {{ $backup.s3Credentials.accessKeyId.key | quote }}
+      secretAccessKey:
+        name: {{ $backup.s3Credentials.secretAccessKey.name | quote }}
+        key: {{ $backup.s3Credentials.secretAccessKey.key | quote }}
+    {{- with $backup.wal }}
+    wal:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $backup.data }}
+    data:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+  {{- if $backup.retentionPolicy }}
+  retentionPolicy: {{ $backup.retentionPolicy | quote }}
+  {{- end }}
+  {{- with $backup.instanceSidecarConfiguration }}
+  {{- if .enabled }}
+  instanceSidecarConfiguration:
+    {{- if .retentionPolicyIntervalSeconds }}
+    retentionPolicyIntervalSeconds: {{ .retentionPolicyIntervalSeconds }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .env }}
+    env:
+    {{- range . }}
+      - name: {{ .name }}
+        value: {{ .value | quote }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}

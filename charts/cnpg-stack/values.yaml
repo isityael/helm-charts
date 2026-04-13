@@ -1,0 +1,151 @@
+# CNPG operator dependency values
+cloudnative-pg:
+  imagePullSecrets: []
+  updateStrategy:
+    type: Recreate
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Barman Cloud plugin dependency values
+plugin-barman-cloud:
+  image:
+    registry: dhi.io
+    repository: cloudnative-pg-plugin-barman-cloud
+    tag: "0.11.0-debian13@sha256:e4d6a33f41ad331de60b04d46088851c6880516ffdc5ec117e4ab47f74756f23"
+  sidecarImage:
+    registry: dhi.io
+    repository: cloudnative-pg-plugin-barman-cloud-sidecar
+    tag: "0.11.0-debian13@sha256:1e34f563e00a767ccc910edf38bbe06097ec73e7d24927c02b34d6854f6163b4"
+  imagePullSecrets: []
+  resources:
+    requests:
+      cpu: 25m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+cnpg:
+  cluster:
+    enabled: true
+    name: cnpg-main
+    namespace: apps
+    instances: 1
+    # CNPG-compatible wrapper around DHI Postgres with UID/GID 26 mapping.
+    # CNPG admission rejects :latest tags for operand images.
+    imageName: "ghcr.io/sm-moshi/postgres-cnpg:18.3-cnpg-9df3c42c"
+    psqlImage: "dhi.io/postgres:18-alpine3.22@sha256:786b9abab676afceb217d97d781cf272c39b9c359ae834cb0771b4bb648d7145"
+    enableSuperuserAccess: true
+    imagePullSecrets: []
+
+    storage:
+      class: local-path
+      size: 20Gi
+
+    walStorage:
+      class: local-path
+      size: 5Gi
+
+    monitoring:
+      enablePodMonitor: true
+
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+
+    postgresql:
+      parameters:
+        max_connections: "200"
+        shared_buffers: "256MB"
+        effective_cache_size: "768MB"
+        work_mem: "8MB"
+        maintenance_work_mem: "64MB"
+        max_wal_size: "1GB"
+        min_wal_size: "256MB"
+        wal_compression: "zstd"
+        wal_level: "replica"
+        random_page_cost: "1.1"
+        effective_io_concurrency: "200"
+        jit: "off"
+        idle_in_transaction_session_timeout: "300000"
+        idle_session_timeout: "600000"
+        statement_timeout: "300000"
+
+    backup:
+      enabled: false
+      schedule: "0 0 2 * * *"
+      immediate: false
+      objectStoreName: cnpg-backups
+      # Required when enabled=true. Example: s3://root-cnpg-backups/
+      destinationPath: ""
+      # Required when enabled=true. Example: http://garage-root.apps.svc.cluster.local:3900
+      endpointURL: ""
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-backups
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: cnpg-backups
+          key: ACCESS_SECRET_KEY
+      retentionPolicy: "30d"
+      target: primary
+      wal:
+        compression: snappy
+        maxParallel: 2
+      data:
+        compression: snappy
+        jobs: 1
+      instanceSidecarConfiguration:
+        enabled: true
+        retentionPolicyIntervalSeconds: 1800
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        env:
+          - name: AWS_DEFAULT_REGION
+            value: us-east-1
+
+  roles: []
+
+  databases: []
+
+  databaseAnnotations: {}
+
+  pgbouncer:
+    enabled: true
+    replicas: 1
+    # CNPG Pooler manager needs /usr/bin/pgbouncer. The image below is
+    # intended to keep DHI content while adding that compatibility path.
+    image: "ghcr.io/sm-moshi/pgbouncer-cnpg:1.25.1-cnpg-9df3c42c"
+    poolMode: transaction
+    maxClientConn: 1000
+    defaultPoolSize: 20
+    minPoolSize: 5
+    reservePoolSize: 5
+    maxDbConnections: 50
+    serverLifetime: 3600
+    serverIdleTimeout: 600
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+    metrics:
+      enabled: true
+      interval: 30s
+      namespace: cnpg-system
