@@ -3,8 +3,16 @@ set -euo pipefail
 
 # Publish all charts to GHCR OCI, skipping versions that already exist.
 # Expects GHCR_USERNAME and GHCR_TOKEN env vars.
+printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
-helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
+if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
+  if [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; then
+    echo "DHI credentials are required for charts that depend on oci://dhi.io."
+    echo "Set DHI_USERNAME and DHI_PASSWORD in CI secrets."
+    exit 1
+  fi
+  printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
+fi
 
 # Register dependency repos for charts using BJW-S common library
 for chart in charts/*/; do
@@ -29,10 +37,10 @@ for chart in charts/*/; do
   fi
 
   echo "Building deps for ${name}..."
-  helm dependency build "$chart" 2>/dev/null || true
+  helm dependency build "$chart"
 
   echo "Linting ${name}..."
-  helm lint "$chart"
+  helm lint --with-subcharts "$chart"
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"

@@ -11,6 +11,11 @@ when:
 steps:
   - name: helm-lint
     image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    environment:
+      DHI_USERNAME:
+        from_secret: dhi_username
+      DHI_PASSWORD:
+        from_secret: dhi_password
     commands:
       - |
         # Add dependency repos
@@ -23,8 +28,21 @@ steps:
           helm repo add "$name" "$repo" 2>/dev/null || true
         done
       - |
+        if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
+          if [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]; then
+            printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
+          else
+            echo "WARNING: DHI credentials not available;"
+            echo "charts with oci://dhi.io dependencies may lint without subcharts."
+          fi
+        fi
+      - |
         for chart in charts/*/; do
           echo "==> Linting $chart"
-          helm dependency build "$chart"
+          if ! helm dependency build "$chart"; then
+            echo "WARNING: dependency build failed for $chart; linting without subcharts."
+            helm lint "$chart"
+            continue
+          fi
           helm lint --with-subcharts "$chart"
         done

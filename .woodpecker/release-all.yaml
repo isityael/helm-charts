@@ -20,5 +20,9 @@ steps:
         from_secret: github_username
       GHCR_TOKEN:
         from_secret: github_token
+      DHI_USERNAME:
+        from_secret: dhi_username
+      DHI_PASSWORD:
+        from_secret: dhi_password
     commands:
       - bash .ci/publish-oci.sh
