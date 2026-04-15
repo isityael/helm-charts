@@ -2,7 +2,7 @@ apiVersion: v2
 name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "1.29.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
