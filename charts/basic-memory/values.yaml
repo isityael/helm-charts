@@ -47,9 +47,9 @@ imagePullSecrets: []
 livesyncBridge:
   image:
     repository: ghcr.io/sm-moshi/livesync-bridge
-    # Full 40-char commit SHA. Bump to the latest commit from the
-    # sm-moshi/livesync-bridge main branch (or pin to a git tag).
-    tag: "ea529689250e2723dafd3ed2b10ee05b72a7d0a8"
+    # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
+    # Bump to the sha-<sha> tag for the latest main commit.
+    tag: "sha-b56c0edb99e5d4b99fc97cda0e86336af249d832"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
