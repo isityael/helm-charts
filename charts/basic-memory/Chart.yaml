@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.1.4
+version: 0.1.5
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,18 +42,10 @@ annotations:
     - name: Chart source
       url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
-    - kind: added
+    - kind: changed
       description: >-
-        Add optional Gateway API HTTPRoute support for the Obsidian LiveSync
-        CouchDB endpoint, mirroring the existing ingress-based exposure.
-    - kind: added
-      description: >-
-        Add optional Gateway API HTTPRoute support for exposing basic-memory
-        without Ingress. Path type "Prefix" is accepted and translated to
-        Gateway API "PathPrefix".
-    - kind: fixed
-      description: >-
-        mcpShim write_note policy check now reads args.folder (the
-        actual Basic Memory parameter name) in addition to the
-        non-existent args.directory; write_note with mcpShim.policy
-        .allowedNoteDirs set was always blocked before this fix
+        Bump livesync-bridge image to sha-b56c0edb99e5d4b99fc97cda0e86336af249d832,
+        rebasing livesync-commonlib onto upstream 0.25.54. Picks up Deno 2.x
+        arrayBufferToBase64 compatibility fix, HeadlessAPI multi-vault correction,
+        Journal Sync timing fix, and several floating-await and binary-file-reading
+        corrections. Also corrects the GHCR tag format (sha-<sha> prefix).
