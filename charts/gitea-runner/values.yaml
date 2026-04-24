@@ -11,7 +11,7 @@ imagePullSecrets: []
 dind:
   image:
     repository: docker
-    tag: "29.4.0-dind-alpine3.23@sha256:f80c26212befc1c1988b529495532c6b9180d9b1dab1611f4a1efbe9da8ec821"
+    tag: "29.4.1-dind-alpine3.23@sha256:c77e5d7912f9b137cc67051fdc2991d8f5ae22c55ddf532bb836dcb693a04940"
     pullPolicy: IfNotPresent
   args:
     - --host=unix:///var/run/docker.sock
