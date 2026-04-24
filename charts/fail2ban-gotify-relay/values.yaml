@@ -4,7 +4,7 @@ image:
   repository: ghcr.io/sm-moshi/fail2ban-gotify-relay
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
-  tag: "@sha256:d0f4cf047cce6e76eace7a7824659b5ef4d6a79133a0fe026fbfd3a265cec34d"
+  tag: "@sha256:84047f9e927dcc170e216db60d69090c502925b4360a5956eab5a16fd05a7175"
 
 imagePullSecrets: []
 nameOverride: ""

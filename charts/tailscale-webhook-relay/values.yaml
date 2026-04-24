@@ -3,7 +3,7 @@
 image:
   repository: ghcr.io/sm-moshi/tailscale-webhook-relay
   pullPolicy: IfNotPresent
-  tag: "@sha256:6e349244b5e0da7c305404ca4703cbcc088d3f0d551a78edfdc513f1e017d6d7"
+  tag: "@sha256:3ea1a8ba35bc33618f89687128f521ecce81a454c58f8317509212f2667da2ab"
 
 imagePullSecrets: []
 nameOverride: ""
