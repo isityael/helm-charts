@@ -11,7 +11,7 @@ imagePullSecrets: []
 dind:
   image:
     repository: docker
-    tag: "29.4.0-dind-alpine3.23@sha256:f80c26212befc1c1988b529495532c6b9180d9b1dab1611f4a1efbe9da8ec821"
+    tag: "29.4.1-dind-alpine3.23@sha256:c77e5d7912f9b137cc67051fdc2991d8f5ae22c55ddf532bb836dcb693a04940"
     pullPolicy: IfNotPresent
   args:
     - --host=unix:///var/run/docker.sock
@@ -30,7 +30,7 @@ dind:
 runner:
   image:
     repository: gitea/act_runner
-    tag: "0.3.1@sha256:c2a169c5e99864c25e32527cef3d82203225e09558773022bf3dc164a2e6d762"
+    tag: "0.4.1@sha256:696a59b51ad3d149521e3beb0229d5fb88f87295e1616f940199793274415b56"
     pullPolicy: IfNotPresent
   instanceURL: ""
   registrationTokenSecret: ""
