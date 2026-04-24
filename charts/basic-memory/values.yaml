@@ -49,7 +49,7 @@ livesyncBridge:
     repository: ghcr.io/sm-moshi/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-9b7f43c74065a34f28855ce399b74c6c27a25673"
+    tag: "sha-9b7f43c74065a34f28855ce399b74c6c27a25673@sha256:fbc9bf501cc2b02872b3c421d8cfffbc985c4a8860d946492f763518e0d071ea"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
@@ -291,7 +291,7 @@ obsidianSync:
   couchdb:
     image:
       repository: couchdb
-      tag: "3.5.1@sha256:297cd556c7ba358a408fd009e7b8e3b91318ccfc4d57c9b0264a2fb051ad9ef7"
+      tag: "3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54"
       pullPolicy: IfNotPresent
     # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
     existingSecret:
