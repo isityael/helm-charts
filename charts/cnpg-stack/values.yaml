@@ -16,11 +16,11 @@ plugin-barman-cloud:
   image:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud
-    tag: "0.12.0-debian13@sha256:6055887d29657a05f15299035e9cd48f2195f1bf4c12655326fcd5d33d73496a"
+    tag: "0.12.0-debian13@sha256:574d1202ea087ce0565fe33c1e599080435ee21e1759e126d849e8f0d877a7cd"
   sidecarImage:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud-sidecar
-    tag: "0.12.0-debian13@sha256:5c3daa50c8715c1ed91319f6e0b25ef7f2add151ed966f2092764956a97baf5f"
+    tag: "0.12.0-debian13@sha256:e2e0ad1bbf5b249ba7e0aef829ed0c458b09c1c68219dd1cae6685c9af923689"
   imagePullSecrets: []
   resources:
     requests:
@@ -39,7 +39,7 @@ cnpg:
     # CNPG-compatible wrapper around DHI Postgres with UID/GID 26 mapping.
     # CNPG admission rejects :latest tags for operand images.
     imageName: "ghcr.io/sm-moshi/postgres-cnpg:18.3-cnpg-9df3c42c"
-    psqlImage: "dhi.io/postgres:18.3-alpine3.22@sha256:1e6dc7e1ad3edcb96a89b1583fc501a69db62136cb9d76fb9e17de79245a966b"
+    psqlImage: "dhi.io/postgres:18.3-alpine3.22@sha256:6297d0a965d5aae6dc1cb0a336ddab2e3042159104c2fa3f54e8db8d3abb34af"
     enableSuperuserAccess: true
     imagePullSecrets: []
 
