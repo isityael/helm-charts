@@ -23,14 +23,21 @@
   "lockFileMaintenance": {
     "enabled": false
   },
+  "bumpVersions": [
+    {
+      "name": "Bump chart version for chart dependency updates",
+      "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
+      "matchStrings": ["version:\\s*(?<version>[^\\s]+)"],
+      "bumpType": "patch"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["helmv3", "helm-values"],
       "groupName": "Helm charts",
       "groupSlug": "helm-charts",
       "separateMinorPatch": true,
-      "labels": ["dependencies", "helm"],
-      "bumpVersion": "patch"
+      "labels": ["dependencies", "helm"]
     },
     {
       "matchManagers": ["github-actions"],
