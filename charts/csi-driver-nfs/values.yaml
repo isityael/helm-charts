@@ -3,7 +3,7 @@ image:
   baseRepo: registry.k8s.io
   nfs:
     repository: ghcr.io/sm-moshi/nfsplugin
-    tag: v4.14.0-sm1
+    tag: v4.14.0-sm2
     pullPolicy: IfNotPresent
   csiProvisioner:
     repository: dhi.io/csi-provisioner
@@ -127,12 +127,13 @@ controller:
         memory: 20Mi
 
 nodeDriverRegistrar:
+  timeout: 60
   healthPort: 19809
   livenessProbe:
     enabled: true
     initialDelaySeconds: 20
     timeoutSeconds: 10
-    periodSeconds: 5
+    periodSeconds: 20
     failureThreshold: 2
 
 node:
