@@ -23,7 +23,7 @@ spec:
 {{ toYaml .Values.imagePullSecrets | indent 8 }}
       {{- end }}
       hostNetwork: true # original nfs connection would be broken without hostNetwork setting
-      dnsPolicy: {{ .Values.controller.dnsPolicy }}
+      dnsPolicy: {{ .Values.node.dnsPolicy }}
       serviceAccountName: {{ .Values.serviceAccount.node }}
       priorityClassName: {{ .Values.node.priorityClassName }}
       securityContext:
@@ -77,6 +77,7 @@ spec:
             - --v=2
             - --csi-address=/csi/csi.sock
             - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+            - --timeout={{ .Values.nodeDriverRegistrar.timeout }}s
 {{- if .Values.nodeDriverRegistrar.livenessProbe.enabled }}
             - --http-endpoint=localhost:{{ .Values.nodeDriverRegistrar.healthPort }}
 {{- end }}
