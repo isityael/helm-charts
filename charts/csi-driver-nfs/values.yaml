@@ -3,7 +3,7 @@ image:
   baseRepo: registry.k8s.io
   nfs:
     repository: ghcr.io/sm-moshi/nfsplugin
-    tag: v4.14.0-sm2
+    tag: v4.14.0-sm3
     pullPolicy: IfNotPresent
   csiProvisioner:
     repository: dhi.io/csi-provisioner
