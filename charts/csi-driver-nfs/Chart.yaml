@@ -4,8 +4,8 @@ description: CSI NFS Driver for Kubernetes (sm-moshi fork with configurable fsGr
 icon: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/logo/logo.png
 home: https://github.com/kubernetes-sigs/csi-driver-nfs
 type: application
-version: 4.14.0
-appVersion: "4.14.0-sm1"
+version: 4.14.1
+appVersion: "4.14.0-sm3"
 kubeVersion: ">=1.21.0-0"
 maintainers:
   - name: m0sh1
