@@ -17,7 +17,7 @@ keywords:
 dependencies:
   - name: cloudnative-pg-chart
     alias: cloudnative-pg
-    version: 0.28.0
+    version: 0.28.1
     repository: oci://dhi.io
   - name: plugin-barman-cloud
     version: 0.6.0
