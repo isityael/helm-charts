@@ -1,0 +1,55 @@
+database:
+  generated:
+    enabled: true
+    host: postgres.default.svc.cluster.local
+    passwordSecret:
+      name: umami-postgres-auth
+      key: password
+
+appSecret:
+  existingSecret:
+    name: umami-config
+    key: app-secret
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+
+config:
+  clientIpHeader: CF-Connecting-IP
+  disableUpdates: "1"
+  forceSsl: "1"
+  hostname: "0.0.0.0"
+  collectApiEndpoint: /api/send
+  removeTrailingSlash: "1"
+  trackerScriptName: analytics
+
+customScript:
+  enabled: true
+  data: |
+    window.umamiCustomScriptLoaded = true;
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
+      namespace: gateway
+      sectionName: https
+  hostnames:
+    - analytics.example.com
+
+bootstrap:
+  enabled: true
+  imagePullSecrets:
+    - name: kubernetes-dhi
+  admin:
+    passwordSecret:
+      name: umami-config
+      key: admin-password
+  website:
+    id: d6e7b90a-b812-4edb-85a4-f1439940db48
+    name: example.com
+    domain: example.com

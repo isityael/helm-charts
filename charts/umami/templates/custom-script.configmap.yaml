@@ -1,0 +1,11 @@
+{{- if .Values.customScript.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "umami.fullname" . }}-custom-script
+  labels:
+    {{- include "umami.labels" . | nindent 4 }}
+data:
+  {{ .Values.customScript.key }}: |
+{{ .Values.customScript.data | nindent 4 }}
+{{- end }}
