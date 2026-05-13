@@ -86,16 +86,19 @@ securityContext:
 livenessProbe:
   httpGet:
     path: /ready
-    port: 2000
+    port: metrics
   failureThreshold: 3
   initialDelaySeconds: 10
   periodSeconds: 10
+
+# -- Startup probe configuration
+startupProbe: {}
 
 # -- Readiness probe configuration
 readinessProbe:
   httpGet:
     path: /ready
-    port: 2000
+    port: metrics
   initialDelaySeconds: 5
   periodSeconds: 5
   failureThreshold: 3
@@ -111,6 +114,13 @@ pdb:
 
 # -- Tunnel secrets configuration
 tunnelSecrets:
+  # -- Use one existing secret containing both credentials and cert data
+  existingSecret:
+    name: ""
+    credentialsKey: "credentials.json"
+    certKey: "cert.pem"
+  # -- Override the generated Secret name when inline secret data is used
+  generatedSecretName: ""
   # -- Base64-encoded tunnel certificate PEM file
   base64EncodedPemFile: ""
   # -- Base64-encoded tunnel credentials JSON file
@@ -154,6 +164,27 @@ resources:
     memory: 64Mi
   limits:
     memory: 256Mi
+
+# -- Metrics service and ServiceMonitor configuration
+metrics:
+  # -- Metrics listen port used by cloudflared and probes
+  port: 2000
+  service:
+    # -- Create a Service for metrics scraping
+    enabled: false
+    type: ClusterIP
+    port: 2000
+    annotations: {}
+    labels: {}
+  serviceMonitor:
+    # -- Create a Prometheus Operator ServiceMonitor
+    enabled: false
+    annotations: {}
+    labels: {}
+    interval: 30s
+    scrapeTimeout: 10s
+    relabelings: []
+    metricRelabelings: []
 
 # -- Extra environment variables
 extraEnv: []

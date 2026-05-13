@@ -61,3 +61,24 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the config map to use
+*/}}
+{{- define "cloudflared.configMapName" -}}
+{{- include "cloudflared.fullname" . }}
+{{- end }}
+
+{{/*
+Create the name of the generated tunnel credentials secret
+*/}}
+{{- define "cloudflared.generatedTunnelSecretName" -}}
+{{- default (printf "%s-tunnel-credentials" (include "cloudflared.fullname" .) | trunc 63 | trimSuffix "-") .Values.tunnelSecrets.generatedSecretName }}
+{{- end }}
+
+{{/*
+Create the name of the metrics service
+*/}}
+{{- define "cloudflared.metricsServiceName" -}}
+{{- printf "%s-metrics" (include "cloudflared.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
