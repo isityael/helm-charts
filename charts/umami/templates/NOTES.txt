@@ -1,0 +1,11 @@
+Umami is deployed.
+
+{{- if .Values.httpRoute.enabled }}
+HTTPRoute hosts:
+{{- range .Values.httpRoute.hostnames }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+
+Tracking script example:
+<script defer src="https://YOUR_UMAMI_HOST/script.js" data-website-id="YOUR_WEBSITE_ID"></script>

@@ -1,0 +1,173 @@
+# Umami Helm chart default values.
+# https://umami.is
+
+replicaCount: 1
+revisionHistoryLimit: 2
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+image:
+  repository: docker.umami.is/umami-software/umami
+  pullPolicy: IfNotPresent
+  tag: "3.1.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+commonAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  port: 3000
+  containerPort: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+    # - group: gateway.networking.k8s.io
+    #   kind: Gateway
+    #   name: traefik-gateway
+    #   namespace: traefik
+    #   sectionName: websecure
+  hostnames: []
+
+database:
+  # Full DATABASE_URL. If set, this takes precedence over the generated URL.
+  url: ""
+  # Existing Secret key containing DATABASE_URL. If set, this takes precedence
+  # over database.url and the generated URL.
+  existingSecret:
+    name: ""
+    key: DATABASE_URL
+  generated:
+    enabled: false
+    protocol: postgresql
+    host: ""
+    port: 5432
+    name: umami
+    user: umami
+    sslmode: disable
+    passwordSecret:
+      name: ""
+      key: password
+
+appSecret:
+  value: ""
+  existingSecret:
+    name: ""
+    key: APP_SECRET
+
+config:
+  clientIpHeader: ""
+  cloudMode: ""
+  corsMaxAge: "86400"
+  disableBotCheck: ""
+  disableLogin: ""
+  disableTelemetry: "1"
+  disableUpdates: "1"
+  enableTestConsole: ""
+  forceSsl: ""
+  hostname: "0.0.0.0"
+  ignoreHostname: ""
+  ignoreIp: ""
+  logQuery: ""
+  collectApiEndpoint: /api/send
+  removeTrailingSlash: "1"
+  trackerScriptName: ""
+
+customScript:
+  enabled: false
+  key: script.js
+  mountPath: /app/public/script.js
+  data: ""
+
+extraEnv: {}
+extraEnvSecrets: []
+
+bootstrap:
+  enabled: false
+  image:
+    repository: dhi.io/python
+    tag: "3.14.5-alpine3.23"
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  defaultAdmin:
+    username: admin
+    password: umami
+  admin:
+    username: admin
+    passwordSecret:
+      name: ""
+      key: admin-password
+  website:
+    id: ""
+    name: ""
+    domain: ""
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+  readiness:
+    enabled: true
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 768Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

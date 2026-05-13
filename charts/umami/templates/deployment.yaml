@@ -1,0 +1,197 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "umami.fullname" . }}
+  labels:
+    {{- include "umami.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "umami.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "umami.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "umami.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          env:
+            {{- if .Values.database.existingSecret.name }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.key }}
+            {{- else if .Values.database.url }}
+            - name: DATABASE_URL
+              value: {{ .Values.database.url | quote }}
+            {{- else if .Values.database.generated.enabled }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.generated.passwordSecret.name }}
+                  key: {{ .Values.database.generated.passwordSecret.key }}
+            - name: DATABASE_URL
+              value: {{ include "umami.databaseUrl" . | quote }}
+            {{- else }}
+            {{- fail "one of database.existingSecret.name, database.url, or database.generated.enabled must be configured" }}
+            {{- end }}
+            {{- if .Values.appSecret.existingSecret.name }}
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.appSecret.existingSecret.name }}
+                  key: {{ .Values.appSecret.existingSecret.key }}
+            {{- else if .Values.appSecret.value }}
+            - name: APP_SECRET
+              value: {{ .Values.appSecret.value | quote }}
+            {{- else }}
+            {{- fail "one of appSecret.existingSecret.name or appSecret.value must be configured" }}
+            {{- end }}
+            {{- if .Values.config.clientIpHeader }}
+            - name: CLIENT_IP_HEADER
+              value: {{ .Values.config.clientIpHeader | quote }}
+            {{- end }}
+            {{- if .Values.config.cloudMode }}
+            - name: CLOUD_MODE
+              value: {{ .Values.config.cloudMode | quote }}
+            {{- end }}
+            {{- if .Values.config.corsMaxAge }}
+            - name: CORS_MAX_AGE
+              value: {{ .Values.config.corsMaxAge | quote }}
+            {{- end }}
+            {{- if .Values.config.disableBotCheck }}
+            - name: DISABLE_BOT_CHECK
+              value: {{ .Values.config.disableBotCheck | quote }}
+            {{- end }}
+            {{- if .Values.config.disableLogin }}
+            - name: DISABLE_LOGIN
+              value: {{ .Values.config.disableLogin | quote }}
+            {{- end }}
+            - name: DISABLE_TELEMETRY
+              value: {{ .Values.config.disableTelemetry | quote }}
+            {{- if .Values.config.disableUpdates }}
+            - name: DISABLE_UPDATES
+              value: {{ .Values.config.disableUpdates | quote }}
+            {{- end }}
+            {{- if .Values.config.enableTestConsole }}
+            - name: ENABLE_TEST_CONSOLE
+              value: {{ .Values.config.enableTestConsole | quote }}
+            {{- end }}
+            {{- if .Values.config.forceSsl }}
+            - name: FORCE_SSL
+              value: {{ .Values.config.forceSsl | quote }}
+            {{- end }}
+            - name: HOSTNAME
+              value: {{ .Values.config.hostname | quote }}
+            {{- if .Values.config.ignoreHostname }}
+            - name: IGNORE_HOSTNAME
+              value: {{ .Values.config.ignoreHostname | quote }}
+            {{- end }}
+            {{- if .Values.config.ignoreIp }}
+            - name: IGNORE_IP
+              value: {{ .Values.config.ignoreIp | quote }}
+            {{- end }}
+            {{- if .Values.config.logQuery }}
+            - name: LOG_QUERY
+              value: {{ .Values.config.logQuery | quote }}
+            {{- end }}
+            - name: PORT
+              value: {{ .Values.service.containerPort | quote }}
+            - name: COLLECT_API_ENDPOINT
+              value: {{ .Values.config.collectApiEndpoint | quote }}
+            {{- if .Values.config.removeTrailingSlash }}
+            - name: REMOVE_TRAILING_SLASH
+              value: {{ .Values.config.removeTrailingSlash | quote }}
+            {{- end }}
+            {{- if .Values.config.trackerScriptName }}
+            - name: TRACKER_SCRIPT_NAME
+              value: {{ .Values.config.trackerScriptName | quote }}
+            {{- end }}
+            {{- range $name, $value := .Values.extraEnv }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range .Values.extraEnvSecrets }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .key }}
+            {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.customScript.enabled }}
+          volumeMounts:
+            - name: custom-script
+              mountPath: {{ .Values.customScript.mountPath | quote }}
+              subPath: {{ .Values.customScript.key | quote }}
+              readOnly: true
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.customScript.enabled }}
+      volumes:
+        - name: custom-script
+          configMap:
+            name: {{ include "umami.fullname" . }}-custom-script
+      {{- end }}

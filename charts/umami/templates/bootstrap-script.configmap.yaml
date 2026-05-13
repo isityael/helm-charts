@@ -1,0 +1,114 @@
+{{- if .Values.bootstrap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "umami.bootstrapName" . }}-script
+  labels:
+    {{- include "umami.bootstrapLabels" . | nindent 4 }}
+data:
+  bootstrap.py: |
+    import json
+    import os
+    import sys
+    import time
+    import urllib.error
+    import urllib.request
+
+    base_url = os.environ["UMAMI_URL"].rstrip("/")
+    default_username = os.environ["DEFAULT_ADMIN_USERNAME"]
+    default_password = os.environ["DEFAULT_ADMIN_PASSWORD"]
+    admin_username = os.environ["ADMIN_USERNAME"]
+    admin_password = os.environ["ADMIN_PASSWORD"]
+    website_id = os.environ["WEBSITE_ID"]
+    website_name = os.environ["WEBSITE_NAME"]
+    website_domain = os.environ["WEBSITE_DOMAIN"]
+
+    def request(method, path, token=None, payload=None):
+        data = None
+        headers = {"Accept": "application/json"}
+        if payload is not None:
+            data = json.dumps(payload).encode()
+            headers["Content-Type"] = "application/json"
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        req = urllib.request.Request(
+            f"{base_url}{path}",
+            data=data,
+            headers=headers,
+            method=method,
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            body = response.read()
+        if not body:
+            return {}
+        return json.loads(body)
+
+    def login(username, password):
+        try:
+            return request(
+                "POST",
+                "/api/auth/login",
+                payload={"username": username, "password": password},
+            )
+        except urllib.error.HTTPError as exc:
+            if exc.code in (400, 401, 403):
+                return None
+            raise
+
+    for attempt in range(60):
+        try:
+            session = login(admin_username, admin_password)
+            if session:
+                break
+            session = login(default_username, default_password)
+            if session:
+                user_id = session["user"]["id"]
+                request(
+                    "POST",
+                    f"/api/users/{user_id}",
+                    token=session["token"],
+                    payload={
+                        "username": admin_username,
+                        "password": admin_password,
+                        "role": "admin",
+                    },
+                )
+                session = login(admin_username, admin_password)
+                if session:
+                    break
+        except Exception as exc:
+            if attempt == 59:
+                raise
+            print(f"waiting for Umami API: {exc}", flush=True)
+            time.sleep(5)
+    else:
+        print("could not authenticate to Umami", file=sys.stderr)
+        sys.exit(1)
+
+    token = session["token"]
+    websites = request(
+        "GET",
+        "/api/websites?includeTeams=true&pageSize=100",
+        token=token,
+    )
+    existing = [
+        site
+        for site in websites.get("data", [])
+        if site.get("id") == website_id or site.get("domain") == website_domain
+    ]
+    if existing:
+        print(f"website already present: {existing[0]['id']}")
+        sys.exit(0)
+
+    site = request(
+        "POST",
+        "/api/websites",
+        token=token,
+        payload={
+            "id": website_id,
+            "name": website_name,
+            "domain": website_domain,
+        },
+    )
+    print(f"created website: {site['id']}")
+{{- end }}
