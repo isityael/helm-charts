@@ -46,3 +46,17 @@ steps:
           fi
           helm lint --with-subcharts "$chart"
         done
+      - |
+        for chart in charts/*/; do
+          [ -f "$chart/Chart.yaml" ] || continue
+          name="$(basename "$chart")"
+          if [ -f "$chart/ci/test-values.yaml" ]; then
+            echo "==> Rendering $chart with ci/test-values.yaml"
+            helm template "ci-$name" "$chart" \
+              --namespace "ci-$name" \
+              -f "$chart/ci/test-values.yaml" >/dev/null
+          else
+            echo "==> Rendering $chart with default values"
+            helm template "ci-$name" "$chart" --namespace "ci-$name" >/dev/null
+          fi
+        done
