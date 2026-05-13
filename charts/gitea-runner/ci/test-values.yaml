@@ -1,0 +1,15 @@
+runner:
+  instanceURL: https://gitea.bogusdomain.test
+  registrationTokenSecret: gitea-runner-ci
+  name: ci-runner
+  baseLabels: linux,amd64,self-hosted
+
+daemonConfig:
+  registryMirrors:
+    - https://mirror.bogusdomain.test
+  features:
+    buildkit: true
+
+serviceAccount:
+  create: true
+  name: gitea-runner-ci

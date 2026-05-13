@@ -1,0 +1,35 @@
+cnpg:
+  cluster:
+    enabled: true
+    name: cnpg-ci
+    namespace: default
+    instances: 1
+    storage:
+      class: standard
+      size: 1Gi
+    walStorage:
+      class: standard
+      size: 1Gi
+    backup:
+      enabled: true
+      immediate: true
+      destinationPath: s3://cnpg-ci/
+      endpointURL: http://minio.default.svc.cluster.local:9000
+    monitoring:
+      enablePodMonitor: true
+  roles:
+    - name: ci_reader
+      enabled: true
+      login: true
+    - name: ci_no_login
+      enabled: true
+      login: false
+  databases:
+    - name: ci_app
+      enabled: true
+      owner: ci_reader
+  pgbouncer:
+    enabled: true
+    replicas: 1
+    metrics:
+      enabled: true

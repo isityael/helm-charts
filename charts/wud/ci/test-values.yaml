@@ -1,0 +1,15 @@
+envFromSecret: wud-ci
+
+env:
+  - name: LOG_LEVEL
+    value: debug
+  - name: WUD_WATCHER__0__TYPE
+    value: docker
+
+ingress:
+  enabled: true
+  hosts:
+    - host: wud.bogusdomain.test
+      paths:
+        - path: /
+          pathType: Prefix

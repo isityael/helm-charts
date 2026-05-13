@@ -1,6 +1,9 @@
 {{- $cnpg := .Values.cnpg | default dict -}}
 {{- $cluster := $cnpg.cluster | default dict -}}
 {{- $roles := $cnpg.roles | default list -}}
+{{- define "cnpg-stack.shellQuote" -}}
+{{- printf "'%s'" (replace "'" "'\"'\"'" (toString .)) -}}
+{{- end -}}
 {{- if $cluster.enabled }}
 apiVersion: batch/v1
 kind: Job
@@ -81,8 +84,8 @@ spec:
 
               {{- range $roles }}
               {{- if .enabled }}
-              echo "Ensuring role exists: {{ .name }}"
-              role="{{ .name }}"
+              role={{ include "cnpg-stack.shellQuote" .name }}
+              echo "Ensuring role exists: ${role}"
               login_flag="{{ if (default true .login) }}LOGIN{{ else }}NOLOGIN{{ end }}"
               role_password=""
               {{- if .passwordSecret }}
@@ -98,37 +101,56 @@ spec:
 
               if [ -n "$role_password" ]; then
                 role_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
-                  -c "SELECT 1 FROM pg_roles WHERE rolname='${role}'")"
+                  -v role="$role" \
+                  -c "SELECT 1 FROM pg_roles WHERE rolname = :'role'")"
                 if [ "${role_exists}" != "1" ]; then
-                  # Password comes from a generated Secret (base64 charset). We strip newlines above,
-                  # so it is safe to embed in a single-quoted SQL literal here.
-                  psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
+                  psql -v ON_ERROR_STOP=1 -d postgres \
+                    -v role="$role" \
+                    -v login_flag="$login_flag" \
+                    -v role_password="$role_password" \
+                    -c "CREATE ROLE :\"role\" :login_flag PASSWORD :'role_password';"
                 fi
 
-                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
+                psql -v ON_ERROR_STOP=1 -d postgres \
+                  -v role="$role" \
+                  -v login_flag="$login_flag" \
+                  -v role_password="$role_password" \
+                  -c "ALTER ROLE :\"role\" :login_flag PASSWORD :'role_password';"
               else
                 role_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
-                  -c "SELECT 1 FROM pg_roles WHERE rolname='${role}'")"
+                  -v role="$role" \
+                  -c "SELECT 1 FROM pg_roles WHERE rolname = :'role'")"
                 if [ "${role_exists}" != "1" ]; then
-                  psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag};"
+                  psql -v ON_ERROR_STOP=1 -d postgres \
+                    -v role="$role" \
+                    -v login_flag="$login_flag" \
+                    -c "CREATE ROLE :\"role\" :login_flag;"
                 fi
 
-                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag};"
+                psql -v ON_ERROR_STOP=1 -d postgres \
+                  -v role="$role" \
+                  -v login_flag="$login_flag" \
+                  -c "ALTER ROLE :\"role\" :login_flag;"
               fi
               {{- end }}
               {{- end }}
 
               {{- range $cnpg.databases }}
               {{- if .enabled }}
-              echo "Processing database: {{ .name }}"
-              db="{{ .name }}"
-              owner="{{ .owner }}"
-              db_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -Atc "SELECT 1 FROM pg_database WHERE datname='${db}'")"
+              db={{ include "cnpg-stack.shellQuote" .name }}
+              owner={{ include "cnpg-stack.shellQuote" .owner }}
+              echo "Processing database: ${db}"
+              db_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
+                -v db="$db" \
+                -c "SELECT 1 FROM pg_database WHERE datname = :'db'")"
               if [ "${db_exists}" != "1" ]; then
-                psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE DATABASE \"${db}\" WITH OWNER \"${owner}\" TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C';"
+                psql -v ON_ERROR_STOP=1 -d postgres \
+                  -v db="$db" \
+                  -v owner="$owner" \
+                  -c "CREATE DATABASE :\"db\" WITH OWNER :\"owner\" TEMPLATE template0 ENCODING 'UTF8' LC_COLLATE='C' LC_CTYPE='C';"
               fi
 
-              echo "✓ Database {{ .name }} ready"
+              echo "Database ${db} ready"
               {{- end }}
               {{- end }}
 

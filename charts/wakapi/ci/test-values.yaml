@@ -1,0 +1,27 @@
+strategyType: Recreate
+
+persistence:
+  enabled: true
+  storageClass: standard
+  size: 1Gi
+
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: prometheus
+
+config:
+  server:
+    public_url: https://wakapi.bogusdomain.test
+  db:
+    dialect: sqlite3
+  security:
+    expose_metrics: true
+
+ingress:
+  enabled: true
+  hosts:
+    - host: wakapi.bogusdomain.test
+      paths:
+        - path: /
+          pathType: Prefix

@@ -1,0 +1,25 @@
+feature:
+  fsGroupPolicy: None
+  enableInlineVolume: true
+
+controller:
+  replicas: 1
+  enableSnapshotter: true
+  useTarCommandInSnapshot: true
+
+externalSnapshotter:
+  enabled: true
+
+storageClass:
+  create: true
+  name: nfs-ci
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  parameters:
+    server: nfs.example.test
+    share: /exports/ci
+
+volumeSnapshotClass:
+  create: true
+  name: nfs-ci-snapshot
+  deletionPolicy: Delete

@@ -2,7 +2,7 @@ apiVersion: v2
 name: fail2ban-gotify-relay
 description: Relay fail2ban-ui webhook events to Gotify push notifications
 type: application
-version: 0.3.0
+version: 0.3.1
 appVersion: "0.3.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:

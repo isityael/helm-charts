@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "image": { "type": "object" },
+    "service": { "type": "object" },
+    "ingress": { "type": "object" },
+    "httpRoute": { "type": "object" },
+    "serviceAccount": { "type": "object" },
+    "envFromSecret": { "type": "string" },
+    "podAnnotations": { "type": "object" },
+    "podLabels": { "type": "object" },
+    "podSecurityContext": { "type": "object" },
+    "securityContext": { "type": "object" },
+    "env": { "type": "array" },
+    "resources": { "type": "object" },
+    "nodeSelector": { "type": "object" },
+    "tolerations": { "type": "array" },
+    "affinity": { "type": "object" },
+    "imagePullSecrets": { "type": "array" }
+  }
+}
