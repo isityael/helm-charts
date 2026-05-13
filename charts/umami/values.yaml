@@ -14,7 +14,7 @@ autoscaling:
 image:
   repository: docker.umami.is/umami-software/umami
   pullPolicy: IfNotPresent
-  tag: "3.1.0"
+  tag: "3.1.0@sha256:e3f80c0625aad7179b49da27d475357cabb1068b8cacd9a792cfd6966888b123"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -123,7 +123,7 @@ bootstrap:
   enabled: false
   image:
     repository: dhi.io/python
-    tag: "3.14.5-alpine3.23"
+    tag: "3.14.5-alpine3.23@sha256:f6050de9f0362490ba10a738727525b97ae515b475cde1d92bfcbd77b3a9258e"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   defaultAdmin:
