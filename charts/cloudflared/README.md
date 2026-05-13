@@ -49,6 +49,9 @@ tunnelSecrets:
 ## Values Example
 
 ```yaml
+serviceAccount:
+  automount: false
+
 replica:
   allNodes: false
   count: 2

@@ -1,6 +1,6 @@
 # Argus Helm Chart
 
-Helm chart for [Release-Argus](https://github.com/release-argus/Argus) using the `bjw-s/common` library.
+Helm chart for [Release-Argus](https://github.com/release-argus/Argus).
 
 ## Requirements
 
@@ -113,17 +113,13 @@ config:
 ### Common chart overrides
 
 ```yaml
-controllers:
-  main:
-    containers:
-      main:
-        resources:
-          requests:
-            cpu: 50m
-            memory: 64Mi
-          limits:
-            cpu: 200m
-            memory: 256Mi
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
 ```
 
 ## Ingress example

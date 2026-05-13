@@ -1,0 +1,22 @@
+Wakapi has been installed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart:     {{ .Chart.Name }}-{{ .Chart.Version }} (appVersion {{ .Chart.AppVersion }})
+
+Check rollout status:
+  kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "wakapi.fullname" . }}
+
+{{- if .Values.ingress.enabled }}
+Ingress is enabled. Check the generated Ingress:
+  kubectl -n {{ .Release.Namespace }} get ingress {{ include "wakapi.fullname" . }}
+{{- else if .Values.httpRoute.enabled }}
+HTTPRoute is enabled. Check the generated route:
+  kubectl -n {{ .Release.Namespace }} get httproute {{ include "wakapi.fullname" . }}
+{{- else }}
+Port-forward locally:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "wakapi.fullname" . }} 3000:{{ .Values.service.port }}
+  open http://127.0.0.1:3000
+{{- end }}
+
+Sensitive values such as database passwords, password salts, OIDC secrets, and SMTP credentials should be injected through existingSecrets.

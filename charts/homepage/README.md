@@ -15,6 +15,7 @@ Helm chart for [Homepage](https://github.com/gethomepage/homepage).
 - Set `env` with `HOMEPAGE_ALLOWED_HOSTS` for your hostname.
 - Config files are mounted into `/app/config` from a generated ConfigMap.
 - Enable RBAC with `rbac.enabled: true` to use Kubernetes integration.
+- Set `serviceAccount.automount: true` when Homepage needs Kubernetes API access.
 
 ## Values (overview)
 
@@ -27,9 +28,9 @@ Helm chart for [Homepage](https://github.com/gethomepage/homepage).
 | ingress.enabled | bool | `false` | Enable ingress |
 | rbac.enabled | bool | `false` | Enable RBAC |
 | serviceAccount.create | bool | `false` | Create service account |
+| serviceAccount.automount | bool | `false` | Mount Kubernetes API credentials into the pod |
 | config.useExistingConfigMap | string | `""` | Use an existing ConfigMap |
 | config.extraFiles | map | `{}` | Extra config files mounted into `/app/config` |
-| persistence.logs.enabled | bool | `true` | Enable logs volume |
 
 For full configuration options, see `values.yaml`.
 
@@ -88,6 +89,10 @@ Enable Kubernetes widgets:
 ```yaml
 rbac:
   enabled: true
+
+serviceAccount:
+  create: true
+  automount: true
 
 config:
   kubernetes:

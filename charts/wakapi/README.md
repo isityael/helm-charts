@@ -43,6 +43,13 @@ existingSecrets:
 
 serviceMonitor:
   enabled: true
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
 ```
 
 ## Ingress Example

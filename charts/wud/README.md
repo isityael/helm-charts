@@ -2,7 +2,7 @@
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/m0sh1-helm-charts)](https://artifacthub.io/packages/search?repo=m0sh1-helm-charts)
 
-Helm chart for [WUD (What's Up Docker)](https://github.com/getwud/wud) using the `bjw-s/common` library.
+Helm chart for [WUD (What's Up Docker)](https://github.com/getwud/wud).
 
 ## Requirements
 
@@ -18,12 +18,12 @@ Helm chart for [WUD (What's Up Docker)](https://github.com/getwud/wud) using the
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| controllers.main.containers.main.image.repository | string | `getwud/wud` | Container image repository |
-| controllers.main.containers.main.image.tag | string | `8.1.1` | Container image tag |
+| image.repository | string | `getwud/wud` | Container image repository |
+| image.tag | string | `8.2.2` | Container image tag |
 | envFromSecret | string | `""` | Secret name to mount as envFrom |
-| service.main.ports.http.port | int | `3000` | Service port |
+| service.port | int | `3000` | Service port |
 | ingress.enabled | bool | `false` | Enable ingress |
-| serviceAccount.wud.enabled | bool | `false` | Create service account |
+| serviceAccount.create | bool | `false` | Create service account |
 
 For full configuration options, see `values.yaml`.
 

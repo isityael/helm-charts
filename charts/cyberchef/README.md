@@ -2,7 +2,7 @@
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/m0sh1-helm-charts)](https://artifacthub.io/packages/search?repo=m0sh1-helm-charts)
 
-Helm chart for [CyberChef](https://github.com/gchq/CyberChef) using the `bjw-s/common` library.
+Helm chart for [CyberChef](https://github.com/gchq/CyberChef).
 
 ## Requirements
 
@@ -18,11 +18,11 @@ Helm chart for [CyberChef](https://github.com/gchq/CyberChef) using the `bjw-s/c
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| controllers.main.containers.main.image.repository | string | `mpepping/cyberchef` | Container image repository |
-| controllers.main.containers.main.image.tag | string | `v10.19.4` | Container image tag |
-| service.main.ports.http.port | int | `80` | Service port |
+| image.repository | string | `mpepping/cyberchef` | Container image repository |
+| image.tag | string | `v10.24.0` | Container image tag |
+| service.port | int | `80` | Service port |
 | ingress.enabled | bool | `false` | Enable ingress |
-| serviceAccount.cyberchef.enabled | bool | `false` | Create service account |
+| serviceAccount.create | bool | `false` | Create service account |
 
 For full configuration options, see `values.yaml`.
 
