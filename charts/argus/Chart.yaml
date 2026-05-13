@@ -4,8 +4,8 @@ description: Helm chart for Release-Argus
 icon: https://github.com/release-argus/Argus/raw/master/web/ui/react-app/public/favicon.svg
 home: https://release-argus.io
 type: application
-version: 0.7.1
-appVersion: "0.29.1"
+version: 0.7.2
+appVersion: "0.29.4"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1

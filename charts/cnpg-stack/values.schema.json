@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "cloudnative-pg": { "type": "object" },
+    "plugin-barman-cloud": { "type": "object" },
+    "cnpg": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "cluster": { "type": "object" },
+        "roles": { "type": "array" },
+        "databases": { "type": "array" },
+        "databaseAnnotations": { "type": "object" },
+        "pgbouncer": { "type": "object" }
+      }
+    }
+  }
+}

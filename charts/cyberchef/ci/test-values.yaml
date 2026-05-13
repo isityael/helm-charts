@@ -1,0 +1,7 @@
+ingress:
+  enabled: true
+  hosts:
+    - host: cyberchef.bogusdomain.test
+      paths:
+        - path: /
+          pathType: Prefix

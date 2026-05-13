@@ -1,0 +1,10 @@
+gotifyURL: http://gotify.default.svc.cluster.local
+existingSecret: fail2ban-gotify-relay-ci
+
+ingress:
+  enabled: true
+  hosts:
+    - host: fail2ban-gotify-relay.bogusdomain.test
+      paths:
+        - path: /
+          pathType: Prefix

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "customLabels": { "type": "object" },
+    "image": { "type": "object" },
+    "serviceAccount": { "type": "object" },
+    "rbac": { "type": "object" },
+    "driver": { "type": "object" },
+    "feature": { "type": "object" },
+    "kubeletDir": { "type": "string" },
+    "controller": { "type": "object" },
+    "node": { "type": "object" },
+    "nodeDriverRegistrar": { "type": "object" },
+    "externalSnapshotter": { "type": "object" },
+    "volumeSnapshotClass": { "type": "object" },
+    "storageClass": { "type": "object" },
+    "storageClasses": { "type": "array" },
+    "imagePullSecrets": { "type": "array" }
+  }
+}

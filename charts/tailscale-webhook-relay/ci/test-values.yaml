@@ -1,0 +1,10 @@
+ntfyURL: https://ntfy.bogusdomain.test/tailscale-events
+existingSecret: tailscale-webhook-relay-ci
+
+ingress:
+  enabled: true
+  hosts:
+    - host: tailscale-webhook-relay.bogusdomain.test
+      paths:
+        - path: /
+          pathType: Prefix

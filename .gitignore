@@ -2,7 +2,6 @@
 .repomix/
 *.log
 .vscode/settings.json
-charts/**/charts/
 AGENTS.md
 .venv/
 node_modules/
