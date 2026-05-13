@@ -1,0 +1,22 @@
+tailscale-webhook-relay has been installed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+Required configuration:
+  - ntfyURL must point at your ntfy topic URL.
+  - existingSecret should reference a Secret containing TAILSCALE_WEBHOOK_SECRET and NTFY_TOKEN.
+
+Check rollout status:
+  kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "tailscale-webhook-relay.fullname" . }}
+
+{{- if .Values.ingress.enabled }}
+Ingress is enabled. Check the generated Ingress:
+  kubectl -n {{ .Release.Namespace }} get ingress {{ include "tailscale-webhook-relay.fullname" . }}
+{{- else if .Values.httpRoute.enabled }}
+HTTPRoute is enabled. Check the generated route:
+  kubectl -n {{ .Release.Namespace }} get httproute {{ include "tailscale-webhook-relay.fullname" . }}
+{{- else }}
+No external route is enabled. Port-forward locally:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "tailscale-webhook-relay.fullname" . }} 8080:{{ .Values.service.port }}
+{{- end }}

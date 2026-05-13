@@ -45,7 +45,7 @@ rbac:
 
 serviceAccount:
   create: false
-  automount: true
+  automount: false
   annotations: {}
   name: ""
 

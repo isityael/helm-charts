@@ -28,6 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "tailscale-webhook-relay.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount | default false }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -49,13 +50,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.existingSecret }}
                   key: TAILSCALE_WEBHOOK_SECRET
-                  optional: true
             - name: NTFY_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.existingSecret }}
                   key: NTFY_TOKEN
-                  optional: true
             {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:

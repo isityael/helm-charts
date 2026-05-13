@@ -49,7 +49,7 @@ serviceAccount:
   # -- Create a service account
   create: true
   # -- Automatically mount API credentials
-  automount: true
+  automount: false
   # -- Annotations to add to the service account
   annotations: {}
   # -- Service account name (auto-generated if not set)
