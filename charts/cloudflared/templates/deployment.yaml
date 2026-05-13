@@ -62,16 +62,20 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: metrics
-              containerPort: 2000
+              containerPort: {{ .Values.metrics.port }}
               protocol: TCP
           env:
             - name: TUNNEL_ORIGIN_CERT
-              value: {{ printf "/etc/cloudflared/creds/%s" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) | quote }}
+              value: {{ printf "/etc/cloudflared/creds/%s" (ternary "cert.pem" (default "cert.pem" .Values.tunnelSecrets.existingPemFileSecret.key) (ne .Values.tunnelSecrets.existingSecret.name "")) | quote }}
           {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.readinessProbe }}
@@ -94,9 +98,18 @@ spec:
         - name: creds
           projected:
             sources:
+            {{- if .Values.tunnelSecrets.existingSecret.name }}
+              - secret:
+                  name: {{ .Values.tunnelSecrets.existingSecret.name }}
+                  items:
+                    - key: {{ .Values.tunnelSecrets.existingSecret.credentialsKey }}
+                      path: credentials.json
+                    - key: {{ .Values.tunnelSecrets.existingSecret.certKey }}
+                      path: cert.pem
+            {{- else }}
             {{- if or (eq .Values.tunnelSecrets.existingPemFileSecret.name "") (eq .Values.tunnelSecrets.existingConfigJsonFileSecret.name "") }}
               - secret:
-                  name: tunnel-credentials
+                  name: {{ include "cloudflared.generatedTunnelSecretName" . }}
             {{- end }}
             {{- if .Values.tunnelSecrets.existingPemFileSecret.name }}
               - secret:
@@ -106,9 +119,10 @@ spec:
               - secret:
                   name: {{ .Values.tunnelSecrets.existingConfigJsonFileSecret.name }}
             {{- end }}
+            {{- end }}
         - name: config
           configMap:
-            name: cloudflared
+            name: {{ include "cloudflared.configMapName" . }}
             items:
               - key: config.yaml
                 path: config.yaml
