@@ -18,6 +18,10 @@ spec:
         {{- include "searxng.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: valkey
     spec:
+      {{- with (default .Values.imagePullSecrets .Values.valkey.imagePullSecrets) }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         seccompProfile:
           type: RuntimeDefault
