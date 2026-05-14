@@ -71,8 +71,6 @@ spec:
         - name: runner
           image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag }}"
           imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
-          command:
-            - /entrypoint.sh
           env:
             {{- if .Values.runner.instanceURL }}
             - name: GITEA_INSTANCE_URL
@@ -82,17 +80,13 @@ spec:
             - name: GITEA_RUNNER_NAME
               value: {{ .Values.runner.name | quote }}
             {{- end }}
-            {{- if .Values.runner.baseLabels }}
-            - name: RUNNER_BASE_LABELS
-              value: {{ .Values.runner.baseLabels | quote }}
+            {{- $labels := .Values.runner.labels | default .Values.runner.baseLabels }}
+            {{- if and .Values.runner.jobLabel .Values.runner.jobImage }}
+            {{- $labels = printf "%s,%s:docker://%s" $labels .Values.runner.jobLabel .Values.runner.jobImage }}
             {{- end }}
-            {{- if .Values.runner.jobLabel }}
-            - name: RUNNER_JOB_LABEL
-              value: {{ .Values.runner.jobLabel | quote }}
-            {{- end }}
-            {{- if .Values.runner.jobImage }}
-            - name: RUNNER_JOB_IMAGE
-              value: {{ .Values.runner.jobImage | quote }}
+            {{- if $labels }}
+            - name: GITEA_RUNNER_LABELS
+              value: {{ $labels | quote }}
             {{- end }}
             {{- if .Values.runner.registrationTokenSecret }}
             - name: GITEA_RUNNER_REGISTRATION_TOKEN
@@ -115,6 +109,8 @@ spec:
           volumeMounts:
             - name: docker-socket
               mountPath: /var/run
+            - name: runner-data
+              mountPath: {{ .Values.runner.dataMountPath }}
             - name: docker-config
               mountPath: /tmp/.docker
             {{- if .Values.registryAuthSecret }}
@@ -137,6 +133,8 @@ spec:
         - name: docker-graph
           emptyDir: {}
         - name: docker-socket
+          emptyDir: {}
+        - name: runner-data
           emptyDir: {}
         - name: docker-config
           emptyDir: {}

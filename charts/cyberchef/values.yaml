@@ -3,8 +3,8 @@
 replicaCount: 1
 
 image:
-  repository: mpepping/cyberchef
-  tag: v10.24.0@sha256:cff5537302cbc57936b888ce4e95eaab1c26c3c2ef2b02568d493d5dcfb1358b
+  repository: ghcr.io/gchq/cyberchef
+  tag: 11.0.0@sha256:45082a0ac41d6beeea2daeb192d8b20c66520362854542f4fe340aab37635f66
   pullPolicy: IfNotPresent
 
 nameOverride: ""

@@ -2,7 +2,7 @@
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/m0sh1-helm-charts)](https://artifacthub.io/packages/search?repo=m0sh1-helm-charts)
 
-Helm chart for the [Gitea Actions runner](https://gitea.com/gitea/act_runner) with an optional Docker-in-Docker sidecar, using the `bjw-s/common` library.
+Helm chart for the [Gitea Actions runner](https://gitea.com/gitea/runner) with an optional Docker-in-Docker sidecar.
 
 ## Requirements
 
@@ -12,19 +12,21 @@ Helm chart for the [Gitea Actions runner](https://gitea.com/gitea/act_runner) wi
 ## Notes
 
 - The runner requires a registration token stored in a Secret.
-- Docker-in-Docker is enabled by default; disable it by setting `controllers.main.containers.dind.enabled=false`.
+- Docker-in-Docker is enabled by default; disable it with `dind.enabled=false`.
 - Provide registry authentication via `registryAuthSecret` and custom CA bundles via `registryCASecret`.
 
 ## Values (overview)
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| controllers.main.containers.runner.image.repository | string | `gitea/act_runner` | Runner image repository |
-| controllers.main.containers.runner.image.tag | string | `0.2.13` | Runner image tag |
-| controllers.main.containers.dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
+| runner.image.repository | string | `gitea/runner` | Runner image repository |
+| runner.image.tag | string | `1.0.3@sha256:373d17d2bcd477a11c277b6ddd4cf6a14c29cc25cf579a0cbaa43a94dfc04f03` | Runner image tag and digest |
+| dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
 | runner.instanceURL | string | `""` | Gitea instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |
 | runner.registrationTokenKey | string | `REGISTRATION_TOKEN` | Key in the secret for the token |
+| runner.labels | string | `""` | Full runner label set for `GITEA_RUNNER_LABELS`; overrides `baseLabels` composition when set |
+| runner.dataMountPath | string | `/data` | Runner data directory mount path |
 | registryAuthSecret | string | `""` | Secret with `.dockerconfigjson` for registry auth |
 | registryCASecret | string | `""` | Secret containing a CA bundle |
 
@@ -38,9 +40,7 @@ runner:
   registrationTokenSecret: gitea-runner-secret
   registrationTokenKey: REGISTRATION_TOKEN
   name: runner-01
-  baseLabels: self-hosted
-  jobLabel: alpine
-  jobImage: alpine:3.20
+  labels: linux,amd64,self-hosted,alpine:docker://alpine:3.20
 
 registryAuthSecret: gitea-registry-auth
 registryAuthMountPath: /root/.docker/config.json
