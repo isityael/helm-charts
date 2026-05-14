@@ -97,8 +97,8 @@ limiterToml: |
 valkey:
   enabled: true
   image:
-    repository: valkey/valkey
-    tag: "8.1.4-alpine"
+    repository: dhi.io/valkey
+    tag: "9.0.4"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   url: ""
@@ -109,11 +109,17 @@ valkey:
     limits:
       cpu: 250m
       memory: 128Mi
+  podSecurityContext:
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    runAsUser: 1000
+    runAsGroup: 1000
   securityContext:
     allowPrivilegeEscalation: false
     runAsNonRoot: true
-    runAsUser: 999
-    runAsGroup: 999
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
     capabilities:
       drop:
         - ALL

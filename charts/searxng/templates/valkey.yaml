@@ -23,6 +23,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
+        fsGroup: {{ .Values.valkey.podSecurityContext.fsGroup }}
+        fsGroupChangePolicy: {{ .Values.valkey.podSecurityContext.fsGroupChangePolicy }}
+        runAsGroup: {{ .Values.valkey.podSecurityContext.runAsGroup }}
+        runAsUser: {{ .Values.valkey.podSecurityContext.runAsUser }}
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -41,6 +45,12 @@ spec:
             {{- toYaml .Values.valkey.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.valkey.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
