@@ -12,6 +12,7 @@ show_env   = false
 truncate   = true
 
 [tools]
+node        = "24.11.0"
 helm        = "4.1.4"
 kubectl     = "1.36.0"
 kustomize   = "5.8.1"

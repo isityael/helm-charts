@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.2
+version: 0.3.3
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,6 +42,8 @@ annotations:
     - name: Chart source
       url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Render the default Basic Memory image as a valid tag-plus-digest reference.
     - kind: fixed
       description: >-
         Bump livesync-bridge image to sha-9b7f43c74065a34f28855ce399b74c6c27a25673.

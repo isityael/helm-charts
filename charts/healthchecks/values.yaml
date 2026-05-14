@@ -3,7 +3,7 @@ revisionHistoryLimit: 2
 
 image:
   repository: ghcr.io/sm-moshi/healthchecks
-  tag: "latest"
+  tag: "1dec9daf@sha256:70bbd3e241175e37f82db9b3ad4c82027958d5f0e22255d3f00fcedfc602bc3c"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
