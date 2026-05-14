@@ -1,0 +1,28 @@
+apiVersion: v2
+name: healthchecks
+description: Helm chart for self-hosted Healthchecks cron and background task monitoring
+home: https://healthchecks.io
+icon: https://healthchecks.io/static/img/favicon.png
+type: application
+version: 0.1.0
+appVersion: "6.0.4"
+kubeVersion: ">=1.28.0-0"
+maintainers:
+  - name: m0sh1
+    email: sm@m0sh1.cc
+    url: https://github.com/sm-moshi
+sources:
+  - https://github.com/healthchecks/healthchecks
+  - https://github.com/sm-moshi/helm-charts
+keywords:
+  - healthchecks
+  - cron
+  - monitoring
+  - deadmans-switch
+annotations:
+  category: Monitoring
+  licenses: BSD-3-Clause
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial chart using the official Healthchecks image with external database support.

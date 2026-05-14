@@ -1,0 +1,34 @@
+apiVersion: v2
+name: privatebin
+description: Helm chart for PrivateBin encrypted paste and file sharing
+home: https://privatebin.info
+icon: https://privatebin.info/img/logo.svg
+type: application
+version: 0.1.0
+appVersion: "2.0.4"
+kubeVersion: ">=1.28.0-0"
+maintainers:
+  - name: m0sh1
+    email: sm@m0sh1.cc
+    url: https://github.com/sm-moshi
+sources:
+  - https://github.com/PrivateBin/PrivateBin
+  - https://github.com/PrivateBin/docker-nginx-fpm-alpine
+  - https://github.com/sm-moshi/helm-charts
+keywords:
+  - privatebin
+  - pastebin
+  - encrypted
+  - file-sharing
+annotations:
+  category: Productivity
+  licenses: Zlib
+  artifacthub.io/license: Zlib
+  artifacthub.io/links: |
+    - name: PrivateBin
+      url: https://privatebin.info
+    - name: Chart source
+      url: https://github.com/sm-moshi/helm-charts/tree/main/charts/privatebin
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial chart with Gateway API, persistence, noindex controls, and file upload support.

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "searxng.fullname" . }}-config
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+data:
+  settings.yml: |
+    use_default_settings: {{ .Values.settings.useDefaultSettings }}
+    server:
+      base_url: {{ .Values.settings.server.baseUrl | quote }}
+      method: {{ .Values.settings.server.method | quote }}
+      limiter: {{ .Values.settings.server.limiter }}
+      image_proxy: {{ .Values.settings.server.imageProxy }}
+      public_instance: {{ .Values.settings.server.publicInstance }}
+      secret_key: "__SEARXNG_SECRET__"
+    search:
+      safe_search: {{ .Values.settings.search.safeSearch }}
+      autocomplete: {{ .Values.settings.search.autocomplete | quote }}
+      formats:
+        {{- toYaml .Values.settings.search.formats | nindent 8 }}
+    ui:
+      default_theme: {{ .Values.settings.ui.defaultTheme | quote }}
+      query_in_title: {{ .Values.settings.ui.queryInTitle }}
+      infinite_scroll: {{ .Values.settings.ui.infiniteScroll }}
+      results_on_new_tab: {{ .Values.settings.ui.resultsOnNewTab }}
+    outgoing:
+      request_timeout: {{ .Values.settings.outgoing.requestTimeout }}
+      max_request_timeout: {{ .Values.settings.outgoing.maxRequestTimeout }}
+    {{- $valkeyUrl := include "searxng.valkeyUrl" . }}
+    {{- if $valkeyUrl }}
+    valkey:
+      url: {{ $valkeyUrl | quote }}
+    {{- end }}
+    {{- with .Values.settings.extra }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  limiter.toml: |
+{{ .Values.limiterToml | indent 4 }}

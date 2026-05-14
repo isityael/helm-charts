@@ -1,0 +1,17 @@
+{{- if and .Values.cache.enabled (not .Values.cache.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "searxng.fullname" . }}-cache
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.cache.accessMode }}
+  {{- if .Values.cache.storageClass }}
+  storageClassName: {{ .Values.cache.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.cache.size }}
+{{- end }}
