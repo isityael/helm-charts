@@ -85,7 +85,7 @@ meilisearch:
   url: ""
   image:
     repository: getmeili/meilisearch
-    tag: "v1.26.0"
+    tag: "v1.43.1@sha256:4407d9f9a4a5b8ef2e382827782b3dd6e0ecf8f2832ecb0344601691c13da149"
     pullPolicy: IfNotPresent
   podSecurityContext:
     fsGroup: 1000
