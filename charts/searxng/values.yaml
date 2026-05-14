@@ -53,8 +53,8 @@ configRenderer:
   securityContext:
     allowPrivilegeEscalation: false
     runAsNonRoot: true
-    runAsUser: 65534
-    runAsGroup: 65534
+    runAsUser: 977
+    runAsGroup: 977
     capabilities:
       drop:
         - ALL
