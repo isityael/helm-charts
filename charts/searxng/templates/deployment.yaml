@@ -67,6 +67,8 @@ spec:
               containerPort: {{ .Values.service.containerPort }}
               protocol: TCP
           env:
+            - name: SEARXNG_PORT
+              value: {{ .Values.service.containerPort | quote }}
             - name: SEARXNG_SETTINGS_PATH
               value: /etc/searxng/settings.yml
             {{- with .Values.env }}
