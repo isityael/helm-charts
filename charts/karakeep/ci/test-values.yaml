@@ -1,0 +1,31 @@
+image:
+  repository: ghcr.io/sm-moshi/karakeep
+  tag: ci
+
+env:
+  NEXTAUTH_URL: https://keep.example.com
+  DISABLE_SIGNUPS: "true"
+
+database:
+  values:
+    host: postgres.example.local
+    port: "5432"
+    name: karakeep
+    user: karakeep
+    password: ci-password
+
+secretEnv:
+  NEXTAUTH_SECRET:
+    secretName: karakeep-config
+    key: nextauth-secret
+  MEILI_MASTER_KEY:
+    secretName: karakeep-config
+    key: meili-master-key
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: gateway
+      namespace: traefik
+  hostnames:
+    - keep.example.com
