@@ -98,7 +98,7 @@ valkey:
   enabled: true
   image:
     repository: valkey/valkey
-    tag: "8.1.4-alpine"
+    tag: "9.0.4-alpine@sha256:d1cc70645bbcef743615463a2fa4616e841407545e18f560aed0c49671a90147"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   url: ""
