@@ -4,16 +4,22 @@ description: Helm chart for Gitea Actions runner with optional Docker-in-Docker
 icon: https://github.com/go-gitea.png
 home: https://gitea.com/gitea/act_runner
 type: application
-version: 0.6.4
-appVersion: "0.6.1"
+version: 1.0.0
+appVersion: "1.0.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
     email: sm@m0sh1.cc
 sources:
-  - https://gitea.com/gitea/act_runner
+  - https://gitea.com/gitea/runner
 keywords:
   - gitea
   - actions
   - runner
   - ci
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Migrate from act_runner 0.6.1 to Gitea Runner 1.0.3.
+    - kind: changed
+      description: Use the new gitea/runner image and official environment variable names.

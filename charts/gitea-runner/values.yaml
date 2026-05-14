@@ -29,8 +29,8 @@ dind:
 # -- Gitea Actions runner container
 runner:
   image:
-    repository: gitea/act_runner
-    tag: "0.6.1@sha256:b5c35d6bdbb9bb25e531230bfc7cc663cb751406cbec90a2a891b85fea54de86"
+    repository: gitea/runner
+    tag: "1.0.3@sha256:373d17d2bcd477a11c277b6ddd4cf6a14c29cc25cf579a0cbaa43a94dfc04f03"
     pullPolicy: IfNotPresent
   instanceURL: ""
   registrationTokenSecret: ""
@@ -39,6 +39,8 @@ runner:
   baseLabels: self-hosted
   jobLabel: ""
   jobImage: ""
+  labels: ""
+  dataMountPath: /data
   extraEnv: []
   securityContext:
     runAsUser: 0
