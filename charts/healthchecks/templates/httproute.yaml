@@ -1,0 +1,62 @@
+{{- if and .Values.ingress.enabled .Values.httpRoute.enabled -}}
+{{- fail "healthchecks chart: only one of ingress.enabled or httpRoute.enabled can be true" -}}
+{{- end -}}
+{{- if .Values.httpRoute.enabled -}}
+{{- if eq (len .Values.httpRoute.parentRefs) 0 -}}
+{{- fail "healthchecks chart: httpRoute.parentRefs must contain at least one Gateway parentRef when httpRoute.enabled=true" -}}
+{{- end -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "healthchecks.fullname" . }}
+  labels:
+    {{- include "healthchecks.labels" . | nindent 4 }}
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+  hostnames:
+    {{- if .Values.httpRoute.hostnames }}
+    {{- toYaml .Values.httpRoute.hostnames | nindent 4 }}
+    {{- else }}
+    {{- range .Values.ingress.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    {{- end }}
+  rules:
+    {{- range .Values.httpRoute.publicPaths }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ . | quote }}
+      {{- with $.Values.httpRoute.publicFilters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ include "healthchecks.fullname" $ }}
+          port: {{ $.Values.service.port }}
+          weight: 1
+    {{- end }}
+    {{- range .Values.httpRoute.privatePaths }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ . | quote }}
+      {{- with $.Values.httpRoute.privateFilters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ include "healthchecks.fullname" $ }}
+          port: {{ $.Values.service.port }}
+          weight: 1
+    {{- end }}
+{{- end }}

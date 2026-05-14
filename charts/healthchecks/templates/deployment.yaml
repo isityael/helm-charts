@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "healthchecks.fullname" . }}
+  labels:
+    {{- include "healthchecks.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "healthchecks.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        {{- include "healthchecks.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "healthchecks.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.migrate.enabled }}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            {{- toYaml .Values.migrate.command | nindent 12 }}
+          env:
+            {{- include "healthchecks.env" . | nindent 12 }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: healthchecks
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          env:
+            {{- include "healthchecks.env" . | nindent 12 }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

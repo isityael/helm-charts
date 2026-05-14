@@ -1,0 +1,18 @@
+env:
+  SITE_ROOT: https://checks.example.com
+  ALLOWED_HOSTS: checks.example.com
+database:
+  values:
+    host: cnpg-main-pooler.apps.svc.cluster.local
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - checks.example.com
+secretEnv:
+  SECRET_KEY:
+    secretName: healthchecks-config
+    key: secret-key

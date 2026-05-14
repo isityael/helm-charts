@@ -1,0 +1,4 @@
+PrivateBin is deployed.
+
+Service:
+  {{ include "privatebin.fullname" . }}:{{ .Values.service.port }}

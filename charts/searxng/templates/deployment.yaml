@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "searxng.fullname" . }}
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "searxng.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "searxng.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "searxng.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: render-config
+          image: "{{ .Values.configRenderer.image.repository }}:{{ .Values.configRenderer.image.tag }}"
+          imagePullPolicy: {{ .Values.configRenderer.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.configRenderer.securityContext | nindent 12 }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              secret_escaped="$(printf '%s' "$SEARXNG_SECRET" | sed 's/[\/&]/\\&/g')"
+              sed "s/__SEARXNG_SECRET__/${secret_escaped}/g" /config-src/settings.yml > /config-rendered/settings.yml
+              cp /config-src/limiter.toml /config-rendered/limiter.toml
+          env:
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-secret" (include "searxng.fullname" .)) .Values.secret.existingSecret }}
+                  key: {{ .Values.secret.existingSecretKey }}
+          volumeMounts:
+            - name: config-source
+              mountPath: /config-src
+              readOnly: true
+            - name: config-rendered
+              mountPath: /config-rendered
+      containers:
+        - name: searxng
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          env:
+            - name: SEARXNG_SETTINGS_PATH
+              value: /etc/searxng/settings.yml
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config-rendered
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
+              readOnly: true
+            - name: config-rendered
+              mountPath: /etc/searxng/limiter.toml
+              subPath: limiter.toml
+              readOnly: true
+            {{- if .Values.cache.enabled }}
+            - name: cache
+              mountPath: {{ .Values.cache.mountPath }}
+            {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config-source
+          configMap:
+            name: {{ include "searxng.fullname" . }}-config
+        - name: config-rendered
+          emptyDir: {}
+        {{- if .Values.cache.enabled }}
+        - name: cache
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-cache" (include "searxng.fullname" .)) .Values.cache.existingClaim }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,23 @@
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - bin.example.com
+ingress:
+  hosts:
+    - host: bin.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+persistence:
+  storageClass: local-path
+storage:
+  backend: s3
+  s3:
+    endpoint: https://s3.example.com
+    bucket: privatebin
+    existingSecret:
+      name: privatebin-s3

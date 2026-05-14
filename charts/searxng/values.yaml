@@ -1,0 +1,177 @@
+replicaCount: 1
+revisionHistoryLimit: 2
+
+image:
+  repository: ghcr.io/searxng/searxng
+  tag: "2026.5.13-8e5aa9d39"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 977
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 977
+  runAsGroup: 977
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+  readOnlyRootFilesystem: false
+
+service:
+  type: ClusterIP
+  port: 8080
+  containerPort: 8080
+
+env: []
+extraEnvFrom: []
+
+configRenderer:
+  image:
+    repository: busybox
+    tag: "1.37"
+    pullPolicy: IfNotPresent
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+secret:
+  existingSecret: ""
+  existingSecretKey: SEARXNG_SECRET
+  value: ""
+
+settings:
+  useDefaultSettings: true
+  server:
+    baseUrl: https://search.example.com/
+    method: GET
+    limiter: true
+    imageProxy: true
+    publicInstance: false
+  search:
+    safeSearch: 0
+    autocomplete: duckduckgo
+    formats:
+      - html
+      - json
+  ui:
+    defaultTheme: simple
+    queryInTitle: true
+    infiniteScroll: false
+    resultsOnNewTab: true
+  outgoing:
+    requestTimeout: 3.0
+    maxRequestTimeout: 10.0
+  extra: {}
+
+limiterToml: |
+  [botdetection.ip_limit]
+  link_token = true
+
+valkey:
+  enabled: true
+  image:
+    repository: valkey/valkey
+    tag: "8.1.4-alpine"
+    pullPolicy: IfNotPresent
+  url: ""
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
+cache:
+  enabled: true
+  storageClass: ""
+  size: 1Gi
+  accessMode: ReadWriteOnce
+  existingClaim: ""
+  mountPath: /var/cache/searxng
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: search.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+
+probes:
+  liveness:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    timeoutSeconds: 5
+    failureThreshold: 6
+  readiness:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: 750m
+    memory: 768Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

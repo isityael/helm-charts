@@ -1,0 +1,57 @@
+{{- if .Values.valkey.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "searxng.fullname" . }}-valkey
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "searxng.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: valkey
+  template:
+    metadata:
+      labels:
+        {{- include "searxng.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: valkey
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: valkey
+          image: "{{ .Values.valkey.image.repository }}:{{ .Values.valkey.image.tag }}"
+          imagePullPolicy: {{ .Values.valkey.image.pullPolicy }}
+          args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          ports:
+            - name: valkey
+              containerPort: 6379
+          securityContext:
+            {{- toYaml .Values.valkey.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.valkey.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "searxng.fullname" . }}-valkey
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+spec:
+  type: ClusterIP
+  ports:
+    - name: valkey
+      port: 6379
+      targetPort: valkey
+  selector:
+    {{- include "searxng.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+{{- end }}

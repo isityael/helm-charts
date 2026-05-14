@@ -1,0 +1,44 @@
+{{- if and .Values.ingress.enabled .Values.httpRoute.enabled -}}
+{{- fail "privatebin chart: only one of ingress.enabled or httpRoute.enabled can be true" -}}
+{{- end -}}
+{{- if .Values.httpRoute.enabled -}}
+{{- if eq (len .Values.httpRoute.parentRefs) 0 -}}
+{{- fail "privatebin chart: httpRoute.parentRefs must contain at least one Gateway parentRef when httpRoute.enabled=true" -}}
+{{- end -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "privatebin.fullname" . }}
+  labels:
+    {{- include "privatebin.labels" . | nindent 4 }}
+  {{- with .Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+  hostnames:
+    {{- if .Values.httpRoute.hostnames }}
+    {{- toYaml .Values.httpRoute.hostnames | nindent 4 }}
+    {{- else }}
+    {{- range .Values.ingress.hosts }}
+    - {{ .host | quote }}
+    {{- end }}
+    {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    {{- range .paths }}
+    - matches:
+        - path:
+            type: {{ if eq (.pathType | default "Prefix") "Exact" }}Exact{{ else }}PathPrefix{{ end }}
+            value: {{ .path | quote }}
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: {{ include "privatebin.fullname" $ }}
+          port: {{ $.Values.service.port }}
+          weight: 1
+    {{- end }}
+    {{- end }}
+{{- end }}

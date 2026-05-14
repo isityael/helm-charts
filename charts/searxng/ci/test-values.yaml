@@ -1,0 +1,21 @@
+secret:
+  value: test-secret-change-me
+settings:
+  server:
+    baseUrl: https://search.example.com/
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - search.example.com
+ingress:
+  hosts:
+    - host: search.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+cache:
+  storageClass: local-path

@@ -1,0 +1,155 @@
+replicaCount: 1
+revisionHistoryLimit: 2
+
+image:
+  repository: privatebin/nginx-fpm-alpine
+  tag: "2.0.4"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 65532
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+  readOnlyRootFilesystem: false
+
+service:
+  type: ClusterIP
+  port: 80
+  containerPort: 8080
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 2Gi
+  accessMode: ReadWriteOnce
+  existingClaim: ""
+  mountPath: /srv/data
+
+storage:
+  backend: filesystem
+  s3:
+    region: us-east-1
+    version: "2006-03-01"
+    endpoint: ""
+    bucket: ""
+    prefix: privatebin
+    usePathStyleEndpoint: true
+    existingSecret:
+      name: ""
+      accessKeyKey: accesskey
+      secretKeyKey: secretkey
+    accessKey: ""
+    secretKey: ""
+
+tmpVolume:
+  enabled: true
+
+config:
+  name: "PrivateBin"
+  fileUpload: true
+  sizeLimit: 16777216
+  defaultExpire: 1week
+  expireOptions:
+    5min: 300
+    10min: 600
+    1hour: 3600
+    1day: 86400
+    1week: 604800
+    1month: 2592000
+  defaultFormatter: plaintext
+  template: bootstrap5
+  discussion: false
+  password: true
+  burnAfterReadingSelected: false
+  qrcode: true
+  email: false
+  compression: zlib
+  trafficLimit: 10
+  purgeLimit: 300
+  purgeBatchSize: 10
+  extra: ""
+
+php:
+  uploadMaxFilesize: 16M
+  postMaxSize: 18M
+  memoryLimit: 32M
+
+noIndex:
+  enabled: true
+  robotsTxt: |
+    User-agent: *
+    Disallow: /
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: privatebin.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+
+probes:
+  liveness:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+  readiness:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

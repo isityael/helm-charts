@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "privatebin.fullname" . }}
+  labels:
+    {{- include "privatebin.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "privatebin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "privatebin.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "privatebin.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: privatebin
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          {{- if and (eq .Values.storage.backend "s3") .Values.storage.s3.existingSecret.name }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.storage.s3.existingSecret.name }}
+                  key: {{ .Values.storage.s3.existingSecret.accessKeyKey }}
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.storage.s3.existingSecret.name }}
+                  key: {{ .Values.storage.s3.existingSecret.secretKeyKey }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /srv/cfg/conf.php
+              subPath: conf.php
+              readOnly: true
+            - name: config
+              mountPath: /usr/local/etc/php/conf.d/uploads.ini
+              subPath: php.ini
+              readOnly: true
+            {{- if .Values.noIndex.enabled }}
+            - name: config
+              mountPath: /srv/robots.txt
+              subPath: robots.txt
+              readOnly: true
+            {{- end }}
+            {{- if and .Values.persistence.enabled (ne .Values.storage.backend "s3") }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+            {{- if .Values.tmpVolume.enabled }}
+            - name: tmp
+              mountPath: /tmp
+            {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "privatebin.fullname" . }}-config
+        {{- if and .Values.persistence.enabled (ne .Values.storage.backend "s3") }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-data" (include "privatebin.fullname" .)) .Values.persistence.existingClaim }}
+        {{- end }}
+        {{- if .Values.tmpVolume.enabled }}
+        - name: tmp
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
