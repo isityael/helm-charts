@@ -2,8 +2,8 @@ apiVersion: v2
 name: karakeep
 description: Kubernetes deployment for Karakeep with Postgres, Meilisearch, and browser crawling support
 type: application
-version: 0.1.3
-appVersion: "0.27.1"
+version: 0.1.4
+appVersion: "0.32.0"
 icon: https://raw.githubusercontent.com/karakeep-app/karakeep/main/apps/web/public/icons/logo-128.png
 sources:
   - https://github.com/karakeep-app/karakeep
@@ -11,4 +11,4 @@ sources:
 annotations:
   artifacthub.io/changes: |
     - kind: added
-      description: Add hostAliases support for split-horizon service discovery.
+      description: Add DATABASE_URL support for CNPG application secrets.

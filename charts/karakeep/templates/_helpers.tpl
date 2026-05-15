@@ -64,7 +64,16 @@ http://{{ include "karakeep.fullname" . }}-browser:9222
 {{- end }}
 - name: DB_DRIVER
   value: postgres
-{{- if .Values.database.existingSecret.name }}
+{{- if .Values.database.url }}
+- name: DATABASE_URL
+  value: {{ .Values.database.url | quote }}
+{{- else if and .Values.database.existingSecret.name .Values.database.existingSecret.keys.url }}
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.database.existingSecret.name }}
+      key: {{ .Values.database.existingSecret.keys.url }}
+{{- else if .Values.database.existingSecret.name }}
 - name: POSTGRES_HOST
   valueFrom:
     secretKeyRef:
