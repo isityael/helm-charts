@@ -49,7 +49,7 @@ livesyncBridge:
     repository: ghcr.io/sm-moshi/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-9b7f43c74065a34f28855ce399b74c6c27a25673@sha256:fbc9bf501cc2b02872b3c421d8cfffbc985c4a8860d946492f763518e0d071ea"
+    tag: "sha-8c018c0e282bc398b7b2720c022e96ed9bdd8565@sha256:8f983dfaf4da318fd85c9a8e7e7c429deef5e38008d17da1058bc136d16bb3cd"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.

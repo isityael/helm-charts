@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.3
+version: 0.3.4
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -43,10 +43,7 @@ annotations:
       url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
     - kind: fixed
-      description: Render the default Basic Memory image as a valid tag-plus-digest reference.
-    - kind: fixed
       description: >-
-        Bump livesync-bridge image to sha-9b7f43c74065a34f28855ce399b74c6c27a25673.
-        Fixes crash loop (TypeError: getSystemVaultName.setHandler is not a function)
-        caused by HeadlessAPIService promoting getSystemVaultName to a concrete method
-        in livesync-commonlib 0.25.54.
+        Bump livesync-bridge image to sha-8c018c0e282bc398b7b2720c022e96ed9bdd8565
+        with path confinement, stricter startup failure handling, ignorePaths
+        filtering for remote changes, and unreadable LiveSync document recovery.
