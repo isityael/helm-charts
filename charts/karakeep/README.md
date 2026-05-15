@@ -5,7 +5,8 @@ Deploys the m0sh1 Karakeep fork as an all-in-one web and worker container, backe
 The chart is designed for GitOps wrappers:
 
 - `DB_DRIVER=postgres` is set by default.
-- Postgres credentials can be consumed from CNPG-style secrets.
+- Postgres credentials can be consumed as a full `DATABASE_URL` or as discrete
+  `POSTGRES_*` values.
 - Meilisearch is deployed by the chart unless disabled.
 - Browser crawling is deployed by the chart unless disabled.
 - HTTPRoute and Ingress are mutually exclusive.
@@ -15,4 +16,11 @@ The chart is designed for GitOps wrappers:
 
 Set `secretEnv.NEXTAUTH_SECRET.secretName` and `secretEnv.MEILI_MASTER_KEY.secretName` to an existing Kubernetes Secret.
 
-For Postgres, set `database.existingSecret.name` to a secret containing `host`, `port`, `database`, `username`, and `password`, or override the key names under `database.existingSecret.keys`.
+For Postgres, either:
+
+- set `database.url` directly;
+- set `database.existingSecret.name` and `database.existingSecret.keys.url` to
+  consume a full connection URI from a secret key such as CNPG's `uri`; or
+- set `database.existingSecret.name` to a secret containing `host`, `port`,
+  `database`, `username`, and `password`, overriding the key names under
+  `database.existingSecret.keys` when needed.

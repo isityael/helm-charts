@@ -58,9 +58,16 @@ extraEnv: []
 extraEnvFrom: []
 
 database:
+  # Full Postgres connection string. If set, this takes precedence over
+  # database.existingSecret and database.values.
+  url: ""
   existingSecret:
     name: ""
     keys:
+      # Optional key containing a full Postgres connection URI. Useful for CNPG
+      # app secrets, which expose a `uri` key. Leave empty to use discrete
+      # POSTGRES_* variables instead.
+      url: ""
       host: host
       port: port
       name: database
