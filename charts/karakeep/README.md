@@ -9,6 +9,7 @@ The chart is designed for GitOps wrappers:
 - Meilisearch is deployed by the chart unless disabled.
 - Browser crawling is deployed by the chart unless disabled.
 - HTTPRoute and Ingress are mutually exclusive.
+- `hostAliases` can be set for split-horizon DNS cases such as in-cluster OIDC discovery.
 
 ## Required Secrets
 
