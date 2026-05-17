@@ -24,6 +24,10 @@ spec:
         - name: meilisearch
           image: "{{ .Values.meilisearch.image.repository }}:{{ .Values.meilisearch.image.tag }}"
           imagePullPolicy: {{ .Values.meilisearch.image.pullPolicy }}
+          {{- with .Values.meilisearch.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.meilisearch.args }}
           args:
             {{- toYaml . | nindent 12 }}
