@@ -24,6 +24,10 @@ spec:
         - name: meilisearch
           image: "{{ .Values.meilisearch.image.repository }}:{{ .Values.meilisearch.image.tag }}"
           imagePullPolicy: {{ .Values.meilisearch.image.pullPolicy }}
+          {{- with .Values.meilisearch.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.meilisearch.securityContext | nindent 12 }}
           ports:
@@ -39,6 +43,9 @@ spec:
                 secretKeyRef:
                   name: {{ default (printf "%s-config" (include "karakeep.fullname" .)) .Values.secretEnv.MEILI_MASTER_KEY.secretName }}
                   key: {{ .Values.secretEnv.MEILI_MASTER_KEY.key }}
+            {{- with .Values.meilisearch.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           volumeMounts:
             {{- if .Values.meilisearch.persistence.enabled }}
             - name: data
