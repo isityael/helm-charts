@@ -27,8 +27,8 @@ For Postgres, either:
 
 ## Meilisearch Upgrades
 
-The chart can pass startup arguments to the managed Meilisearch container with
-`meilisearch.args`.
+The chart can pass an explicit command and startup arguments to the managed
+Meilisearch container with `meilisearch.command` and `meilisearch.args`.
 
 Meilisearch data directories are version-sensitive. If an existing PVC was
 created by an older Meilisearch release, do not only change
@@ -39,6 +39,8 @@ supported v1.x upgrades, create a snapshot, then run the new image once with:
 meilisearch:
   image:
     tag: "v1.43.1@sha256:4407d9f9a4a5b8ef2e382827782b3dd6e0ecf8f2832ecb0344601691c13da149"
+  command:
+    - meilisearch
   args:
     - --experimental-dumpless-upgrade
 ```
