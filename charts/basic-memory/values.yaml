@@ -72,7 +72,7 @@ basicMemory:
 #     Reduces file-watcher thrash during churn-heavy sync bursts. Safe
 #     defaults for single-pod deployments; raise on beefier hosts.
 env:
-  BASIC_MEMORY_CONFIG_DIR: "/home/appuser/.basic-memory"
+  BASIC_MEMORY_CONFIG_DIR: "/home/appuser/.basic-memory/config"
   BASIC_MEMORY_HOME: "/app/data/basic-memory"
   BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR: "/app/data/fastembed_cache"
   BASIC_MEMORY_DEFAULT_PROJECT: "main"
