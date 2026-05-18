@@ -1,0 +1,50 @@
+# helm-charts - Release: package + publish proxmox-csi-plugin OCI chart
+#
+# Triggered by version tags (proxmox-csi-plugin-v*). Packages the chart, pushes
+# the OCI artifact to ghcr.io/sm-moshi/charts, and creates a GitHub release.
+when:
+  - event: tag
+    ref: refs/tags/proxmox-csi-plugin-v*
+
+steps:
+  - name: helm-lint
+    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    environment:
+      DHI_USERNAME:
+        from_secret: dhi_username
+      DHI_PASSWORD:
+        from_secret: dhi_password
+    commands:
+      - printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
+      - helm lint charts/proxmox-csi-plugin
+
+  - name: helm-package
+    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    environment:
+      GHCR_USERNAME:
+        from_secret: github_username
+      GHCR_TOKEN:
+        from_secret: github_token
+      DHI_USERNAME:
+        from_secret: dhi_username
+      DHI_PASSWORD:
+        from_secret: dhi_password
+    commands:
+      - printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
+      - helm package charts/proxmox-csi-plugin
+      - helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
+      - helm push proxmox-csi-plugin-*.tgz oci://ghcr.io/sm-moshi/charts
+
+  - name: github-release
+    image: woodpeckerci/plugin-release@sha256:caf18bc34de626dff1de0cc0638ee8dff11af6c9372a5f3d79ab27b91a5ee4d9
+    settings:
+      api_key:
+        from_secret: github_token
+      base_url: https://api.github.com
+      files:
+        - "proxmox-csi-plugin-*.tgz"
+      checksum:
+        - sha256
+      title: "${CI_COMMIT_TAG}"
+      note: "auto"
+      draft: false

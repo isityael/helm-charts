@@ -1,0 +1,20 @@
+apiVersion: v2
+appVersion: 8cd297d
+description: Container Storage Interface plugin for Proxmox (sm-moshi fork)
+home: https://github.com/sm-moshi/proxmox-csi-plugin
+icon: https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/main/charts/proxmox-csi-plugin/icon.png
+keywords:
+  - csi
+  - storage
+  - block-storage
+  - volume
+  - proxmox
+maintainers:
+  - email: sm@m0sh1.cc
+    name: m0sh1
+name: proxmox-csi-plugin
+sources:
+  - https://github.com/sergelogvinov/proxmox-csi-plugin
+  - https://github.com/sm-moshi/proxmox-csi-plugin
+type: application
+version: 0.5.8-sm.1
