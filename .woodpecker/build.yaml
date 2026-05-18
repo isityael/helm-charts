@@ -64,7 +64,7 @@ steps:
         done
 
   - name: kubeconform
-    image: ghcr.io/yannh/kubeconform:v0.7.0@sha256:85dbef6b4b312b99133decc9c6fc9495e9fc5f92293d4ff3b7e1b30f5611823c
+    image: ghcr.io/yannh/kubeconform:v0.7.0-alpine@sha256:8f0eeaaa96ba27ba1500b0e4b1c215acc358d159c62a7ecae58d7a03403287b0
     commands:
       - kubeconform -ignore-missing-schemas -summary .ci/rendered/*.yaml
       - rm -rf .ci/rendered
