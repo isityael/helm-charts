@@ -30,7 +30,7 @@ dind:
 runner:
   image:
     repository: gitea/runner
-    tag: "1.0.3@sha256:373d17d2bcd477a11c277b6ddd4cf6a14c29cc25cf579a0cbaa43a94dfc04f03"
+    tag: "1.0.4@sha256:13420c035c489be622e6662181822b769a4fb5712907f68b34c9e03d9b32b9c8"
     pullPolicy: IfNotPresent
   instanceURL: ""
   registrationTokenSecret: ""
