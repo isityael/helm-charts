@@ -47,6 +47,8 @@ steps:
           helm lint --with-subcharts "$chart"
         done
       - |
+        rm -rf .ci/rendered
+        mkdir -p .ci/rendered
         for chart in charts/*/; do
           [ -f "$chart/Chart.yaml" ] || continue
           name="$(basename "$chart")"
@@ -54,9 +56,15 @@ steps:
             echo "==> Rendering $chart with ci/test-values.yaml"
             helm template "ci-$name" "$chart" \
               --namespace "ci-$name" \
-              -f "$chart/ci/test-values.yaml" >/dev/null
+              -f "$chart/ci/test-values.yaml" > ".ci/rendered/$name.yaml"
           else
             echo "==> Rendering $chart with default values"
-            helm template "ci-$name" "$chart" --namespace "ci-$name" >/dev/null
+            helm template "ci-$name" "$chart" --namespace "ci-$name" > ".ci/rendered/$name.yaml"
           fi
         done
+
+  - name: kubeconform
+    image: ghcr.io/yannh/kubeconform:v0.7.0@sha256:85dbef6b4b312b99133decc9c6fc9495e9fc5f92293d4ff3b7e1b30f5611823c
+    commands:
+      - kubeconform -ignore-missing-schemas -summary .ci/rendered/*.yaml
+      - rm -rf .ci/rendered
