@@ -11,10 +11,10 @@ Helm chart for [Cloudflare Tunnel connector](https://developers.cloudflare.com/c
 ## Install
 
 ```bash
-helm repo add isityael https://isityael.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install cloudflared isityael/cloudflared -n cloudflared --create-namespace -f values.yaml
+helm install cloudflared yaelmoshi/cloudflared -n cloudflared --create-namespace -f values.yaml
 ```
 
 ## Configuration

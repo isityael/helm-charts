@@ -125,7 +125,7 @@ Deploy a single chart directly from the Git repository:
 
 ```yaml
 source:
-  repoURL: 'https://github.com/isityael/helm-charts'
+  repoURL: 'https://github.com/yaelmoshi/helm-charts'
   path: charts/example-app
   targetRevision: main
 ```

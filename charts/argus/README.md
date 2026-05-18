@@ -18,10 +18,10 @@ Helm chart for [Release-Argus](https://github.com/release-argus/Argus).
 ## Install
 
 ```bash
-helm repo add isityael https://isityael.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install argus isityael/argus -n argus --create-namespace
+helm install argus yaelmoshi/argus -n argus --create-namespace
 ```
 
 ## Configuration
@@ -59,7 +59,7 @@ config:
 Create a file (example included at `config/service.example.yaml`) and load it with `--set-file`:
 
 ```bash
-helm install argus isityael/argus \
+helm install argus yaelmoshi/argus \
   --set-file config.serviceFromFile=charts/argus/config/service.example.yaml
 ```
 

@@ -12,10 +12,10 @@ Helm chart for `tailscale-webhook-relay`, a webhook relay that verifies Tailscal
 ## Install
 
 ```bash
-helm repo add isityael https://isityael.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install tailscale-webhook-relay isityael/tailscale-webhook-relay \
+helm install tailscale-webhook-relay yaelmoshi/tailscale-webhook-relay \
   -n tailscale --create-namespace \
   --set ntfyURL=https://ntfy.example.com/tailscale-events \
   --set existingSecret=tailscale-webhook-relay

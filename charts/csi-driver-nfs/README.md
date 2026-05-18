@@ -12,10 +12,10 @@ Helm chart for the Kubernetes [CSI Driver NFS](https://github.com/kubernetes-csi
 ## Install
 
 ```bash
-helm repo add isityael https://isityael.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install csi-driver-nfs isityael/csi-driver-nfs -n kube-system
+helm install csi-driver-nfs yaelmoshi/csi-driver-nfs -n kube-system
 ```
 
 ## Configuration

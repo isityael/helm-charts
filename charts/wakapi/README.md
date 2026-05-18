@@ -13,10 +13,10 @@ Helm chart for [Wakapi](https://wakapi.dev), a self-hosted WakaTime-compatible c
 ## Install
 
 ```bash
-helm repo add isityael https://isityael.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install wakapi isityael/wakapi -n wakapi --create-namespace -f values.yaml
+helm install wakapi yaelmoshi/wakapi -n wakapi --create-namespace -f values.yaml
 ```
 
 ## Configuration
