@@ -43,10 +43,10 @@ imagePullSecrets: []
 # Pinned to a full commit SHA for reproducibility. Auto-bumped by Renovate's
 # github-tags + currentDigest pattern.
 #
-# Upstream: https://github.com/sm-moshi/livesync-bridge
+# Upstream: https://github.com/yaelmoshi/livesync-bridge
 livesyncBridge:
   image:
-    repository: ghcr.io/sm-moshi/livesync-bridge
+    repository: ghcr.io/yaelmoshi/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
     tag: "sha-8c018c0e282bc398b7b2720c022e96ed9bdd8565@sha256:8f983dfaf4da318fd85c9a8e7e7c429deef5e38008d17da1058bc136d16bb3cd"

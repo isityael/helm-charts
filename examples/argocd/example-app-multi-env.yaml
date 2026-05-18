@@ -16,7 +16,7 @@
 #   project: default
 #
 #   source:
-#     repoURL: 'https://github.com/sm-moshi/helm-charts'
+#     repoURL: 'https://github.com/yaelmoshi/helm-charts'
 #     path: examples/argocd/apps
 #     targetRevision: main
 #
@@ -40,7 +40,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/sm-moshi/helm-charts'
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
     path: charts/example-app
     targetRevision: main
 
@@ -79,7 +79,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/sm-moshi/helm-charts'
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
     path: charts/example-app
     targetRevision: main
 
@@ -118,7 +118,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/sm-moshi/helm-charts'
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
     path: charts/example-app
     targetRevision: main
 

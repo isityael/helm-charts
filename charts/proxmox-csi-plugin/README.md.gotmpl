@@ -9,7 +9,7 @@
 The Container Storage Interface (CSI) plugin is a specification designed to standardize the way container orchestration systems like Kubernetes, interact with different storage systems. The CSI plugin abstracts the underlying storage, enabling the seamless integration of different storage solutions (such as local block devices, file systems, or cloud-based storage) with containerized applications.
 
 This plugin allows Kubernetes to use `Proxmox VE` storage as a persistent storage solution for stateful applications.
-This chart tracks the upstream chart layout, but defaults to the sm-moshi images and sidecars used by m0sh1.cc clusters.
+This chart tracks the upstream chart layout, but defaults to the yaelmoshi images and sidecars used by m0sh1.cc clusters.
 Supported storage types:
 - Directory
 - LVM
@@ -90,7 +90,7 @@ kubectl create ns csi-proxmox
 kubectl label ns csi-proxmox pod-security.kubernetes.io/enforce=privileged
 # Install Proxmox CSI plugin
 helm upgrade -i --namespace=csi-proxmox -f proxmox-csi.yaml \
-    proxmox-csi-plugin oci://ghcr.io/sm-moshi/charts/proxmox-csi-plugin
+    proxmox-csi-plugin oci://ghcr.io/yaelmoshi/charts/proxmox-csi-plugin
 ```
 
 {{ template "chart.valuesSection" . }}

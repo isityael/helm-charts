@@ -2,7 +2,7 @@ replicaCount: 1
 revisionHistoryLimit: 2
 
 image:
-  repository: ghcr.io/sm-moshi/karakeep
+  repository: ghcr.io/yaelmoshi/karakeep
   tag: "30fa6ab6@sha256:8606aa8ed4a9bf395e336ab757981667d6595678472304542d7afd572eeaa8b3"
   pullPolicy: IfNotPresent
 

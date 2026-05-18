@@ -1,7 +1,7 @@
 # helm-charts - Release: package + publish proxmox-csi-plugin OCI chart
 #
 # Triggered by version tags (proxmox-csi-plugin-v*). Packages the chart, pushes
-# the OCI artifact to ghcr.io/sm-moshi/charts, and creates a GitHub release.
+# the OCI artifact to ghcr.io/yaelmoshi/charts, and creates a GitHub release.
 when:
   - event: tag
     ref: refs/tags/proxmox-csi-plugin-v*
@@ -33,7 +33,7 @@ steps:
       - printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
       - helm package charts/proxmox-csi-plugin
       - helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
-      - helm push proxmox-csi-plugin-*.tgz oci://ghcr.io/sm-moshi/charts
+      - helm push proxmox-csi-plugin-*.tgz oci://ghcr.io/yaelmoshi/charts
 
   - name: github-release
     image: woodpeckerci/plugin-release@sha256:caf18bc34de626dff1de0cc0638ee8dff11af6c9372a5f3d79ab27b91a5ee4d9

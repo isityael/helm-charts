@@ -57,4 +57,4 @@ Components enabled:
 {{- end }}
 
 Upstream docs: https://memory.basicmachines.co
-Chart source:  https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
+Chart source:  https://github.com/yaelmoshi/helm-charts/tree/main/charts/basic-memory

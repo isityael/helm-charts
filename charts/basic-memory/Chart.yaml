@@ -14,11 +14,11 @@ kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
     email: sm@m0sh1.cc
-    url: https://github.com/sm-moshi
+    url: https://github.com/yaelmoshi
 sources:
   - https://github.com/basicmachines-co/basic-memory
-  - https://github.com/sm-moshi/helm-charts
-  - https://github.com/sm-moshi/livesync-bridge
+  - https://github.com/yaelmoshi/helm-charts
+  - https://github.com/yaelmoshi/livesync-bridge
 keywords:
   - basic-memory
   - mcp
@@ -40,7 +40,7 @@ annotations:
     - name: Basic Memory source
       url: https://github.com/basicmachines-co/basic-memory
     - name: Chart source
-      url: https://github.com/sm-moshi/helm-charts/tree/main/charts/basic-memory
+      url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
     - kind: fixed
       description: >-

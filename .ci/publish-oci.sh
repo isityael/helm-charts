@@ -31,7 +31,7 @@ for chart in charts/*/; do
   name="$(basename "$chart")"
   version="$(grep '^version:' "$chartfile" | awk '{print $2}')"
 
-  if helm show chart "oci://ghcr.io/sm-moshi/charts/${name}" --version "${version}" >/dev/null 2>&1; then
+  if helm show chart "oci://ghcr.io/yaelmoshi/charts/${name}" --version "${version}" >/dev/null 2>&1; then
     echo "SKIP ${name}:${version} (already on GHCR)"
     continue
   fi
@@ -44,5 +44,5 @@ for chart in charts/*/; do
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
-  helm push "$pkg" oci://ghcr.io/sm-moshi/charts
+  helm push "$pkg" oci://ghcr.io/yaelmoshi/charts
 done

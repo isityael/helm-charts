@@ -5,7 +5,7 @@ A Helm chart for [Basic Memory](https://github.com/basicmachines-co/basic-memory
 This chart ships the upstream Basic Memory server with two **optional** sidecar profiles for power users:
 
 - **MCP shim** — a small Deno reverse proxy that normalises non-compliant JSON-RPC from buggy MCP clients, injects a default project argument, enforces a write-directory allowlist, and throttles mutating tool calls.
-- **Obsidian LiveSync** — a CouchDB + [`livesync-bridge`](https://github.com/sm-moshi/livesync-bridge) sidecar pair that bidirectionally syncs the Basic Memory notes directory with an Obsidian vault via the [Self-hosted LiveSync](https://github.com/vrtmrz/obsidian-livesync) plugin.
+- **Obsidian LiveSync** — a CouchDB + [`livesync-bridge`](https://github.com/yaelmoshi/livesync-bridge) sidecar pair that bidirectionally syncs the Basic Memory notes directory with an Obsidian vault via the [Self-hosted LiveSync](https://github.com/vrtmrz/obsidian-livesync) plugin.
 
 Both profiles are **disabled by default**. A plain `helm install` gives you a single clean Basic Memory pod and nothing else.
 
@@ -14,16 +14,16 @@ Both profiles are **disabled by default**. A plain `helm install` gives you a si
 This chart is published as an **OCI artifact** on GitHub Container Registry. Helm 3.8+ can install directly from OCI — no `helm repo add` needed:
 
 ```bash
-helm install basic-memory oci://ghcr.io/sm-moshi/charts/basic-memory
+helm install basic-memory oci://ghcr.io/yaelmoshi/charts/basic-memory
 ```
 
 Or pin a specific version:
 
 ```bash
-helm install basic-memory oci://ghcr.io/sm-moshi/charts/basic-memory --version 0.3.7
+helm install basic-memory oci://ghcr.io/yaelmoshi/charts/basic-memory --version 0.3.7
 ```
 
-See [all available versions](https://github.com/sm-moshi/helm-charts/pkgs/container/charts%2Fbasic-memory) on GHCR.
+See [all available versions](https://github.com/yaelmoshi/helm-charts/pkgs/container/charts%2Fbasic-memory) on GHCR.
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ ingress:
 ```
 
 ```bash
-helm install basic-memory oci://ghcr.io/sm-moshi/charts/basic-memory -f values.yaml
+helm install basic-memory oci://ghcr.io/yaelmoshi/charts/basic-memory -f values.yaml
 ```
 
 Your MCP client (Claude Desktop, Cursor, Continue, etc.) connects to `https://basic-memory.example.com/mcp`.
@@ -178,7 +178,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 |---|---|---|
 | `image.repository` | `ghcr.io/basicmachines-co/basic-memory` | Upstream Basic Memory image |
 | `image.tag` | `""` (uses chart appVersion) | Override tag |
-| `livesyncBridge.image.repository` | `ghcr.io/sm-moshi/livesync-bridge` | Canonical livesync-bridge image for all optional sidecars |
+| `livesyncBridge.image.repository` | `ghcr.io/yaelmoshi/livesync-bridge` | Canonical livesync-bridge image for all optional sidecars |
 | `livesyncBridge.image.tag` | *(pinned SHA)* | See *Image inheritance* below |
 | `persistence.enabled` | `true` | PVC for notes + model cache |
 | `persistence.size` | `5Gi` | Scale this to your vault size |
@@ -255,5 +255,5 @@ See [`examples/`](./examples/) for full values files covering:
 ## Credits
 
 - Upstream Basic Memory by [basicmachines-co](https://github.com/basicmachines-co/basic-memory) (AGPL-3.0)
-- MCP shim + LiveSync bridge by [@sm-moshi](https://github.com/sm-moshi)
-- Chart by [@sm-moshi](https://github.com/sm-moshi)
+- MCP shim + LiveSync bridge by [@yaelmoshi](https://github.com/yaelmoshi)
+- Chart by [@yaelmoshi](https://github.com/yaelmoshi)

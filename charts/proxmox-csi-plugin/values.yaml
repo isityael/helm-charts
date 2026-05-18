@@ -55,7 +55,7 @@ existingConfigSecretKey: config.yaml
 configFile: /etc/proxmox/config.yaml
 
 # -- Proxmox cluster config.
-# ref: https://github.com/sm-moshi/proxmox-csi-plugin/blob/sm-moshi/main/docs/install.md
+# ref: https://github.com/yaelmoshi/proxmox-csi-plugin/blob/yaelmoshi/main/docs/install.md
 config:
   features:
     # specify provider: proxmox if you are using capmox (cluster api provider for proxmox)
@@ -115,7 +115,7 @@ controller:
   plugin:
     # -- Controller CSI Driver.
     image:
-      repository: ghcr.io/sm-moshi/proxmox-csi-controller
+      repository: ghcr.io/yaelmoshi/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: edge@sha256:d98f543109af5b350de1d78f70affcf60027c8194d73d8e637098637a487df1c
@@ -197,7 +197,7 @@ node:
   plugin:
     # -- Node CSI Driver.
     image:
-      repository: ghcr.io/sm-moshi/proxmox-csi-node
+      repository: ghcr.io/yaelmoshi/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: edge@sha256:0993d6c5dae2202ffd787d7b33c4ef59c3ab61a4522971d1ed1e0b4f1fa8950c

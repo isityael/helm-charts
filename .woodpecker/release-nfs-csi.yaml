@@ -1,7 +1,7 @@
 # helm-charts — Release: package + publish csi-driver-nfs OCI chart
 #
 # Triggered by version tags (csi-driver-nfs-v*). Packages the chart, pushes
-# the OCI artifact to ghcr.io/sm-moshi/charts, and creates a GitHub release.
+# the OCI artifact to ghcr.io/yaelmoshi/charts, and creates a GitHub release.
 when:
   - event: tag
     ref: refs/tags/csi-driver-nfs-v*
@@ -22,7 +22,7 @@ steps:
     commands:
       - helm package charts/csi-driver-nfs
       - helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
-      - helm push csi-driver-nfs-*.tgz oci://ghcr.io/sm-moshi/charts
+      - helm push csi-driver-nfs-*.tgz oci://ghcr.io/yaelmoshi/charts
 
   - name: github-release
     image: woodpeckerci/plugin-release@sha256:caf18bc34de626dff1de0cc0638ee8dff11af6c9372a5f3d79ab27b91a5ee4d9

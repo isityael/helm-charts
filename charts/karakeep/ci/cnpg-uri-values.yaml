@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/sm-moshi/karakeep
+  repository: ghcr.io/yaelmoshi/karakeep
   tag: ci
 
 env:

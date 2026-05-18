@@ -9,7 +9,7 @@ maintainers:
   - name: m0sh1
     email: sm@m0sh1.cc
 sources:
-  - https://github.com/sm-moshi/infra-cli
+  - https://github.com/yaelmoshi/infra-cli
 keywords:
   - tailscale
   - webhook

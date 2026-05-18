@@ -7,7 +7,7 @@ appVersion: "0.32.0"
 icon: https://raw.githubusercontent.com/karakeep-app/karakeep/main/apps/web/public/icons/logo-128.png
 sources:
   - https://github.com/karakeep-app/karakeep
-  - https://github.com/sm-moshi/karakeep
+  - https://github.com/yaelmoshi/karakeep
 annotations:
   artifacthub.io/changes: |
     - kind: added

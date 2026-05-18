@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/sm-moshi/helm-charts'
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
     path: charts/gitea-runner
     targetRevision: main
     helm:

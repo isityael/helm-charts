@@ -13,7 +13,7 @@ spec:
   # Source of the application manifests
   source:
     # Repository URL
-    repoURL: 'https://github.com/sm-moshi/helm-charts'
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
 
     # Path to the Helm chart
     path: charts/example-app

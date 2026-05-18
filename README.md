@@ -1,15 +1,15 @@
 # Helm Charts
 
-Helm charts published as OCI artefacts to `oci://ghcr.io/sm-moshi/charts`.
+Helm charts published as OCI artefacts to `oci://ghcr.io/yaelmoshi/charts`.
 
 ## Usage
 
 ```bash
 # Pull a chart
-helm pull oci://ghcr.io/sm-moshi/charts/<chart-name> --version <version>
+helm pull oci://ghcr.io/yaelmoshi/charts/<chart-name> --version <version>
 
 # Install directly from OCI
-helm install <release-name> oci://ghcr.io/sm-moshi/charts/<chart-name> --version <version>
+helm install <release-name> oci://ghcr.io/yaelmoshi/charts/<chart-name> --version <version>
 ```
 
 ## Charts
@@ -18,7 +18,7 @@ helm install <release-name> oci://ghcr.io/sm-moshi/charts/<chart-name> --version
 |-------|---------|-------------|
 | `argus` | 0.7.0 | Release monitoring (Release-Argus) |
 | `cloudflared` | 1.1.0 | Cloudflare Tunnel connector |
-| `csi-driver-nfs` | 4.14.1 | NFS CSI driver (sm-moshi fork with configurable fsGroupPolicy) |
+| `csi-driver-nfs` | 4.14.1 | NFS CSI driver (yaelmoshi fork with configurable fsGroupPolicy) |
 | `cyberchef` | 0.4.0 | CyberChef data utilities |
 | `gitea-runner` | 0.4.0 | Gitea Actions runner with Docker-in-Docker |
 | `homepage` | 0.5.0 | Homepage dashboard |

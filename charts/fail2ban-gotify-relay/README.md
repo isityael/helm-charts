@@ -12,10 +12,10 @@ Helm chart for `fail2ban-gotify-relay`, a webhook relay that forwards fail2ban-u
 ## Install
 
 ```bash
-helm repo add sm-moshi https://sm-moshi.github.io/helm-charts
+helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
 helm repo update
 
-helm install fail2ban-gotify-relay sm-moshi/fail2ban-gotify-relay \
+helm install fail2ban-gotify-relay yaelmoshi/fail2ban-gotify-relay \
   -n fail2ban --create-namespace \
   --set gotifyURL=http://gotify.default.svc.cluster.local \
   --set existingSecret=fail2ban-gotify-relay

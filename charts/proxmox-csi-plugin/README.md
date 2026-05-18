@@ -2,12 +2,12 @@
 
 ![Version: 0.5.8-sm.1](https://img.shields.io/badge/Version-0.5.8--sm.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8cd297d](https://img.shields.io/badge/AppVersion-8cd297d-informational?style=flat-square)
 
-Container Storage Interface plugin for Proxmox (sm-moshi fork)
+Container Storage Interface plugin for Proxmox (yaelmoshi fork)
 
 The Container Storage Interface (CSI) plugin is a specification designed to standardize the way container orchestration systems like Kubernetes, interact with different storage systems. The CSI plugin abstracts the underlying storage, enabling the seamless integration of different storage solutions (such as local block devices, file systems, or cloud-based storage) with containerized applications.
 
 This plugin allows Kubernetes to use `Proxmox VE` storage as a persistent storage solution for stateful applications.
-This chart tracks the upstream chart layout, but defaults to the sm-moshi images and sidecars used by m0sh1.cc clusters.
+This chart tracks the upstream chart layout, but defaults to the yaelmoshi images and sidecars used by m0sh1.cc clusters.
 Supported storage types:
 - Directory
 - LVM
@@ -16,7 +16,7 @@ Supported storage types:
 - NFS
 - Ceph
 
-**Homepage:** <https://github.com/sm-moshi/proxmox-csi-plugin>
+**Homepage:** <https://github.com/yaelmoshi/proxmox-csi-plugin>
 
 ## Maintainers
 
@@ -27,7 +27,7 @@ Supported storage types:
 ## Source Code
 
 * <https://github.com/sergelogvinov/proxmox-csi-plugin>
-* <https://github.com/sm-moshi/proxmox-csi-plugin>
+* <https://github.com/yaelmoshi/proxmox-csi-plugin>
 
 ## Proxmox permissions
 
@@ -93,7 +93,7 @@ kubectl create ns csi-proxmox
 kubectl label ns csi-proxmox pod-security.kubernetes.io/enforce=privileged
 # Install Proxmox CSI plugin
 helm upgrade -i --namespace=csi-proxmox -f proxmox-csi.yaml \
-    proxmox-csi-plugin oci://ghcr.io/sm-moshi/charts/proxmox-csi-plugin
+    proxmox-csi-plugin oci://ghcr.io/yaelmoshi/charts/proxmox-csi-plugin
 ```
 
 ## Values
@@ -115,11 +115,11 @@ helm upgrade -i --namespace=csi-proxmox -f proxmox-csi.yaml \
 | existingConfigSecret | string | `nil` | Proxmox cluster config stored in secrets. |
 | existingConfigSecretKey | string | `"config.yaml"` | Proxmox cluster config stored in secrets key. |
 | configFile | string | `"/etc/proxmox/config.yaml"` | Proxmox cluster config path. |
-| config | object | `{"clusters":[],"features":{"provider":"default"}}` | Proxmox cluster config. ref: https://github.com/sm-moshi/proxmox-csi-plugin/blob/sm-moshi/main/docs/install.md |
+| config | object | `{"clusters":[],"features":{"provider":"default"}}` | Proxmox cluster config. ref: https://github.com/yaelmoshi/proxmox-csi-plugin/blob/yaelmoshi/main/docs/install.md |
 | storageClass | list | `[]` | Storage class definition. |
 | controller.podAnnotations | object | `{}` | Annotations for controller pod. ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | controller.podLabels | object | `{}` | Labels for controller pod. ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
-| controller.plugin.image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/sm-moshi/proxmox-csi-controller","tag":"edge@sha256:d98f543109af5b350de1d78f70affcf60027c8194d73d8e637098637a487df1c"}` | Controller CSI Driver. |
+| controller.plugin.image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/yaelmoshi/proxmox-csi-controller","tag":"edge@sha256:d98f543109af5b350de1d78f70affcf60027c8194d73d8e637098637a487df1c"}` | Controller CSI Driver. |
 | controller.plugin.resources | object | `{"requests":{"cpu":"10m","memory":"16Mi"}}` | Controller resource requests and limits. ref: https://kubernetes.io/docs/user-guide/compute-resources/ |
 | controller.attacher.image | object | `{"pullPolicy":"IfNotPresent","repository":"dhi.io/csi-attacher","tag":"4.11.0-debian13"}` | CSI Attacher. ref: https://github.com/kubernetes-csi/external-attacher |
 | controller.attacher.args | list | `["--default-fstype=ext4"]` | Attacher arguments. example: --default-fstype=ext4 |
@@ -134,7 +134,7 @@ helm upgrade -i --namespace=csi-proxmox -f proxmox-csi.yaml \
 | controller.snapshotter.image | object | `{"pullPolicy":"IfNotPresent","repository":"dhi.io/csi-snapshotter","tag":"8.5.0-debian13"}` | CSI Snapshotter. refs: https://github.com/kubernetes-csi/external-snapshotter |
 | controller.snapshotter.args | list | `[]` | Snapshotter arguments. example: --feature-gates=CSIVolumeGroupSnapshot=true |
 | controller.snapshotter.resources | object | `{"requests":{"cpu":"10m","memory":"16Mi"}}` | Snapshotter resource requests and limits. ref: https://kubernetes.io/docs/user-guide/compute-resources/ |
-| node.plugin.image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/sm-moshi/proxmox-csi-node","tag":"edge@sha256:0993d6c5dae2202ffd787d7b33c4ef59c3ab61a4522971d1ed1e0b4f1fa8950c"}` | Node CSI Driver. |
+| node.plugin.image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/yaelmoshi/proxmox-csi-node","tag":"edge@sha256:0993d6c5dae2202ffd787d7b33c4ef59c3ab61a4522971d1ed1e0b4f1fa8950c"}` | Node CSI Driver. |
 | node.plugin.resources | object | `{}` | Node CSI Driver resource requests and limits. ref: https://kubernetes.io/docs/user-guide/compute-resources/ |
 | node.driverRegistrar.image | object | `{"pullPolicy":"IfNotPresent","repository":"dhi.io/csi-node-driver-registrar","tag":"2.16.0-debian13"}` | Node CSI driver registrar. ref: https://github.com/kubernetes-csi/node-driver-registrar |
 | node.driverRegistrar.args | list | `[]` | Driver registrar arguments. example: --timeout=60s |
