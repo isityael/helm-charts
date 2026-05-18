@@ -71,9 +71,10 @@ spec:
             - -c
             - |
               set -eu
-              mkdir -p /config-home
-              cp /config-src/config.json /config-home/config.json
-              chmod 0644 /config-home/config.json
+              mkdir -p /config-home/config
+              cp /config-src/config.json /config-home/config/config.json
+              chmod 0700 /config-home/config
+              chmod 0644 /config-home/config/config.json
           volumeMounts:
             - name: basic-memory-config
               mountPath: /config-src
