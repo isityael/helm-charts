@@ -72,6 +72,7 @@ basicMemory:
 #     Reduces file-watcher thrash during churn-heavy sync bursts. Safe
 #     defaults for single-pod deployments; raise on beefier hosts.
 env:
+  BASIC_MEMORY_CONFIG_DIR: "/home/appuser/.basic-memory"
   BASIC_MEMORY_HOME: "/app/data/basic-memory"
   BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR: "/app/data/fastembed_cache"
   BASIC_MEMORY_DEFAULT_PROJECT: "main"
@@ -358,8 +359,13 @@ obsidianSync:
       - ".smart-env"
       - ".trash"
       - ".deno"
+      - ".basic-memory-config"
+      - ".basic-memory-config/**"
       - "node_modules"
       - "fastembed_cache"
+      - "fastembed_cache/**"
+      - "basic-memory/fastembed_cache"
+      - "basic-memory/fastembed_cache/**"
       - "*.tmp"
     resources:
       requests:

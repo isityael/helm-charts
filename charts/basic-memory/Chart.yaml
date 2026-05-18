@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.4
+version: 0.3.5
 appVersion: "0.20.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -44,6 +44,5 @@ annotations:
   artifacthub.io/changes: |
     - kind: fixed
       description: >-
-        Bump livesync-bridge image to sha-8c018c0e282bc398b7b2720c022e96ed9bdd8565
-        with path confinement, stricter startup failure handling, ignorePaths
-        filtering for remote changes, and unreadable LiveSync document recovery.
+        Keep Basic Memory's runtime SQLite configuration directory out of the
+        LiveSync data tree and ignore runtime/cache paths during sync.
