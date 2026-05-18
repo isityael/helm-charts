@@ -15,5 +15,5 @@ Helm chart for PrivateBin encrypted paste and file sharing.
 ## Install
 
 ```bash
-helm install privatebin oci://ghcr.io/sm-moshi/charts/privatebin --version 0.1.0
+helm install privatebin oci://ghcr.io/sm-moshi/charts/privatebin --version 0.1.2
 ```

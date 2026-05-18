@@ -13,7 +13,7 @@ Helm chart for SearXNG metasearch.
 ## Install
 
 ```bash
-helm install searxng oci://ghcr.io/sm-moshi/charts/searxng --version 0.1.5
+helm install searxng oci://ghcr.io/sm-moshi/charts/searxng --version 0.1.6
 ```
 
 ## Configuration

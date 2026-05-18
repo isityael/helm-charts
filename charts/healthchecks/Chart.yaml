@@ -4,7 +4,7 @@ description: Helm chart for self-hosted Healthchecks cron and background task mo
 home: https://healthchecks.io
 icon: https://healthchecks.io/static/img/favicon.png
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "v4.2"
 kubeVersion: ">=1.28.0-0"
 maintainers:
