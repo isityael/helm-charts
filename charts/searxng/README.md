@@ -13,7 +13,7 @@ Helm chart for SearXNG metasearch.
 ## Install
 
 ```bash
-helm install searxng oci://ghcr.io/isityael/charts/searxng --version 0.1.3
+helm install searxng oci://ghcr.io/isityael/charts/searxng --version 0.1.5
 ```
 
 ## Configuration

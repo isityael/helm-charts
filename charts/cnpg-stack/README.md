@@ -13,7 +13,7 @@ CloudNativePG wrapper chart for deploying:
 ## Install
 
 ```bash
-helm install cnpg-stack oci://ghcr.io/isityael/charts/cnpg-stack --version 0.1.0
+helm install cnpg-stack oci://ghcr.io/isityael/charts/cnpg-stack --version 0.13.11
 ```
 
 ## Configure

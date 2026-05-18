@@ -20,7 +20,7 @@ helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory
 Or pin a specific version:
 
 ```bash
-helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory --version 0.1.0
+helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory --version 0.3.7
 ```
 
 See [all available versions](https://github.com/isityael/helm-charts/pkgs/container/charts%2Fbasic-memory) on GHCR.
