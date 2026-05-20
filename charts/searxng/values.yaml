@@ -47,8 +47,8 @@ extraEnvFrom: []
 
 configRenderer:
   image:
-    repository: busybox
-    tag: "1.37@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e"
+    repository: dhi.io/busybox
+    tag: "1.37.0-debian13"
     pullPolicy: IfNotPresent
   securityContext:
     allowPrivilegeEscalation: false
@@ -98,7 +98,7 @@ valkey:
   enabled: true
   image:
     repository: dhi.io/valkey
-    tag: "9.1.0@sha256:efdf3b6a0c3cf63c56783c3f51c21749ba0a8dc30196953208774e0d32e24cb8"
+    tag: "9.1.0-debian13@sha256:54bfadfa9596a4c24ad1879b190401310b0a767697e5ac58b198020568961b23"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   url: ""
