@@ -4,7 +4,7 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "11.3.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
