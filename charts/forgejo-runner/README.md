@@ -38,6 +38,7 @@ non-root runner container by default.
 | persistence.enabled | bool | `false` | Persist `/data`, including `.runner` and cache data, with a PVC |
 | registryAuthSecret | string | `""` | Secret with `.dockerconfigjson` for registry auth |
 | registryCASecret | string | `""` | Secret containing a CA bundle |
+| namespaceOverride | string | `""` | Render runner resources into a namespace other than the Helm release namespace |
 
 For full configuration options, see `values.yaml`.
 
@@ -57,6 +58,8 @@ runner:
   registrationTokenKey: REGISTRATION_TOKEN
   name: runner-01
   labels: docker:docker://data.forgejo.org/oci/alpine:3.20,node22:docker://node:22-bookworm
+
+namespaceOverride: forgejo-runners
 
 persistence:
   enabled: true

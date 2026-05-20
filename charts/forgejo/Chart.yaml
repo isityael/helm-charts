@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "15.0.2"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -47,13 +47,13 @@ annotations:
     - kind: added
       description: Include optional forgejo-runner subchart dependency for co-deploying Actions runners.
     - kind: changed
-      description: Depend on forgejo-runner chart 0.1.2 with the m0sh1.cc custom runner image default.
+      description: Depend on forgejo-runner chart 0.1.3 with the m0sh1.cc custom runner image default.
 dependencies:
   - name: forgejo
     version: 17.1.0
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
-    version: 0.1.2
+    version: 0.1.3
     repository: oci://ghcr.io/yaelmoshi/charts
     condition: runner.enabled

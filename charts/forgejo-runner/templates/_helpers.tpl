@@ -61,3 +61,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Namespace to render runner resources into.
+*/}}
+{{- define "forgejo-runner.namespace" -}}
+{{- default .Release.Namespace .Values.namespaceOverride -}}
+{{- end }}
