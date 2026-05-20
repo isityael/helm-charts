@@ -27,7 +27,7 @@ non-root runner container by default.
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | runner.image.repository | string | `ghcr.io/yaelmoshi/forgejo-runner` | Runner image repository |
-| runner.image.tag | string | `11.3.1-b3a6d3d0@sha256:cb8862010576925c322a6a5782fb82b49c4aef1526153ce14e766ad1a4485c09` | Runner image tag and digest |
+| runner.image.tag | string | `12.10.1-3514b8b4@sha256:6bf1d3670bce8dd01bda43182834a1bff73fcbe316ccf204265795ab9837900a` | Runner image tag and digest |
 | dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
 | runner.instanceURL | string | `""` | Forgejo instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |

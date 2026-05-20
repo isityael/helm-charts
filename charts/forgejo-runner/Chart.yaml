@@ -4,8 +4,8 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.3
-appVersion: "11.3.1"
+version: 0.1.4
+appVersion: "12.10.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
@@ -32,7 +32,7 @@ annotations:
       url: https://code.forgejo.org/forgejo/runner
   artifacthub.io/images: |
     - name: forgejo-runner
-      image: ghcr.io/yaelmoshi/forgejo-runner:11.3.1-b3a6d3d0@sha256:cb8862010576925c322a6a5782fb82b49c4aef1526153ce14e766ad1a4485c09
+      image: ghcr.io/yaelmoshi/forgejo-runner:12.10.1-3514b8b4@sha256:6bf1d3670bce8dd01bda43182834a1bff73fcbe316ccf204265795ab9837900a
     - name: docker-dind
       image: docker:29.5.1-dind-alpine3.23@sha256:eed377f3ce14afda560e742c5b3ae446df1ce00a16e1beab2ac6c78c1477fe85
   artifacthub.io/changes: |
@@ -44,3 +44,5 @@ annotations:
       description: Default to the m0sh1.cc CVE-patched Forgejo Runner image.
     - kind: added
       description: Support namespaceOverride for runner deployments that keep CI workloads in a dedicated namespace.
+    - kind: changed
+      description: Default to the m0sh1.cc Forgejo Runner 12.10.1 custom image.

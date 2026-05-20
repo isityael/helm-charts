@@ -18,8 +18,8 @@ helm install <release-name> oci://ghcr.io/yaelmoshi/charts/<chart-name> --versio
 |-------|---------|-------------|
 | `cloudflared` | 1.1.0 | Cloudflare Tunnel connector |
 | `csi-driver-nfs` | 4.14.1 | NFS CSI driver (yaelmoshi fork with configurable fsGroupPolicy) |
-| `forgejo` | 0.1.3 | Forgejo with custom image defaults and optional runner |
-| `forgejo-runner` | 0.1.3 | Forgejo Actions runner with Docker-in-Docker |
+| `forgejo` | 0.1.4 | Forgejo with custom image defaults and optional runner |
+| `forgejo-runner` | 0.1.4 | Forgejo Actions runner with Docker-in-Docker |
 | `gitea-runner` | 0.4.0 | Gitea Actions runner with Docker-in-Docker |
 | `healthchecks` | 0.1.0 | Cron and background task monitoring |
 | `privatebin` | 0.1.0 | Encrypted paste and file sharing |
