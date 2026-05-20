@@ -3,6 +3,7 @@ revisionHistoryLimit: 2
 
 nameOverride: ""
 fullnameOverride: ""
+namespaceOverride: ""
 
 imagePullSecrets: []
 

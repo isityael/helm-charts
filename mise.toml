@@ -12,13 +12,13 @@ show_env   = false
 truncate   = true
 
 [tools]
-node        = "24.11.0"
-helm        = "4.1.4"
-kubectl     = "1.36.0"
+node        = "24.15.0"
+helm        = "4.20"
+kubectl     = "1.36.1"
 kustomize   = "5.8.1"
 kubeconform = "0.7.0"
-kube-linter = "0.8.1"
-helm-diff   = { version = "3.15.6", bin = "diff", bin_path = "diff/bin", rename_exe = "helm-diff", exe = "diff" }
+kube-linter = "0.8.3"
+helm-diff   = { version = "3.15.7", bin = "diff", bin_path = "diff/bin", rename_exe = "helm-diff", exe = "diff" }
 trivy       = "0.70.0"
 python      = "3.14.2"
 shellcheck  = "0.11.0"

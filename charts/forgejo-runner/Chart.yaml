@@ -4,7 +4,7 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: "11.3.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,3 +42,5 @@ annotations:
       description: Render Forgejo Runner config.yaml and support registration tokens from existing Kubernetes Secrets.
     - kind: changed
       description: Default to the m0sh1.cc CVE-patched Forgejo Runner image.
+    - kind: added
+      description: Support namespaceOverride for runner deployments that keep CI workloads in a dedicated namespace.
