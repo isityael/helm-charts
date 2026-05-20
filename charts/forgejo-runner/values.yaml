@@ -33,8 +33,8 @@ dind:
 # -- Forgejo Actions runner container
 runner:
   image:
-    repository: data.forgejo.org/forgejo/runner
-    tag: "12.10.1@sha256:3d49075f9115054ae2485d8cea2819296a904dfd4f00017285168028615d8533"
+    repository: ghcr.io/yaelmoshi/forgejo-runner
+    tag: "11.3.1-b3a6d3d0@sha256:cb8862010576925c322a6a5782fb82b49c4aef1526153ce14e766ad1a4485c09"
     pullPolicy: IfNotPresent
   # -- Forgejo instance URL used for first registration when /data/.runner is absent.
   instanceURL: ""
