@@ -21,7 +21,7 @@ spec:
           registrationTokenSecret: forgejo-runner-registration
           registrationTokenKey: REGISTRATION_TOKEN
           name: runner-01
-          labels: docker:docker://data.forgejo.org/oci/alpine:3.20,node22:docker://node:22-bookworm
+          labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
 
         persistence:
           enabled: true
