@@ -34,7 +34,7 @@ dind:
 runner:
   image:
     repository: data.forgejo.org/forgejo/runner
-    tag: "11.3.1@sha256:287433414b987b89896399683034818db198079053d84ca473aadb06ebad8b9f"
+    tag: "12.10.1@sha256:3d49075f9115054ae2485d8cea2819296a904dfd4f00017285168028615d8533"
     pullPolicy: IfNotPresent
   # -- Forgejo instance URL used for first registration when /data/.runner is absent.
   instanceURL: ""
