@@ -25,7 +25,7 @@ helm install <release-name> oci://ghcr.io/yaelmoshi/charts/<chart-name> --versio
 | `privatebin` | 0.1.0 | Encrypted paste and file sharing |
 | `searxng` | 0.1.0 | Privacy-respecting metasearch |
 | `tailscale-webhook-relay` | 0.1.0 | Relay Tailscale webhook events to ntfy |
-| `wakapi` | 1.2.0 | Hardened WakaTime-compatible coding statistics |
+| `wakapi` | 1.2.1 | Hardened WakaTime-compatible coding statistics |
 
 ## Publishing
 

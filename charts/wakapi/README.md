@@ -19,7 +19,7 @@ configuration generic enough to run the upstream image when desired.
 
 ```bash
 helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi \
-  --version 1.2.0 \
+  --version 1.2.1 \
   --namespace wakapi \
   --create-namespace
 ```
@@ -27,7 +27,7 @@ helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi \
 Pull the chart without installing:
 
 ```bash
-helm pull oci://ghcr.io/yaelmoshi/charts/wakapi --version 1.2.0
+helm pull oci://ghcr.io/yaelmoshi/charts/wakapi --version 1.2.1
 ```
 
 ## Image Defaults
@@ -37,7 +37,7 @@ By default, the chart runs `ghcr.io/yaelmoshi/wakapi:2.17.3-yaelmoshi.1` pinned 
 ```yaml
 image:
   repository: ghcr.io/yaelmoshi/wakapi
-  tag: 2.17.3-yaelmoshi.1@sha256:855a6bf414dfa36f135a8b4f7f99ec8f8ae29c249487f666cd39ef3df7530289
+  tag: 2.17.3-yaelmoshi.1@sha256:6863d89f01c0ef4293060855cff8ed5c91dba949031afdf4c1e0feaa6e351f3b
 ```
 
 To run upstream Wakapi with this chart:
@@ -203,7 +203,7 @@ serviceMonitor:
 
 ## Upgrade Notes
 
-### 1.2.0
+### 1.2.1
 
 - Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/yaelmoshi/wakapi`.
 - `appVersion` changed to `2.17.3-yaelmoshi.1`.
