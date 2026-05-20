@@ -1,29 +1,61 @@
 # Wakapi Helm Chart
 
-Helm chart for [Wakapi](https://wakapi.dev), a self-hosted WakaTime-compatible coding statistics service.
+Public OCI Helm chart for the [yaelmoshi/wakapi](https://github.com/yaelmoshi/wakapi) hardened Wakapi distribution.
+
+The default image is a maintained fork of [muety/wakapi](https://github.com/muety/wakapi) built as a small non-root
+distroless/static runtime image with pinned base images and dependency refreshes. The chart keeps the application
+configuration generic enough to run the upstream image when desired.
 
 ## Requirements
 
 - Kubernetes >= 1.28
+- Helm >= 3.8 with OCI registry support
 - Persistent storage when using SQLite
-- PostgreSQL when `config.db.dialect: postgres`
+- PostgreSQL or MySQL when using an external database
 - Prometheus Operator CRDs when `serviceMonitor.enabled` is `true`
 - An Ingress controller or Gateway API implementation when external access is enabled
 
 ## Install
 
 ```bash
-helm repo add yaelmoshi https://yaelmoshi.github.io/helm-charts
-helm repo update
+helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi \
+  --version 1.2.0 \
+  --namespace wakapi \
+  --create-namespace
+```
 
-helm install wakapi yaelmoshi/wakapi -n wakapi --create-namespace -f values.yaml
+Pull the chart without installing:
+
+```bash
+helm pull oci://ghcr.io/yaelmoshi/charts/wakapi --version 1.2.0
+```
+
+## Image Defaults
+
+By default, the chart runs `ghcr.io/yaelmoshi/wakapi:2.17.3-yaelmoshi.1` pinned by digest:
+
+```yaml
+image:
+  repository: ghcr.io/yaelmoshi/wakapi
+  tag: 2.17.3-yaelmoshi.1@sha256:855a6bf414dfa36f135a8b4f7f99ec8f8ae29c249487f666cd39ef3df7530289
+```
+
+To run upstream Wakapi with this chart:
+
+```yaml
+image:
+  repository: ghcr.io/muety/wakapi
+  tag: 2.17.3
 ```
 
 ## Configuration
 
-Non-sensitive Wakapi configuration is rendered into a ConfigMap. Sensitive values such as database passwords, OIDC client secrets, and SMTP passwords should be referenced through `existingSecrets`.
+Non-sensitive Wakapi settings are rendered into a ConfigMap. Sensitive values such as database passwords, password
+salts, OIDC client secrets, and SMTP credentials should be referenced through existing Kubernetes Secrets.
 
-## Values Example
+The chart does not create plaintext Secret manifests from values.
+
+## PostgreSQL Example
 
 ```yaml
 config:
@@ -35,21 +67,72 @@ config:
     port: "5432"
     user: wakapi
     name: wakapi
+    max_conn: 10
+    ssl: false
+  security:
+    allow_signup: false
+    expose_metrics: true
 
 existingSecrets:
   dbPassword:
     secretName: wakapi-postgres-auth
     key: password
+  passwordSalt:
+    secretName: wakapi-password-salt
+    key: salt
 
-serviceMonitor:
+persistence:
+  enabled: false
+```
+
+## SQLite Example
+
+Use SQLite for a small single-replica deployment. Keep `strategyType: Recreate` with ReadWriteOnce storage.
+
+```yaml
+strategyType: Recreate
+
+config:
+  db:
+    dialect: sqlite3
+    name: /data/wakapi.db
+
+persistence:
   enabled: true
+  storageClass: standard
+  accessMode: ReadWriteOnce
+  size: 2Gi
+```
 
-resources:
-  requests:
-    cpu: 10m
-    memory: 128Mi
-  limits:
-    memory: 512Mi
+## OIDC And SMTP Secrets
+
+```yaml
+config:
+  security:
+    disable_local_auth: false
+    oidc_allow_signup: true
+    oidc:
+      name: authentik
+      display_name: Authentik
+      endpoint: https://auth.example.com/application/o/wakapi/
+  mail:
+    enabled: true
+    sender: wakapi@example.com
+    provider: smtp
+    smtp:
+      host: smtp.example.com
+      port: 587
+      tls: true
+
+existingSecrets:
+  oidc:
+    secretName: wakapi-oidc
+    clientIdKey: client_id
+    clientSecretKey: client_secret
+  smtp:
+    secretName: wakapi-smtp
+    usernameKey: username
+    passwordKey: password
 ```
 
 ## Ingress Example
@@ -64,7 +147,65 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: wildcard-example
+    - secretName: wakapi-example-tls
       hosts:
         - wakapi.example.com
 ```
+
+## HTTPRoute Example
+
+`httpRoute` and `ingress` are mutually exclusive. HTTPRoute uses `ingress.hosts[*].paths` for path matches so users can
+switch between Ingress and Gateway API without changing path structure.
+
+```yaml
+ingress:
+  enabled: false
+  hosts:
+    - host: wakapi.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: public-gateway
+      namespace: gateway
+      sectionName: https
+  hostnames:
+    - wakapi.example.com
+```
+
+## ServiceMonitor Example
+
+Wakapi metrics must be exposed by application config and collected by the ServiceMonitor.
+
+```yaml
+config:
+  security:
+    expose_metrics: true
+
+serviceMonitor:
+  enabled: true
+  interval: 60s
+  path: /api/metrics
+  additionalLabels:
+    release: kube-prometheus-stack
+```
+
+## Operational Defaults
+
+- The pod runs as non-root with `allowPrivilegeEscalation: false`, dropped Linux capabilities, and RuntimeDefault seccomp.
+- The root filesystem is read-only; writable paths are mounted at `/data` and `/tmp`.
+- Service account token automount is disabled by default.
+- Liveness and readiness probes default to `/api/health` and can be tuned through `probes`.
+- `revisionHistoryLimit`, `podLabels`, `priorityClassName`, and `topologySpreadConstraints` are available for production scheduling policies.
+
+## Upgrade Notes
+
+### 1.2.0
+
+- Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/yaelmoshi/wakapi`.
+- `appVersion` changed to `2.17.3-yaelmoshi.1`.
+- Existing values remain compatible. Set `image.repository: ghcr.io/muety/wakapi` and an upstream tag to keep using the upstream image.
+- The chart schema now validates common values more strictly while still allowing additional Wakapi config keys under `config`.
