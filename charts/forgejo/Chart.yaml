@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.4
+version: 0.1.5
 appVersion: "15.0.2"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -37,6 +37,8 @@ annotations:
       image: ghcr.io/yaelmoshi/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07
     - name: forgejo-runner
       image: ghcr.io/yaelmoshi/forgejo-runner:12.10.1-3514b8b4@sha256:6bf1d3670bce8dd01bda43182834a1bff73fcbe316ccf204265795ab9837900a
+    - name: forgejo-job-alpine
+      image: ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
   artifacthub.io/changes: |
     - kind: added
       description: Add improved Forgejo wrapper chart based on upstream Forgejo Helm chart 17.1.0.
@@ -50,6 +52,8 @@ annotations:
       description: Depend on forgejo-runner chart 0.1.3 with the m0sh1.cc custom runner image default.
     - kind: changed
       description: Depend on forgejo-runner chart 0.1.4 with the m0sh1.cc Forgejo Runner 12.10.1 custom image.
+    - kind: changed
+      description: Default the optional runner labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
 dependencies:
   - name: forgejo
     version: 17.1.0

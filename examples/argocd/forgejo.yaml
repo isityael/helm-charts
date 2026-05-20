@@ -62,7 +62,7 @@ spec:
             instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
             registrationTokenSecret: forgejo-runner-registration
             name: forgejo-runner
-            labels: docker:docker://data.forgejo.org/oci/alpine:3.20
+            labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
           persistence:
             enabled: true
             storageClass: zfs-forgejo-csi

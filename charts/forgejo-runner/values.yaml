@@ -44,7 +44,7 @@ runner:
   registrationTokenKey: REGISTRATION_TOKEN
   name: ""
   # -- Default labels passed during first registration. Use Forgejo's <label>:<type>://<image> format.
-  baseLabels: "docker:docker://data.forgejo.org/oci/alpine:3.20"
+  baseLabels: "docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23"
   jobLabel: ""
   jobImage: ""
   labels: ""
