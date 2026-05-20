@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "global": { "type": "object" },
+    "forgejo": { "type": "object" },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "runner": { "type": "object" },
+        "persistence": { "type": "object" }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: forgejo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
+    path: charts/forgejo
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |
+        forgejo:
+          image:
+            registry: ghcr.io
+            repository: yaelmoshi/forgejo
+            tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+            rootless: true
+
+          httpRoute:
+            enabled: true
+            parentRefs:
+              - group: gateway.networking.k8s.io
+                kind: Gateway
+                name: traefik-gateway
+                namespace: traefik
+                sectionName: websecure
+            hostnames:
+              - git.example.com
+            port: 3000
+
+          persistence:
+            storageClass: zfs-forgejo-csi
+
+          gitea:
+            config:
+              server:
+                ROOT_URL: https://git.example.com/
+                DOMAIN: git.example.com
+              database:
+                DB_TYPE: postgres
+                HOST: postgres.example.com:5432
+                NAME: forgejo
+                USER: forgejo
+                SSL_MODE: disable
+            additionalConfigFromEnvs:
+              - name: FORGEJO__DATABASE__PASSWD
+                valueFrom:
+                  secretKeyRef:
+                    name: forgejo-db
+                    key: password
+
+        runner:
+          enabled: true
+          runner:
+            instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
+            registrationTokenSecret: forgejo-runner-registration
+            name: forgejo-runner
+            labels: docker:docker://data.forgejo.org/oci/alpine:3.20
+          persistence:
+            enabled: true
+            storageClass: zfs-forgejo-csi
+            size: 1Gi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: forgejo
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - Validate=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

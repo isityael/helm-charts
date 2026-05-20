@@ -1,0 +1,9 @@
+dependencies:
+- name: forgejo
+  repository: oci://code.forgejo.org/forgejo-helm
+  version: 17.1.0
+- name: forgejo-runner
+  repository: file://../forgejo-runner
+  version: 0.1.0
+digest: sha256:54181fdf19cd623e88aa1766f42c0afd2f3a765d32bb2a87310b49eddec7c578
+generated: "2026-05-20T21:45:32.045714+02:00"

@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=values.schema.json
+
+# Values passed directly into the upstream Forgejo Helm chart dependency.
+forgejo:
+  test:
+    image:
+      name: dhi.io/busybox
+      tag: "1.37.0-debian13"
+
+  strategy:
+    type: Recreate
+
+  image:
+    registry: ghcr.io
+    repository: yaelmoshi/forgejo
+    tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+    pullPolicy: IfNotPresent
+    # Keep true so upstream selects rootless init paths, while this wrapper's
+    # gitea.image override avoids appending "-rootless" to our already-rootless
+    # custom image tag.
+    rootless: true
+
+  podSecurityContext:
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  podDisruptionBudget:
+    maxUnavailable: 1
+
+  ingress:
+    enabled: false
+
+  httpRoute:
+    enabled: false
+    parentRefs: []
+    hostnames: []
+    port: 3000
+
+  persistence:
+    enabled: true
+    create: true
+    mount: true
+    claimName: forgejo-data
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+    annotations:
+      helm.sh/resource-policy: keep
+
+  gitea:
+    admin:
+      username: ""
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: false
+    config:
+      server:
+        PROTOCOL: http
+        HTTP_PORT: 3000
+        DISABLE_SSH: true
+        START_SSH_SERVER: false
+      security:
+        INSTALL_LOCK: true
+      actions:
+        ENABLED: true
+        DEFAULT_ACTIONS_URL: https://data.forgejo.org
+
+  postgresql:
+    enabled: false
+  postgresql-ha:
+    enabled: false
+  redis:
+    enabled: false
+  redis-cluster:
+    enabled: false
+  valkey:
+    enabled: false
+  valkey-cluster:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 6Gi
+
+# Optional co-deployed Forgejo Runner subchart.
+runner:
+  enabled: false
+  runner:
+    instanceURL: ""
+    registrationTokenSecret: ""
+    name: forgejo-runner
+    labels: docker:docker://data.forgejo.org/oci/alpine:3.20
+  persistence:
+    enabled: true
+    size: 1Gi

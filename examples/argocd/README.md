@@ -87,7 +87,36 @@ kubectl apply -f examples/argocd/gitea-runner.yaml
 - Runner registration settings
 - Optional registry auth and CA examples
 
-### 8. Custom Values (`example-app-custom-values.yaml`)
+### 8. Forgejo (`forgejo.yaml`)
+
+Example showing how to deploy the improved Forgejo chart with the optional Forgejo runner dependency.
+
+```bash
+kubectl apply -f examples/argocd/forgejo.yaml
+```
+
+**Features:**
+
+- Custom `ghcr.io/yaelmoshi/forgejo` image defaults
+- Gateway API `HTTPRoute` example
+- External PostgreSQL secret wiring
+- Optional runner dependency values
+
+### 9. Forgejo Runner (`forgejo-runner.yaml`)
+
+Example showing how to deploy the Forgejo runner chart.
+
+```bash
+kubectl apply -f examples/argocd/forgejo-runner.yaml
+```
+
+**Features:**
+
+- Forgejo Runner registration settings
+- Digest-pinned runner image defaults
+- Optional persistence, registry auth, and CA examples
+
+### 10. Custom Values (`example-app-custom-values.yaml`)
 
 Demonstrates how to override default chart values using ArgoCD parameters.
 
@@ -103,7 +132,7 @@ kubectl apply -f examples/argocd/example-app-custom-values.yaml
 - Ingress and autoscaling enabled
 - Multiple value override methods shown
 
-### 5. Multi-Environment (`example-app-multi-env.yaml`)
+### 11. Multi-Environment (`example-app-multi-env.yaml`)
 
 Shows the "App of Apps" pattern for managing multiple environments.
 

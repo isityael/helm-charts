@@ -1,0 +1,251 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "forgejo-runner.fullname" . }}
+  labels:
+    {{- include "forgejo-runner.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 2 }}
+  selector:
+    matchLabels:
+      {{- include "forgejo-runner.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/daemon-config: {{ include (print $.Template.BasePath "/daemon-configmap.yaml") . | sha256sum }}
+        checksum/runner-config: {{ include (print $.Template.BasePath "/runner-config-secret.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "forgejo-runner.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "forgejo-runner.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount | default false }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.runner.existingRunnerSecret }}
+      initContainers:
+        - name: seed-runner-registration
+          image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag }}"
+          imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              if [ ! -s "{{ .Values.runner.dataMountPath }}/.runner" ] && [ -s /runner-seed/.runner ]; then
+                cp /runner-seed/.runner "{{ .Values.runner.dataMountPath }}/.runner"
+                chmod 600 "{{ .Values.runner.dataMountPath }}/.runner"
+              fi
+          securityContext:
+            {{- toYaml .Values.runner.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: runner-data
+              mountPath: {{ .Values.runner.dataMountPath }}
+            - name: runner-seed
+              mountPath: /runner-seed
+              readOnly: true
+      {{- end }}
+      containers:
+        {{- if .Values.dind.enabled }}
+        {{/* Docker-in-Docker sidecar */}}
+        - name: dind
+          image: "{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
+          imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
+          {{- with .Values.dind.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          {{- with .Values.dind.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: docker-graph
+              mountPath: /var/lib/docker
+            - name: docker-socket
+              mountPath: /var/run
+            - name: docker-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
+            {{- if .Values.registryCASecret }}
+            {{- range .Values.registryCAMounts }}
+            - name: registry-ca
+              mountPath: {{ . }}
+              subPath: {{ $.Values.registryCAKey }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.dind.resources | nindent 12 }}
+        {{- end }}
+
+        {{/* Forgejo Actions runner */}}
+        - name: runner
+          image: "{{ .Values.runner.image.repository }}:{{ .Values.runner.image.tag }}"
+          imagePullPolicy: {{ .Values.runner.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              {{- if .Values.dind.enabled }}
+              until nc -z 127.0.0.1 2375; do
+                echo "waiting for Docker daemon"
+                sleep 2
+              done
+              {{- end }}
+              if [ ! -s "{{ .Values.runner.dataMountPath }}/.runner" ]; then
+                if [ -z "${FORGEJO_INSTANCE_URL:-}" ] || [ -z "${FORGEJO_RUNNER_REGISTRATION_TOKEN:-}" ]; then
+                  echo "missing runner.instanceURL or runner.registrationTokenSecret and no existing .runner file"
+                  exit 1
+                fi
+                forgejo-runner register \
+                  --no-interactive \
+                  --config /etc/forgejo-runner/config.yaml \
+                  --instance "${FORGEJO_INSTANCE_URL}" \
+                  --token "${FORGEJO_RUNNER_REGISTRATION_TOKEN}" \
+                  {{- if .Values.runner.name }}
+                  --name "${FORGEJO_RUNNER_NAME}" \
+                  {{- end }}
+                  --labels "${FORGEJO_RUNNER_LABELS}"
+              fi
+              exec forgejo-runner --config /etc/forgejo-runner/config.yaml daemon
+          env:
+            {{- if .Values.runner.instanceURL }}
+            - name: FORGEJO_INSTANCE_URL
+              value: {{ .Values.runner.instanceURL | quote }}
+            {{- end }}
+            {{- if .Values.runner.name }}
+            - name: FORGEJO_RUNNER_NAME
+              value: {{ .Values.runner.name | quote }}
+            {{- end }}
+            {{- $labels := .Values.runner.labels | default .Values.runner.baseLabels }}
+            {{- if and .Values.runner.jobLabel .Values.runner.jobImage }}
+            {{- $labels = printf "%s,%s:docker://%s" $labels .Values.runner.jobLabel .Values.runner.jobImage }}
+            {{- end }}
+            {{- if $labels }}
+            - name: FORGEJO_RUNNER_LABELS
+              value: {{ $labels | quote }}
+            {{- end }}
+            {{- if .Values.runner.registrationTokenSecret }}
+            - name: FORGEJO_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.runner.registrationTokenSecret }}
+                  key: {{ .Values.runner.registrationTokenKey }}
+            {{- end }}
+            {{- if .Values.dind.enabled }}
+            - name: DOCKER_HOST
+              value: tcp://127.0.0.1:2375
+            {{- end }}
+            - name: DOCKER_CONFIG
+              value: /tmp/.docker
+            {{- range .Values.runner.extraEnv }}
+            - {{- toYaml . | nindent 14 }}
+            {{- end }}
+          {{- with .Values.runner.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: runner-config
+              mountPath: /etc/forgejo-runner
+              readOnly: true
+            {{- if .Values.dind.enabled }}
+            - name: docker-socket
+              mountPath: /var/run
+            {{- end }}
+            - name: runner-data
+              mountPath: {{ .Values.runner.dataMountPath }}
+            - name: docker-config
+              mountPath: /tmp/.docker
+            {{- if .Values.registryAuthSecret }}
+            - name: registry-auth
+              mountPath: {{ .Values.registryAuthMountPath }}
+              subPath: config.json
+              readOnly: true
+            {{- end }}
+            {{- if .Values.registryCASecret }}
+            {{- range .Values.registryCAMounts }}
+            - name: registry-ca
+              mountPath: {{ . }}
+              subPath: {{ $.Values.registryCAKey }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.runner.resources | nindent 12 }}
+      volumes:
+        - name: runner-config
+          secret:
+            secretName: {{ default (printf "%s-config" (include "forgejo-runner.fullname" .)) .Values.runner.existingConfigSecret }}
+        {{- if .Values.dind.enabled }}
+        - name: docker-graph
+          emptyDir: {}
+        - name: docker-socket
+          emptyDir: {}
+        {{- end }}
+        - name: runner-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-data" (include "forgejo-runner.fullname" .)) .Values.persistence.existingClaim }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- if .Values.runner.existingRunnerSecret }}
+        - name: runner-seed
+          secret:
+            secretName: {{ .Values.runner.existingRunnerSecret }}
+            defaultMode: 0600
+        {{- end }}
+        - name: docker-config
+          emptyDir: {}
+        {{- if .Values.dind.enabled }}
+        - name: docker-daemon-config
+          configMap:
+            name: {{ include "forgejo-runner.fullname" . }}-docker-daemon
+            items:
+              - key: daemon.json
+                path: daemon.json
+        {{- end }}
+        {{- if .Values.registryAuthSecret }}
+        - name: registry-auth
+          secret:
+            secretName: {{ .Values.registryAuthSecret }}
+            items:
+              - key: {{ .Values.registryAuthSecretKey }}
+                path: config.json
+        {{- end }}
+        {{- if .Values.registryCASecret }}
+        - name: registry-ca
+          secret:
+            secretName: {{ .Values.registryCASecret }}
+            items:
+              - key: {{ .Values.registryCAKey }}
+                path: {{ .Values.registryCAKey }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
