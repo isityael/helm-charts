@@ -19,7 +19,7 @@ Helm chart for SearXNG metasearch.
 ## Install
 
 ```bash
-helm install searxng oci://ghcr.io/yaelmoshi/charts/searxng --version 0.2.1
+helm install searxng oci://ghcr.io/yaelmoshi/charts/searxng --version 0.2.2
 ```
 
 ## Configuration
