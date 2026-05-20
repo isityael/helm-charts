@@ -1,0 +1,15 @@
+{{- if .Values.dind.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "forgejo-runner.fullname" . }}-docker-daemon
+  labels:
+    {{- include "forgejo-runner.labels" . | nindent 4 }}
+data:
+  daemon.json: |
+    {
+      "registry-mirrors": {{ toJson .Values.daemonConfig.registryMirrors }},
+      "insecure-registries": {{ toJson .Values.daemonConfig.insecureRegistries }},
+      "features": { "buildkit": {{ ternary "true" "false" .Values.daemonConfig.features.buildkit }} }
+    }
+{{- end }}

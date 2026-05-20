@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: forgejo-runner
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: 'https://github.com/yaelmoshi/helm-charts'
+    path: charts/forgejo-runner
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |
+        runner:
+          instanceURL: https://forgejo.example.com
+          registrationTokenSecret: forgejo-runner-registration
+          registrationTokenKey: REGISTRATION_TOKEN
+          name: runner-01
+          labels: docker:docker://data.forgejo.org/oci/alpine:3.20,node22:docker://node:22-bookworm
+
+        persistence:
+          enabled: true
+          size: 2Gi
+
+        registryAuthSecret: forgejo-registry-auth
+        registryCASecret: forgejo-registry-ca
+        registryCAMounts:
+          - /etc/docker/certs.d/registry.example.com/ca.crt
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: forgejo-runner
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - Validate=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

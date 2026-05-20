@@ -1,0 +1,8 @@
+Thank you for installing the Forgejo Actions runner.
+
+1. Ensure the registration token Secret is present unless runner.existingRunnerSecret is set.
+2. Set runner.instanceURL to the Forgejo instance URL.
+3. Watch the runner pod logs for first registration and daemon startup.
+
+Example:
+  kubectl -n {{ .Release.Namespace }} logs deploy/{{ include "forgejo-runner.fullname" . }} -c runner -f

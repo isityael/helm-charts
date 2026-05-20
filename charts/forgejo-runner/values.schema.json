@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
+    "imagePullSecrets": { "type": "array" },
+    "dind": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "image": { "type": "object" },
+        "args": { "type": "array" },
+        "securityContext": { "type": "object" },
+        "resources": { "type": "object" }
+      }
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "image": { "type": "object" },
+        "instanceURL": { "type": "string" },
+        "registrationTokenSecret": { "type": "string" },
+        "registrationTokenKey": { "type": "string" },
+        "name": { "type": "string" },
+        "baseLabels": { "type": "string" },
+        "jobLabel": { "type": "string" },
+        "jobImage": { "type": "string" },
+        "labels": { "type": "string" },
+        "dataMountPath": { "type": "string" },
+        "existingRunnerSecret": { "type": "string" },
+        "existingConfigSecret": { "type": "string" },
+        "extraEnv": { "type": "array" },
+        "config": { "type": "object" },
+        "securityContext": { "type": "object" },
+        "resources": { "type": "object" }
+      }
+    },
+    "podSecurityContext": { "type": "object" },
+    "daemonConfig": { "type": "object" },
+    "registryAuthSecret": { "type": "string" },
+    "registryAuthSecretKey": { "type": "string" },
+    "registryAuthMountPath": { "type": "string" },
+    "registryCASecret": { "type": "string" },
+    "registryCAKey": { "type": "string" },
+    "registryCAMounts": { "type": "array" },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "storageClass": { "type": "string" },
+        "accessMode": { "type": "string" },
+        "size": { "type": "string" },
+        "existingClaim": { "type": "string" }
+      }
+    },
+    "serviceAccount": { "type": "object" },
+    "podAnnotations": { "type": "object" },
+    "podLabels": { "type": "object" },
+    "nodeSelector": { "type": "object" },
+    "tolerations": { "type": "array" },
+    "affinity": { "type": "object" }
+  }
+}

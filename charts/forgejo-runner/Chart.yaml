@@ -1,0 +1,42 @@
+apiVersion: v2
+name: forgejo-runner
+description: Helm chart for Forgejo Actions runner with optional Docker-in-Docker
+icon: https://forgejo.org/favicon.png
+home: https://forgejo.org/docs/latest/admin/actions/
+type: application
+version: 0.1.0
+appVersion: "11.3.1"
+kubeVersion: ">=1.28.0-0"
+maintainers:
+  - name: m0sh1
+    email: sm@m0sh1.cc
+sources:
+  - https://code.forgejo.org/forgejo/runner
+keywords:
+  - forgejo
+  - forgejo-actions
+  - actions
+  - runner
+  - ci
+  - docker
+annotations:
+  category: CI/CD
+  licenses: GPL-3.0-or-later
+  artifacthub.io/license: GPL-3.0-or-later
+  artifacthub.io/links: |
+    - name: Forgejo Actions administrator guide
+      url: https://forgejo.org/docs/latest/admin/actions/
+    - name: Forgejo Runner configuration
+      url: https://forgejo.org/docs/latest/admin/actions/configuration/
+    - name: Forgejo Runner source
+      url: https://code.forgejo.org/forgejo/runner
+  artifacthub.io/images: |
+    - name: forgejo-runner
+      image: data.forgejo.org/forgejo/runner:11.3.1@sha256:287433414b987b89896399683034818db198079053d84ca473aadb06ebad8b9f
+    - name: docker-dind
+      image: docker:29.5.1-dind-alpine3.23@sha256:eed377f3ce14afda560e742c5b3ae446df1ce00a16e1beab2ac6c78c1477fe85
+  artifacthub.io/changes: |
+    - kind: added
+      description: Add a public Forgejo Runner chart with digest-pinned runner and Docker-in-Docker images.
+    - kind: added
+      description: Render Forgejo Runner config.yaml and support registration tokens from existing Kubernetes Secrets.

@@ -1,0 +1,43 @@
+forgejo:
+  ingress:
+    enabled: false
+  httpRoute:
+    enabled: true
+    parentRefs:
+      - group: gateway.networking.k8s.io
+        kind: Gateway
+        name: test-gateway
+        namespace: traefik
+    hostnames:
+      - git.example.test
+  persistence:
+    storageClass: test-storage-class
+  gitea:
+    config:
+      server:
+        ROOT_URL: https://git.example.test/
+        DOMAIN: git.example.test
+      database:
+        DB_TYPE: postgres
+        HOST: postgres.example.test:5432
+        NAME: forgejo
+        USER: forgejo
+        SSL_MODE: disable
+    additionalConfigFromEnvs:
+      - name: FORGEJO__DATABASE__PASSWD
+        valueFrom:
+          secretKeyRef:
+            name: forgejo-db
+            key: password
+
+runner:
+  enabled: true
+  runner:
+    instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
+    registrationTokenSecret: forgejo-runner-registration
+    name: test-forgejo-runner
+    labels: docker:docker://data.forgejo.org/oci/alpine:3.20
+  persistence:
+    enabled: true
+    storageClass: test-storage-class
+    size: 1Gi

@@ -1,0 +1,142 @@
+replicaCount: 1
+revisionHistoryLimit: 2
+
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets: []
+
+# -- Docker-in-Docker sidecar container
+dind:
+  enabled: true
+  image:
+    repository: docker
+    tag: "29.5.1-dind-alpine3.23@sha256:eed377f3ce14afda560e742c5b3ae446df1ce00a16e1beab2ac6c78c1477fe85"
+    pullPolicy: IfNotPresent
+  args:
+    - --host=unix:///var/run/docker.sock
+    - --host=tcp://127.0.0.1:2375
+    - --tls=false
+    - --group=1000
+  securityContext:
+    privileged: true
+    runAsUser: 0
+    runAsGroup: 0
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+# -- Forgejo Actions runner container
+runner:
+  image:
+    repository: data.forgejo.org/forgejo/runner
+    tag: "11.3.1@sha256:287433414b987b89896399683034818db198079053d84ca473aadb06ebad8b9f"
+    pullPolicy: IfNotPresent
+  # -- Forgejo instance URL used for first registration when /data/.runner is absent.
+  instanceURL: ""
+  # -- Existing Secret containing the registration token. Plaintext token values are intentionally unsupported.
+  registrationTokenSecret: ""
+  registrationTokenKey: REGISTRATION_TOKEN
+  name: ""
+  # -- Default labels passed during first registration. Use Forgejo's <label>:<type>://<image> format.
+  baseLabels: "docker:docker://data.forgejo.org/oci/alpine:3.20"
+  jobLabel: ""
+  jobImage: ""
+  labels: ""
+  dataMountPath: /data
+  existingRunnerSecret: ""
+  existingConfigSecret: ""
+  extraEnv: []
+  config:
+    log:
+      level: info
+      job_level: info
+    runner:
+      file: /data/.runner
+      capacity: 1
+      timeout: 3h
+      insecure: false
+      fetch_timeout: 5s
+      fetch_interval: 2s
+      envs: {}
+      env_file: .env
+    cache:
+      enabled: true
+      dir: /data/.cache/actcache
+      host: ""
+      port: 0
+      external_server: ""
+    container:
+      network: ""
+      enable_ipv6: false
+      privileged: false
+      options: ""
+      workdir_parent: ""
+      valid_volumes: []
+      docker_host: "-"
+      force_pull: false
+    host:
+      workdir_parent: ""
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    privileged: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 1Gi
+
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+daemonConfig:
+  registryMirrors: []
+  insecureRegistries: []
+  features:
+    buildkit: true
+
+registryAuthSecret: ""
+registryAuthSecretKey: .dockerconfigjson
+registryAuthMountPath: /root/.docker/config.json
+
+registryCASecret: ""
+registryCAKey: ca.crt
+registryCAMounts: []
+
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  existingClaim: ""
+
+serviceAccount:
+  create: false
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
