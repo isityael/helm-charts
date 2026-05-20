@@ -1,7 +1,0 @@
-ingress:
-  enabled: true
-  hosts:
-    - host: it-tools.bogusdomain.test
-      paths:
-        - path: /
-          pathType: Prefix
