@@ -98,7 +98,7 @@ valkey:
   enabled: true
   image:
     repository: dhi.io/valkey
-    tag: "9.0.4@sha256:2dedfdafa0573e2bd920528d174a4c3fcceb3c5122ddc09c77bf2f7f8181fcd2"
+    tag: "9.1.0@sha256:efdf3b6a0c3cf63c56783c3f51c21749ba0a8dc30196953208774e0d32e24cb8"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   url: ""
