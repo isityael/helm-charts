@@ -1,13 +1,14 @@
-# Wakapi Helm chart — default values
-# https://github.com/muety/wakapi
+# Wakapi Helm chart - default values
+# https://github.com/yaelmoshi/wakapi
 
 replicaCount: 1
+revisionHistoryLimit: 3
 
 image:
-  repository: ghcr.io/muety/wakapi
+  repository: ghcr.io/yaelmoshi/wakapi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
-  tag: "2.17.3@sha256:156e3e60656f6143f58cc849444a0a7992bbaa573dc870d92a9789be5671099d"
+  tag: "2.17.3-yaelmoshi.1@sha256:855a6bf414dfa36f135a8b4f7f99ec8f8ae29c249487f666cd39ef3df7530289"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -22,6 +23,7 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
+podLabels: {}
 
 podSecurityContext:
   fsGroup: 65532
@@ -84,6 +86,22 @@ autoscaling:
 nodeSelector: {}
 tolerations: []
 affinity: {}
+topologySpreadConstraints: []
+priorityClassName: ""
+
+probes:
+  liveness:
+    enabled: true
+    path: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 15
+    failureThreshold: 5
+  readiness:
+    enabled: true
+    path: /api/health
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
 
 # Prometheus ServiceMonitor
 serviceMonitor:
