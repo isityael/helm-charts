@@ -3,7 +3,7 @@ dependencies:
   repository: oci://code.forgejo.org/forgejo-helm
   version: 17.1.0
 - name: forgejo-runner
-  repository: file://../forgejo-runner
+  repository: oci://ghcr.io/yaelmoshi/charts
   version: 0.1.0
-digest: sha256:54181fdf19cd623e88aa1766f42c0afd2f3a765d32bb2a87310b49eddec7c578
-generated: "2026-05-20T21:45:32.045714+02:00"
+digest: sha256:2639b708290c046300b3ba58858c3d790b1104248c0e88e04b0d2b7368e94e07
+generated: "2026-05-20T22:00:25.143136+02:00"
