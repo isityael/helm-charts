@@ -4,6 +4,6 @@ dependencies:
   version: 17.1.0
 - name: forgejo-runner
   repository: oci://ghcr.io/yaelmoshi/charts
-  version: 0.1.4
-digest: sha256:219fc6018a3635b6cfaefce4d4cb2f3988c72b4623fd6467f12fc8812e1b1210
-generated: "2026-05-20T23:01:20.470562+02:00"
+  version: 0.1.5
+digest: sha256:8cc30e2b717a206ffd616e43b93b9952f179b00d3da23b8f38f2c37454651331
+generated: "2026-05-22T11:38:22.306174686Z"
