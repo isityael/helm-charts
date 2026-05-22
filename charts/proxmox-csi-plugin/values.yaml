@@ -148,7 +148,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.2.0-debian13@sha256:933ad5fe9ce64be97d090bc1a21e4a2bede4faf7092b719c2f391777e064d575
+      tag: 6.2.0-debian13@sha256:87194c900a3eaab8cd9fd89ca909d1aafa087cd8713ed222b40b7d576d46559a
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -165,7 +165,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.1.0-debian13@sha256:1a3d1d256ca7768023552ca3ff65128f3a7bb77b670be0482c2743dda94dcc34
+      tag: 2.1.0-debian13@sha256:5d95e13d0476a8715696d9e200c2c60bfc88694b8ded427561b134cb21fd7edf
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -182,7 +182,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.5.0-debian13@sha256:aa2a96e5d4a4ebaa6dc18cc0b10e824bd5549c8b82a3f71b2f2e47a972241d70
+      tag: 8.5.0-debian13@sha256:cd61a19a801e178fbbec1885be700d89e37961f4fc339ae980d9dffaa5d5b1d2
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.16.0-debian13@sha256:dd6b2d77d9d0d03c273556f1804b5f61766ca77237a5cb3f3609d62c7d43691a
+      tag: 2.16.0-debian13@sha256:6f5eada0e1cf7b14da42dbd60092edfdf35dd85eec70548676d52d6a1a8a2725
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
