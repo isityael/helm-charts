@@ -22,6 +22,7 @@ helm install <release-name> oci://ghcr.io/yaelmoshi/charts/<chart-name> --versio
 | `forgejo-runner` | 0.1.5 | Forgejo Actions runner with Docker-in-Docker |
 | `gitea-runner` | 0.4.0 | Gitea Actions runner with Docker-in-Docker |
 | `healthchecks` | 0.1.0 | Cron and background task monitoring |
+| `m0sh1-exporter` | 0.1.0 | Network exporters bundle for OPNsense, SNMP, and Proxmox VE |
 | `privatebin` | 0.1.0 | Encrypted paste and file sharing |
 | `searxng` | 0.1.0 | Privacy-respecting metasearch |
 | `tailscale-webhook-relay` | 0.1.0 | Relay Tailscale webhook events to ntfy |

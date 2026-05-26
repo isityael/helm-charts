@@ -1,0 +1,23 @@
+{{- if .Values.opnsenseExporter.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "m0sh1-exporter.opnsenseName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "m0sh1-exporter.labels" . | nindent 4 }}
+    {{- with .Values.opnsenseExporter.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "m0sh1-exporter.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.opnsenseExporter.serviceMonitor.interval }}
+      {{- with .Values.opnsenseExporter.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
