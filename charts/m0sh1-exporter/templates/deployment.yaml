@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "m0sh1-exporter.opnsenseName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "m0sh1-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "m0sh1-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "m0sh1-exporter.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: opnsense-exporter
+          image: "{{ .Values.opnsenseExporter.image.repository }}:{{ .Values.opnsenseExporter.image.tag }}"
+          imagePullPolicy: {{ .Values.opnsenseExporter.image.pullPolicy }}
+          args:
+            - --opnsense.protocol={{ .Values.opnsenseExporter.opnsense.protocol }}
+            - --opnsense.address={{ .Values.opnsenseExporter.opnsense.address }}
+            - --exporter.instance-label={{ .Values.opnsenseExporter.opnsense.instanceLabel }}
+            - --web.listen-address=:{{ .Values.opnsenseExporter.service.port }}
+          env:
+            - name: OPNSENSE_EXPORTER_OPS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.opnsenseExporter.opnsense.existingSecret }}
+                  key: {{ .Values.opnsenseExporter.opnsense.apiKeyKey }}
+            - name: OPNSENSE_EXPORTER_OPS_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.opnsenseExporter.opnsense.existingSecret }}
+                  key: {{ .Values.opnsenseExporter.opnsense.apiSecretKey }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.opnsenseExporter.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 10
+          {{- with .Values.opnsenseExporter.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
