@@ -118,7 +118,7 @@ controller:
       repository: ghcr.io/yaelmoshi/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:fb67a7ef3d18c481687e2af3a4a0648c8e656c6ae337760a920e93d30e0bb629
+      tag: edge@sha256:fa4cbdfa6806ba2e76ea735abab1ab964507440560ea9ada4dfcb9a3fbee565e
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -200,7 +200,7 @@ node:
       repository: ghcr.io/yaelmoshi/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:915afadc29057be61ec74bc097f8595d3a070cb8e384234e12e90179af2bbd8a
+      tag: edge@sha256:9a41405b81688832b8710b6c9b66e98a5f2922537bc843d5ca0f6f0eb6285fe4
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.16.0-debian13@sha256:be4fb99e56d92f0113a2f429d25860b60fe63ead7692c932e2fdbc6a22b44768
+      tag: 2.17.0-debian13@sha256:edd77412e20f8cd73eae699a41a874b086a88cc1886c7f677917044484420488
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
