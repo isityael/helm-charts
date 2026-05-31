@@ -10,7 +10,7 @@ opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
     repository: ghcr.io/yaelmoshi/opnsense-exporter
-    tag: "v0.0.15-m0sh1.3@sha256:710cc5f7ca4b3330dac2363b0d466020533e53b5df20a63ab7000f4744746236"
+    tag: "v0.0.15-m0sh1.3@sha256:c7e1c1f6a7e7174a792d47e6f2184cd73979a5162087f218fd8f76a0d9a35163"
     pullPolicy: IfNotPresent
   opnsense:
     protocol: https
