@@ -40,6 +40,19 @@
       "labels": ["dependencies", "helm"]
     },
     {
+      "description": "Patch-bump chart versions when Renovate changes chart values",
+      "matchManagers": ["helm-values"],
+      "matchFileNames": ["charts/**/values*.yaml"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump adjacent Helm Chart.yaml",
+          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
+          "matchStrings": ["^version:\\s*(?<version>\\S+)"],
+          "bumpType": "patch"
+        }
+      ]
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
