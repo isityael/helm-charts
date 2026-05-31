@@ -118,7 +118,7 @@ controller:
       repository: ghcr.io/yaelmoshi/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:a52f55bbfa5999be1d261439cdde4fab1a672edfb07d9165ffa96236adf7fa3f
+      tag: edge@sha256:7e98408bf02a7835589b2374bd84cc618ec5ccc5646eb9532821013238e31d6a
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -131,7 +131,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:30858b52419cd60bef6e052d61040b3f483505b0137a04047996a0dbe2d5c93c
+      tag: 4.12.0-debian13@sha256:e7bdde32a734ff98393b07f1127051f209b6fed1cf0f31d7c54d0cdac81e5fef
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -165,7 +165,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.0-debian13@sha256:9f66fc8aec4e98607bc75b7892702ce77055345144e16560ff43342097393f34
+      tag: 2.2.0-debian13@sha256:dc9dcde260e125ee80841ef3508ff94c14f3b875856407249b733e7c0b11a136
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -200,7 +200,7 @@ node:
       repository: ghcr.io/yaelmoshi/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:4f36e414220e08b86c64e9edfab24b9cf1771149207f9413ef0979aaea67d66d
+      tag: edge@sha256:dc77be5d10f38484f7e9eab44aaf9d5cb51f5a9168e67118103fa34da89a5766
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:edd77412e20f8cd73eae699a41a874b086a88cc1886c7f677917044484420488
+      tag: 2.17.0-debian13@sha256:1ec5be09adc139704231432b19bf0401fddf9567c007d0aa60e7bad2b8dbf8f9
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
