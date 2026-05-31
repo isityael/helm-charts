@@ -9,6 +9,11 @@ when:
     branch: main
 
 steps:
+  - name: chart-version-guard
+    image: ghcr.io/yaelmoshi/chart-version-guard@sha256:1bc573b3d7c089ccbec4a37fe8001df1e17a99a78e9af23d6660e4844082498b
+    commands:
+      - chart-version-guard check --ci woodpecker --repo .
+
   - name: helm-lint
     image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
     environment:
