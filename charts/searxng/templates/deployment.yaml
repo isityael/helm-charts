@@ -81,6 +81,11 @@ spec:
               if [ -s "/theme-overrides/{{ .name }}.css" ]; then
                 cat "/theme-overrides/{{ .name }}.css" >> "${static_root}/{{ .name }}/sxng-ltr.min.css"
                 cat "/theme-overrides/{{ .name }}.css" >> "${static_root}/{{ .name }}/sxng-rtl.min.css"
+                rm -f \
+                  "${static_root}/{{ .name }}/sxng-ltr.min.css.br" \
+                  "${static_root}/{{ .name }}/sxng-ltr.min.css.gz" \
+                  "${static_root}/{{ .name }}/sxng-rtl.min.css.br" \
+                  "${static_root}/{{ .name }}/sxng-rtl.min.css.gz"
               fi
               {{- end }}
           volumeMounts:
