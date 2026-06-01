@@ -148,7 +148,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.2.0-debian13@sha256:7efc610e71e41082fd55b3e215574e759b2ff180cd821a5b9ba46cf806041375
+      tag: 6.2.0-debian13@sha256:8d1dd93867d2d48e5f532d6f1c19a902790f28cc69ff66eaf10571ad33ee34c6
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -165,7 +165,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.0-debian13@sha256:dc9dcde260e125ee80841ef3508ff94c14f3b875856407249b733e7c0b11a136
+      tag: 2.2.0-debian13@sha256:35ba175a4b653292441209c309b8e45ae40cd13d169f6c79d56ce1116557d8e6
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
