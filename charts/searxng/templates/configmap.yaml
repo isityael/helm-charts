@@ -21,6 +21,14 @@ data:
         {{- toYaml .Values.settings.search.formats | nindent 8 }}
     ui:
       default_theme: {{ .Values.settings.ui.defaultTheme | quote }}
+      {{- if .Values.settings.ui.staticPath }}
+      static_path: {{ .Values.settings.ui.staticPath | quote }}
+      {{- end }}
+      {{- if .Values.settings.ui.templatesPath }}
+      templates_path: {{ .Values.settings.ui.templatesPath | quote }}
+      {{- end }}
+      theme_args:
+        simple_style: {{ .Values.settings.ui.themeArgs.simpleStyle | quote }}
       query_in_title: {{ .Values.settings.ui.queryInTitle }}
       infinite_scroll: {{ .Values.settings.ui.infiniteScroll }}
       results_on_new_tab: {{ .Values.settings.ui.resultsOnNewTab }}

@@ -56,6 +56,42 @@ spec:
               readOnly: true
             - name: config-rendered
               mountPath: /config-rendered
+        {{- if and .Values.themes.enabled .Values.themes.variants }}
+        - name: prepare-themes
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              source_theme={{ .Values.themes.sourceTheme | quote }}
+              static_root=/theme-static
+              templates_root=/theme-templates
+              cp -a /usr/local/searxng/searx/static/themes/. "${static_root}/"
+              cp -a /usr/local/searxng/searx/templates/. "${templates_root}/"
+              {{- range .Values.themes.variants }}
+              test -d "${static_root}/${source_theme}"
+              test -d "${templates_root}/${source_theme}"
+              rm -rf "${static_root}/{{ .name }}" "${templates_root}/{{ .name }}"
+              cp -a "${static_root}/${source_theme}" "${static_root}/{{ .name }}"
+              cp -a "${templates_root}/${source_theme}" "${templates_root}/{{ .name }}"
+              if [ -s "/theme-overrides/{{ .name }}.css" ]; then
+                cat "/theme-overrides/{{ .name }}.css" >> "${static_root}/{{ .name }}/sxng-ltr.min.css"
+                cat "/theme-overrides/{{ .name }}.css" >> "${static_root}/{{ .name }}/sxng-rtl.min.css"
+              fi
+              {{- end }}
+          volumeMounts:
+            - name: theme-static
+              mountPath: /theme-static
+            - name: theme-templates
+              mountPath: /theme-templates
+            - name: theme-overrides
+              mountPath: /theme-overrides
+              readOnly: true
+        {{- end }}
       containers:
         - name: searxng
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -91,6 +127,15 @@ spec:
             - name: cache
               mountPath: {{ .Values.cache.mountPath }}
             {{- end }}
+            {{- if and .Values.themes.enabled .Values.themes.variants }}
+            - name: theme-static
+              mountPath: /usr/local/searxng/searx/static/themes
+            - name: theme-templates
+              mountPath: /usr/local/searxng/searx/templates
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- if .Values.probes.liveness.enabled }}
           livenessProbe:
             {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
@@ -111,6 +156,18 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: {{ default (printf "%s-cache" (include "searxng.fullname" .)) .Values.cache.existingClaim }}
+        {{- end }}
+        {{- if and .Values.themes.enabled .Values.themes.variants }}
+        - name: theme-static
+          emptyDir: {}
+        - name: theme-templates
+          emptyDir: {}
+        - name: theme-overrides
+          configMap:
+            name: {{ include "searxng.fullname" . }}-theme-overrides
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

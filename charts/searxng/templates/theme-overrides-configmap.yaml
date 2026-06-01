@@ -1,0 +1,13 @@
+{{- if and .Values.themes.enabled .Values.themes.variants }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "searxng.fullname" . }}-theme-overrides
+  labels:
+    {{- include "searxng.labels" . | nindent 4 }}
+data:
+  {{- range .Values.themes.variants }}
+  {{ .name }}.css: |
+{{ .cssAppend | default "" | indent 4 }}
+  {{- end }}
+{{- end }}
