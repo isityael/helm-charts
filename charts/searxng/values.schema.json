@@ -114,6 +114,15 @@
     "cache": {
       "type": "object"
     },
+    "themes": {
+      "type": "object"
+    },
+    "extraVolumeMounts": {
+      "type": "array"
+    },
+    "extraVolumes": {
+      "type": "array"
+    },
     "ingress": {
       "type": "object"
     },

@@ -82,6 +82,10 @@ settings:
       - json
   ui:
     defaultTheme: simple
+    staticPath: ""
+    templatesPath: ""
+    themeArgs:
+      simpleStyle: auto
     queryInTitle: true
     infiniteScroll: false
     resultsOnNewTab: true
@@ -133,6 +137,22 @@ cache:
   accessMode: ReadWriteOnce
   existingClaim: ""
   mountPath: /var/cache/searxng
+
+themes:
+  enabled: false
+  sourceTheme: simple
+  variants: []
+    # - name: m0sh1-dark
+    #   cssAppend: |
+    #     :root.theme-auto,
+    #     :root.theme-light,
+    #     :root.theme-dark,
+    #     :root.theme-black {
+    #       --color-btn-background: #3050ff;
+    #     }
+
+extraVolumeMounts: []
+extraVolumes: []
 
 ingress:
   enabled: false

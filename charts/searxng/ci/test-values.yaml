@@ -3,6 +3,25 @@ secret:
 settings:
   server:
     baseUrl: https://search.example.com/
+  ui:
+    defaultTheme: m0sh1-dark
+    themeArgs:
+      simpleStyle: dark
+themes:
+  enabled: true
+  variants:
+    - name: m0sh1-dark
+      cssAppend: |
+        :root.theme-auto,
+        :root.theme-light,
+        :root.theme-dark,
+        :root.theme-black {
+          --color-btn-background: #3f5cff;
+          --color-categories-item-selected-font: #3f5cff;
+          --color-categories-item-border-selected: #3f5cff;
+          --color-result-link-font: #6f8cff;
+          --color-result-link-font-highlight: #6f8cff;
+        }
 httpRoute:
   enabled: true
   parentRefs:
