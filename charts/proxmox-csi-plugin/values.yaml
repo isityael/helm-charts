@@ -148,7 +148,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.2.0-debian13@sha256:c71e4077cdef5fcb76866b11a6edde0265aba7100b287439d9401583f1d2571a
+      tag: 6.2.0-debian13@sha256:8f09833b5538ac8e06015ebd33b3921568ca79327295e95d0a308b84d79457d0
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -251,7 +251,7 @@ livenessprobe:
   image:
     repository: dhi.io/livenessprobe
     pullPolicy: IfNotPresent
-    tag: 2.19.0-debian13@sha256:44ac0fe0591cdcd0b8513d632ce9dc8817af5c351d691a263b2c72a0c096f1e6
+    tag: 2.19.0-debian13@sha256:9569ea68d7267609cb2f11a8a964bbd9df57220114a49f933e562ef808f44c17
   # -- Failure threshold for livenessProbe
   failureThreshold: 5
   # -- Initial delay seconds for livenessProbe
