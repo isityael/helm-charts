@@ -7,7 +7,6 @@
     "helpers:pinGitHubActionDigests"
   ],
   "pinDigests": false,
-  "schedule": ["before 04:00 on monday"],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 2,
   "rangeStrategy": "bump",
