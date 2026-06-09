@@ -1,11 +1,11 @@
 # Wakapi Helm chart - default values
-# https://github.com/yaelmoshi/wakapi
+# https://github.com/yaelmoshi/wakapi-dhi
 
 replicaCount: 1
 revisionHistoryLimit: 3
 
 image:
-  repository: ghcr.io/yaelmoshi/wakapi
+  repository: ghcr.io/yaelmoshi/wakapi-dhi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
   tag: "2.17.3-yaelmoshi.1@sha256:9d55d2d8ea2c71b7aa97c612f0f4dc0e2edba7af3af6ade140699479e8d9b379"
