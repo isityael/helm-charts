@@ -1,4 +1,4 @@
-# Wakapi Helm Chart
+# Wakapi DHI Helm Chart
 
 Public OCI Helm chart for the [yaelmoshi/wakapi-dhi](https://github.com/yaelmoshi/wakapi-dhi) hardened Wakapi distribution.
 
@@ -18,8 +18,8 @@ configuration generic enough to run the upstream image when desired.
 ## Install
 
 ```bash
-helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi \
-  --version 1.2.1 \
+helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi-dhi \
+  --version 1.2.9 \
   --namespace wakapi \
   --create-namespace
 ```
@@ -27,7 +27,10 @@ helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi \
 Pull the chart without installing:
 
 ```bash
-helm pull oci://ghcr.io/yaelmoshi/charts/wakapi --version 1.2.1
+helm pull oci://ghcr.io/yaelmoshi/charts/wakapi-dhi --version 1.2.9
+
+The OCI package name is `wakapi-dhi`, but the chart defaults `nameOverride` and `fullnameOverride` to `wakapi`
+so existing Kubernetes object names remain stable during the fork rename.
 ```
 
 ## Image Defaults
