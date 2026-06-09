@@ -19,7 +19,7 @@ configuration generic enough to run the upstream image when desired.
 
 ```bash
 helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi-dhi \
-  --version 1.2.9 \
+  --version 1.2.11 \
   --namespace wakapi \
   --create-namespace
 ```
@@ -27,20 +27,20 @@ helm install wakapi oci://ghcr.io/yaelmoshi/charts/wakapi-dhi \
 Pull the chart without installing:
 
 ```bash
-helm pull oci://ghcr.io/yaelmoshi/charts/wakapi-dhi --version 1.2.9
+helm pull oci://ghcr.io/yaelmoshi/charts/wakapi-dhi --version 1.2.11
+```
 
 The OCI package name is `wakapi-dhi`, but the chart defaults `nameOverride` and `fullnameOverride` to `wakapi`
 so existing Kubernetes object names remain stable during the fork rename.
-```
 
 ## Image Defaults
 
-By default, the chart runs `ghcr.io/yaelmoshi/wakapi-dhi:2.17.3-yaelmoshi.1` pinned by digest:
+By default, the chart runs `ghcr.io/yaelmoshi/wakapi-dhi:2.17.3-yaelmoshi.2` pinned by digest:
 
 ```yaml
 image:
   repository: ghcr.io/yaelmoshi/wakapi-dhi
-  tag: 2.17.3-yaelmoshi.1@sha256:6863d89f01c0ef4293060855cff8ed5c91dba949031afdf4c1e0feaa6e351f3b
+  tag: 2.17.3-yaelmoshi.2@sha256:e9d6da8297031e00984a570995d5bb1b2e85bcb35b646473787c9e825ff52725
 ```
 
 To run upstream Wakapi with this chart:
@@ -209,6 +209,6 @@ serviceMonitor:
 ### 1.2.1
 
 - Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/yaelmoshi/wakapi-dhi`.
-- `appVersion` changed to `2.17.3-yaelmoshi.1`.
+- `appVersion` changed to `2.17.3-yaelmoshi.2`.
 - Existing values remain compatible. Set `image.repository: ghcr.io/muety/wakapi` and an upstream tag to keep using the upstream image.
 - The chart schema now validates common values more strictly while still allowing additional Wakapi config keys under `config`.
