@@ -1,9 +1,9 @@
 # Wakapi Helm Chart
 
-Public OCI Helm chart for the [yaelmoshi/wakapi](https://github.com/yaelmoshi/wakapi) hardened Wakapi distribution.
+Public OCI Helm chart for the [yaelmoshi/wakapi-dhi](https://github.com/yaelmoshi/wakapi-dhi) hardened Wakapi distribution.
 
 The default image is a maintained fork of [muety/wakapi](https://github.com/muety/wakapi) built as a small non-root
-distroless/static runtime image with pinned base images and dependency refreshes. The chart keeps the application
+DHI static runtime image with pinned base images and dependency refreshes. The chart keeps the application
 configuration generic enough to run the upstream image when desired.
 
 ## Requirements
@@ -32,11 +32,11 @@ helm pull oci://ghcr.io/yaelmoshi/charts/wakapi --version 1.2.1
 
 ## Image Defaults
 
-By default, the chart runs `ghcr.io/yaelmoshi/wakapi:2.17.3-yaelmoshi.1` pinned by digest:
+By default, the chart runs `ghcr.io/yaelmoshi/wakapi-dhi:2.17.3-yaelmoshi.1` pinned by digest:
 
 ```yaml
 image:
-  repository: ghcr.io/yaelmoshi/wakapi
+  repository: ghcr.io/yaelmoshi/wakapi-dhi
   tag: 2.17.3-yaelmoshi.1@sha256:6863d89f01c0ef4293060855cff8ed5c91dba949031afdf4c1e0feaa6e351f3b
 ```
 
@@ -205,7 +205,7 @@ serviceMonitor:
 
 ### 1.2.1
 
-- Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/yaelmoshi/wakapi`.
+- Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/yaelmoshi/wakapi-dhi`.
 - `appVersion` changed to `2.17.3-yaelmoshi.1`.
 - Existing values remain compatible. Set `image.repository: ghcr.io/muety/wakapi` and an upstream tag to keep using the upstream image.
 - The chart schema now validates common values more strictly while still allowing additional Wakapi config keys under `config`.
