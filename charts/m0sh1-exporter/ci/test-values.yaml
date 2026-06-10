@@ -2,9 +2,17 @@ opnsenseExporter:
   opnsense:
     address: opn.m0sh1.cc
   serviceMonitor:
+    enabled: false
     additionalLabels:
       release: kube-prometheus-stack
     metricRelabelings:
+      - targetLabel: instance
+        replacement: opnsense
+  vmServiceScrape:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+    metricRelabelConfigs:
       - targetLabel: instance
         replacement: opnsense
 
@@ -23,10 +31,34 @@ snmpExporter:
         scrapeTimeout: 25s
         additionalMetricsRelabels:
           instance: edgerouter-x
+  vmServiceScrape:
+    enabled: true
+    labels:
+      release: kube-prometheus-stack
+    params:
+      - name: edgerouter-x
+        target: 10.0.0.2
+        module:
+          - if_mib
+        labels:
+          release: kube-prometheus-stack
+        interval: 2m
+        scrapeTimeout: 25s
+        additionalMetricsRelabels:
+          instance: edgerouter-x
 
 pveexporter:
   serviceMonitor:
+    enabled: false
     additionalLabels:
+      release: kube-prometheus-stack
+    pveTargets:
+      - 10.0.10.11
+      - 10.0.10.12
+      - 10.0.10.13
+  vmServiceScrape:
+    enabled: true
+    labels:
       release: kube-prometheus-stack
     pveTargets:
       - 10.0.10.11

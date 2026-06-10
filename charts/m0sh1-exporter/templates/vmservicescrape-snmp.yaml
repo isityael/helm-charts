@@ -1,0 +1,63 @@
+{{- if .Values.snmpExporter.vmServiceScrape.enabled }}
+{{- range .Values.snmpExporter.vmServiceScrape.params }}
+---
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ printf "%s-%s" ($.Values.snmpExporter.fullnameOverride | default (printf "%s-snmp-exporter" $.Release.Name)) .name | trunc 63 | trimSuffix "-" }}
+  namespace: {{ $.Values.snmpExporter.vmServiceScrape.namespace | default $.Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ printf "%s-%s" "snmpExporter" "9.14.0" }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/component: metrics
+    app.kubernetes.io/part-of: snmpExporter
+    app.kubernetes.io/name: snmpExporter
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/version: {{ $.Values.snmpExporter.image.tag | splitList "@" | first | quote }}
+    {{- range $key, $value := .labels | default $.Values.snmpExporter.vmServiceScrape.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: snmpExporter
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  endpoints:
+    - port: http
+      honorLabels: {{ $.Values.snmpExporter.vmServiceScrape.honorLabels }}
+      path: {{ $.Values.snmpExporter.vmServiceScrape.path }}
+      {{- if or .interval $.Values.snmpExporter.vmServiceScrape.interval }}
+      interval: {{ .interval | default $.Values.snmpExporter.vmServiceScrape.interval }}
+      {{- end }}
+      scrapeTimeout: {{ .scrapeTimeout | default $.Values.snmpExporter.vmServiceScrape.scrapeTimeout }}
+      params:
+        module: {{- toYaml (default $.Values.snmpExporter.vmServiceScrape.module .module) | nindent 10 }}
+        auth: {{- toYaml (default $.Values.snmpExporter.vmServiceScrape.auth .auth) | nindent 10 }}
+        target:
+          - {{ .target }}
+      metricRelabelConfigs:
+        - sourceLabels: [instance]
+          targetLabel: instance
+          replacement: {{ .target }}
+          action: replace
+        - sourceLabels: [target]
+          targetLabel: target
+          replacement: {{ .name }}
+          action: replace
+        {{- range $targetLabel, $replacement := .additionalMetricsRelabels | default $.Values.snmpExporter.vmServiceScrape.additionalMetricsRelabels }}
+        - targetLabel: {{ $targetLabel }}
+          replacement: {{ $replacement | quote }}
+          action: replace
+        {{- end }}
+        {{- if (or .additionalMetricsRelabelConfigs $.Values.snmpExporter.vmServiceScrape.additionalMetricsRelabelConfigs) }}
+        {{- toYaml (default $.Values.snmpExporter.vmServiceScrape.additionalMetricsRelabelConfigs .additionalMetricsRelabelConfigs) | nindent 8 }}
+        {{- end }}
+      {{- if (or .relabelConfigs $.Values.snmpExporter.vmServiceScrape.relabelConfigs) }}
+      relabelConfigs:
+        {{- toYaml (default $.Values.snmpExporter.vmServiceScrape.relabelConfigs .relabelConfigs) | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end -}}

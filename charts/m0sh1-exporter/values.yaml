@@ -26,6 +26,12 @@ opnsenseExporter:
     interval: 30s
     additionalLabels: {}
     metricRelabelings: []
+  vmServiceScrape:
+    enabled: false
+    namespace: ""
+    labels: {}
+    interval: 30s
+    metricRelabelConfigs: []
   resources:
     requests:
       cpu: 10m
@@ -63,6 +69,20 @@ snmpExporter:
   serviceMonitor:
     enabled: false
     namespace: monitoring
+    path: /snmp
+    scrapeTimeout: 25s
+    module:
+      - if_mib
+    auth:
+      - public_v2
+    honorLabels: true
+    params: []
+    selfMonitor:
+      enabled: false
+  vmServiceScrape:
+    enabled: false
+    namespace: monitoring
+    labels: {}
     path: /snmp
     scrapeTimeout: 25s
     module:
@@ -111,6 +131,15 @@ pveexporter:
     interval: 30s
     namespace: monitoring
     metricRelabelings:
+      - targetLabel: instance
+        replacement: prometheus-pve-exporter
+    pveTargets: []
+  vmServiceScrape:
+    enabled: false
+    namespace: monitoring
+    labels: {}
+    interval: 30s
+    metricRelabelConfigs:
       - targetLabel: instance
         replacement: prometheus-pve-exporter
     pveTargets: []
