@@ -20,5 +20,5 @@ dependencies:
     version: 0.28.2
     repository: oci://dhi.io
   - name: plugin-barman-cloud
-    version: 0.6.0
+    version: 0.7.0
     repository: https://cloudnative-pg.github.io/charts

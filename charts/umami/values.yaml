@@ -123,7 +123,7 @@ bootstrap:
   enabled: false
   image:
     repository: dhi.io/python
-    tag: "3.14.5-alpine3.23@sha256:5a37ae6649fcb4924b05030108b54f38d9c4b0626dd5c27332e1f218fd5a40ce"
+    tag: "3.14.5-alpine3.23@sha256:658c88b53d0525c13675b3808fbaeebe912eb8fe64ee3b761dfcc12787334981"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   defaultAdmin:
