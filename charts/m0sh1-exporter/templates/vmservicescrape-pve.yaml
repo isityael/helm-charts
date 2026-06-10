@@ -1,0 +1,55 @@
+{{- if .Values.pveexporter.vmServiceScrape.enabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ .Values.pveexporter.fullnameOverride | default (printf "%s-pveexporter" .Release.Name) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Values.pveexporter.vmServiceScrape.namespace | default .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ printf "%s-%s" "pveexporter" "2.8.0" }}
+    app.kubernetes.io/name: pveexporter
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Values.pveexporter.image.tag | splitList "@" | first | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- with .Values.pveexporter.vmServiceScrape.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pveexporter
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+    - port: http
+      {{- with .Values.pveexporter.vmServiceScrape.interval }}
+      interval: {{ . }}
+      {{- end }}
+      path: /metrics
+      {{- with .Values.pveexporter.vmServiceScrape.relabelConfigs }}
+      relabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pveexporter.vmServiceScrape.metricRelabelConfigs }}
+      metricRelabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if .Values.pveexporter.vmServiceScrape.pveTargets }}
+    - port: http
+      path: /pve
+      params:
+        target:
+        {{- range $value := .Values.pveexporter.vmServiceScrape.pveTargets }}
+          - {{ $value }}
+        {{- end }}
+      {{- with .Values.pveexporter.vmServiceScrape.relabelConfigs }}
+      relabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pveexporter.vmServiceScrape.metricRelabelConfigs }}
+      metricRelabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+{{- end }}
