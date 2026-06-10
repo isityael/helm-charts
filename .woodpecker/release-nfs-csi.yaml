@@ -8,12 +8,12 @@ when:
 
 steps:
   - name: helm-lint
-    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
     commands:
       - helm lint charts/csi-driver-nfs
 
   - name: helm-package
-    image: dhi.io/helm:4.1.3-debian13-dev@sha256:0e15ecf570c1d5e2348d934b5ea4c41134d641e7ae43831b84e774b73cfdb88b
+    image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
     environment:
       GHCR_USERNAME:
         from_secret: github_username

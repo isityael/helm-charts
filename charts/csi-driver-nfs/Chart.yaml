@@ -4,7 +4,7 @@ description: CSI NFS Driver for Kubernetes (yaelmoshi fork with configurable fsG
 icon: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/logo/logo.png
 home: https://github.com/kubernetes-sigs/csi-driver-nfs
 type: application
-version: 4.14.3
+version: 4.14.4
 appVersion: "4.14.0-sm3"
 kubeVersion: ">=1.21.0-0"
 maintainers:
