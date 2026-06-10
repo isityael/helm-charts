@@ -7,28 +7,27 @@ image:
     pullPolicy: IfNotPresent
   csiProvisioner:
     repository: dhi.io/csi-provisioner
-    tag: 6.2.0
+    tag: 6.3.0-debian13@sha256:f6669f006c75eedf62182971036b42565fffbade2f6ff9f7a07be098820b115a
     pullPolicy: IfNotPresent
   csiResizer:
     repository: dhi.io/csi-resizer
-    tag: 2.1.0
+    tag: 2.2.0-debian13@sha256:dc9dcde260e125ee80841ef3508ff94c14f3b875856407249b733e7c0b11a136
     pullPolicy: IfNotPresent
   csiSnapshotter:
     repository: dhi.io/csi-snapshotter
-    tag: 8.5.0
+    tag: 8.6.0-debian13@sha256:64cdae6723b504ce2f1709b3ce5e1e894937481e763b720150446c9ac6341054
     pullPolicy: IfNotPresent
   livenessProbe:
-    # DHI livenessprobe:2.18.0 not yet available — use 2.17.0
     repository: dhi.io/livenessprobe
-    tag: 2.17.0
+    tag: 2.19.0-debian13@sha256:ae521951120f5bb402ba7732707ce69c8e64f0c350cadfebe82a3d0463f5034f
     pullPolicy: IfNotPresent
   nodeDriverRegistrar:
     repository: dhi.io/csi-node-driver-registrar
-    tag: 2.16.0
+    tag: 2.17.0-debian13@sha256:edd77412e20f8cd73eae699a41a874b086a88cc1886c7f677917044484420488
     pullPolicy: IfNotPresent
   externalSnapshotter:
     repository: dhi.io/snapshot-controller
-    tag: 8.5.0
+    tag: 8.6.0-debian13@sha256:ade207c107967b9042f0a8f4e3079ee8af77a3bf9d03216b58ef3b60a5d3c0ec
     pullPolicy: IfNotPresent
 
 serviceAccount:

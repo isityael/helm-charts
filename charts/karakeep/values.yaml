@@ -92,8 +92,8 @@ meilisearch:
   enabled: true
   url: ""
   image:
-    repository: getmeili/meilisearch
-    tag: "v1.46.1@sha256:cbe0e500a5fc04397dfe0245cf143fee40658b26470daaf549f0a6927c5c08dc"
+    repository: dhi.io/meilisearch
+    tag: "1.46.1-debian13@sha256:8f5838047dbc8654efdda3808d7c2136f6539db0084e837c07d9343670c4f4f3"
     pullPolicy: IfNotPresent
   command: []
   args: []
