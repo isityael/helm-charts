@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "15.0.2"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -56,7 +56,7 @@ annotations:
       description: Default the optional runner labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
 dependencies:
   - name: forgejo
-    version: 17.1.0
+    version: 17.1.1
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
