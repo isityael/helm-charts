@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:572e9f50ca9512b748a58f10eae653cf1d59df89164ebca60e4c3eeb9168e0b9
+      tag: 2.17.0-debian13@sha256:382d8b450f715e63d1369a9642fef02c844417a2e666b248a11d80dd4aaad80d
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
