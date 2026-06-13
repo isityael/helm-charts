@@ -118,7 +118,7 @@ controller:
       repository: ghcr.io/yaelmoshi/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:fafb73465787028a5107a21cca453972a9631f861154635ab65a70ecc861ad4f
+      tag: edge@sha256:f7c391ab724abd8469e7fa923c1b26092f22fd621d79082411e3ab160ba26993
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -200,7 +200,7 @@ node:
       repository: ghcr.io/yaelmoshi/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:be16351eae34ef52934ceffccfdd74b634e899e4ce19ba3abaf818976cffea12
+      tag: edge@sha256:9f1778a4a30b8335365a37f0bb77350066400b9f8795c19ef08ef78d1e292785
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -251,7 +251,7 @@ livenessprobe:
   image:
     repository: dhi.io/livenessprobe
     pullPolicy: IfNotPresent
-    tag: 2.19.0-debian13@sha256:7973389e2b5afe8caf7376bc7719eef2cb3bc9c02c17888dd3f97b0a3f561f9a
+    tag: 2.19.0-debian13@sha256:1b612fb30c8efc4f1d5654ff422877102eca992db4c4f679d3f0f443f37bffa0
   # -- Failure threshold for livenessProbe
   failureThreshold: 5
   # -- Initial delay seconds for livenessProbe
