@@ -45,7 +45,7 @@ steps:
       - |
         for chart in charts/*/; do
           echo "==> Linting $chart"
-          if grep -qF 'oci://dhi.io' "$chart/Chart.yaml" &&
+          if [ "${chart%/}" = "charts/cnpg-stack" ] &&
             { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
             echo "Skipping dependency build for $chart; DHI credentials are not available."
           else
