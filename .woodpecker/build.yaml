@@ -41,7 +41,12 @@ steps:
             echo "charts with oci://dhi.io dependencies may lint without subcharts."
           fi
         fi
-      - bash .ci/check-helm-dependencies.sh
+      - |
+        if [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]; then
+          bash .ci/check-helm-dependencies.sh
+        else
+          echo "Skipping Helm dependency guard; DHI credentials are not available."
+        fi
       - |
         for chart in charts/*/; do
           echo "==> Linting $chart"
