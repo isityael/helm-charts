@@ -87,12 +87,25 @@ steps:
       - /kubeconform -ignore-missing-schemas -summary .ci/rendered/*.yaml
 
   - name: kube-linter
-    image: stackrox/kube-linter:0.8.3-alpine
+    image: alpine:3.22@sha256:310c62b5e7ca5b08167e4384c68db0fd2905dd9c7493756d356e893909057601
     commands:
       - |
+        case "$(uname -m)" in
+          x86_64) kube_linter_asset="kube-linter-linux.tar.gz" ;;
+          aarch64|arm64) kube_linter_asset="kube-linter-linux_arm64.tar.gz" ;;
+          *)
+            echo "Unsupported runner architecture: $(uname -m)" >&2
+            exit 1
+            ;;
+        esac
+        kube_linter_url="https://github.com/stackrox/kube-linter/releases/download/v0.8.3/${kube_linter_asset}"
+        wget -qO /tmp/kube-linter.tar.gz "$kube_linter_url"
+        tar -xzf /tmp/kube-linter.tar.gz -C /tmp kube-linter
+        chmod +x /tmp/kube-linter
+        /tmp/kube-linter version
         for manifest in .ci/rendered/*.yaml; do
           echo "==> kube-linter $manifest"
-          kube-linter lint "$manifest" --config .kube-linter.yaml
+          /tmp/kube-linter lint "$manifest" --config .kube-linter.yaml
         done
 
   - name: cleanup-rendered
