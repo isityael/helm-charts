@@ -20,10 +20,6 @@ steps:
         from_secret: github_username
       GHCR_TOKEN:
         from_secret: github_token
-      COSIGN_PRIVATE_KEY:
-        from_secret: cosign_private_key
-      COSIGN_PASSWORD:
-        from_secret: cosign_password
       DHI_USERNAME:
         from_secret: dhi_username
       DHI_PASSWORD:
