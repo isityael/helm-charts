@@ -72,6 +72,17 @@ SH
   chmod +x "${bindir}/helm"
 }
 
+write_missing_git() {
+  local bindir="$1"
+
+  cat >"${bindir}/git" <<'SH'
+#!/usr/bin/env bash
+echo "git: command not found" >&2
+exit 127
+SH
+  chmod +x "${bindir}/git"
+}
+
 test_fails_on_wrong_dependency_status() {
   local workdir="${tmpdir}/wrong-status"
   local bindir="${workdir}/bin"
@@ -113,8 +124,21 @@ test_passes_when_dependencies_are_current() {
     fail "expected current dependencies to pass"
 }
 
+test_passes_without_git_available() {
+  local workdir="${tmpdir}/no-git"
+  local bindir="${workdir}/bin"
+  mkdir -p "$workdir" "$bindir"
+  setup_repo "$workdir" demo
+  write_fake_helm "$bindir" "ok"
+  write_missing_git "$bindir"
+
+  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+    fail "expected current dependencies to pass without git"
+}
+
 test_fails_on_wrong_dependency_status
 test_fails_when_build_mutates_vendored_files
 test_passes_when_dependencies_are_current
+test_passes_without_git_available
 
 echo "helm-dependency-guard tests passed"
