@@ -14,16 +14,17 @@ fail() {
 
 setup_repo() {
   local workdir="$1"
+  local version="${2:-1.2.3}"
 
   git -C "$workdir" init -q
   git -C "$workdir" config user.email test@example.invalid
   git -C "$workdir" config user.name "Chart Version Test"
 
   mkdir -p "$workdir/charts/demo/templates"
-  cat >"$workdir/charts/demo/Chart.yaml" <<'YAML'
+  cat >"$workdir/charts/demo/Chart.yaml" <<YAML
 apiVersion: v2
 name: demo
-version: 1.2.3
+version: ${version}
 YAML
   cat >"$workdir/charts/demo/values.yaml" <<'YAML'
 image:
@@ -103,8 +104,24 @@ test_existing_chart_version_change_is_not_bumped_again() {
   assert_staged "$workdir" "charts/demo/Chart.yaml"
 }
 
+test_v_prefixed_version_is_preserved() {
+  local workdir="${tmpdir}/v-prefixed"
+  mkdir -p "$workdir"
+  setup_repo "$workdir" "v1.2.3"
+
+  sed -i.bak 's/1.0.0/1.0.1/' "$workdir/charts/demo/values.yaml"
+  rm "$workdir/charts/demo/values.yaml.bak"
+  git -C "$workdir" add charts/demo/values.yaml
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "v1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
 test_values_change_bumps_chart_version
 test_template_change_bumps_chart_version
 test_existing_chart_version_change_is_not_bumped_again
+test_v_prefixed_version_is_preserved
 
 echo "chart-version-bump tests passed"

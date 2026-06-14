@@ -26,7 +26,7 @@
     {
       "name": "Bump chart version for chart dependency updates",
       "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
-      "matchStrings": ["version:\\s*(?<version>[^\\s]+)"],
+      "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
       "bumpType": "patch"
     }
   ],
@@ -46,7 +46,7 @@
         {
           "name": "Patch-bump adjacent Helm Chart.yaml",
           "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
-          "matchStrings": ["version:\\s*(?<version>[^\\s]+)"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
           "bumpType": "patch"
         }
       ]
