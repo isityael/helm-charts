@@ -145,6 +145,19 @@
             "relabelings": { "type": "array" },
             "metricRelabelings": { "type": "array" }
           }
+        },
+        "vmServiceScrape": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "annotations": { "type": "object" },
+            "labels": { "type": "object" },
+            "interval": { "type": "string", "pattern": "^[0-9]+(ns|us|ms|s|m|h)$" },
+            "scrapeTimeout": { "type": "string", "pattern": "^[0-9]+(ns|us|ms|s|m|h)$" },
+            "relabelConfigs": { "type": "array" },
+            "metricRelabelConfigs": { "type": "array" }
+          }
         }
       }
     },

@@ -277,6 +277,24 @@
         }
       }
     },
+    "vmServiceScrape": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "interval": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object"
+        }
+      }
+    },
     "existingSecrets": {
       "type": "object",
       "additionalProperties": false,

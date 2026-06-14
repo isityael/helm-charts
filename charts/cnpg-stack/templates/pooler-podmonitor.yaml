@@ -2,8 +2,14 @@
 {{- $cluster := $cnpg.cluster | default dict -}}
 {{- $pgbouncer := $cnpg.pgbouncer | default dict -}}
 {{- if and $cluster.enabled $pgbouncer.enabled (dig "metrics" "enabled" false $pgbouncer) }}
+{{- $vmPodScrapeEnabled := dig "metrics" "vmPodScrape" "enabled" false $pgbouncer -}}
+{{- if $vmPodScrapeEnabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+{{- else }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
+{{- end }}
 metadata:
   name: {{ $cluster.name }}-pooler
   namespace: {{ dig "metrics" "namespace" "cnpg-system" $pgbouncer }}

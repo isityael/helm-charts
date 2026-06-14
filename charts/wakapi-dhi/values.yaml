@@ -110,6 +110,13 @@ serviceMonitor:
   path: /api/metrics
   additionalLabels: {}
 
+# VictoriaMetrics VMServiceScrape
+vmServiceScrape:
+  enabled: false
+  interval: "60s"
+  path: /api/metrics
+  labels: {}
+
 # Existing Kubernetes Secrets for sensitive values.
 # When set, the Deployment injects these as env vars via secretKeyRef
 # instead of putting them in the ConfigMap.

@@ -1,0 +1,31 @@
+{{- if .Values.metrics.vmServiceScrape.enabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ include "cloudflared.metricsServiceName" . }}
+  labels:
+    {{- include "cloudflared.labels" . | nindent 4 }}
+    {{- with .Values.metrics.vmServiceScrape.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.metrics.vmServiceScrape.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "cloudflared.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      interval: {{ .Values.metrics.vmServiceScrape.interval }}
+      scrapeTimeout: {{ .Values.metrics.vmServiceScrape.scrapeTimeout }}
+      {{- with .Values.metrics.vmServiceScrape.relabelConfigs }}
+      relabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metrics.vmServiceScrape.metricRelabelConfigs }}
+      metricRelabelConfigs:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

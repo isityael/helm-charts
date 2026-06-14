@@ -1,0 +1,19 @@
+{{- if .Values.vmServiceScrape.enabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ include "wakapi.fullname" . }}
+  labels:
+    {{- include "wakapi.labels" . | nindent 4 }}
+    {{- with .Values.vmServiceScrape.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "wakapi.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: {{ .Values.vmServiceScrape.path | default "/api/metrics" }}
+      interval: {{ .Values.vmServiceScrape.interval | default "60s" | quote }}
+{{- end }}
