@@ -37,6 +37,11 @@ for chart in "${charts[@]}"; do
 
   echo "==> Checking Helm dependencies for ${chart}"
 
+  if needs_dhi_auth "${chart}" && ! has_dhi_auth; then
+    echo "Skipping dependency check for ${chart}; DHI credentials are not available."
+    continue
+  fi
+
   list_before="$(helm dependency list "${chart}")"
   if printf '%s\n' "${list_before}" | awk 'NR > 1 && $NF != "ok" { bad = 1 } END { exit bad ? 0 : 1 }'; then
     printf '%s\n' "${list_before}" >&2
@@ -44,11 +49,6 @@ for chart in "${charts[@]}"; do
   fi
 
   status_before="$(dependency_snapshot "${chart}")"
-  if needs_dhi_auth "${chart}" && ! has_dhi_auth; then
-    echo "Skipping dependency build for ${chart}; DHI credentials are not available."
-    continue
-  fi
-
   if ! helm dependency build "${chart}"; then
     failed=1
     continue
