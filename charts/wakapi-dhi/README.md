@@ -194,6 +194,11 @@ serviceMonitor:
   path: /api/metrics
   additionalLabels:
     release: kube-prometheus-stack
+  authorization:
+    type: Bearer
+    credentials:
+      name: wakapi-metrics-token
+      key: token
 ```
 
 ## Operational Defaults
