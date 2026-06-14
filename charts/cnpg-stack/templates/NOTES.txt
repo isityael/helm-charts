@@ -1,0 +1,4 @@
+CloudNativePG stack {{ .Chart.Version }} has been rendered for release {{ .Release.Name }}.
+
+Verify the operator, cluster, pooler, and backup resources in namespace {{ .Release.Namespace }}.
+If object-store backups are enabled, confirm the referenced credentials Secret exists before reconciliation.

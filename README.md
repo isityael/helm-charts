@@ -16,23 +16,31 @@ helm install <release-name> oci://ghcr.io/yaelmoshi/charts/<chart-name> --versio
 
 | Chart | Version | Description |
 |-------|---------|-------------|
-| `cloudflared` | 1.1.0 | Cloudflare Tunnel connector |
-| `csi-driver-nfs` | 4.14.1 | NFS CSI driver (yaelmoshi fork with configurable fsGroupPolicy) |
-| `forgejo` | 0.1.5 | Forgejo with custom image defaults and optional runner |
+| `basic-memory` | 0.3.12 | Basic Memory MCP server with optional Obsidian LiveSync integration |
+| `cloudflared` | 1.4.6 | Cloudflare Tunnel connector |
+| `cnpg-stack` | 0.13.29 | CloudNativePG operator, cluster, barman plugin, pooler, and metrics wrapper |
+| `csi-driver-nfs` | 4.14.4 | NFS CSI driver (yaelmoshi fork with configurable fsGroupPolicy) |
+| `fail2ban-gotify-relay` | 0.3.3 | Relay fail2ban-ui webhook events to Gotify |
+| `forgejo` | 0.1.7 | Forgejo with custom image defaults and optional runner |
 | `forgejo-runner` | 0.1.5 | Forgejo Actions runner with Docker-in-Docker |
-| `gitea-runner` | 0.4.0 | Gitea Actions runner with Docker-in-Docker |
-| `healthchecks` | 0.1.0 | Cron and background task monitoring |
-| `m0sh1-exporter` | 0.1.0 | Network exporters bundle for OPNsense, SNMP, and Proxmox VE |
-| `privatebin` | 0.1.0 | Encrypted paste and file sharing |
-| `searxng` | 0.1.0 | Privacy-respecting metasearch |
-| `tailscale-webhook-relay` | 0.1.0 | Relay Tailscale webhook events to ntfy |
-| `wakapi` | 1.2.1 | Hardened WakaTime-compatible coding statistics |
+| `gitea-runner` | 1.0.5 | Gitea Actions runner with Docker-in-Docker |
+| `healthchecks` | 0.1.3 | Cron and background task monitoring |
+| `karakeep` | 0.1.14 | Karakeep with Postgres, Meilisearch, and browser crawling support |
+| `m0sh1-exporter` | 0.1.7 | Network exporters bundle for OPNsense, SNMP, and Proxmox VE |
+| `privatebin` | 0.1.3 | Encrypted paste and file sharing |
+| `proxmox-csi-plugin` | 0.5.33 | Proxmox CSI plugin (yaelmoshi fork) |
+| `searxng` | 0.2.6 | Privacy-respecting metasearch |
+| `tailscale-webhook-relay` | 0.3.3 | Relay Tailscale webhook events to ntfy |
+| `umami` | 0.2.3 | Privacy-focused web analytics |
+| `wakapi-dhi` | 1.2.11 | Hardened WakaTime-compatible coding statistics |
 
 ## Publishing
 
 Charts are automatically published to GHCR OCI on push to `main` when `charts/**` files change (via Woodpecker CI). Manual trigger is also supported.
 
 Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally create GitHub Releases with packaged `.tgz` artefacts.
+
+The publish pipeline records pushed immutable OCI digest references in `.ci/published-oci-refs.txt`. If `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` are configured in CI, those digest references are signed with `cosign sign --key env://COSIGN_PRIVATE_KEY`.
 
 ## Development
 
@@ -41,7 +49,13 @@ Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally
 helm lint charts/<chart-name>
 
 # Lint all charts
-for chart in charts/*/; do helm lint "$chart"; done
+mise run helm-lint
+
+# Verify vendored chart dependencies
+.ci/check-helm-dependencies.sh
+
+# Lint rendered manifests after generating .ci/rendered
+mise run kube-linter
 ```
 
 ## Licence

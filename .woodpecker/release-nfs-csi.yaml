@@ -21,7 +21,7 @@ steps:
         from_secret: github_token
     commands:
       - helm package charts/csi-driver-nfs
-      - helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
+      - printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
       - helm push csi-driver-nfs-*.tgz oci://ghcr.io/yaelmoshi/charts
 
   - name: github-release

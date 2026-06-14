@@ -1,0 +1,4 @@
+Forgejo wrapper {{ .Chart.Version }} has been rendered for release {{ .Release.Name }}.
+
+Review the upstream Forgejo subchart values and any optional runner settings before production rollout.
+Runner registration tokens and Forgejo secrets should be supplied through existing Kubernetes Secrets.
