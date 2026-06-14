@@ -20,6 +20,16 @@ dependency_snapshot() {
   done
 }
 
+needs_dhi_auth() {
+  local chart="$1"
+
+  grep -qE '^[[:space:]]*repository:[[:space:]]+oci://dhi\.io' "${chart}/Chart.yaml"
+}
+
+has_dhi_auth() {
+  [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]
+}
+
 for chart in "${charts[@]}"; do
   if ! grep -qE '^[[:space:]]*dependencies:' "${chart}/Chart.yaml"; then
     continue
@@ -34,6 +44,11 @@ for chart in "${charts[@]}"; do
   fi
 
   status_before="$(dependency_snapshot "${chart}")"
+  if needs_dhi_auth "${chart}" && ! has_dhi_auth; then
+    echo "Skipping dependency build for ${chart}; DHI credentials are not available."
+    continue
+  fi
+
   if ! helm dependency build "${chart}"; then
     failed=1
     continue

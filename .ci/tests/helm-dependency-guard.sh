@@ -15,6 +15,7 @@ fail() {
 setup_repo() {
   local workdir="$1"
   local chart="$2"
+  local repository="${3:-https://example.invalid/charts}"
 
   git -C "$workdir" init -q
   git -C "$workdir" config user.email test@example.invalid
@@ -28,7 +29,7 @@ version: 0.1.0
 dependencies:
   - name: child
     version: 1.0.0
-    repository: https://example.invalid/charts
+    repository: ${repository}
 YAML
   cat >"$workdir/charts/${chart}/Chart.lock" <<'YAML'
 dependencies:
@@ -81,6 +82,32 @@ echo "git: command not found" >&2
 exit 127
 SH
   chmod +x "${bindir}/git"
+}
+
+write_failing_dependency_build_helm() {
+  local bindir="$1"
+
+  cat >"${bindir}/helm" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+case "$1 $2" in
+  "dependency list")
+    cat <<'OUT'
+NAME  VERSION  REPOSITORY     STATUS
+child 1.0.0    oci://dhi.io   ok
+OUT
+    ;;
+  "dependency build")
+    echo "dependency build should have been skipped" >&2
+    exit 1
+    ;;
+  *)
+    echo "unexpected helm command: $*" >&2
+    exit 2
+    ;;
+esac
+SH
+  chmod +x "${bindir}/helm"
 }
 
 test_fails_on_wrong_dependency_status() {
@@ -136,9 +163,24 @@ test_passes_without_git_available() {
     fail "expected current dependencies to pass without git"
 }
 
+test_skips_dhi_build_without_credentials() {
+  local workdir="${tmpdir}/dhi-no-creds"
+  local bindir="${workdir}/bin"
+  mkdir -p "$workdir" "$bindir"
+  setup_repo "$workdir" demo "oci://dhi.io"
+  write_failing_dependency_build_helm "$bindir"
+
+  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+    fail "expected DHI dependency build to be skipped without credentials"
+
+  grep -q "Skipping dependency build for charts/demo" /tmp/helm-dependency-guard.out ||
+    fail "expected output to mention skipped DHI dependency build"
+}
+
 test_fails_on_wrong_dependency_status
 test_fails_when_build_mutates_vendored_files
 test_passes_when_dependencies_are_current
 test_passes_without_git_available
+test_skips_dhi_build_without_credentials
 
 echo "helm-dependency-guard tests passed"
