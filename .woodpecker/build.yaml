@@ -34,7 +34,7 @@ steps:
         done
       - |
         if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
-          if [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]; then
+          if [ -n "$DHI_USERNAME" ] && [ -n "$DHI_PASSWORD" ]; then
             printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
           else
             echo "WARNING: DHI credentials not available;"
@@ -42,7 +42,7 @@ steps:
           fi
         fi
       - |
-        if [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]; then
+        if [ -n "$DHI_USERNAME" ] && [ -n "$DHI_PASSWORD" ]; then
           bash .ci/check-helm-dependencies.sh
         else
           echo "Skipping Helm dependency guard; DHI credentials are not available."
@@ -51,7 +51,7 @@ steps:
         for chart in charts/*/; do
           echo "==> Linting $chart"
           if [ "$chart" = "charts/cnpg-stack/" ] &&
-            { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
+            { [ -z "$DHI_USERNAME" ] || [ -z "$DHI_PASSWORD" ]; }; then
             echo "Skipping dependency build for $chart; DHI credentials are not available."
           else
             helm dependency build "$chart"
@@ -98,7 +98,7 @@ steps:
             exit 1
             ;;
         esac
-        kube_linter_url="https://github.com/stackrox/kube-linter/releases/download/v0.8.3/${kube_linter_asset}"
+        kube_linter_url="https://github.com/stackrox/kube-linter/releases/download/v0.8.3/$kube_linter_asset"
         wget -qO /tmp/kube-linter.tar.gz "$kube_linter_url"
         tar -xzf /tmp/kube-linter.tar.gz -C /tmp kube-linter
         chmod +x /tmp/kube-linter
