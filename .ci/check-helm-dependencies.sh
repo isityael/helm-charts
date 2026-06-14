@@ -4,10 +4,20 @@ set -euo pipefail
 charts=()
 for chart in charts/*/; do
   [ -f "${chart}Chart.yaml" ] || continue
-  charts+=("${chart%/}")
+  chart="${chart%/}"
+  if [ "${chart}" = "charts/cnpg-stack" ] &&
+    { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
+    echo "Skipping dependency check for ${chart}; DHI credentials are not available."
+    continue
+  fi
+  charts+=("${chart}")
 done
 
 failed=0
+
+if [ "${#charts[@]}" -eq 0 ]; then
+  exit 0
+fi
 
 dependency_snapshot() {
   local chart="$1"
@@ -20,27 +30,12 @@ dependency_snapshot() {
   done
 }
 
-needs_dhi_auth() {
-  local chart="$1"
-
-  [ "${chart}" = "charts/cnpg-stack" ]
-}
-
-has_dhi_auth() {
-  [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]
-}
-
 for chart in "${charts[@]}"; do
   if ! grep -qE '^[[:space:]]*dependencies:' "${chart}/Chart.yaml"; then
     continue
   fi
 
   echo "==> Checking Helm dependencies for ${chart}"
-
-  if needs_dhi_auth "${chart}" && ! has_dhi_auth; then
-    echo "Skipping dependency check for ${chart}; DHI credentials are not available."
-    continue
-  fi
 
   list_before="$(helm dependency list "${chart}")"
   if printf '%s\n' "${list_before}" | awk 'NR > 1 && $NF != "ok" { bad = 1 } END { exit bad ? 0 : 1 }'; then

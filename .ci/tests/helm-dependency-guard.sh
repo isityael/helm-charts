@@ -145,7 +145,7 @@ test_passes_when_dependencies_are_current() {
   setup_repo "$workdir" demo
   write_fake_helm "$bindir" "ok"
 
-  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected current dependencies to pass"
 }
 
@@ -157,7 +157,7 @@ test_passes_without_git_available() {
   write_fake_helm "$bindir" "ok"
   write_missing_git "$bindir"
 
-  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected current dependencies to pass without git"
 }
 
@@ -168,7 +168,7 @@ test_skips_dhi_build_without_credentials() {
   setup_repo "$workdir" cnpg-stack "oci://dhi.io"
   write_failing_dependency_build_helm "$bindir"
 
-  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected DHI dependency build to be skipped without credentials"
 
   grep -q "Skipping dependency check for charts/cnpg-stack" /tmp/helm-dependency-guard.out ||
