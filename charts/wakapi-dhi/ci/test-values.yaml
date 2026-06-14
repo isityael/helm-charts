@@ -18,7 +18,7 @@ serviceMonitor:
 vmServiceScrape:
   enabled: true
   labels:
-    release: victoriametrics
+    release: prometheus-agent
   authorization:
     type: Bearer
     credentials:

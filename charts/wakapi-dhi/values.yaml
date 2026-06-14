@@ -103,7 +103,9 @@ probes:
     periodSeconds: 10
     failureThreshold: 3
 
-# Prometheus ServiceMonitor
+# Prometheus Operator ServiceMonitor. Wakapi protects /api/metrics; set
+# authorization.credentials to a Secret key containing the base64-encoded
+# Wakapi API key, matching Wakapi's Authorization header parser.
 serviceMonitor:
   enabled: false
   interval: "60s"
@@ -116,7 +118,8 @@ serviceMonitor:
   #     name: wakapi-metrics-token
   #     key: token
 
-# VictoriaMetrics VMServiceScrape
+# VictoriaMetrics Operator VMServiceScrape. Prefer this over ServiceMonitor
+# conversion when scraping with vmagent directly.
 vmServiceScrape:
   enabled: false
   interval: "60s"
