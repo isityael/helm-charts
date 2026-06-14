@@ -23,7 +23,7 @@ dependency_snapshot() {
 needs_dhi_auth() {
   local chart="$1"
 
-  grep -qE '^[[:space:]]*repository:[[:space:]]+oci://dhi\.io' "${chart}/Chart.yaml"
+  grep -qF 'repository: oci://dhi.io' "${chart}/Chart.yaml"
 }
 
 has_dhi_auth() {
