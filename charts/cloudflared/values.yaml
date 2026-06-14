@@ -185,6 +185,15 @@ metrics:
     scrapeTimeout: 10s
     relabelings: []
     metricRelabelings: []
+  vmServiceScrape:
+    # -- Create a VictoriaMetrics Operator VMServiceScrape
+    enabled: false
+    annotations: {}
+    labels: {}
+    interval: 30s
+    scrapeTimeout: 10s
+    relabelConfigs: []
+    metricRelabelConfigs: []
 
 # -- Extra environment variables
 extraEnv: []
