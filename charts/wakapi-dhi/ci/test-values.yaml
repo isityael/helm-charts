@@ -9,6 +9,21 @@ serviceMonitor:
   enabled: true
   additionalLabels:
     release: prometheus
+  authorization:
+    type: Bearer
+    credentials:
+      name: wakapi-metrics-token
+      key: token
+
+vmServiceScrape:
+  enabled: true
+  labels:
+    release: victoriametrics
+  authorization:
+    type: Bearer
+    credentials:
+      name: wakapi-metrics-token
+      key: token
 
 config:
   server:

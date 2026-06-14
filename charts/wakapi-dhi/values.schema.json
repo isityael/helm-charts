@@ -274,6 +274,9 @@
         },
         "additionalLabels": {
           "type": "object"
+        },
+        "authorization": {
+          "$ref": "#/definitions/authorization"
         }
       }
     },
@@ -292,6 +295,9 @@
         },
         "labels": {
           "type": "object"
+        },
+        "authorization": {
+          "$ref": "#/definitions/authorization"
         }
       }
     },
@@ -555,6 +561,37 @@
         "key": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "secretKeySelector": {
+      "type": "object",
+      "required": ["name", "key"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "optional": {
+          "type": "boolean"
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "credentials": {
+          "$ref": "#/definitions/secretKeySelector"
         }
       }
     },
