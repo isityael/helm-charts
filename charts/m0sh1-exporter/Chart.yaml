@@ -2,7 +2,7 @@ apiVersion: v2
 name: m0sh1-exporter
 description: Network exporters bundle for OPNsense, SNMP, and Proxmox VE
 type: application
-version: 0.1.7
+version: 0.1.8
 appVersion: "0.0.15"
 kubeVersion: ">=1.28.0-0"
 icon: https://opnsense.org/wp-content/themes/flavor/assets/images/opnsense.png
@@ -22,8 +22,8 @@ keywords:
   - prometheus
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: Add chart values schema and public README documentation.
+    - kind: fixed
+      description: Allow Helm global values in the chart schema.
 dependencies:
   - name: prometheus-snmp-exporter
     alias: snmpExporter
