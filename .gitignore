@@ -8,3 +8,4 @@ node_modules/
 .rumdl_cache/
 memory-bank/
 .github/*.chatmode.md
+.ci/published-oci-refs.txt

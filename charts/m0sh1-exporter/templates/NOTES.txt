@@ -1,0 +1,4 @@
+m0sh1-exporter {{ .Chart.Version }} has been rendered for release {{ .Release.Name }}.
+
+Confirm the OPNsense and Proxmox credential Secrets exist in namespace {{ .Release.Namespace }}.
+Enable either ServiceMonitor or VMServiceScrape resources according to the monitoring stack in the target cluster.

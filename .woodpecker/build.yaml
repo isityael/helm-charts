@@ -41,14 +41,11 @@ steps:
             echo "charts with oci://dhi.io dependencies may lint without subcharts."
           fi
         fi
+      - bash .ci/check-helm-dependencies.sh
       - |
         for chart in charts/*/; do
           echo "==> Linting $chart"
-          if ! helm dependency build "$chart"; then
-            echo "WARNING: dependency build failed for $chart; linting without subcharts."
-            helm lint "$chart"
-            continue
-          fi
+          helm dependency build "$chart"
           helm lint --with-subcharts "$chart"
         done
       - |
@@ -57,14 +54,20 @@ steps:
         for chart in charts/*/; do
           [ -f "$chart/Chart.yaml" ] || continue
           name="$(basename "$chart")"
-          if [ -f "$chart/ci/test-values.yaml" ]; then
-            echo "==> Rendering $chart with ci/test-values.yaml"
-            helm template "ci-$name" "$chart" \
-              --namespace "ci-$name" \
-              -f "$chart/ci/test-values.yaml" > ".ci/rendered/$name.yaml"
+          ci_values="$(find "$chart/ci" -maxdepth 1 -type f -name '*values*.yaml' 2>/dev/null | sort || true)"
+          if [ -n "$ci_values" ]; then
+            printf '%s\n' "$ci_values" | while read -r value_file; do
+              suffix="$(printf '%s' "$(basename "$value_file" .yaml)" | tr -c '[:alnum:]' '-' | sed 's/^-*//;s/-*$//')"
+              echo "==> Rendering $chart with $value_file"
+              helm template "ci-$name-$suffix" "$chart" \
+                --namespace "ci-$name" \
+                -f "$value_file" > ".ci/rendered/$name-$suffix.yaml"
+            done
           else
             echo "==> Rendering $chart with default values"
-            helm template "ci-$name" "$chart" --namespace "ci-$name" > ".ci/rendered/$name.yaml"
+            helm template "ci-$name" "$chart" \
+              --namespace "ci-$name" \
+              > ".ci/rendered/$name.yaml"
           fi
         done
 
@@ -72,4 +75,13 @@ steps:
     image: ghcr.io/yannh/kubeconform:v0.7.0-alpine@sha256:8f0eeaaa96ba27ba1500b0e4b1c215acc358d159c62a7ecae58d7a03403287b0
     commands:
       - /kubeconform -ignore-missing-schemas -summary .ci/rendered/*.yaml
+
+  - name: kube-linter
+    image: stackrox/kube-linter:0.8.3-alpine
+    commands:
+      - kube-linter lint .ci/rendered --config .kube-linter.yaml
+
+  - name: cleanup-rendered
+    image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
+    commands:
       - rm -rf .ci/rendered

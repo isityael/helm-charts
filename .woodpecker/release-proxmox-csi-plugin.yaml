@@ -32,7 +32,7 @@ steps:
     commands:
       - printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
       - helm package charts/proxmox-csi-plugin
-      - helm registry login ghcr.io -u "$GHCR_USERNAME" -p "$GHCR_TOKEN"
+      - printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
       - helm push proxmox-csi-plugin-*.tgz oci://ghcr.io/yaelmoshi/charts
 
   - name: github-release

@@ -5,6 +5,29 @@ set -euo pipefail
 # Expects GHCR_USERNAME and GHCR_TOKEN env vars.
 printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
+published_refs_file=".ci/published-oci-refs.txt"
+mkdir -p "$(dirname "$published_refs_file")"
+: >"$published_refs_file"
+
+sign_ref() {
+  local ref="$1"
+
+  if [ -z "${COSIGN_PRIVATE_KEY:-}" ]; then
+    return 0
+  fi
+  if [ -z "${COSIGN_PASSWORD:-}" ]; then
+    echo "COSIGN_PASSWORD is required when COSIGN_PRIVATE_KEY is set." >&2
+    exit 1
+  fi
+  if ! command -v cosign >/dev/null 2>&1; then
+    echo "cosign is required when COSIGN_PRIVATE_KEY is set." >&2
+    exit 1
+  fi
+
+  echo "Signing ${ref}..."
+  cosign sign --yes --key env://COSIGN_PRIVATE_KEY "$ref"
+}
+
 if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
   if [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; then
     echo "DHI credentials are required for charts that depend on oci://dhi.io."
@@ -44,5 +67,16 @@ for chart in charts/*/; do
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
-  helm push "$pkg" oci://ghcr.io/yaelmoshi/charts
+  push_output="$(helm push "$pkg" oci://ghcr.io/yaelmoshi/charts)"
+  printf '%s\n' "$push_output"
+
+  digest="$(printf '%s\n' "$push_output" | awk '/^Digest:/ {print $2; exit}')"
+  if [ -z "$digest" ]; then
+    echo "Unable to find pushed digest for ${name}:${version}." >&2
+    exit 1
+  fi
+
+  ref="ghcr.io/yaelmoshi/charts/${name}@${digest}"
+  printf '%s\n' "$ref" >>"$published_refs_file"
+  sign_ref "$ref"
 done

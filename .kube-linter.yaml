@@ -1,0 +1,17 @@
+checks:
+  exclude:
+    # Storage plugins, CI runners, and several upstream charts intentionally need
+    # privileges, host access, mutable roots, or upstream-managed resource shapes.
+    # KubeLinter defaults still run; only repo-known noisy checks are excluded.
+    - host-network
+    - liveness-port
+    - no-read-only-root-fs
+    - pdb-min-available
+    - pdb-unhealthy-pod-eviction-policy
+    - privilege-escalation-container
+    - privileged-container
+    - run-as-non-root
+    - sensitive-host-mounts
+    - unsafe-sysctls
+    - unset-cpu-requirements
+    - unset-memory-requirements

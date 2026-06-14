@@ -17,7 +17,7 @@ helm        = "4.1.4"
 kubectl     = "1.36.0"
 kustomize   = "5.8.1"
 kubeconform = "0.7.0"
-kube-linter = "0.8.1"
+kube-linter = "0.8.3"
 helm-diff   = { version = "3.15.6", bin = "diff", bin_path = "diff/bin", rename_exe = "helm-diff", exe = "diff" }
 trivy       = "0.70.0"
 python      = "3.14.2"
@@ -43,6 +43,10 @@ end
 """
 description = "Update Helm chart dependencies"
 
+[tasks.helm-deps-check]
+run         = ".ci/check-helm-dependencies.sh"
+description = "Verify committed Helm dependency archives match Chart.lock"
+
 [tasks.helm-lint]
 run = """
 #!/usr/bin/env fish
@@ -54,6 +58,20 @@ for chart in charts/*/
 end
 """
 description = "Lint Helm charts"
+
+[tasks.test-shell]
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+for test_script in .ci/tests/*.sh; do
+  bash "$test_script"
+done
+"""
+description = "Run shell script tests"
+
+[tasks.kube-linter]
+run         = "kube-linter lint .ci/rendered --config .kube-linter.yaml"
+description = "Lint rendered Kubernetes manifests with the repository policy"
 
 # === Changelog tasks ===
 [tasks.changelog]

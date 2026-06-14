@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
+    "nameOverride": { "type": "string" },
+    "fullnameOverride": { "type": "string" },
+    "podSecurityContext": { "type": "object" },
+    "nodeSelector": { "type": "object" },
+    "podAnnotations": { "type": "object" },
+    "opnsenseExporter": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "nameOverride": { "type": "string" },
+        "image": { "$ref": "#/definitions/image" },
+        "opnsense": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "protocol": { "type": "string", "enum": ["http", "https"] },
+            "address": { "type": "string" },
+            "instanceLabel": { "type": "string" },
+            "existingSecret": { "type": "string" },
+            "apiKeyKey": { "type": "string" },
+            "apiSecretKey": { "type": "string" }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+          }
+        },
+        "serviceMonitor": { "$ref": "#/definitions/monitor" },
+        "vmServiceScrape": { "$ref": "#/definitions/vmServiceScrape" },
+        "resources": { "type": "object" }
+      }
+    },
+    "snmpExporter": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "fullnameOverride": { "type": "string" },
+        "image": { "$ref": "#/definitions/image" },
+        "containerSecurityContext": { "type": "object" },
+        "resources": { "type": "object" },
+        "serviceMonitor": { "$ref": "#/definitions/snmpMonitor" },
+        "vmServiceScrape": { "$ref": "#/definitions/snmpVmServiceScrape" }
+      }
+    },
+    "pveexporter": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "fullnameOverride": { "type": "string" },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "registry": { "type": "string" },
+            "repository": { "type": "string" },
+            "tag": { "type": "string" },
+            "pullPolicy": { "$ref": "#/definitions/pullPolicy" }
+          }
+        },
+        "securityContext": { "type": "object" },
+        "resources": { "type": "object" },
+        "env": { "type": "object" },
+        "podAnnotations": { "type": "object" },
+        "serviceMonitor": { "$ref": "#/definitions/monitor" },
+        "vmServiceScrape": { "$ref": "#/definitions/vmServiceScrape" }
+      }
+    }
+  },
+  "definitions": {
+    "pullPolicy": {
+      "type": "string",
+      "enum": ["Always", "IfNotPresent", "Never"]
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": { "type": "string" },
+        "tag": { "type": "string" },
+        "pullPolicy": { "$ref": "#/definitions/pullPolicy" }
+      }
+    },
+    "monitor": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "namespace": { "type": "string" },
+        "interval": { "type": "string" },
+        "additionalLabels": { "type": "object" },
+        "metricRelabelings": { "type": "array" },
+        "pveTargets": { "type": "array" }
+      }
+    },
+    "snmpMonitor": {
+      "allOf": [
+        { "$ref": "#/definitions/monitor" },
+        {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "scrapeTimeout": { "type": "string" },
+            "module": { "type": "array", "items": { "type": "string" } },
+            "auth": { "type": "array", "items": { "type": "string" } },
+            "honorLabels": { "type": "boolean" },
+            "params": { "type": "array" },
+            "selfMonitor": { "type": "object" }
+          }
+        }
+      ]
+    },
+    "vmServiceScrape": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "namespace": { "type": "string" },
+        "labels": { "type": "object" },
+        "interval": { "type": "string" },
+        "metricRelabelConfigs": { "type": "array" },
+        "pveTargets": { "type": "array" }
+      }
+    },
+    "snmpVmServiceScrape": {
+      "allOf": [
+        { "$ref": "#/definitions/vmServiceScrape" },
+        {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "scrapeTimeout": { "type": "string" },
+            "module": { "type": "array", "items": { "type": "string" } },
+            "auth": { "type": "array", "items": { "type": "string" } },
+            "selector": { "type": "object" },
+            "honorLabels": { "type": "boolean" },
+            "params": { "type": "array" },
+            "selfMonitor": { "type": "object" }
+          }
+        }
+      ]
+    }
+  }
+}
