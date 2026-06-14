@@ -44,8 +44,8 @@ case "$1" in
     ;;
   push)
     echo "helm push $*" >>"$HELM_LOG"
-    printf 'Pushed: ghcr.io/yaelmoshi/charts/demo:1.2.3\n'
-    printf 'Digest: sha256:abc123\n'
+    printf 'Pushed: ghcr.io/yaelmoshi/charts/demo:1.2.3\n' >&2
+    printf 'Digest: sha256:abc123\n' >&2
     ;;
   *)
     echo "unexpected helm command: $*" >&2

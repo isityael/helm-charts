@@ -67,7 +67,7 @@ for chart in charts/*/; do
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
-  push_output="$(helm push "$pkg" oci://ghcr.io/yaelmoshi/charts)"
+  push_output="$(helm push "$pkg" oci://ghcr.io/yaelmoshi/charts 2>&1)"
   printf '%s\n' "$push_output"
 
   digest="$(printf '%s\n' "$push_output" | awk '/^Digest:/ {print $2; exit}')"
