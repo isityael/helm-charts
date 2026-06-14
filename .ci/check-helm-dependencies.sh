@@ -23,7 +23,7 @@ dependency_snapshot() {
 needs_dhi_auth() {
   local chart="$1"
 
-  grep -qF 'oci://dhi.io' "${chart}/Chart.yaml"
+  [ "${chart}" = "charts/cnpg-stack" ]
 }
 
 has_dhi_auth() {

@@ -165,13 +165,13 @@ test_skips_dhi_build_without_credentials() {
   local workdir="${tmpdir}/dhi-no-creds"
   local bindir="${workdir}/bin"
   mkdir -p "$workdir" "$bindir"
-  setup_repo "$workdir" demo "oci://dhi.io"
+  setup_repo "$workdir" cnpg-stack "oci://dhi.io"
   write_failing_dependency_build_helm "$bindir"
 
   (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected DHI dependency build to be skipped without credentials"
 
-  grep -q "Skipping dependency check for charts/demo" /tmp/helm-dependency-guard.out ||
+  grep -q "Skipping dependency check for charts/cnpg-stack" /tmp/helm-dependency-guard.out ||
     fail "expected output to mention skipped DHI dependency check"
 }
 
