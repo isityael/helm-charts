@@ -92,10 +92,8 @@ write_failing_dependency_build_helm() {
 set -euo pipefail
 case "$1 $2" in
   "dependency list")
-    cat <<'OUT'
-NAME  VERSION  REPOSITORY     STATUS
-child 1.0.0    oci://dhi.io   ok
-OUT
+    echo "dependency list should have been skipped" >&2
+    exit 1
     ;;
   "dependency build")
     echo "dependency build should have been skipped" >&2
@@ -173,8 +171,8 @@ test_skips_dhi_build_without_credentials() {
   (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected DHI dependency build to be skipped without credentials"
 
-  grep -q "Skipping dependency build for charts/demo" /tmp/helm-dependency-guard.out ||
-    fail "expected output to mention skipped DHI dependency build"
+  grep -q "Skipping dependency check for charts/demo" /tmp/helm-dependency-guard.out ||
+    fail "expected output to mention skipped DHI dependency check"
 }
 
 test_fails_on_wrong_dependency_status
