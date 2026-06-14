@@ -40,7 +40,7 @@ Charts are automatically published to GHCR OCI on push to `main` when `charts/**
 
 Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally create GitHub Releases with packaged `.tgz` artefacts.
 
-The publish pipeline records pushed immutable OCI digest references in `.ci/published-oci-refs.txt`. If `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` are configured in CI, those digest references are signed with `cosign sign --key env://COSIGN_PRIVATE_KEY`.
+The publish script records pushed immutable OCI digest references in `.ci/published-oci-refs.txt`. If `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` are present in the script environment, those digest references are signed with `cosign sign --key env://COSIGN_PRIVATE_KEY`.
 
 ## Development
 
