@@ -179,9 +179,40 @@ httpRoute:
     - wakapi.example.com
 ```
 
-## ServiceMonitor Example
+## Metrics Scraping
 
-Wakapi metrics must be exposed by application config and collected by the ServiceMonitor.
+Wakapi metrics must be exposed by application config and collected through either
+VictoriaMetrics Operator `VMServiceScrape` or Prometheus Operator `ServiceMonitor`.
+The `/api/metrics` endpoint is authenticated by Wakapi. Store the base64-encoded
+Wakapi API key in a Kubernetes Secret and reference it through
+`authorization.credentials`; do not store the plain API key in values.
+
+### VictoriaMetrics VMServiceScrape Example
+
+Use this path when vmagent is the native scraper.
+
+```yaml
+config:
+  security:
+    expose_metrics: true
+
+vmServiceScrape:
+  enabled: true
+  interval: 60s
+  path: /api/metrics
+  labels:
+    release: prometheus-agent
+  authorization:
+    type: Bearer
+    credentials:
+      name: wakapi-metrics-token
+      key: token
+```
+
+### Prometheus ServiceMonitor Example
+
+Use this path only when Prometheus Operator `ServiceMonitor` resources are the
+desired integration surface.
 
 ```yaml
 config:
