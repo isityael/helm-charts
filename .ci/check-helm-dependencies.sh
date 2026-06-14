@@ -9,6 +9,17 @@ done
 
 failed=0
 
+dependency_snapshot() {
+  local chart="$1"
+
+  {
+    [ -f "${chart}/Chart.lock" ] && printf '%s\n' "${chart}/Chart.lock"
+    [ -d "${chart}/charts" ] && find "${chart}/charts" -type f
+  } | sort | while IFS= read -r file; do
+    cksum "$file"
+  done
+}
+
 for chart in "${charts[@]}"; do
   if ! grep -qE '^[[:space:]]*dependencies:' "${chart}/Chart.yaml"; then
     continue
@@ -22,16 +33,16 @@ for chart in "${charts[@]}"; do
     failed=1
   fi
 
-  status_before="$(git status --porcelain -- "${chart}/Chart.lock" "${chart}/charts")"
+  status_before="$(dependency_snapshot "${chart}")"
   if ! helm dependency build "${chart}"; then
     failed=1
     continue
   fi
-  status_after="$(git status --porcelain -- "${chart}/Chart.lock" "${chart}/charts")"
+  status_after="$(dependency_snapshot "${chart}")"
 
   if [ "${status_before}" != "${status_after}" ]; then
     echo "Helm dependencies for ${chart} changed during dependency build:" >&2
-    printf 'Before:\n%s\nAfter:\n%s\n' "${status_before:-<clean>}" "${status_after:-<clean>}" >&2
+    printf 'Before:\n%s\nAfter:\n%s\n' "${status_before:-<empty>}" "${status_after:-<empty>}" >&2
     failed=1
   fi
 done
