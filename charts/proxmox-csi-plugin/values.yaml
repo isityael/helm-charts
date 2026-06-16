@@ -131,7 +131,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:4923ed21ba5d7df0c2f224a3e8041f61338f3e918b513dfbb5354c7883cb88ac
+      tag: 4.12.0-debian13@sha256:6711c5d82d8e9745899bd7a65ab09e4cdc997042de175f82e607b0425178825f
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -148,7 +148,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:38035151999729da8e34ee243693c9cbf319cf6a457ca7f3360177b565e01e03
+      tag: 6.3.0-debian13@sha256:53b94e01b621bbf89507bddd691e94a3db69ecb61521c2f12fc0ec73fb9a4cbc
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -165,7 +165,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.0-debian13@sha256:f129abe5a1d74fa2b6e38e9e686a5104a78cc7edb7c6a325958e5a13f9a05829
+      tag: 2.2.0-debian13@sha256:17d7542502bc6d151d7c7f25f5e587e05c8333874171de8b3d28127617a4c566
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -182,7 +182,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.6.0-debian13@sha256:8d2b521bfc112f179b58a43c4958277e73d91811a5fa827c11dfe67c1fb3de9e
+      tag: 8.6.0-debian13@sha256:6daafe1e3c3b16495bd1474832ae7f098de10f212b8d267542434e063ca1422f
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:382d8b450f715e63d1369a9642fef02c844417a2e666b248a11d80dd4aaad80d
+      tag: 2.17.0-debian13@sha256:ccc2bacbebbd73c8d2f23ae8fb13e125085db807325d309bc862d85edd12eeb0
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
@@ -251,7 +251,7 @@ livenessprobe:
   image:
     repository: dhi.io/livenessprobe
     pullPolicy: IfNotPresent
-    tag: 2.19.0-debian13@sha256:1b612fb30c8efc4f1d5654ff422877102eca992db4c4f679d3f0f443f37bffa0
+    tag: 2.19.0-debian13@sha256:c015de759b60d817ba26b4cc363b02472553938b0cc55794e660e5bb409ec209
   # -- Failure threshold for livenessProbe
   failureThreshold: 5
   # -- Initial delay seconds for livenessProbe
