@@ -22,7 +22,7 @@ image:
   # -- Image pull policy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag (defaults to chart appVersion)
-  tag: "@sha256:ba461b8aa9c042156dbd39c38657fe7431bafa063220eab8d5330a523863da9f"
+  tag: "@sha256:6d91c121b803126f7a5344005d17a9324788fc09d305b6e2560ec6040a7ae283"
 
 # -- DaemonSet update strategy (only used when replica.allNodes: true)
 updateStrategy:
