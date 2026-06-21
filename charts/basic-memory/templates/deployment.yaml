@@ -1,13 +1,14 @@
 {{- /*
-  Resolve livesync-bridge image for each consumer sidecar. Each subblock
-  merges on top of the canonical livesyncBridge.image block, so operators
+  Resolve helper/runtime images for optional sidecars. Each subblock
+  merges on top of its canonical image block, so operators
   can override just one field (e.g. tag) without restating the whole
   image reference.
 */ -}}
+{{- $denoRoot := .Values.denoTools.image -}}
 {{- $lsbRoot := .Values.livesyncBridge.image -}}
-{{- $shimImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.mcpShim.image | default dict) -}}
+{{- $shimImage := mergeOverwrite (deepCopy $denoRoot) (.Values.mcpShim.image | default dict) -}}
 {{- $livesyncImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.obsidianSync.livesync.image | default dict) -}}
-{{- $livesyncInitImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.obsidianSync.livesync.configInitImage | default dict) -}}
+{{- $livesyncInitImage := mergeOverwrite (deepCopy $denoRoot) (.Values.obsidianSync.livesync.configInitImage | default dict) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -441,35 +442,25 @@ spec:
           env:
             - name: HOME
               value: /tmp
-            - name: DENO_DIR
-              value: {{ .Values.obsidianSync.livesync.denoDir | default "/tmp/.deno" | quote }}
             - name: LSB_CONFIG
               value: /app/dat/config.json
+            - name: LSB_STATE_DIR
+              value: /app/dat
             - name: LSB_DEBUG
               value: "false"
           command:
-            - deno
-            - eval
+            - node
+            - --eval
             - |
-              // Raise nofile soft limit via setrlimit(2) FFI to prevent EMFILE
-              // crash when livesync-bridge creates filesystem watchers.
-              try {
-                const lib = Deno.dlopen("libc.so.6", {
-                  getrlimit: { parameters: ["i32", "buffer"], result: "i32" },
-                  setrlimit: { parameters: ["i32", "buffer"], result: "i32" },
+              const { spawn } = require("node:child_process");
+              const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+              const waitForExit = (child) => new Promise((resolve) => {
+                child.on("exit", (code) => resolve(code ?? 0));
+                child.on("error", (error) => {
+                  console.error(`[livesync-bridge] child process error: ${error}`);
+                  resolve(1);
                 });
-                const RLIMIT_NOFILE = 7;
-                const buf = new BigUint64Array(2);
-                lib.symbols.getrlimit(RLIMIT_NOFILE, buf);
-                const target = 1048576n;
-                buf[0] = target > buf[1] ? buf[1] : target;
-                lib.symbols.setrlimit(RLIMIT_NOFILE, buf);
-                lib.symbols.getrlimit(RLIMIT_NOFILE, buf);
-                console.log(`[nofile] raised to soft=${buf[0]} hard=${buf[1]}`);
-                lib.close();
-              } catch (e) {
-                console.warn(`[nofile] could not raise limit: ${e}`);
-              }
+              });
 
               const port = {{ .Values.obsidianSync.couchdb.service.port }};
               const url = `http://127.0.0.1:${port}/`;
@@ -479,22 +470,18 @@ spec:
                   const res = await fetch(url);
                   if (res.ok) break;
                 } catch (_err) { /* ignore until CouchDB is up */ }
-                await new Promise((r) => setTimeout(r, 2000));
+                await sleep(2000);
               }
 
               console.log("[livesync-bridge] Starting with crash recovery wrapper...");
               const restartDelayMs = 5000;
               while (true) {
-                const cmd = new Deno.Command("deno", {
-                  args: ["run", "--no-lock", "-A", "main.ts"],
-                  stdin: "inherit", stdout: "inherit", stderr: "inherit",
-                });
-                const child = cmd.spawn();
-                const { code } = await child.status;
+                const child = spawn("node", ["/app/dist/main.js"], { stdio: "inherit", env: process.env });
+                const code = await waitForExit(child);
                 if (code === 0) { console.log("[livesync-bridge] exited normally"); break; }
                 console.log(`[livesync-bridge] crashed with exit code ${code} at ${new Date().toISOString()}`);
                 console.log(`[livesync-bridge] restarting in ${restartDelayMs / 1000}s ...`);
-                await new Promise((r) => setTimeout(r, restartDelayMs));
+                await sleep(restartDelayMs);
               }
           volumeMounts:
             - name: data
