@@ -10,7 +10,7 @@ opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
     repository: ghcr.io/yaelmoshi/opnsense-exporter
-    tag: "v0.0.15-m0sh1.3@sha256:679cdfd87e3296032cdae7f5064a9849f19c6366b78ce247fdd42dbdf1da4472"
+    tag: "v0.0.15-m0sh1.3@sha256:38e5385bae8042b0888242d31dfc54e2a5f54ea29604ba6906c61e8d8534e06a"
     pullPolicy: IfNotPresent
   opnsense:
     protocol: https
@@ -51,7 +51,7 @@ snmpExporter:
   fullnameOverride: prometheus-snmp-exporter
   image:
     repository: ghcr.io/yaelmoshi/snmp-exporter
-    tag: "v0.30.1-m0sh1.1@sha256:0ea3a58daad3d788154772cc2bedc09af26ec4a0d9dd44b75249f6a7b9a2ed71"
+    tag: "v0.30.1-m0sh1.1@sha256:77d1b44b2663f07be3573d899969c137e484653fe426f10a336e88aed98ef8ef"
     pullPolicy: IfNotPresent
   containerSecurityContext:
     runAsNonRoot: true
