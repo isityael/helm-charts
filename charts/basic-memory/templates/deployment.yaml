@@ -452,7 +452,7 @@ spec:
             - node
             - --eval
             - |
-              const { spawn } = require("node:child_process");
+              const { spawn } = await import("node:child_process");
               const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
               const waitForExit = (child) => new Promise((resolve) => {
                 child.on("exit", (code) => resolve(code ?? 0));
