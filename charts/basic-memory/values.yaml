@@ -29,16 +29,25 @@ image:
 imagePullSecrets: []
 
 # -----------------------------------------------------------------------------
-# livesync-bridge image — single source of truth
+# Deno utility image for chart-owned helper scripts.
 # -----------------------------------------------------------------------------
-# The community-maintained Deno runtime image used by:
+# Used by:
 #   - mcpShim sidecar             (when mcpShim.enabled=true)
-#   - obsidianSync livesync       (when obsidianSync.enabled=true)
 #   - obsidianSync configInitImage (when obsidianSync.enabled=true)
 #
-# All three consumers inherit this block by default. Override per-component
-# via mcpShim.image / obsidianSync.livesync.image / obsidianSync.livesync
-# .configInitImage if you need different images per sidecar (uncommon).
+# Keep this separate from livesyncBridge.image: livesync-bridge now runs on
+# Node, but the chart-owned shim/config helper scripts are still Deno scripts.
+denoTools:
+  image:
+    repository: dhi.io/deno
+    tag: "2.8.3-debian13@sha256:55942eb5160a9165054daa533ac6c2ee0e3be87afe2b9daa81d29d5cc9ea1fc8"
+    pullPolicy: IfNotPresent
+
+# -----------------------------------------------------------------------------
+# livesync-bridge image — Node runtime sync daemon
+# -----------------------------------------------------------------------------
+# The community-maintained Node runtime image used by the obsidianSync
+# livesync daemon when obsidianSync.enabled=true.
 #
 # Pinned to a full commit SHA for reproducibility. Auto-bumped by Renovate's
 # github-tags + currentDigest pattern.
@@ -49,7 +58,7 @@ livesyncBridge:
     repository: ghcr.io/yaelmoshi/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-8c018c0e282bc398b7b2720c022e96ed9bdd8565@sha256:8f983dfaf4da318fd85c9a8e7e7c429deef5e38008d17da1058bc136d16bb3cd"
+    tag: "sha-01c6d292c69554f9d53f0df39dd55a3300a4ef14"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
@@ -229,12 +238,12 @@ affinity: {}
 # Basic Memory server directly). The shim proxies to 127.0.0.1:{upstreamPort}
 # inside the pod.
 #
-# Uses the top-level livesyncBridge.image by default. Override per-
-# component here if you need a different image for the shim (uncommon).
+# Uses denoTools.image by default. Override here if you need a different
+# image for the shim.
 mcpShim:
   enabled: false
   # Optional image override. Leave empty ({}) to inherit from
-  # .Values.livesyncBridge.image. Fields are merged on top of the root
+  # .Values.denoTools.image. Fields are merged on top of the root
   # block, so you can override just `tag` without restating repository etc.
   image: {}
   # Cap concurrent throttled tool calls. Protects the upstream DB pool from
@@ -283,9 +292,9 @@ mcpShim:
 #     --from-literal=COUCHDB_USER=admin \
 #     --from-literal=COUCHDB_PASSWORD=<strong-password>
 #
-# Uses the top-level livesyncBridge.image by default for the sync daemon
-# + config-init containers. Override per-component under obsidianSync
-# .livesync.{image,configInitImage} if you need to.
+# Uses the top-level livesyncBridge.image for the Node sync daemon and
+# denoTools.image for the Deno config-init container. Override per-component
+# under obsidianSync.livesync.{image,configInitImage} if you need to.
 obsidianSync:
   enabled: false
 
@@ -336,18 +345,14 @@ obsidianSync:
     # ({}) to inherit from .Values.livesyncBridge.image.
     image: {}
     # Optional image override for the config-init container that renders
-    # config.json with the CouchDB password templated in. Uses the same
-    # livesync-bridge image by default — override only if you need a
-    # different tag for the init step.
+    # config.json with the CouchDB password templated in. Leave empty ({})
+    # to inherit from .Values.denoTools.image.
     configInitImage: {}
     # Obsidian LiveSync database name (must match the plugin config).
     database: obsidian
     # End-to-end encryption passphrase. Leave empty for no encryption; set
     # to the same value as your Obsidian plugin configuration otherwise.
     passphrase: ""
-    # Keep Deno localStorage/cache outside the watched data/ tree to avoid
-    # sync loops on the WAL files.
-    denoDir: /tmp/.deno
     # Scan for offline changes on startup. Disable to avoid a race condition
     # on large vaults where many files need syncing at once.
     scanOfflineChanges: false

@@ -178,19 +178,20 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 |---|---|---|
 | `image.repository` | `ghcr.io/basicmachines-co/basic-memory` | Upstream Basic Memory image |
 | `image.tag` | `""` (uses chart appVersion) | Override tag |
-| `livesyncBridge.image.repository` | `ghcr.io/yaelmoshi/livesync-bridge` | Canonical livesync-bridge image for all optional sidecars |
+| `denoTools.image.repository` | `dhi.io/deno` | Deno utility image for chart-owned helper scripts |
+| `livesyncBridge.image.repository` | `ghcr.io/yaelmoshi/livesync-bridge` | Node runtime image for the LiveSync sync daemon |
 | `livesyncBridge.image.tag` | *(pinned SHA)* | See *Image inheritance* below |
 | `persistence.enabled` | `true` | PVC for notes + model cache |
 | `persistence.size` | `5Gi` | Scale this to your vault size |
 | `service.port` | `8000` | ClusterIP port |
 | `service.ipFamilyPolicy` | `SingleStack` | See *Gotchas* below |
 | `mcpShim.enabled` | `false` | Enable the MCP compatibility shim |
-| `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
+| `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
 | `mcpShim.policy.allowedNoteDirs` | `[]` | Empty = allow all; list to restrict |
 | `mcpShim.policy.allowDeleteNote` | `false` | Set `true` to let LLMs delete notes |
 | `obsidianSync.enabled` | `false` | Enable CouchDB + livesync-bridge |
 | `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
-| `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override for the init container |
+| `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
 | `obsidianSync.couchdb.httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure for the CouchDB endpoint |
 | `ingress.enabled` | `false` | Standard Helm ingress block |
@@ -198,9 +199,12 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 
 ### Image inheritance
 
-Both optional profiles use the same community-maintained livesync-bridge image, so the chart defines it *once* at `livesyncBridge.image` and all three consumers (the MCP shim sidecar, the LiveSync sidecar, and the LiveSync config-init container) inherit from it by default.
+The chart separates runtime images by job:
 
-To override the tag for everything at once, just set `livesyncBridge.image.tag`:
+- `livesyncBridge.image` is the Node-based LiveSync sync daemon.
+- `denoTools.image` is the Deno runtime for chart-owned helper scripts: the MCP shim sidecar and LiveSync config-init container.
+
+To override the LiveSync daemon tag, set `livesyncBridge.image.tag`:
 
 ```yaml
 livesyncBridge:
@@ -208,17 +212,17 @@ livesyncBridge:
     tag: "my-custom-sha"
 ```
 
-To override only one consumer, set the relevant subblock — any field you specify is merged on top of `livesyncBridge.image`, so you only need to state what changes:
+To override only one helper consumer, set the relevant subblock — any field you specify is merged on top of the matching root image, so you only need to state what changes:
 
 ```yaml
 # Example: use a different tag for the MCP shim sidecar only
 mcpShim:
   enabled: true
   image:
-    tag: "alternative-tag"      # repository + pullPolicy inherited
+    tag: "alternative-tag"      # denoTools repository + pullPolicy inherited
 ```
 
-This means a single Renovate entry (or `argocd-image-updater` target) on `livesyncBridge.image` is enough to keep all three containers in lockstep.
+This keeps LiveSync daemon updates from accidentally replacing Deno-only helper containers with a Node-only runtime image.
 
 ## Gotchas
 
