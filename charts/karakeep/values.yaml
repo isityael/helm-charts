@@ -93,7 +93,7 @@ meilisearch:
   url: ""
   image:
     repository: dhi.io/meilisearch
-    tag: "1.47.0-debian13@sha256:3f92a54228a4ed81eb73f4cca1828ea92941e16e5643c0ee13b89269183b2613"
+    tag: "1.48.0-debian13@sha256:990c5f0c536260abc58c3da707ce84ab59b4073510f45c6e6b5d9e88150926b8"
     pullPolicy: IfNotPresent
   command: []
   args: []
