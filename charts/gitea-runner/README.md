@@ -20,7 +20,7 @@ Helm chart for the [Gitea Actions runner](https://gitea.com/gitea/runner) with a
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | runner.image.repository | string | `gitea/runner` | Runner image repository |
-| runner.image.tag | string | `1.0.3@sha256:373d17d2bcd477a11c277b6ddd4cf6a14c29cc25cf579a0cbaa43a94dfc04f03` | Runner image tag and digest |
+| runner.image.tag | string | `1.0.8@sha256:5ae0c21f365bd7cdcef7a0bdea0111b696d5dcc1bd049d600cbc989eaef95722` | Runner image tag and digest |
 | dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
 | runner.instanceURL | string | `""` | Gitea instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |

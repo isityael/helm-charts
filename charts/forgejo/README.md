@@ -21,7 +21,7 @@ This chart wraps the upstream Forgejo Helm chart and adds m0sh1.cc defaults:
 ## Install
 
 ```bash
-helm install forgejo oci://ghcr.io/yaelmoshi/charts/forgejo --version 0.1.5
+helm install forgejo oci://ghcr.io/yaelmoshi/charts/forgejo --version 0.1.11
 ```
 
 ## Values Example

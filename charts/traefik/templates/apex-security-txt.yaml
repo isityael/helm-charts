@@ -1,0 +1,178 @@
+{{- with .Values.securityTxt }}
+{{- if .enabled }}
+{{- /*
+  security.txt (RFC 9116) served at
+    https://m0sh1.cc/.well-known/security.txt
+    https://www.m0sh1.cc/.well-known/security.txt
+
+  Addresses the Cloudflare Security Insights Low finding "Security.txt
+  not configured" (SecurityInsights CSV 2026-04-09). Content is the
+  file Cloudflare recommended based on the registered admin contact.
+
+  Stack:
+    ConfigMap   (security.txt content as a single key)
+    Deployment  (dhi.io/nginx:1.30.0-alpine3.23, 1 replica)
+    Service     (ClusterIP port 80 → 8080)
+    IngressRoute (PathPrefix /.well-known/ with priority 100 beats
+                  the apex-redirect catchall that otherwise 301s
+                  everything on Host(m0sh1.cc) to status.m0sh1.cc)
+
+  The content lives in `.Values.securityTxt.content` so future updates
+  (e.g. bumping the Expires date before 2027-01-01) are a one-line
+  values.yaml edit + commit.
+*/ -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apex-security-txt
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: apex-security-txt
+    app.kubernetes.io/component: apex-static
+data:
+  security.txt: |
+    Contact: mailto:admin@m0sh1.cc
+    Expires: 2027-01-01T12:00:00Z
+    Encryption: https://keys.openpgp.org/search?q=admin@m0sh1.cc
+    Encryption: https://keys.openpgp.org/vks/v1/by-fingerprint/046948367766138C8771F5D8F9C916A26B6AF494
+    Preferred-Languages: en, de
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apex-security-txt
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: apex-security-txt
+    app.kubernetes.io/component: apex-static
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: apex-security-txt
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: apex-security-txt
+        app.kubernetes.io/component: apex-static
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nginx
+          image: dhi.io/nginx:1.30.0-alpine3.23
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 25m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /.well-known/security.txt
+              port: 8080
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /.well-known/security.txt
+              port: 8080
+            periodSeconds: 60
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: content
+              mountPath: /usr/share/nginx/html/.well-known/security.txt
+              subPath: security.txt
+              readOnly: true
+            # nginx-unprivileged needs writable /tmp and /var/cache/nginx
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /var/cache/nginx
+            - name: run
+              mountPath: /var/run
+      volumes:
+        - name: content
+          configMap:
+            name: apex-security-txt
+            items:
+              - key: security.txt
+                path: security.txt
+        - name: tmp
+          emptyDir:
+            sizeLimit: 1Mi
+        - name: cache
+          emptyDir:
+            sizeLimit: 1Mi
+        - name: run
+          emptyDir:
+            sizeLimit: 1Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apex-security-txt
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: apex-security-txt
+    app.kubernetes.io/component: apex-static
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: apex-security-txt
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+---
+# Gateway API HTTPRoute: /.well-known/ path is more specific than the
+# apex-redirect's / catch-all, so it naturally wins without explicit priority.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: apex-security-txt
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: apex-security-txt
+    app.kubernetes.io/component: apex-static
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      namespace: {{ $.Release.Namespace }}
+      sectionName: websecure
+  hostnames:
+    - "m0sh1.cc"
+    - "www.m0sh1.cc"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /.well-known/
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: apex-security-txt
+          port: 80
+          weight: 1
+{{- end }}
+{{- end }}
