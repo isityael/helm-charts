@@ -9,7 +9,7 @@ appVersion: "4.14.0-sm3"
 kubeVersion: ">=1.21.0-0"
 maintainers:
   - name: m0sh1
-    email: sm@m0sh1.cc
+    email: yael@m0sh1.cc
 sources:
   - https://github.com/kubernetes-sigs/csi-driver-nfs
   - https://github.com/yaelmoshi/csi-driver-nfs

@@ -10,7 +10,7 @@ keywords:
   - volume
   - proxmox
 maintainers:
-  - email: sm@m0sh1.cc
+  - email: yael@m0sh1.cc
     name: m0sh1
 name: proxmox-csi-plugin
 sources:

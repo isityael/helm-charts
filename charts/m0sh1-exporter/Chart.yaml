@@ -13,7 +13,7 @@ sources:
   - https://github.com/prometheus-pve/prometheus-pve-exporter
 maintainers:
   - name: m0sh1
-    email: sm@m0sh1.cc
+    email: yael@m0sh1.cc
 keywords:
   - monitoring
   - opnsense

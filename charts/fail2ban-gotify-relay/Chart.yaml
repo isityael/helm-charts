@@ -7,7 +7,7 @@ appVersion: "0.3.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
-    email: sm@m0sh1.cc
+    email: yael@m0sh1.cc
 sources:
   - https://git.m0sh1.cc/m0sh1/infra-cli
 keywords:
