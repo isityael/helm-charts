@@ -32,41 +32,33 @@ prek        = "0.2.30"
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
 
 [tasks.helm-deps-update]
-run = """
-#!/usr/bin/env fish
-for chart in charts/*/
-  if test -f $chart/Chart.yaml
-    echo "Updating Helm dependencies for $chart"
-    helm dependency update "$chart"
-  end
-end
-"""
 description = "Update Helm chart dependencies"
+run = """
+set -euo pipefail
+for chart in charts/*/; do
+  [ -f "${chart}Chart.yaml" ] || continue
+  echo "Updating Helm dependencies for ${chart}"
+  helm dependency update "${chart}"
+done
+"""
 
 [tasks.helm-deps-check]
 run         = ".ci/check-helm-dependencies.sh"
 description = "Verify committed Helm dependency archives match Chart.lock"
 
 [tasks.helm-lint]
-run = """
-#!/usr/bin/env fish
-for chart in charts/*/
-  if test -f $chart/Chart.yaml
-    echo "Linting Helm chart $chart"
-    helm lint "$chart" --with-subcharts --strict
-  end
-end
-"""
 description = "Lint Helm charts"
-
-[tasks.test-shell]
 run = """
-#!/usr/bin/env bash
 set -euo pipefail
-for test_script in .ci/tests/*.sh; do
-  bash "$test_script"
+for chart in charts/*/; do
+  [ -f "${chart}Chart.yaml" ] || continue
+  echo "Linting Helm chart ${chart}"
+  helm lint "${chart}" --with-subcharts --strict
 done
 """
+
+[tasks.test-shell]
+run         = ".ci/test-shell.sh"
 description = "Run shell script tests"
 
 [tasks.kube-linter]
