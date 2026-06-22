@@ -1,5 +1,5 @@
 # Mise configuration for m0sh1.cc/helm-charts
-min_version = "2026.01.01"
+min_version = "2026.06.01"
 
 [settings]
 auto_install           = true
@@ -12,21 +12,20 @@ show_env   = false
 truncate   = true
 
 [tools]
-node        = "24.11.0"
-helm        = "4.1.4"
-kubectl     = "1.36.0"
+node        = "26.3.1"
+helm        = "4.2.2"
+kubectl     = "1.36.2"
 kustomize   = "5.8.1"
-kubeconform = "0.7.0"
+kubeconform = "0.8.0"
 kube-linter = "0.8.3"
-helm-diff   = { version = "3.15.6", bin = "diff", bin_path = "diff/bin", rename_exe = "helm-diff", exe = "diff" }
-trivy       = "0.70.0"
-python      = "3.14.2"
+helm-diff   = { version = "3.15.10", bin = "diff", bin_path = "diff/bin", rename_exe = "helm-diff", exe = "diff" }
+trivy       = "0.71.2"
+python      = "3.15.0b2"
 shellcheck  = "0.11.0"
 eza         = "0.23.4"
-fd          = "10.3.0"
 rg          = "15.1.0"
 git-cliff   = "2.13.1"
-prek        = "0.2.30"
+prek        = "0.4.5"
 
 [env]
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
