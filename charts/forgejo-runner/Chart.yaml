@@ -4,12 +4,12 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.5
-appVersion: "12.10.1"
+version: 0.1.9
+appVersion: "12.12.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
-    email: sm@m0sh1.cc
+    email: yael@m0sh1.cc
 sources:
   - https://code.forgejo.org/forgejo/runner
 keywords:
@@ -32,7 +32,7 @@ annotations:
       url: https://code.forgejo.org/forgejo/runner
   artifacthub.io/images: |
     - name: forgejo-runner
-      image: ghcr.io/yaelmoshi/forgejo-runner:12.10.1-3514b8b4@sha256:6bf1d3670bce8dd01bda43182834a1bff73fcbe316ccf204265795ab9837900a
+      image: ghcr.io/yaelmoshi/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85
     - name: forgejo-job-alpine
       image: ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
     - name: docker-dind
@@ -47,6 +47,6 @@ annotations:
     - kind: added
       description: Support namespaceOverride for runner deployments that keep CI workloads in a dedicated namespace.
     - kind: changed
-      description: Default to the m0sh1.cc Forgejo Runner 12.10.1 custom image.
+      description: Default to the m0sh1.cc Forgejo Runner 12.12.0 custom image.
     - kind: changed
       description: Default Docker job labels to the m0sh1.cc DHI-based Forgejo job Alpine image.

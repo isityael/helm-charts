@@ -1,0 +1,40 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+spec:
+  headers:
+    {{- if .Values.securityHeaders.customFrameOptionsValue }}
+    # HSTS — enforce HTTPS for 1 year (per-hostname only, no subdomain poisoning)
+    {{- end }}
+    stsSeconds: 31536000
+    stsIncludeSubdomains: false
+    forceSTSHeader: true
+    {{- with .Values.securityHeaders.customFrameOptionsValue }}
+    # Clickjacking protection — X-Frame-Options: SAMEORIGIN
+    # SAMEORIGIN (not DENY) because pgAdmin4 v9.x uses same-origin iframes
+    # for Query Tool, ERD, and other panel features.
+    customFrameOptionsValue: {{ . }}
+    {{- end }}
+    {{- if .Values.securityHeaders.customFrameOptionsValue }}
+    # MIME sniffing protection — X-Content-Type-Options: nosniff
+    {{- end }}
+    contentTypeNosniff: true
+    {{- if .Values.securityHeaders.customFrameOptionsValue }}
+    # Referrer leakage control
+    {{- end }}
+    referrerPolicy: {{ .Values.securityHeaders.referrerPolicy | default "strict-origin-when-cross-origin" | quote }}
+    {{- if .Values.securityHeaders.customFrameOptionsValue }}
+    # Browser feature restrictions
+    {{- end }}
+    permissionsPolicy: "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    {{- with .Values.securityHeaders.contentSecurityPolicy }}
+    contentSecurityPolicy: {{ . | quote }}
+    {{- end }}
+    {{- if .Values.securityHeaders.customFrameOptionsValue }}
+    # Custom response headers
+    {{- end }}
+    customResponseHeaders:
+      X-XSS-Protection: "0"
+      Server: ""
+      X-Powered-By: ""

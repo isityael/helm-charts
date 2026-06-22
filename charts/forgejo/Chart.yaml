@@ -2,14 +2,14 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.7
-appVersion: "15.0.2"
+version: 0.1.11
+appVersion: "15.0.3"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
 icon: https://code.forgejo.org/forgejo/forgejo/raw/branch/forgejo/assets/logo.svg
 maintainers:
   - name: m0sh1
-    email: sm@m0sh1.cc
+    email: yael@m0sh1.cc
 sources:
   - https://code.forgejo.org/forgejo-helm/forgejo-helm
   - https://codeberg.org/forgejo/forgejo
@@ -36,7 +36,7 @@ annotations:
     - name: forgejo
       image: ghcr.io/yaelmoshi/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07
     - name: forgejo-runner
-      image: ghcr.io/yaelmoshi/forgejo-runner:12.10.1-3514b8b4@sha256:6bf1d3670bce8dd01bda43182834a1bff73fcbe316ccf204265795ab9837900a
+      image: ghcr.io/yaelmoshi/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85
     - name: forgejo-job-alpine
       image: ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
   artifacthub.io/changes: |
@@ -53,6 +53,8 @@ annotations:
     - kind: changed
       description: Depend on forgejo-runner chart 0.1.4 with the m0sh1.cc Forgejo Runner 12.10.1 custom image.
     - kind: changed
+      description: Depend on forgejo-runner chart 0.1.9 with the m0sh1.cc Forgejo Runner 12.12.0 custom image.
+    - kind: changed
       description: Default the optional runner labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
 dependencies:
   - name: forgejo
@@ -60,6 +62,6 @@ dependencies:
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
-    version: 0.1.5
+    version: 0.1.9
     repository: oci://ghcr.io/yaelmoshi/charts
     condition: runner.enabled

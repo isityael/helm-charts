@@ -1,0 +1,66 @@
+crowdsecBouncer:
+  enabled: true
+  lapiHost: crowdsec-service.crowdsec.svc.cluster.local:8080
+  lapiScheme: http
+  lapiKeyFile: /crowdsec/api-key
+  mode: stream
+  updateIntervalSeconds: 60
+  httpTimeoutSeconds: 2
+  appsecEnabled: true
+  appsecHost: crowdsec-appsec-service.crowdsec.svc.cluster.local:7422
+  appsecFailureBlock: false
+  appsecUnreachableBlock: false
+  appsecBodyLimit: 10485760
+  trustedIPs:
+    - 10.0.10.14
+
+securityHeaders:
+  referrerPolicy: same-origin
+  customFrameOptionsValue: SAMEORIGIN
+  contentSecurityPolicy: "frame-ancestors 'self'"
+
+apexRedirect:
+  enabled: true
+
+securityTxt:
+  enabled: true
+
+traefik:
+  deployment:
+    replicas: 1
+    imagePullSecrets:
+      - name: kubernetes-dhi
+      - name: argocd-image-updater-ghcr
+  providers:
+    kubernetesCRD:
+      enabled: true
+    kubernetesGateway:
+      enabled: true
+  ports:
+    web:
+      port: 80
+      expose:
+        default: true
+      exposedPort: 80
+    websecure:
+      port: 443
+      expose:
+        default: true
+      exposedPort: 443
+  gateway:
+    enabled: true
+    listeners:
+      web:
+        port: 80
+        protocol: HTTP
+        namespacePolicy:
+          from: All
+      websecure:
+        port: 443
+        protocol: HTTPS
+        namespacePolicy:
+          from: All
+        certificateRefs:
+          - name: wildcard-m0sh1-cc
+            namespace: traefik
+        mode: Terminate
