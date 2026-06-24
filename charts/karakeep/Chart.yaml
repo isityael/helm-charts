@@ -2,7 +2,7 @@ apiVersion: v2
 name: karakeep
 description: Kubernetes deployment for Karakeep with Postgres, Meilisearch, and browser crawling support
 type: application
-version: 0.1.17
+version: 0.1.18
 appVersion: "0.32.0"
 icon: https://raw.githubusercontent.com/karakeep-app/karakeep/main/apps/web/public/icons/logo-128.png
 sources:
