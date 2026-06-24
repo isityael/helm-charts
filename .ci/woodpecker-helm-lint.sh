@@ -25,9 +25,13 @@ else
   echo "Skipping Helm dependency guard; DHI credentials are not available."
 fi
 
+chart_uses_dhi_dependency() {
+  grep -qsE '^\s*repository:\s+oci://dhi\.io' "$1/Chart.yaml"
+}
+
 for chart in charts/*/; do
   echo "==> Linting ${chart}"
-  if [ "${chart}" = "charts/cnpg-stack/" ] &&
+  if chart_uses_dhi_dependency "${chart}" &&
     { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
     echo "Skipping dependency build for ${chart}; DHI credentials are not available."
   else
