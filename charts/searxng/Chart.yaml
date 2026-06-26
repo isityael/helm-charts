@@ -4,7 +4,7 @@ description: Helm chart for SearXNG metasearch with optional Valkey limiter back
 home: https://docs.searxng.org
 icon: https://raw.githubusercontent.com/searxng/searxng/master/src/brand/searxng.svg
 type: application
-version: 0.2.7
+version: 0.2.8
 appVersion: "2026.5.13-8e5aa9d39"
 kubeVersion: ">=1.28.0-0"
 maintainers:

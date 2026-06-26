@@ -48,7 +48,7 @@ extraEnvFrom: []
 configRenderer:
   image:
     repository: dhi.io/busybox
-    tag: "1.37.0-debian13@sha256:e0cbe035dd7d7072e088172c5833bf756bfba3618567c0f5e73288e97e3a19bf"
+    tag: "1.37.0-debian13@sha256:4619232465fb1d1c460a76b5511843cf3de4a6d59e525d373a73998bbfd8cb0c"
     pullPolicy: IfNotPresent
   securityContext:
     allowPrivilegeEscalation: false
