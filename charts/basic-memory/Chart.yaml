@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.21
+version: 0.3.22
 appVersion: "0.22.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
