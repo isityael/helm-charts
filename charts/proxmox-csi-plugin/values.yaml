@@ -118,7 +118,7 @@ controller:
       repository: ghcr.io/yaelmoshi/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:4c899baaf4608862cb8edd648ee81a0bd344387030b5d36fcc242214a71cdf2a
+      tag: edge@sha256:c9af866c9e995d55a30fec0678b002337ac88aaad5b593d2bcef3fd1841f59d9
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -200,7 +200,7 @@ node:
       repository: ghcr.io/yaelmoshi/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:e3db087ac947746655e672ab7e8ab1ac131e015cd737f701bd30e0d42bc2f8a9
+      tag: edge@sha256:9d5dd3d03ae9bc2ba998f493de1b2745cd6eae3183e535838afb17a559bccf0c
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
