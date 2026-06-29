@@ -1,0 +1,24 @@
+dependencies:
+- name: matrix-stack
+  repository: oci://ghcr.io/element-hq/ess-helm
+  version: 26.6.2
+- name: mautrix-bridge
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.0.33
+- name: mautrix-bridge
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.0.33
+- name: mautrix-bridge
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.0.33
+- name: mautrix-bridge
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.0.33
+- name: matrix-appservice-irc
+  repository: https://cyclikal94.github.io/matrix-helm-charts
+  version: 1.0.0
+- name: cinny
+  repository: oci://codeberg.org/wrenix/helm-charts
+  version: 0.2.23
+digest: sha256:3f6a5ad10443c2175a912158a65a999eda806e5e6aefe05bb39c472b95b7e35a
+generated: "2026-06-29T13:21:57.091712+02:00"
