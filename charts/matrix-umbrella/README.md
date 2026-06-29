@@ -20,6 +20,8 @@ helm install matrix oci://ghcr.io/yaelmoshi/charts/matrix-umbrella -f values.yam
 Defaults use Docker Hardened Images where a compatible generic image exists.
 Matrix-specific runtimes without DHI-compatible replacements use upstream
 images and are exposed in `values.yaml` so Renovate can track them.
+The generic DHI defaults currently include HAProxy, PostgreSQL, Valkey, and
+helper images.
 
 If you do not have DHI access, use:
 

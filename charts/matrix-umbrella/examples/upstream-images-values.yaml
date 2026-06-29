@@ -2,6 +2,11 @@ matrixUmbrella:
   imageProfile: upstream
 
 ess:
+  haproxy:
+    image:
+      registry: docker.io
+      repository: library/haproxy
+      tag: "3.2-alpine"
   postgres:
     image:
       registry: docker.io
