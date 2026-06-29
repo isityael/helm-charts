@@ -57,6 +57,12 @@ ess:
   ingress:
     tlsEnabled: true
 
+  haproxy:
+    image:
+      registry: dhi.io
+      repository: haproxy
+      tag: "3.2@sha256:ac42b0af65997c75761a9467696769ceecb14b58a09476afb1446af6a5400bcc"
+
   elementWeb:
     enabled: true
     image:
