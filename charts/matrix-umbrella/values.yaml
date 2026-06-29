@@ -182,7 +182,7 @@ mautrix-signal:
   image:
     registry: dock.mau.dev
     repository: mautrix/signal
-    tag: "v0.2606.0@sha256:0adf4fc6ba9d7ae95a0904f8432cde637093948a615612058934a7a484221390"
+    tag: "v26.02.2@sha256:577e37ad5f41bfd72a236e6ab4a1b1b2d4f960890ff0767ed3b0b7cbb6817c29"
     pullPolicy: IfNotPresent
   config:
     homeserver:
