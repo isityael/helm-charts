@@ -57,6 +57,14 @@ spec:
             - mountPath: "/app/config.json"
               name: "config"
               subPath: "config.json"
+            {{- if .Values.writablePaths.enabled }}
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: nginx-run
+            - mountPath: /tmp
+              name: tmp
+            {{- end }}
       volumes:
         - name: "config"
           configMap:
@@ -64,6 +72,14 @@ spec:
             items:
               - key: config.json
                 path: config.json
+        {{- if .Values.writablePaths.enabled }}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
