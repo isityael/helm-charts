@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
@@ -44,6 +44,8 @@ annotations:
     - name: Chart source
       url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Vendor a patched Cinny chart so the config volume renders valid Kubernetes
     - kind: added
       description: Initial DHI-first Matrix umbrella chart
 dependencies:
@@ -82,6 +84,6 @@ dependencies:
       - matrix-appservice-irc
   - name: cinny
     version: 0.2.23
-    repository: oci://codeberg.org/wrenix/helm-charts
+    repository: file://charts/cinny
     tags:
       - cinny
