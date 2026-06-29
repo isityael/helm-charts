@@ -33,7 +33,8 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/ess-helm/matrix-tools
-      tag: "0.8.0@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+      tag: "0.8.0"
+      digest: sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f
       pullSecrets: []
 
   # Production default: use an external PostgreSQL service.
@@ -42,7 +43,8 @@ ess:
     image:
       registry: dhi.io
       repository: postgres
-      tag: "18.4-alpine3.22@sha256:e98730eed81429024be09a6255e900b2e86923a799b03033ac6067b4b6c6250e"
+      tag: "18.4-alpine3.22"
+      digest: sha256:e98730eed81429024be09a6255e900b2e86923a799b03033ac6067b4b6c6250e
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
   redis:
@@ -61,14 +63,16 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.2@sha256:ac42b0af65997c75761a9467696769ceecb14b58a09476afb1446af6a5400bcc"
+      tag: "3.4.1-debian13"
+      digest: sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990
 
   elementWeb:
     enabled: true
     image:
       registry: oci.element.io
       repository: element-web
-      tag: "v1.12.22@sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96"
+      tag: "v1.12.22"
+      digest: sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96
     ingress:
       host: element.example.com
 
@@ -80,7 +84,8 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
-      tag: "1.19.0@sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd"
+      tag: "1.19.0"
+      digest: sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd
     ingress:
       host: account.example.com
     postgres:
@@ -99,7 +104,8 @@ ess:
     image:
       registry: oci.element.io
       repository: synapse
-      tag: "v1.155.0@sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99"
+      tag: "v1.155.0"
+      digest: sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99
     ingress:
       host: matrix.example.com
     postgres:

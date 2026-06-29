@@ -15,7 +15,8 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.2@sha256:ac42b0af65997c75761a9467696769ceecb14b58a09476afb1446af6a5400bcc"
+      tag: "3.4.1-debian13"
+      digest: sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990
       pullSecrets:
         - name: docker-hardened-images
   postgres:

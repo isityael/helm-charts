@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.6
+version: 0.1.7
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
@@ -45,7 +45,9 @@ annotations:
       url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
     - kind: fixed
-      description: Use Docker Hardened Images for the ESS HAProxy deployment by default
+      description: Move ESS image digest pins out of tag values so Kubernetes labels remain valid
+    - kind: fixed
+      description: Use Docker Hardened Images HAProxy 3.4.1 on Debian 13 for the ESS HAProxy deployment by default
     - kind: fixed
       description: Mount writable nginx runtime directories for non-root Cinny deployments
     - kind: fixed
