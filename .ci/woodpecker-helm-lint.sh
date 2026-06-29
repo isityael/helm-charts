@@ -37,7 +37,17 @@ for chart in charts/*/; do
   else
     helm dependency build "${chart}"
   fi
-  helm lint --with-subcharts "${chart}"
+  case "${chart}" in
+    charts/matrix-umbrella/)
+      # The umbrella chart renders with parent values, but two upstream
+      # dependencies do not lint as standalone charts with their own defaults.
+      # Keep dependency drift checks + rendered manifest validation below.
+      helm lint "${chart}"
+      ;;
+    *)
+      helm lint --with-subcharts "${chart}"
+      ;;
+  esac
 done
 
 rm -rf .ci/rendered

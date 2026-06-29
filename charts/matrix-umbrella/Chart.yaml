@@ -1,0 +1,87 @@
+apiVersion: v2
+name: matrix-umbrella
+description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
+type: application
+version: 0.1.0
+appVersion: "26.6.2"
+kubeVersion: ">=1.28.0-0"
+home: https://matrix.org
+icon: https://matrix.org/images/matrix-logo.svg
+maintainers:
+  - name: m0sh1
+    email: yael@m0sh1.cc
+    url: https://github.com/yaelmoshi
+sources:
+  - https://github.com/element-hq/ess-helm
+  - https://github.com/element-hq/synapse
+  - https://github.com/element-hq/matrix-authentication-service
+  - https://github.com/element-hq/element-web
+  - https://github.com/cinnyapp/cinny
+  - https://github.com/mautrix/discord
+  - https://github.com/mautrix/signal
+  - https://github.com/mautrix/telegram
+  - https://github.com/mautrix/whatsapp
+  - https://github.com/matrix-org/matrix-appservice-irc
+  - https://github.com/yaelmoshi/helm-charts
+keywords:
+  - matrix
+  - synapse
+  - element
+  - cinny
+  - mas
+  - oidc
+  - mautrix
+  - bridge
+annotations:
+  category: Communication
+  licenses: AGPL-3.0-only
+  artifacthub.io/license: AGPL-3.0-only
+  artifacthub.io/links: |
+    - name: Matrix
+      url: https://matrix.org
+    - name: Element Server Suite Helm
+      url: https://github.com/element-hq/ess-helm
+    - name: Chart source
+      url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial DHI-first Matrix umbrella chart
+dependencies:
+  - name: matrix-stack
+    alias: ess
+    version: 26.6.2
+    repository: oci://ghcr.io/element-hq/ess-helm
+  - name: mautrix-bridge
+    alias: mautrix-discord
+    version: 0.0.33
+    repository: oci://codeberg.org/wrenix/helm-charts
+    tags:
+      - mautrix-discord
+  - name: mautrix-bridge
+    alias: mautrix-signal
+    version: 0.0.33
+    repository: oci://codeberg.org/wrenix/helm-charts
+    tags:
+      - mautrix-signal
+  - name: mautrix-bridge
+    alias: mautrix-telegram
+    version: 0.0.33
+    repository: oci://codeberg.org/wrenix/helm-charts
+    tags:
+      - mautrix-telegram
+  - name: mautrix-bridge
+    alias: mautrix-whatsapp
+    version: 0.0.33
+    repository: oci://codeberg.org/wrenix/helm-charts
+    tags:
+      - mautrix-whatsapp
+  - name: matrix-appservice-irc
+    version: 1.0.0
+    repository: https://cyclikal94.github.io/matrix-helm-charts
+    tags:
+      - matrix-appservice-irc
+  - name: cinny
+    version: 0.2.23
+    repository: oci://codeberg.org/wrenix/helm-charts
+    tags:
+      - cinny

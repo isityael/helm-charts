@@ -1,0 +1,39 @@
+serverName: ci.example.test
+homeserverUrl: https://matrix.ci.example.test
+
+ess:
+  serverName: ci.example.test
+  elementWeb:
+    ingress:
+      host: element.ci.example.test
+  matrixAuthenticationService:
+    ingress:
+      host: account.ci.example.test
+    postgres:
+      host: postgres.ci.svc.cluster.local
+      user: mas
+      database: mas
+      password:
+        secret: matrix-postgres-auth
+        secretKey: mas-password
+  synapse:
+    ingress:
+      host: matrix.ci.example.test
+    postgres:
+      host: postgres.ci.svc.cluster.local
+      user: synapse
+      database: synapse
+      password:
+        secret: matrix-postgres-auth
+        secretKey: synapse-password
+    redis:
+      host: valkey.ci.svc.cluster.local
+      db: 0
+  wellKnownDelegation:
+    baseDomainRedirect:
+      url: https://element.ci.example.test
+
+cinny:
+  config:
+    homeserverList:
+      - ci.example.test

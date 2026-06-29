@@ -59,5 +59,14 @@ for chart in $charts; do
   [ -f "$chart_file" ] || continue
   echo "helm lint: $chart"
   helm dependency build "$chart"
-  helm lint --with-subcharts "$chart"
+  case "$chart" in
+    charts/matrix-umbrella)
+      # matrix-umbrella is validated with parent values because some upstream
+      # dependencies do not lint standalone with their own defaults.
+      helm lint "$chart"
+      ;;
+    *)
+      helm lint --with-subcharts "$chart"
+      ;;
+  esac
 done

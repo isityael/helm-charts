@@ -1,0 +1,8 @@
+Matrix umbrella has been rendered.
+
+Core endpoints configured by default:
+  Homeserver: {{ .Values.homeserverUrl }}
+  Server name: {{ .Values.serverName }}
+
+This chart is DHI-first for generic images where compatible. Matrix-specific
+runtime images remain upstream images when no compatible DHI replacement exists.

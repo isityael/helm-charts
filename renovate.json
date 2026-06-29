@@ -19,6 +19,35 @@
   "ignorePaths": [
     "charts/**/charts/**"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "DHI images in non-standard YAML keys for public charts",
+      "managerFilePatterns": [
+        "/charts/.+/values(?:-[^/]+)?\\.yaml$/",
+        "/charts/.+/ci/.+\\.yaml$/",
+        "/charts/.+/examples/.+\\.yaml$/"
+      ],
+      "matchStrings": [
+        ":\\s*[\"']?(?<depName>dhi\\.io/[^:\"'\\s]+):(?<currentValue>[^@\"'\\s]+)(?:@sha256:[a-f0-9]+)?[\"']?"
+      ],
+      "autoReplaceStringTemplate": ": {{{depName}}}:{{{newValue}}}",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "DHI split image values using repository plus sibling tag keys",
+      "managerFilePatterns": [
+        "/charts/.+/values(?:-[^/]+)?\\.yaml$/",
+        "/charts/.+/ci/.+\\.yaml$/",
+        "/charts/.+/examples/.+\\.yaml$/"
+      ],
+      "matchStrings": [
+        "(?<indent>\\s*)repository:\\s*(?<depName>dhi\\.io/[^\\s\"']+)\\s+tag:\\s*[\"']?(?<currentValue>[^@\"'\\s]+)(?:@sha256:[a-f0-9]+)?[\"']?"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
   "lockFileMaintenance": {
     "enabled": false
   },
@@ -37,6 +66,75 @@
       "groupSlug": "helm-charts",
       "separateMinorPatch": true,
       "labels": ["dependencies", "helm"]
+    },
+    {
+      "description": "Keep matrix-umbrella chart dependencies and vendored archives in sync",
+      "matchManagers": ["helmv3"],
+      "matchFileNames": ["charts/matrix-umbrella/Chart.yaml"],
+      "groupName": "matrix-umbrella helm deps",
+      "labels": ["dependencies", "helm", "matrix"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump matrix-umbrella for chart dependency updates",
+          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "bumpType": "patch"
+        }
+      ],
+      "postUpgradeTasks": {
+        "commands": ["helm dependency update {{{packageFileDir}}}"],
+        "fileFilters": [
+          "{{{packageFileDir}}}/Chart.lock",
+          "{{{packageFileDir}}}/charts/**"
+        ],
+        "executionMode": "update"
+      }
+    },
+    {
+      "description": "Group matrix-umbrella DHI image updates",
+      "matchManagers": ["helm-values", "custom.regex"],
+      "matchDatasources": ["docker"],
+      "matchFileNames": [
+        "charts/matrix-umbrella/values*.yaml",
+        "charts/matrix-umbrella/ci/**",
+        "charts/matrix-umbrella/examples/**"
+      ],
+      "matchPackageNames": ["/^dhi\\.io\\//"],
+      "groupName": "matrix-umbrella DHI images",
+      "labels": ["dependencies", "docker", "dhi", "matrix"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump matrix-umbrella for DHI image updates",
+          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "bumpType": "patch"
+        }
+      ]
+    },
+    {
+      "description": "Group matrix-umbrella upstream Matrix image updates",
+      "matchManagers": ["helm-values"],
+      "matchDatasources": ["docker"],
+      "matchFileNames": ["charts/matrix-umbrella/values*.yaml"],
+      "matchPackageNames": [
+        "oci.element.io/synapse",
+        "oci.element.io/element-web",
+        "ghcr.io/element-hq/matrix-authentication-service",
+        "ghcr.io/element-hq/ess-helm/matrix-tools",
+        "ghcr.io/cinnyapp/cinny",
+        "/^dock\\.mau\\.dev\\/mautrix\\//",
+        "matrixdotorg/matrix-appservice-irc"
+      ],
+      "groupName": "matrix-umbrella upstream images",
+      "labels": ["dependencies", "docker", "matrix"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump matrix-umbrella for upstream image updates",
+          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "bumpType": "patch"
+        }
+      ]
     },
     {
       "description": "Patch-bump chart versions when Renovate changes chart values",

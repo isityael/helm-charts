@@ -1,0 +1,297 @@
+# Matrix umbrella chart default values.
+#
+# Defaults are DHI-first where this chart can safely use generic runtime images.
+# Matrix-specific images without compatible DHI replacements intentionally remain
+# on upstream registries and are exposed here so Renovate can track them.
+
+matrixUmbrella:
+  # Default policy for this chart. The value is documentation and validation
+  # surface for consumers; subcharts use their own image value structures.
+  imageProfile: dhi
+  imagePullSecrets: []
+  dhi:
+    registry: dhi.io
+
+tags:
+  cinny: true
+  mautrix-discord: false
+  mautrix-signal: false
+  mautrix-telegram: false
+  mautrix-whatsapp: false
+  matrix-appservice-irc: false
+
+serverName: example.com
+homeserverUrl: https://matrix.example.com
+
+ess:
+  serverName: example.com
+
+  image:
+    pullSecrets: []
+
+  matrixTools:
+    image:
+      registry: ghcr.io
+      repository: element-hq/ess-helm/matrix-tools
+      tag: "0.8.0"
+      pullSecrets: []
+
+  # Production default: use an external PostgreSQL service.
+  postgres:
+    enabled: false
+    image:
+      registry: dhi.io
+      repository: postgres
+      tag: "18.4-alpine3.22"
+
+  # Production default: use an external Redis-compatible service, preferably Valkey.
+  redis:
+    image:
+      registry: dhi.io
+      repository: valkey
+      tag: "9.0.3-alpine3.22"
+
+  storage:
+    resourcePolicy: keep
+
+  ingress:
+    tlsEnabled: true
+
+  elementWeb:
+    enabled: true
+    image:
+      registry: oci.element.io
+      repository: element-web
+      tag: "v1.12.22"
+    ingress:
+      host: element.example.com
+
+  elementAdmin:
+    enabled: false
+
+  matrixAuthenticationService:
+    enabled: true
+    image:
+      registry: ghcr.io
+      repository: element-hq/matrix-authentication-service
+      tag: "1.19.0"
+    ingress:
+      host: account.example.com
+    postgres:
+      host: postgres.example.svc.cluster.local
+      port: 5432
+      user: mas
+      database: mas
+      sslMode: prefer
+      password:
+        secret: matrix-postgres-auth
+        secretKey: mas-password
+    additional: {}
+
+  synapse:
+    enabled: true
+    image:
+      registry: oci.element.io
+      repository: synapse
+      tag: "v1.155.0"
+    ingress:
+      host: matrix.example.com
+    postgres:
+      host: postgres.example.svc.cluster.local
+      port: 5432
+      user: synapse
+      database: synapse
+      sslMode: prefer
+      password:
+        secret: matrix-postgres-auth
+        secretKey: synapse-password
+    redis:
+      host: valkey.example.svc.cluster.local
+      port: 6379
+      db: 0
+      tls: false
+    media:
+      storage:
+        size: 10Gi
+    appservices: []
+    additional:
+      00-registration:
+        config: |
+          enable_registration: false
+
+  wellKnownDelegation:
+    enabled: true
+    baseDomainRedirect:
+      enabled: true
+      url: https://element.example.com
+    additional:
+      client: |
+        {"m.homeserver":{"base_url":"https://matrix.example.com"}}
+      server: |
+        {"m.server":"matrix.example.com:443"}
+      support: "{}"
+
+  matrixRTC:
+    enabled: false
+
+cinny:
+  fullnameOverride: matrix-cinny
+  image:
+    registry: ghcr.io
+    repository: cinnyapp/cinny
+    tag: "v4.12.3"
+    pullPolicy: IfNotPresent
+  config:
+    defaultHomeserver: 0
+    homeserverList:
+      - "example.com"
+    allowCustomHomeservers: true
+    featuredCommunities:
+      openAsDefault: false
+      spaces: []
+      rooms: []
+      servers: []
+  ingress:
+    enabled: false
+
+mautrix-discord:
+  fullnameOverride: matrix-mautrix-discord
+  image:
+    registry: dock.mau.dev
+    repository: mautrix/discord
+    tag: "v0.7.6"
+    pullPolicy: IfNotPresent
+  config:
+    homeserver:
+      address: http://ess-synapse:8008
+      domain: example.com
+    appservice:
+      address: http://matrix-mautrix-discord:29328
+      id: discord
+      bot:
+        username: discordbot
+    database:
+      type: postgres
+      uri: postgres://mautrix_discord:change-me@postgres.example.svc.cluster.local:5432/mautrix_discord?sslmode=prefer
+    bridge:
+      permissions:
+        "example.com": user
+
+mautrix-signal:
+  fullnameOverride: matrix-mautrix-signal
+  image:
+    registry: dock.mau.dev
+    repository: mautrix/signal
+    tag: "v0.2606.0"
+    pullPolicy: IfNotPresent
+  config:
+    homeserver:
+      address: http://ess-synapse:8008
+      domain: example.com
+    appservice:
+      address: http://matrix-mautrix-signal:29328
+      id: signal
+      bot:
+        username: signalbot
+    database:
+      type: postgres
+      uri: postgres://mautrix_signal:change-me@postgres.example.svc.cluster.local:5432/mautrix_signal?sslmode=prefer
+    bridge:
+      permissions:
+        "example.com": user
+
+mautrix-telegram:
+  fullnameOverride: matrix-mautrix-telegram
+  image:
+    registry: dock.mau.dev
+    repository: mautrix/telegram
+    tag: "v0.2606.0"
+    pullPolicy: IfNotPresent
+  config:
+    homeserver:
+      address: http://ess-synapse:8008
+      domain: example.com
+    appservice:
+      address: http://matrix-mautrix-telegram:29328
+      id: telegram
+      bot:
+        username: telegrambot
+    database:
+      type: postgres
+      uri: postgres://mautrix_telegram:change-me@postgres.example.svc.cluster.local:5432/mautrix_telegram?sslmode=prefer
+    bridge:
+      permissions:
+        "example.com": user
+
+mautrix-whatsapp:
+  fullnameOverride: matrix-mautrix-whatsapp
+  image:
+    registry: dock.mau.dev
+    repository: mautrix/whatsapp
+    tag: "v0.2606.0"
+    pullPolicy: IfNotPresent
+  config:
+    homeserver:
+      address: http://ess-synapse:8008
+      domain: example.com
+    appservice:
+      address: http://matrix-mautrix-whatsapp:29328
+      id: whatsapp
+      bot:
+        username: whatsappbot
+    database:
+      type: postgres
+      uri: postgres://mautrix_whatsapp:change-me@postgres.example.svc.cluster.local:5432/mautrix_whatsapp?sslmode=prefer
+    bridge:
+      permissions:
+        "example.com": user
+
+matrix-appservice-irc:
+  fullnameOverride: matrix-appservice-irc
+  host: irc.example.com
+  image:
+    repository: matrixdotorg/matrix-appservice-irc
+    tag: "release-4.0.0"
+    pullPolicy: IfNotPresent
+  pool:
+    image:
+      repository: matrixdotorg/matrix-appservice-irc
+      tag: "release-4.0.0"
+      pullPolicy: IfNotPresent
+  waitForRedis:
+    image:
+      repository: dhi.io/busybox
+      tag: "1.37.0-musl"
+      pullPolicy: IfNotPresent
+  homeserver:
+    url: http://ess-synapse:8008
+    domain: example.com
+  database:
+    engine: postgres
+    postgres:
+      host: postgres.example.svc.cluster.local
+      port: 5432
+      user: matrix_appservice_irc
+      password:
+        value: change-me
+      database: matrix_appservice_irc
+      sslMode: prefer
+  postgres:
+    enabled: false
+    image:
+      repository: dhi.io/postgres
+      tag: "18.4-alpine3.22"
+      pullPolicy: IfNotPresent
+  redis:
+    enabled: false
+    image:
+      repository: dhi.io/valkey
+      tag: "9.0.3-alpine3.22"
+      pullPolicy: IfNotPresent
+    args:
+      - valkey-server
+      - --appendonly
+      - "yes"
+    url: redis://valkey.example.svc.cluster.local:6379/1
+  ingress:
+    enabled: false

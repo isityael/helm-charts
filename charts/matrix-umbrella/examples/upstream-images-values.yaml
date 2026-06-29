@@ -1,0 +1,32 @@
+matrixUmbrella:
+  imageProfile: upstream
+
+ess:
+  postgres:
+    image:
+      registry: docker.io
+      repository: postgres
+      tag: "17-alpine"
+  redis:
+    image:
+      registry: docker.io
+      repository: library/redis
+      tag: "7.4-alpine"
+
+matrix-appservice-irc:
+  waitForRedis:
+    image:
+      repository: busybox
+      tag: "1.36"
+  postgres:
+    image:
+      repository: postgres
+      tag: "16-alpine"
+  redis:
+    image:
+      repository: redis
+      tag: "7-alpine"
+    args:
+      - redis-server
+      - --appendonly
+      - "yes"
