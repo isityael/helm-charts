@@ -3,6 +3,12 @@ homeserverUrl: https://matrix.ci.example.test
 
 ess:
   serverName: ci.example.test
+  initSecrets:
+    annotations:
+      ignore-check.kube-linter.io/job-ttl-seconds-after-finished: "ESS hook Job TTL is upstream-managed."
+  deploymentMarkers:
+    annotations:
+      ignore-check.kube-linter.io/job-ttl-seconds-after-finished: "ESS hook Job TTL is upstream-managed."
   elementWeb:
     ingress:
       host: element.ci.example.test
@@ -17,6 +23,9 @@ ess:
         secret: matrix-postgres-auth
         secretKey: mas-password
   synapse:
+    checkConfigHook:
+      annotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: "ESS hook Job TTL is upstream-managed."
     ingress:
       host: matrix.ci.example.test
     postgres:
