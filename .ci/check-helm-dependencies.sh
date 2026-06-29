@@ -26,7 +26,14 @@ dependency_snapshot() {
     [ -f "${chart}/Chart.lock" ] && printf '%s\n' "${chart}/Chart.lock"
     [ -d "${chart}/charts" ] && find "${chart}/charts" -type f
   } | sort | while IFS= read -r file; do
-    cksum "$file"
+    case "${file}" in
+      *.tgz)
+        printf '%s %s\n' "$(helm show all "${file}" | cksum)" "${file}"
+        ;;
+      *)
+        cksum "$file"
+        ;;
+    esac
   done
 }
 
