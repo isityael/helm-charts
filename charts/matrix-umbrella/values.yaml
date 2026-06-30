@@ -190,6 +190,8 @@ mautrix-discord:
     repository: mautrix/discord
     tag: "v0.7.6"
     pullPolicy: IfNotPresent
+  command:
+    - /usr/bin/mautrix-discord
   config:
     homeserver:
       address: http://ess-synapse:8008
@@ -229,6 +231,8 @@ mautrix-signal:
     repository: mautrix/signal
     tag: "v26.02.2"
     pullPolicy: IfNotPresent
+  command:
+    - /usr/bin/mautrix-signal
   config:
     homeserver:
       address: http://ess-synapse:8008
@@ -268,6 +272,8 @@ mautrix-telegram:
     repository: mautrix/telegram
     tag: "v0.2606.0"
     pullPolicy: IfNotPresent
+  command:
+    - /usr/bin/mautrix-telegram
   config:
     homeserver:
       address: http://ess-synapse:8008
@@ -307,6 +313,8 @@ mautrix-whatsapp:
     repository: mautrix/whatsapp
     tag: "v0.2606.0"
     pullPolicy: IfNotPresent
+  command:
+    - /usr/bin/mautrix-whatsapp
   config:
     homeserver:
       address: http://ess-synapse:8008

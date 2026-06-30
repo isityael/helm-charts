@@ -17,6 +17,9 @@ image:
   # -- image tag
   tag: ""
 
+command: []
+args: []
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

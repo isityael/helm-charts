@@ -41,6 +41,14 @@ spec:
           image: "{{ coalesce $.Values.global.image.registry .registry }}/{{ .repository }}:{{ .tag }}"
           imagePullPolicy: {{ coalesce $.Values.global.image.pullPolicy .pullPolicy }}
           {{- end }}
+          {{- with .Values.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.config.appservice.port }}
