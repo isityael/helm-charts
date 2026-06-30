@@ -97,7 +97,7 @@ kubectl apply -f examples/argocd/forgejo.yaml
 
 **Features:**
 
-- Custom `ghcr.io/yaelmoshi/forgejo` image defaults
+- Custom `ghcr.io/isityael/forgejo` image defaults
 - Gateway API `HTTPRoute` example
 - External PostgreSQL secret wiring
 - Optional runner dependency values
@@ -154,7 +154,7 @@ Deploy a single chart directly from the Git repository:
 
 ```yaml
 source:
-  repoURL: 'https://github.com/yaelmoshi/helm-charts'
+  repoURL: 'https://github.com/isityael/helm-charts'
   path: charts/example-app
   targetRevision: main
 ```

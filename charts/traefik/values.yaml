@@ -12,6 +12,6 @@ securityTxt:
 traefik:
   image:
     registry: ""
-    repository: ghcr.io/yaelmoshi/traefik
+    repository: ghcr.io/isityael/traefik
     tag: "5f2456c@sha256:5d8b4063b3ff0112d6075ad2128c37f3ea79b6beba2377c5a98c666d545f91fb"
   versionOverride: "3.7.5"

@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/yaelmoshi/helm-charts'
+    repoURL: 'https://github.com/isityael/helm-charts'
     path: charts/forgejo
     targetRevision: main
     helm:
@@ -19,7 +19,7 @@ spec:
         forgejo:
           image:
             registry: ghcr.io
-            repository: yaelmoshi/forgejo
+            repository: isityael/forgejo
             tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
             rootless: true
 
@@ -62,7 +62,7 @@ spec:
             instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
             registrationTokenSecret: forgejo-runner-registration
             name: forgejo-runner
-            labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
+            labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23
           persistence:
             enabled: true
             storageClass: zfs-forgejo-csi

@@ -20,19 +20,19 @@ non-root runner container by default.
 - Docker-in-Docker is enabled by default. Disable it with `dind.enabled=false` only when labels point to host/LXC execution or an external Docker endpoint.
 - The runner registers itself on startup only when `/data/.runner` is missing. Enable `persistence.enabled` or provide `runner.existingRunnerSecret` to avoid re-registration after pod replacement.
 - Provide registry authentication via `registryAuthSecret` and custom CA bundles via `registryCASecret`.
-- Runner labels use Forgejo's `<label>:<type>://<image>` format, for example `docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23`.
+- Runner labels use Forgejo's `<label>:<type>://<image>` format, for example `docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23`.
 
 ## Values (overview)
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| runner.image.repository | string | `ghcr.io/yaelmoshi/forgejo-runner` | Runner image repository |
+| runner.image.repository | string | `ghcr.io/isityael/forgejo-runner` | Runner image repository |
 | runner.image.tag | string | `12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85` | Runner image tag and digest |
 | dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
 | runner.instanceURL | string | `""` | Forgejo instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |
 | runner.registrationTokenKey | string | `REGISTRATION_TOKEN` | Key in the secret for the token |
-| runner.baseLabels | string | `docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23` | Default Forgejo Actions job label and image |
+| runner.baseLabels | string | `docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23` | Default Forgejo Actions job label and image |
 | runner.labels | string | `""` | Full comma-separated label set; overrides `baseLabels` composition when set |
 | runner.config | object | Forgejo defaults | Rendered into `/etc/forgejo-runner/config.yaml` |
 | runner.dataMountPath | string | `/data` | Runner data directory mount path |
@@ -58,7 +58,7 @@ runner:
   registrationTokenSecret: forgejo-runner-registration
   registrationTokenKey: REGISTRATION_TOKEN
   name: runner-01
-  labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
+  labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
 
 namespaceOverride: forgejo-runners
 

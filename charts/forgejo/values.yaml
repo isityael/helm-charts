@@ -12,7 +12,7 @@ forgejo:
 
   image:
     registry: ghcr.io
-    repository: yaelmoshi/forgejo
+    repository: isityael/forgejo
     tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
     pullPolicy: IfNotPresent
     # Keep true so upstream selects rootless init paths, while this wrapper's
@@ -106,7 +106,7 @@ runner:
     instanceURL: ""
     registrationTokenSecret: ""
     name: forgejo-runner
-    labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
+    labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23
   persistence:
     enabled: true
     size: 1Gi

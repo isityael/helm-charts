@@ -52,10 +52,10 @@ denoTools:
 # Pinned to a full commit SHA for reproducibility. Auto-bumped by Renovate's
 # github-tags + currentDigest pattern.
 #
-# Upstream: https://github.com/yaelmoshi/livesync-bridge
+# Upstream: https://github.com/isityael/livesync-bridge
 livesyncBridge:
   image:
-    repository: ghcr.io/yaelmoshi/livesync-bridge
+    repository: ghcr.io/isityael/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
     tag: "sha-01c6d292c69554f9d53f0df39dd55a3300a4ef14@sha256:07fcbc0b21b3a8a6acd03cb6a77b051c1014fb32c6aac325eba04ac67f0adf8b"

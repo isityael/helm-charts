@@ -2,7 +2,7 @@ apiVersion: v2
 name: m0sh1-exporter
 description: Network exporters bundle for OPNsense, SNMP, and Proxmox VE
 type: application
-version: 0.1.12
+version: 0.1.13
 appVersion: "0.0.15"
 kubeVersion: ">=1.28.0-0"
 icon: https://opnsense.org/wp-content/themes/flavor/assets/images/opnsense.png

@@ -9,7 +9,7 @@ fullnameOverride: ""
 opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
-    repository: ghcr.io/yaelmoshi/opnsense-exporter
+    repository: ghcr.io/isityael/opnsense-exporter
     tag: "v0.0.15-m0sh1.3@sha256:cd9edc4d87323e2ffb7a068458b2d8550de1f8260deb039ca4c1f81059e798a9"
     pullPolicy: IfNotPresent
   opnsense:
@@ -50,7 +50,7 @@ podAnnotations: {}
 snmpExporter:
   fullnameOverride: prometheus-snmp-exporter
   image:
-    repository: ghcr.io/yaelmoshi/snmp-exporter
+    repository: ghcr.io/isityael/snmp-exporter
     tag: "v0.30.1-m0sh1.1@sha256:4fa66be119a45b23553554833a4a16f16786577b07804654424ea707e224552c"
     pullPolicy: IfNotPresent
   containerSecurityContext:

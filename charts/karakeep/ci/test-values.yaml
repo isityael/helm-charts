@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/yaelmoshi/karakeep
+  repository: ghcr.io/isityael/karakeep
   tag: ci
 
 env:

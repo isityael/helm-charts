@@ -8,17 +8,17 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.24
+version: 0.3.25
 appVersion: "0.22.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
     email: yael@m0sh1.cc
-    url: https://github.com/yaelmoshi
+    url: https://github.com/isityael
 sources:
   - https://github.com/basicmachines-co/basic-memory
-  - https://github.com/yaelmoshi/helm-charts
-  - https://github.com/yaelmoshi/livesync-bridge
+  - https://github.com/isityael/helm-charts
+  - https://github.com/isityael/livesync-bridge
 keywords:
   - basic-memory
   - mcp
@@ -40,7 +40,7 @@ annotations:
     - name: Basic Memory source
       url: https://github.com/basicmachines-co/basic-memory
     - name: Chart source
-      url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/basic-memory
+      url: https://github.com/isityael/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
     - kind: fixed
       description: Use ESM-compatible dynamic import in the Node livesync-bridge startup wrapper

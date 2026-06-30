@@ -4,16 +4,16 @@ description: Helm chart for self-hosted Healthchecks cron and background task mo
 home: https://healthchecks.io
 icon: https://healthchecks.io/static/img/favicon.png
 type: application
-version: 0.1.3
+version: 0.1.4
 appVersion: "v4.2"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
     email: yael@m0sh1.cc
-    url: https://github.com/yaelmoshi
+    url: https://github.com/isityael
 sources:
   - https://github.com/healthchecks/healthchecks
-  - https://github.com/yaelmoshi/helm-charts
+  - https://github.com/isityael/helm-charts
 keywords:
   - healthchecks
   - cron

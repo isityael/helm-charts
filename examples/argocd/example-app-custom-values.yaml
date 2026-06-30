@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/yaelmoshi/helm-charts'
+    repoURL: 'https://github.com/isityael/helm-charts'
     path: charts/example-app
     targetRevision: main
 

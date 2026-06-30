@@ -1,7 +1,7 @@
 # helm-charts — Publish all charts to GHCR OCI
 #
 # Triggered on push to main when charts/ change, or manually.
-# Packages each chart and pushes to oci://ghcr.io/yaelmoshi/charts,
+# Packages each chart and pushes to oci://ghcr.io/isityael/charts,
 # skipping versions that already exist.
 #
 # Script is in .ci/publish-oci.sh to avoid Woodpecker's ${VAR}

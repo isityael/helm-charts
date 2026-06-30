@@ -12,7 +12,7 @@ Deploys [Umami](https://umami.is), a privacy-focused web analytics platform.
 ## Install
 
 ```bash
-helm install umami oci://ghcr.io/yaelmoshi/charts/umami \
+helm install umami oci://ghcr.io/isityael/charts/umami \
   --version 0.2.0 \
   --namespace apps \
   --create-namespace \

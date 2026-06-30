@@ -1,7 +1,7 @@
 # helm-charts — Release: package + publish OCI chart to GHCR + GitHub Release
 #
 # Triggered by version tags (cloudflared-v*). Packages the chart, pushes
-# the OCI artifact to ghcr.io/yaelmoshi/charts, and creates a GitHub release.
+# the OCI artifact to ghcr.io/isityael/charts, and creates a GitHub release.
 when:
   - event: tag
     ref: refs/tags/cloudflared-v*
@@ -22,7 +22,7 @@ steps:
     commands:
       - helm package charts/cloudflared
       - printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
-      - helm push cloudflared-*.tgz oci://ghcr.io/yaelmoshi/charts
+      - helm push cloudflared-*.tgz oci://ghcr.io/isityael/charts
 
   - name: github-release
     image: woodpeckerci/plugin-release@sha256:caf18bc34de626dff1de0cc0638ee8dff11af6c9372a5f3d79ab27b91a5ee4d9
