@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "https://git.m0sh1.cc/m0sh1/infra/raw/branch/main/.github/renovate/base.json",
+    "https://git.m0sh1.cc/isityael/infra/raw/branch/main/.github/renovate/base.json",
     "config:best-practices",
     ":preserveSemverRanges",
     "helpers:pinGitHubActionDigests"
