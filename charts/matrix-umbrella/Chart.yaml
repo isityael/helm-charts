@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.21
+version: 0.1.22
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
@@ -44,6 +44,8 @@ annotations:
     - name: Chart source
       url: https://github.com/isityael/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Keep DHI digest suffixes out of rendered image version labels
     - kind: fixed
       description: Allow mautrix bridge images to be overridden with a full image reference for image updater write-back
     - kind: fixed
