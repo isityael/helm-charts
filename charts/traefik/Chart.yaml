@@ -16,7 +16,7 @@ sources:
 dependencies:
   - name: traefik-chart
     alias: traefik
-    version: 41.0.0
+    version: 41.0.1
     repository: oci://dhi.io
 annotations:
   category: Networking
