@@ -169,6 +169,18 @@ cinny:
 
 mautrix-discord:
   fullnameOverride: matrix-mautrix-discord
+  podSecurityContext:
+    fsGroup: 1337
+    runAsGroup: 1337
+    runAsNonRoot: true
+    runAsUser: 1337
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   existingSecret:
     name: ""
     configKey: config.yaml
@@ -196,6 +208,18 @@ mautrix-discord:
 
 mautrix-signal:
   fullnameOverride: matrix-mautrix-signal
+  podSecurityContext:
+    fsGroup: 1337
+    runAsGroup: 1337
+    runAsNonRoot: true
+    runAsUser: 1337
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   existingSecret:
     name: ""
     configKey: config.yaml
@@ -223,6 +247,18 @@ mautrix-signal:
 
 mautrix-telegram:
   fullnameOverride: matrix-mautrix-telegram
+  podSecurityContext:
+    fsGroup: 1337
+    runAsGroup: 1337
+    runAsNonRoot: true
+    runAsUser: 1337
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   existingSecret:
     name: ""
     configKey: config.yaml
@@ -250,6 +286,18 @@ mautrix-telegram:
 
 mautrix-whatsapp:
   fullnameOverride: matrix-mautrix-whatsapp
+  podSecurityContext:
+    fsGroup: 1337
+    runAsGroup: 1337
+    runAsNonRoot: true
+    runAsUser: 1337
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   existingSecret:
     name: ""
     configKey: config.yaml
