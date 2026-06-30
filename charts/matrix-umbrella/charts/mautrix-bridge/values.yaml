@@ -16,6 +16,8 @@ image:
   pullPolicy: IfNotPresent
   # -- image tag
   tag: ""
+  # -- image digest
+  digest: ""
 
 command: []
 args: []

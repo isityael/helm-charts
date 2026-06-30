@@ -38,7 +38,7 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           {{- with .Values.image }}
-          image: "{{ coalesce $.Values.global.image.registry .registry }}/{{ .repository }}:{{ .tag }}"
+          image: "{{ coalesce $.Values.global.image.registry .registry }}/{{ .repository }}:{{ .tag }}{{ with .digest }}@{{ . }}{{ end }}"
           imagePullPolicy: {{ coalesce $.Values.global.image.pullPolicy .pullPolicy }}
           {{- end }}
           {{- with .Values.command }}
