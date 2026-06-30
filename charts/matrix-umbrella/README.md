@@ -49,6 +49,10 @@ Public registration is disabled by default.
 Bridge dependencies are disabled by default. Enable each bridge only after
 creating its external database credentials and appservice registration wiring.
 Synapse consumes bridge registration files through `ess.synapse.appservices`.
+For GitOps deployments, pre-create each mautrix bridge Secret and set
+`mautrix-<bridge>.existingSecret.name`. The Secret must contain `config.yaml`
+and `registration.yaml`; the chart will mount those files and will not render a
+generated bridge Secret.
 
 `matrix-appservice-irc` is vendored but disabled by default. Its upstream chart
 currently has a strict values schema that rejects Helm's injected `global` map

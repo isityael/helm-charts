@@ -1,0 +1,41 @@
+image:
+  # duplicated for renovate
+  registry: dock.mau.dev
+  repository: mautrix/slack
+  tag: "v26.06"
+
+config:
+  bridge:
+    command_prefix: '!slack'
+  database:
+    uri: postgres://user:password@host/mautrix-slack?sslmode=disable
+  appservice:
+    id: slack
+    bot:
+      username: slackbot
+      displayname: "Slack bridge bot"
+      avatar: "mxc://maunium.net/pVtzLmChZejGxLqmXtQjFxem"
+    username_template: slack_{{.}}
+
+  management_room_text:
+    welcome: "Hello, I'm a Slack bridge bot."
+
+  slack:
+    displayname_template: '{{or .Profile.DisplayName .Profile.RealName .Name}}{{if .IsBot}} (bot){{end}}'
+    channel_name_template: '{{if and .IsChannel (not .IsPrivate)}}#{{end}}{{.Name}}{{if .IsNoteToSelf}} (you){{end}}'
+    team_name_template: "{{ .Name }}"
+    custom_emoji_reactions: true
+    workspace_avatar_in_rooms: false
+    participant_sync_count: 5
+    participant_sync_only_on_create: true
+    mute_channels_by_default: false
+    backfill:
+      conversation_count: -1
+
+registration:
+  namespaces:
+    users:
+      - regex: ^@slackbot:example.org$
+        exclusive: true
+      - regex: ^@slack_.*:example.org$
+        exclusive: true
