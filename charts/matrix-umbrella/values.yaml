@@ -33,7 +33,7 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/ess-helm/matrix-tools
-      tag: "0.8.0"
+      tag: "0.8.0@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
       digest: sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f
       pullSecrets: []
 
@@ -72,7 +72,7 @@ ess:
     image:
       registry: oci.element.io
       repository: element-web
-      tag: "v1.12.22"
+      tag: "v1.12.22@sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96"
       digest: sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96
     ingress:
       host: element.example.com
@@ -85,7 +85,7 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
-      tag: "1.19.0"
+      tag: "1.19.0@sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd"
       digest: sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd
     ingress:
       host: account.example.com
@@ -105,7 +105,7 @@ ess:
     image:
       registry: oci.element.io
       repository: synapse
-      tag: "v1.155.0"
+      tag: "v1.155.0@sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99"
       digest: sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99
     ingress:
       host: matrix.example.com
@@ -152,7 +152,7 @@ cinny:
   image:
     registry: ghcr.io
     repository: cinnyapp/cinny
-    tag: "v4.12.3"
+    tag: "v4.12.3@sha256:9872ba04330c6707f531bb7681036c2777f762625e373ce00eedfcd28d469a24"
     pullPolicy: IfNotPresent
   config:
     defaultHomeserver: 0
@@ -188,7 +188,7 @@ mautrix-discord:
   image:
     registry: dock.mau.dev
     repository: mautrix/discord
-    tag: "v0.7.6"
+    tag: "v0.7.6@sha256:e4946b0df6a2786c88ed490e0d2692e352f1b79b9ff0e821a33764bd8bd1fffd"
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-discord
@@ -229,7 +229,7 @@ mautrix-signal:
   image:
     registry: dock.mau.dev
     repository: mautrix/signal
-    tag: "v26.02.2"
+    tag: "v26.02.2@sha256:577e37ad5f41bfd72a236e6ab4a1b1b2d4f960890ff0767ed3b0b7cbb6817c29"
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-signal
@@ -270,7 +270,7 @@ mautrix-telegram:
   image:
     registry: dock.mau.dev
     repository: mautrix/telegram
-    tag: "v0.2606.0"
+    tag: "v0.2606.0@sha256:8c6c559446f049c1f3c4cbc4b284aed14c27aefde9b88a785d262633bdafe510"
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-telegram
@@ -311,7 +311,7 @@ mautrix-whatsapp:
   image:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
-    tag: "v0.2606.0"
+    tag: "v0.2606.0@sha256:3ecf348ac3451199fe1e7b894469bd8cf9b2abe58699f3b9a8029172c4356877"
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-whatsapp
@@ -336,12 +336,12 @@ matrix-appservice-irc:
   host: irc.example.com
   image:
     repository: matrixdotorg/matrix-appservice-irc
-    tag: "release-4.0.0"
+    tag: "release-4.0.0@sha256:ab906656406d8cfa273e39385c0a3182f5cf9d9c4a03e981bb1dd62162802d37"
     pullPolicy: IfNotPresent
   pool:
     image:
       repository: matrixdotorg/matrix-appservice-irc
-      tag: "release-4.0.0"
+      tag: "release-4.0.0@sha256:ab906656406d8cfa273e39385c0a3182f5cf9d9c4a03e981bb1dd62162802d37"
       pullPolicy: IfNotPresent
   waitForRedis:
     image:
