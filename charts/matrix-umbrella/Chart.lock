@@ -4,21 +4,21 @@ dependencies:
   version: 26.6.2
 - name: mautrix-bridge
   repository: file://charts/mautrix-bridge
-  version: 0.0.33
+  version: 0.0.34
 - name: mautrix-bridge
   repository: file://charts/mautrix-bridge
-  version: 0.0.33
+  version: 0.0.34
 - name: mautrix-bridge
   repository: file://charts/mautrix-bridge
-  version: 0.0.33
+  version: 0.0.34
 - name: mautrix-bridge
   repository: file://charts/mautrix-bridge
-  version: 0.0.33
+  version: 0.0.34
 - name: matrix-appservice-irc
   repository: https://cyclikal94.github.io/matrix-helm-charts
   version: 1.0.0
 - name: cinny
   repository: file://charts/cinny
   version: 0.2.23
-digest: sha256:d62cf47ae25c2989efe3a22cf697bef0d5eb3c7a4f827a9777042d438eb97f40
-generated: "2026-06-30T10:26:39.785646+02:00"
+digest: sha256:4b2665318f41687f536c03307377fa036025fca86d46e3c2f69d0aa10eaf0b33
+generated: "2026-06-30T20:57:14.036287+02:00"

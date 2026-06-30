@@ -8,6 +8,8 @@ global:
 replicaCount: 1
 
 image:
+  # -- full image reference. When set, overrides registry/repository/tag/digest.
+  full: ""
   # -- image registry (could be overwritten by global.image.registry)
   registry: dock.mau.dev
   # -- image repository

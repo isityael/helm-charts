@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.19
+version: 0.1.20
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
@@ -45,6 +45,8 @@ annotations:
       url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
     - kind: fixed
+      description: Allow mautrix bridge images to be overridden with a full image reference for image updater write-back
+    - kind: fixed
       description: Start mautrix bridge images directly as non-root when using restricted PodSecurity defaults
     - kind: fixed
       description: Run mautrix bridge deployments with restricted PodSecurity-compatible defaults
@@ -73,25 +75,25 @@ dependencies:
     repository: oci://ghcr.io/element-hq/ess-helm
   - name: mautrix-bridge
     alias: mautrix-discord
-    version: 0.0.33
+    version: 0.0.34
     repository: file://charts/mautrix-bridge
     tags:
       - mautrix-discord
   - name: mautrix-bridge
     alias: mautrix-signal
-    version: 0.0.33
+    version: 0.0.34
     repository: file://charts/mautrix-bridge
     tags:
       - mautrix-signal
   - name: mautrix-bridge
     alias: mautrix-telegram
-    version: 0.0.33
+    version: 0.0.34
     repository: file://charts/mautrix-bridge
     tags:
       - mautrix-telegram
   - name: mautrix-bridge
     alias: mautrix-whatsapp
-    version: 0.0.33
+    version: 0.0.34
     repository: file://charts/mautrix-bridge
     tags:
       - mautrix-whatsapp
