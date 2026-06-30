@@ -153,6 +153,7 @@ cinny:
     registry: ghcr.io
     repository: cinnyapp/cinny
     tag: "v4.12.3"
+    digest: sha256:9872ba04330c6707f531bb7681036c2777f762625e373ce00eedfcd28d469a24
     pullPolicy: IfNotPresent
   config:
     defaultHomeserver: 0
@@ -189,6 +190,7 @@ mautrix-discord:
     registry: dock.mau.dev
     repository: mautrix/discord
     tag: "v0.7.6"
+    digest: sha256:e4946b0df6a2786c88ed490e0d2692e352f1b79b9ff0e821a33764bd8bd1fffd
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-discord
@@ -230,6 +232,7 @@ mautrix-signal:
     registry: dock.mau.dev
     repository: mautrix/signal
     tag: "v26.02.2"
+    digest: sha256:577e37ad5f41bfd72a236e6ab4a1b1b2d4f960890ff0767ed3b0b7cbb6817c29
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-signal
@@ -271,6 +274,7 @@ mautrix-telegram:
     registry: dock.mau.dev
     repository: mautrix/telegram
     tag: "v0.2606.0"
+    digest: sha256:8c6c559446f049c1f3c4cbc4b284aed14c27aefde9b88a785d262633bdafe510
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-telegram
@@ -312,6 +316,7 @@ mautrix-whatsapp:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
     tag: "v0.2606.0"
+    digest: sha256:3ecf348ac3451199fe1e7b894469bd8cf9b2abe58699f3b9a8029172c4356877
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-whatsapp
