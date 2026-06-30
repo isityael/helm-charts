@@ -43,7 +43,7 @@ ess:
     image:
       registry: dhi.io
       repository: postgres
-      tag: "18.4-alpine3.24"
+      tag: "18.4-alpine3.24@sha256:3bec1efd91149f9ef010bd9c1cf6f17466eff0efb103719f0514a0362c3dfc41"
       digest: sha256:68cc437027b1c8849717f6015d76807991d50784b4102238b8d16b5b41b8f3e1
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
@@ -51,7 +51,7 @@ ess:
     image:
       registry: dhi.io
       repository: valkey
-      tag: "9.1.0-debian13"
+      tag: "9.1.0-debian13@sha256:9697cb735fda12759e252a4bebaf97f0e4637cdfc915c40edf65e0b5f3cc02cf"
       digest: sha256:9c534dfa305961bb3eaa1326f8af68b21a386950cc94e693ce32647c9a41a360
 
   storage:
@@ -64,7 +64,7 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.4.1-debian13"
+      tag: "3.4.1-debian13@sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990"
       digest: sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990
 
   elementWeb:
