@@ -43,15 +43,16 @@ ess:
     image:
       registry: dhi.io
       repository: postgres
-      tag: "18.4-alpine3.22"
-      digest: sha256:e98730eed81429024be09a6255e900b2e86923a799b03033ac6067b4b6c6250e
+      tag: "18.4-alpine3.24@sha256:68cc437027b1c8849717f6015d76807991d50784b4102238b8d16b5b41b8f3e1"
+      digest: sha256:68cc437027b1c8849717f6015d76807991d50784b4102238b8d16b5b41b8f3e1
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
   redis:
     image:
       registry: dhi.io
       repository: valkey
-      tag: "9.0.3-alpine3.22"
+      tag: "9.1.0-debian13@sha256:9c534dfa305961bb3eaa1326f8af68b21a386950cc94e693ce32647c9a41a360"
+      digest: sha256:9c534dfa305961bb3eaa1326f8af68b21a386950cc94e693ce32647c9a41a360
 
   storage:
     resourcePolicy: keep
@@ -63,7 +64,7 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.4.1-debian13"
+      tag: "3.4.1-debian13@sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990"
       digest: sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990
 
   elementWeb:
@@ -273,7 +274,8 @@ matrix-appservice-irc:
   waitForRedis:
     image:
       repository: dhi.io/busybox
-      tag: "1.37.0-musl"
+      tag: "1.38.0-alpine3.24@sha256:e2b1c4f128c40270337fe7703a3b27deacf97000d394d363a7bf094e9116cc0e"
+      digest: sha256:e2b1c4f128c40270337fe7703a3b27deacf97000d394d363a7bf094e9116cc0e
       pullPolicy: IfNotPresent
   homeserver:
     url: http://ess-synapse:8008
@@ -292,13 +294,14 @@ matrix-appservice-irc:
     enabled: false
     image:
       repository: dhi.io/postgres
-      tag: "18.4-alpine3.22"
+      tag: "18.4-alpine3.24@sha256:68cc437027b1c8849717f6015d76807991d50784b4102238b8d16b5b41b8f3e1"
+      digest: sha256:68cc437027b1c8849717f6015d76807991d50784b4102238b8d16b5b41b8f3e1
       pullPolicy: IfNotPresent
   redis:
     enabled: false
     image:
       repository: dhi.io/valkey
-      tag: "9.0.3-alpine3.22"
+      tag: "9.1.0-debian13@sha256:9c534dfa305961bb3eaa1326f8af68b21a386950cc94e693ce32647c9a41a360"
       pullPolicy: IfNotPresent
     args:
       - valkey-server
