@@ -33,7 +33,7 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/ess-helm/matrix-tools
-      tag: "0.8.0"
+      tag: "0.8.0@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
       digest: sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f
       pullSecrets: []
 
@@ -72,7 +72,7 @@ ess:
     image:
       registry: oci.element.io
       repository: element-web
-      tag: "v1.12.22"
+      tag: "v1.12.22@sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96"
       digest: sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96
     ingress:
       host: element.example.com
@@ -85,7 +85,7 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
-      tag: "1.19.0"
+      tag: "1.19.0@sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd"
       digest: sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd
     ingress:
       host: account.example.com
@@ -105,7 +105,7 @@ ess:
     image:
       registry: oci.element.io
       repository: synapse
-      tag: "v1.155.0"
+      tag: "v1.155.0@sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99"
       digest: sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99
     ingress:
       host: matrix.example.com
