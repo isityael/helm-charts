@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mautrix-bridge.fullname" . }}
+  labels:
+    {{- include "mautrix-bridge.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mautrix-bridge.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- if not .Values.existingSecret.name }}
+        "checksum/secret": {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "mautrix-bridge.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mautrix-bridge.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- with .Values.image }}
+          image: "{{ coalesce $.Values.global.image.registry .registry }}/{{ .repository }}:{{ .tag }}"
+          imagePullPolicy: {{ coalesce $.Values.global.image.pullPolicy .pullPolicy }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.appservice.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /data/config.yaml
+              subPath: config.yaml
+            - name: config
+              mountPath: /data/registration.yaml
+              subPath: registration.yaml
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ coalesce .Values.existingSecret.name (include "mautrix-bridge.fullname" .) }}
+            items:
+              - key: {{ .Values.existingSecret.configKey | default "config.yaml" }}
+                path: config.yaml
+              - key: {{ .Values.existingSecret.registrationKey | default "registration.yaml" }}
+                path: registration.yaml
+        - name: "data"
+          {{- if .Values.persistence.enabled }}
+          {{- if .Values.persistence.hostPath }}
+          hostPath:
+            type: Directory
+            path: {{ .Values.persistence.hostPath | quote }}
+          {{- else }}{{/* else .persistence.hostPath */}}
+          persistentVolumeClaim:
+            claimName: {{ coalesce .Values.persistence.existingClaim (include "mautrix-bridge.fullname" .) }}
+          {{- end }}{{/* end-else .persistence.hostPath */}}
+          {{- else }}{{/* else .persistence.enabled */}}
+          emptyDir: {}
+          {{- end }}{{/* end-else .persistence.enabled */}}
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,18 @@
+{{- if and .Values.config .Values.config.appservice }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mautrix-bridge.fullname" . }}
+  labels:
+    {{- include "mautrix-bridge.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "mautrix-bridge.selectorLabels" . | nindent 4 }}
+  ports:
+    - port: {{ .Values.config.appservice.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+{{- end }}

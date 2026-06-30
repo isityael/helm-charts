@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.13
+version: 0.1.14
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
@@ -44,6 +44,8 @@ annotations:
     - name: Chart source
       url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
+    - kind: added
+      description: Allow mautrix bridge deployments to consume pre-created config and registration Secrets
     - kind: fixed
       description: Keep ESS image digest suffixes out of default tag values so hook labels remain Kubernetes-valid
     - kind: fixed
@@ -68,25 +70,25 @@ dependencies:
   - name: mautrix-bridge
     alias: mautrix-discord
     version: 0.0.33
-    repository: oci://codeberg.org/wrenix/helm-charts
+    repository: file://charts/mautrix-bridge
     tags:
       - mautrix-discord
   - name: mautrix-bridge
     alias: mautrix-signal
     version: 0.0.33
-    repository: oci://codeberg.org/wrenix/helm-charts
+    repository: file://charts/mautrix-bridge
     tags:
       - mautrix-signal
   - name: mautrix-bridge
     alias: mautrix-telegram
     version: 0.0.33
-    repository: oci://codeberg.org/wrenix/helm-charts
+    repository: file://charts/mautrix-bridge
     tags:
       - mautrix-telegram
   - name: mautrix-bridge
     alias: mautrix-whatsapp
     version: 0.0.33
-    repository: oci://codeberg.org/wrenix/helm-charts
+    repository: file://charts/mautrix-bridge
     tags:
       - mautrix-whatsapp
   - name: matrix-appservice-irc

@@ -1,0 +1,54 @@
+image:
+  # duplicated for renovate
+  registry: dock.mau.dev
+  repository: mautrix/signal
+  tag: "v26.06"
+
+config:
+  bridge:
+    command_prefix: '!signal'
+  database:
+    uri: postgres://user:password@host/maturix-signal?sslmode=disable
+  appservice:
+    id: signal
+    bot:
+      username: signalbot
+      displayname: Signal bridge bot
+      avatar: mxc://maunium.net/wPJgTQbZOtpBFmDNkiNEMDUp
+    username_template: signal_{{.}}
+
+  management_room_text:
+    welcome: "Hello, I'm a Signal bridge bot."
+
+  signal:
+    # -- Displayname template for Signal users. This is also used as the room name in DMs if private_chat_portal_meta is enabled.
+    # {{.ProfileName}} - The Signal profile name set by the user.
+    # {{.ContactName}} - The name for the user from your phone's contact list. This is not safe on multi-user instances.
+    # {{.PhoneNumber}} - The phone number of the user.
+    # {{.UUID}} - The UUID of the Signal user.
+    # {{.AboutEmoji}} - The emoji set by the user in their profile.
+    displayname_template: '{{ printf "%s (%s) %s" (or .ProfileName .ContactName "Unknown user") (or .PhoneNumber "Unknown number" (or .AboutEmoji "")}}'
+    # -- Should avatars from the user's contact list be used? This is not safe on multi-user instances.
+    use_contact_avatars: false
+    # -- Should the bridge request the user's contact list from the phone on startup?
+    sync_contacts_on_startup: true
+    # -- Should the bridge sync ghost user info even if profile fetching fails? This is not safe on multi-user instances.
+    use_outdated_profiles: false
+    # -- Should the Signal user's phone number be included in the room topic in private chat portal rooms?
+    number_in_topic: true
+    # -- Default device name that shows up in the Signal app.
+    device_name: mautrix-signal
+    # Avatar image for the Note to Self room.
+    note_to_self_avatar: mxc://maunium.net/REBIVrqjZwmaWpssCZpBlmlL
+    # Format for generating URLs from location messages for sending to Signal.
+    # Google Maps: 'https://www.google.com/maps/place/%[1]s,%[2]s'
+    # OpenStreetMap: 'https://www.openstreetmap.org/?mlat=%[1]s&mlon=%[2]s'
+    location_format: 'https://www.openstreetmap.org/?mlat=%[1]s&mlon=%[2]s'
+
+registration:
+  namespaces:
+    users:
+      - regex: ^@signalbot:example.org$
+        exclusive: true
+      - regex: ^@signal_.*:example.org$
+        exclusive: true

@@ -169,6 +169,10 @@ cinny:
 
 mautrix-discord:
   fullnameOverride: matrix-mautrix-discord
+  existingSecret:
+    name: ""
+    configKey: config.yaml
+    registrationKey: registration.yaml
   image:
     registry: dock.mau.dev
     repository: mautrix/discord
@@ -192,6 +196,10 @@ mautrix-discord:
 
 mautrix-signal:
   fullnameOverride: matrix-mautrix-signal
+  existingSecret:
+    name: ""
+    configKey: config.yaml
+    registrationKey: registration.yaml
   image:
     registry: dock.mau.dev
     repository: mautrix/signal
@@ -215,6 +223,10 @@ mautrix-signal:
 
 mautrix-telegram:
   fullnameOverride: matrix-mautrix-telegram
+  existingSecret:
+    name: ""
+    configKey: config.yaml
+    registrationKey: registration.yaml
   image:
     registry: dock.mau.dev
     repository: mautrix/telegram
@@ -238,6 +250,10 @@ mautrix-telegram:
 
 mautrix-whatsapp:
   fullnameOverride: matrix-mautrix-whatsapp
+  existingSecret:
+    name: ""
+    configKey: config.yaml
+    registrationKey: registration.yaml
   image:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
