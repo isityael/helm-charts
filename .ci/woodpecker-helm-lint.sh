@@ -71,3 +71,9 @@ for chart in charts/*/; do
       > ".ci/rendered/${name}.yaml"
   fi
 done
+
+if grep -InE 'app\.kubernetes\.io/version:.*@sha256:' .ci/rendered/matrix-umbrella-*.yaml; then
+  echo "Rendered matrix-umbrella manifests contain digest-bearing app.kubernetes.io/version labels." >&2
+  echo "Keep image tags label-safe and put OCI digests in chart-specific digest fields where supported." >&2
+  exit 1
+fi
