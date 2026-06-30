@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/yaelmoshi/helm-charts'
+    repoURL: 'https://github.com/isityael/helm-charts'
     path: charts/forgejo-runner
     targetRevision: main
     helm:
@@ -21,7 +21,7 @@ spec:
           registrationTokenSecret: forgejo-runner-registration
           registrationTokenKey: REGISTRATION_TOKEN
           name: runner-01
-          labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
+          labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
 
         persistence:
           enabled: true

@@ -1,7 +1,7 @@
 apiVersion: v2
 appVersion: "7d1dfe6"
-description: Container Storage Interface plugin for Proxmox (yaelmoshi fork)
-home: https://github.com/yaelmoshi/proxmox-csi-plugin
+description: Container Storage Interface plugin for Proxmox (isityael fork)
+home: https://github.com/isityael/proxmox-csi-plugin
 icon: https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/main/charts/proxmox-csi-plugin/icon.png
 keywords:
   - csi
@@ -15,6 +15,6 @@ maintainers:
 name: proxmox-csi-plugin
 sources:
   - https://github.com/sergelogvinov/proxmox-csi-plugin
-  - https://github.com/yaelmoshi/proxmox-csi-plugin
+  - https://github.com/isityael/proxmox-csi-plugin
 type: application
-version: 0.5.42
+version: 0.5.43

@@ -12,7 +12,7 @@ The chart composes:
 ## Install
 
 ```bash
-helm install matrix oci://ghcr.io/yaelmoshi/charts/matrix-umbrella -f values.yaml
+helm install matrix oci://ghcr.io/isityael/charts/matrix-umbrella -f values.yaml
 ```
 
 ## Image Policy
@@ -26,7 +26,7 @@ helper images.
 If you do not have DHI access, use:
 
 ```bash
-helm install matrix oci://ghcr.io/yaelmoshi/charts/matrix-umbrella \
+helm install matrix oci://ghcr.io/isityael/charts/matrix-umbrella \
   -f upstream-images-values.yaml \
   -f values.yaml
 ```

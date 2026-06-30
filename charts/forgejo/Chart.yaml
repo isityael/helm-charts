@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.11
+version: 0.1.12
 appVersion: "15.0.3"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -13,7 +13,7 @@ maintainers:
 sources:
   - https://code.forgejo.org/forgejo-helm/forgejo-helm
   - https://codeberg.org/forgejo/forgejo
-  - https://github.com/yaelmoshi/helm-charts
+  - https://github.com/isityael/helm-charts
 keywords:
   - git
   - forgejo
@@ -34,17 +34,17 @@ annotations:
       url: https://git.m0sh1.cc/m0sh1/infra-cli
   artifacthub.io/images: |
     - name: forgejo
-      image: ghcr.io/yaelmoshi/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07
+      image: ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07
     - name: forgejo-runner
-      image: ghcr.io/yaelmoshi/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85
+      image: ghcr.io/isityael/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85
     - name: forgejo-job-alpine
-      image: ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
+      image: ghcr.io/isityael/forgejo-job-alpine:3.23
   artifacthub.io/changes: |
     - kind: added
       description: Add improved Forgejo wrapper chart based on upstream Forgejo Helm chart 17.1.0.
     - kind: added
       description: >-
-        Default to the custom ghcr.io/yaelmoshi/forgejo rootless-compatible image without upstream's automatic
+        Default to the custom ghcr.io/isityael/forgejo rootless-compatible image without upstream's automatic
         -rootless suffix.
     - kind: added
       description: Include optional forgejo-runner subchart dependency for co-deploying Actions runners.
@@ -63,5 +63,5 @@ dependencies:
   - name: forgejo-runner
     alias: runner
     version: 0.1.9
-    repository: oci://ghcr.io/yaelmoshi/charts
+    repository: oci://ghcr.io/isityael/charts
     condition: runner.enabled

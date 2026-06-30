@@ -10,7 +10,7 @@ icon: https://matrix.org/images/matrix-logo.svg
 maintainers:
   - name: m0sh1
     email: yael@m0sh1.cc
-    url: https://github.com/yaelmoshi
+    url: https://github.com/isityael
 sources:
   - https://github.com/element-hq/ess-helm
   - https://github.com/element-hq/synapse
@@ -22,7 +22,7 @@ sources:
   - https://github.com/mautrix/telegram
   - https://github.com/mautrix/whatsapp
   - https://github.com/matrix-org/matrix-appservice-irc
-  - https://github.com/yaelmoshi/helm-charts
+  - https://github.com/isityael/helm-charts
 keywords:
   - matrix
   - synapse
@@ -42,7 +42,7 @@ annotations:
     - name: Element Server Suite Helm
       url: https://github.com/element-hq/ess-helm
     - name: Chart source
-      url: https://github.com/yaelmoshi/helm-charts/tree/main/charts/matrix-umbrella
+      url: https://github.com/isityael/helm-charts/tree/main/charts/matrix-umbrella
   artifacthub.io/changes: |
     - kind: fixed
       description: Allow mautrix bridge images to be overridden with a full image reference for image updater write-back

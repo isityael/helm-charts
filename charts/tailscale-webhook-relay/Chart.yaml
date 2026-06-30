@@ -2,14 +2,14 @@ apiVersion: v2
 name: tailscale-webhook-relay
 description: Relay Tailscale webhook events to ntfy with formatting and HMAC verification
 type: application
-version: 0.3.3
+version: 0.3.4
 appVersion: "0.3.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
     email: yael@m0sh1.cc
 sources:
-  - https://github.com/yaelmoshi/infra-cli
+  - https://github.com/isityael/infra-cli
 keywords:
   - tailscale
   - webhook

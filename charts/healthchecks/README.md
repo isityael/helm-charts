@@ -13,5 +13,5 @@ Helm chart for self-hosted Healthchecks using the official upstream image.
 ## Install
 
 ```bash
-helm install healthchecks oci://ghcr.io/yaelmoshi/charts/healthchecks --version 0.1.3
+helm install healthchecks oci://ghcr.io/isityael/charts/healthchecks --version 0.1.3
 ```

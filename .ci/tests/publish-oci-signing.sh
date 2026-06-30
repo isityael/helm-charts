@@ -44,7 +44,7 @@ case "$1" in
     ;;
   push)
     echo "helm push $*" >>"$HELM_LOG"
-    printf 'Pushed: ghcr.io/yaelmoshi/charts/demo:1.2.3\n' >&2
+    printf 'Pushed: ghcr.io/isityael/charts/demo:1.2.3\n' >&2
     printf 'Digest: sha256:abc123\n' >&2
     ;;
   *)
@@ -70,7 +70,7 @@ test_publish_records_digest_reference_for_signing() {
 
   local refs_file="${workdir}/.ci/published-oci-refs.txt"
   [ -f "$refs_file" ] || fail "expected published refs file"
-  grep -qx "ghcr.io/yaelmoshi/charts/demo@sha256:abc123" "$refs_file" \
+  grep -qx "ghcr.io/isityael/charts/demo@sha256:abc123" "$refs_file" \
     || fail "expected immutable digest ref in published refs file"
 }
 
@@ -94,7 +94,7 @@ SH
 
   (cd "$workdir" && "$publish_script")
 
-  grep -qx "sign --yes --key env://COSIGN_PRIVATE_KEY ghcr.io/yaelmoshi/charts/demo@sha256:abc123" "$COSIGN_LOG" \
+  grep -qx "sign --yes --key env://COSIGN_PRIVATE_KEY ghcr.io/isityael/charts/demo@sha256:abc123" "$COSIGN_LOG" \
     || fail "expected cosign to sign immutable digest ref"
 }
 

@@ -54,7 +54,7 @@ for chart in charts/*/; do
   name="$(basename "$chart")"
   version="$(grep '^version:' "$chartfile" | awk '{print $2}')"
 
-  if helm show chart "oci://ghcr.io/yaelmoshi/charts/${name}" --version "${version}" >/dev/null 2>&1; then
+  if helm show chart "oci://ghcr.io/isityael/charts/${name}" --version "${version}" >/dev/null 2>&1; then
     echo "SKIP ${name}:${version} (already on GHCR)"
     continue
   fi
@@ -76,7 +76,7 @@ for chart in charts/*/; do
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
-  push_output="$(helm push "$pkg" oci://ghcr.io/yaelmoshi/charts 2>&1)"
+  push_output="$(helm push "$pkg" oci://ghcr.io/isityael/charts 2>&1)"
   printf '%s\n' "$push_output"
 
   digest="$(printf '%s\n' "$push_output" | awk '/^Digest:/ {print $2; exit}')"
@@ -85,7 +85,7 @@ for chart in charts/*/; do
     exit 1
   fi
 
-  ref="ghcr.io/yaelmoshi/charts/${name}@${digest}"
+  ref="ghcr.io/isityael/charts/${name}@${digest}"
   printf '%s\n' "$ref" >>"$published_refs_file"
   sign_ref "$ref"
 done

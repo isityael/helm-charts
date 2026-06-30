@@ -36,7 +36,7 @@ runner:
     instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
     registrationTokenSecret: forgejo-runner-registration
     name: test-forgejo-runner
-    labels: docker:docker://ghcr.io/yaelmoshi/forgejo-job-alpine:3.23
+    labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23
   persistence:
     enabled: true
     storageClass: test-storage-class
