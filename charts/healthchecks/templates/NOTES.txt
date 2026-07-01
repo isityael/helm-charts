@@ -1,4 +1,0 @@
-Healthchecks is deployed.
-
-Service:
-  {{ include "healthchecks.fullname" . }}:{{ .Values.service.port }}

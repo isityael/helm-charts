@@ -54,12 +54,14 @@ write_fake_helm() {
 set -euo pipefail
 case "\$1 \$2" in
   "dependency list")
+    echo "\$*" >> "\${HELM_LOG:-/dev/null}"
     cat <<'OUT'
 NAME  VERSION  REPOSITORY                    STATUS
 child 1.0.0    https://example.invalid/charts ${status}
 OUT
     ;;
   "dependency build")
+    echo "\$*" >> "\${HELM_LOG:-/dev/null}"
     if [ "${mutate}" = "true" ]; then
       echo "changed by build" >> "\$3/Chart.lock"
     fi
@@ -175,10 +177,28 @@ test_skips_dhi_build_without_credentials() {
     fail "expected output to mention skipped DHI dependency check"
 }
 
+test_checks_dhi_build_with_credentials() {
+  local workdir="${tmpdir}/dhi-with-creds"
+  local bindir="${workdir}/bin"
+  mkdir -p "$workdir" "$bindir"
+  setup_repo "$workdir" cnpg-stack "oci://dhi.io"
+  write_fake_helm "$bindir" "ok"
+
+  (cd "$workdir" &&
+    DHI_USERNAME=test-user DHI_PASSWORD=test-password HELM_LOG="${workdir}/helm.log" PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
+    fail "expected DHI dependency build to be checked with credentials"
+
+  grep -qx "dependency list charts/cnpg-stack" "${workdir}/helm.log" ||
+    fail "expected dependency list to run for DHI chart with credentials"
+  grep -qx "dependency build charts/cnpg-stack" "${workdir}/helm.log" ||
+    fail "expected dependency build to run for DHI chart with credentials"
+}
+
 test_fails_on_wrong_dependency_status
 test_fails_when_build_mutates_vendored_files
 test_passes_when_dependencies_are_current
 test_passes_without_git_available
 test_skips_dhi_build_without_credentials
+test_checks_dhi_build_with_credentials
 
 echo "helm-dependency-guard tests passed"
