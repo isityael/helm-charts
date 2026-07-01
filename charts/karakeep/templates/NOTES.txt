@@ -1,4 +1,0 @@
-Karakeep has been deployed.
-
-Service:
-  {{ include "karakeep.fullname" . }}:{{ .Values.service.port }}

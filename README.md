@@ -24,8 +24,6 @@ helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version
 | `forgejo` | 0.1.11 | Forgejo with custom image defaults and optional runner |
 | `forgejo-runner` | 0.1.9 | Forgejo Actions runner with Docker-in-Docker |
 | `gitea-runner` | 1.0.6 | Gitea Actions runner with Docker-in-Docker |
-| `healthchecks` | 0.1.3 | Cron and background task monitoring |
-| `karakeep` | 0.1.19 | Karakeep with Postgres, Meilisearch, and browser crawling support |
 | `m0sh1-exporter` | 0.1.11 | Network exporters bundle for OPNsense, SNMP, and Proxmox VE |
 | `matrix-umbrella` | 0.1.1 | DHI-first Matrix Synapse, MAS, Element Web, Cinny, and bridge umbrella |
 | `privatebin` | 0.1.3 | Encrypted paste and file sharing |
