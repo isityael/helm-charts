@@ -1,5 +1,6 @@
 replicaCount: 1
 revisionHistoryLimit: 2
+strategy: {}
 
 image:
   repository: docker.io/dialmaster/youtarr
