@@ -1,0 +1,79 @@
+{{- if and (eq .Values.database.type "embedded") .Values.mariadb.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "youtarr.mariadb.fullname" . }}
+  labels:
+    {{- include "youtarr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+spec:
+  serviceName: {{ include "youtarr.mariadb.fullname" . }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "youtarr.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: mariadb
+  template:
+    metadata:
+      labels:
+        {{- include "youtarr.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: mariadb
+    spec:
+      {{- with (default .Values.imagePullSecrets .Values.mariadb.imagePullSecrets) }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.mariadb.podSecurityContext | nindent 8 }}
+      containers:
+        - name: mariadb
+          image: {{ include "youtarr.mariadbImage" . | quote }}
+          imagePullPolicy: {{ .Values.mariadb.image.pullPolicy }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "youtarr.mariadb.secretName" . }}
+                  key: {{ .Values.mariadb.auth.existingSecret.rootPasswordKey }}
+            - name: MARIADB_DATABASE
+              value: {{ .Values.mariadb.auth.database | quote }}
+            - name: MARIADB_USER
+              value: {{ .Values.mariadb.auth.username | quote }}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "youtarr.mariadb.secretName" . }}
+                  key: {{ .Values.mariadb.auth.existingSecret.passwordKey }}
+          securityContext:
+            {{- toYaml .Values.mariadb.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            {{- toYaml .Values.mariadb.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ default (include "youtarr.mariadb.fullname" .) .Values.mariadb.persistence.existingClaim }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "youtarr.mariadb.fullname" . }}
+  labels:
+    {{- include "youtarr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+spec:
+  type: ClusterIP
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+  selector:
+    {{- include "youtarr.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+{{- end }}

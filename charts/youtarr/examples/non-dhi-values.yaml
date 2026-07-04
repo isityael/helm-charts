@@ -1,0 +1,7 @@
+mariadb:
+  image:
+    repository: docker.io/library/mariadb
+    tag: "10.11"
+    digest: ""
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []

@@ -1,0 +1,43 @@
+fullnameOverride: youtarr-ci
+
+imagePullSecrets:
+  - name: dhi-pull-secret
+
+auth:
+  presetExistingSecret:
+    name: youtarr-auth
+
+youtarr:
+  timezone: Europe/Berlin
+  trustProxy: "1"
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: internal
+      namespace: gateway-system
+  hostnames:
+    - youtarr.example.test
+
+ingress:
+  hosts:
+    - host: youtarr.example.test
+      paths:
+        - path: /
+          pathType: Prefix
+
+persistence:
+  downloads:
+    hostPath:
+      enabled: true
+      path: /data/youtarr
+  config:
+    storageClass: zfs-youtarr-state-csi
+  jobs:
+    storageClass: zfs-youtarr-state-csi
+  images:
+    storageClass: zfs-youtarr-state-csi
+
+mariadb:
+  persistence:
+    storageClass: zfs-youtarr-mariadb-csi
