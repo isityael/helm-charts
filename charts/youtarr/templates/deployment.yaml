@@ -1,0 +1,166 @@
+{{- if and (eq .Values.database.type "embedded") (not .Values.mariadb.enabled) -}}
+{{- fail "youtarr chart: database.type=embedded requires mariadb.enabled=true" -}}
+{{- end -}}
+{{- if and (eq .Values.database.type "external") (not .Values.externalDatabase.host) -}}
+{{- fail "youtarr chart: externalDatabase.host is required when database.type=external" -}}
+{{- end -}}
+{{- if and (eq .Values.database.type "external") (not .Values.externalDatabase.existingSecret.name) -}}
+{{- fail "youtarr chart: externalDatabase.existingSecret.name is required when database.type=external" -}}
+{{- end -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "youtarr.fullname" . }}
+  labels:
+    {{- include "youtarr.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "youtarr.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "youtarr.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "youtarr.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: youtarr
+          image: {{ include "youtarr.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          env:
+            - name: TZ
+              value: {{ .Values.youtarr.timezone | quote }}
+            - name: YOUTARR_UID
+              value: {{ .Values.youtarr.uid | quote }}
+            - name: YOUTARR_GID
+              value: {{ .Values.youtarr.gid | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.youtarr.logLevel | quote }}
+            - name: AUTH_ENABLED
+              value: {{ .Values.auth.enabled | quote }}
+            - name: DB_HOST
+              value: {{ include "youtarr.dbHost" . | quote }}
+            - name: DB_PORT
+              value: {{ include "youtarr.dbPort" . | quote }}
+            - name: DB_USER
+              value: {{ include "youtarr.dbUser" . | quote }}
+            - name: DB_NAME
+              value: {{ include "youtarr.dbName" . | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "youtarr.dbSecretName" . }}
+                  key: {{ include "youtarr.dbPasswordKey" . }}
+            - name: YOUTUBE_OUTPUT_DIR
+              value: /usr/src/app/data
+            {{- if .Values.youtarr.trustProxy }}
+            - name: TRUST_PROXY
+              value: {{ .Values.youtarr.trustProxy | quote }}
+            {{- end }}
+            {{- if .Values.youtarr.dataPath }}
+            - name: DATA_PATH
+              value: {{ .Values.youtarr.dataPath | quote }}
+            {{- end }}
+            {{- if .Values.auth.presetExistingSecret.name }}
+            - name: AUTH_PRESET_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.presetExistingSecret.name }}
+                  key: {{ .Values.auth.presetExistingSecret.usernameKey }}
+            - name: AUTH_PRESET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.presetExistingSecret.name }}
+                  key: {{ .Values.auth.presetExistingSecret.passwordKey }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.downloads.enabled }}
+            - name: downloads
+              mountPath: /usr/src/app/data
+            {{- end }}
+            {{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: /app/config
+            {{- end }}
+            {{- if .Values.persistence.jobs.enabled }}
+            - name: jobs
+              mountPath: /app/jobs
+            {{- end }}
+            {{- if .Values.persistence.images.enabled }}
+            - name: images
+              mountPath: /app/server/images
+            {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            {{- omit .Values.probes.liveness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            {{- omit .Values.probes.readiness "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        {{- if .Values.persistence.downloads.enabled }}
+        - name: downloads
+          {{- if .Values.persistence.downloads.hostPath.enabled }}
+          hostPath:
+            path: {{ .Values.persistence.downloads.hostPath.path | quote }}
+            type: {{ .Values.persistence.downloads.hostPath.type | quote }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "youtarr.persistence.claimName" (list . "downloads" .Values.persistence.downloads) }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "youtarr.persistence.claimName" (list . "config" .Values.persistence.config) }}
+        {{- end }}
+        {{- if .Values.persistence.jobs.enabled }}
+        - name: jobs
+          persistentVolumeClaim:
+            claimName: {{ include "youtarr.persistence.claimName" (list . "jobs" .Values.persistence.jobs) }}
+        {{- end }}
+        {{- if .Values.persistence.images.enabled }}
+        - name: images
+          persistentVolumeClaim:
+            claimName: {{ include "youtarr.persistence.claimName" (list . "images" .Values.persistence.images) }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

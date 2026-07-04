@@ -1,0 +1,39 @@
+{{- range $name, $cfg := .Values.persistence }}
+{{- if and $cfg.enabled (not $cfg.existingClaim) (not (and (eq $name "downloads") $cfg.hostPath.enabled)) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "youtarr.persistence.claimName" (list $ $name $cfg) }}
+  labels:
+    {{- include "youtarr.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  accessModes:
+    - {{ $cfg.accessMode }}
+  {{- if $cfg.storageClass }}
+  storageClassName: {{ $cfg.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $cfg.size }}
+---
+{{- end }}
+{{- end }}
+{{- if and (eq .Values.database.type "embedded") .Values.mariadb.enabled .Values.mariadb.persistence.enabled (not .Values.mariadb.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "youtarr.mariadb.fullname" . }}
+  labels:
+    {{- include "youtarr.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+spec:
+  accessModes:
+    - {{ .Values.mariadb.persistence.accessMode }}
+  {{- if .Values.mariadb.persistence.storageClass }}
+  storageClassName: {{ .Values.mariadb.persistence.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.mariadb.persistence.size }}
+{{- end }}

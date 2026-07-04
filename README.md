@@ -33,6 +33,7 @@ helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version
 | `traefik` | 0.1.0 | Traefik wrapper based on Docker Hardened Images with m0sh1 edge defaults |
 | `umami` | 0.2.4 | Privacy-focused web analytics |
 | `wakapi-dhi` | 1.2.19 | Hardened WakaTime-compatible coding statistics |
+| `youtarr` | 0.1.0 | YouTube downloader with DHI MariaDB support |
 
 ## Publishing
 

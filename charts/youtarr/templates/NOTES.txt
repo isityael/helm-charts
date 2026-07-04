@@ -1,0 +1,17 @@
+Youtarr has been deployed.
+
+Service:
+  {{ include "youtarr.fullname" . }}:{{ .Values.service.port }}
+
+Database:
+  {{- if eq .Values.database.type "embedded" }}
+  Embedded DHI MariaDB: {{ include "youtarr.mariadb.fullname" . }}:3306
+  {{- else }}
+  External MariaDB/MySQL: {{ .Values.externalDatabase.host }}:{{ .Values.externalDatabase.port }}
+  {{- end }}
+
+Authentication:
+  auth.enabled={{ .Values.auth.enabled }}
+  {{- if and .Values.auth.enabled (not .Values.auth.presetExistingSecret.name) }}
+  No preset credentials were provided. Use the Youtarr one-time setup flow.
+  {{- end }}
