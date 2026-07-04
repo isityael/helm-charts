@@ -62,6 +62,9 @@ write downloads to a node-local media path. PVCs are the default.
 
 | Value | Default | Description |
 |-------|---------|-------------|
+| `replicaCount` | `1` | Number of Youtarr pods |
+| `revisionHistoryLimit` | `2` | Deployment revision history limit |
+| `strategy` | `{}` | Optional Deployment update strategy |
 | `image.repository` | `docker.io/dialmaster/youtarr` | Youtarr image repository |
 | `image.tag` | `v1.72.1` | Youtarr image tag |
 | `image.digest` | `""` | Optional Youtarr image digest |

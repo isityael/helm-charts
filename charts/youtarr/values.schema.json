@@ -11,6 +11,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "strategy": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "image": {
       "type": "object",
       "required": ["repository", "pullPolicy"],
