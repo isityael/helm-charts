@@ -64,8 +64,8 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.4.2-debian13@sha256:0bb930bac61c44cdecdc36ec125c0179e3ead95b1844da4560f13b5024499146"
-      digest: sha256:cc3bdcf4049e26efa76a225b1bfb7ae8d374ffa6ef6afb6c9304f1c085070990
+      tag: "3.4.2-debian13"
+      digest: sha256:0bb930bac61c44cdecdc36ec125c0179e3ead95b1844da4560f13b5024499146
 
   elementWeb:
     enabled: true
