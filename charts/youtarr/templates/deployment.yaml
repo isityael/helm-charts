@@ -7,9 +7,10 @@
 {{- if and (eq .Values.database.type "external") (not .Values.externalDatabase.existingSecret.name) -}}
 {{- fail "youtarr chart: externalDatabase.existingSecret.name is required when database.type=external" -}}
 {{- end -}}
-{{- if and .Values.configOverrides (not .Values.persistence.config.enabled) -}}
-{{- fail "youtarr chart: configOverrides requires persistence.config.enabled=true" -}}
+{{- if and (or .Values.configOverrides .Values.configSecretOverrides) (not .Values.persistence.config.enabled) -}}
+{{- fail "youtarr chart: configOverrides and configSecretOverrides require persistence.config.enabled=true" -}}
 {{- end -}}
+{{- $hasConfigOverrides := or .Values.configOverrides .Values.configSecretOverrides -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,7 +47,7 @@ spec:
       automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- with .Values.configOverrides }}
+      {{- if $hasConfigOverrides }}
       initContainers:
         - name: apply-config-overrides
           image: {{ include "youtarr.image" $ | quote }}
@@ -55,7 +56,17 @@ spec:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           env:
             - name: YOUTARR_CONFIG_OVERRIDES
-              value: {{ toJson . | quote }}
+              value: {{ toJson .Values.configOverrides | quote }}
+            - name: YOUTARR_CONFIG_SECRET_KEYS
+              value: {{ keys .Values.configSecretOverrides | toJson | quote }}
+            {{- range $key, $ref := .Values.configSecretOverrides }}
+            - name: YOUTARR_CONFIG_SECRET_{{ $key | upper | replace "-" "_" }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $ref.secretName | quote }}
+                  key: {{ $ref.secretKey | quote }}
+                  optional: {{ default false $ref.optional }}
+            {{- end }}
           command:
             - node
             - -e
@@ -63,6 +74,11 @@ spec:
               const fs = require('fs');
               const path = '/app/config/config.json';
               const overrides = JSON.parse(process.env.YOUTARR_CONFIG_OVERRIDES || '{}');
+              const secretKeys = JSON.parse(process.env.YOUTARR_CONFIG_SECRET_KEYS || '[]');
+              for (const key of secretKeys) {
+                const envName = `YOUTARR_CONFIG_SECRET_${key.toUpperCase().replace(/-/g, '_')}`;
+                overrides[key] = process.env[envName] || '';
+              }
               fs.mkdirSync('/app/config', { recursive: true });
               let current = {};
               if (fs.existsSync(path)) {

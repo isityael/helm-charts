@@ -54,6 +54,18 @@
       "type": "object",
       "additionalProperties": true
     },
+    "configSecretOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["secretName", "secretKey"],
+        "properties": {
+          "secretName": { "type": "string", "minLength": 1 },
+          "secretKey": { "type": "string", "minLength": 1 },
+          "optional": { "type": "boolean" }
+        }
+      }
+    },
     "auth": {
       "type": "object",
       "properties": {
