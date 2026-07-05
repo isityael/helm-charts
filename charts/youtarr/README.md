@@ -71,6 +71,7 @@ write downloads to a node-local media path. PVCs are the default.
 | `imagePullSecrets` | `[]` | Pull secrets for the Youtarr pod |
 | `auth.enabled` | `true` | Enable Youtarr authentication |
 | `auth.presetExistingSecret.name` | `""` | Existing Secret with preset credentials |
+| `configOverrides` | `{}` | Values merged into `/app/config/config.json` before Youtarr starts |
 | `database.type` | `embedded` | `embedded` or `external` |
 | `mariadb.enabled` | `true` | Deploy embedded MariaDB when `database.type=embedded` |
 | `mariadb.image.repository` | `dhi.io/mariadb` | Embedded MariaDB image repository |

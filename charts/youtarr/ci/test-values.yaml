@@ -11,6 +11,10 @@ youtarr:
   timezone: Europe/Berlin
   trustProxy: "1"
 
+configOverrides:
+  autoUpdateYtdlp: true
+  ytdlpIpFamily: auto
+
 httpRoute:
   enabled: true
   parentRefs:

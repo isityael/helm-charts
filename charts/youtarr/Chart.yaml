@@ -30,6 +30,8 @@ annotations:
       url: https://github.com/isityael/helm-charts/tree/main/charts/youtarr
   artifacthub.io/changes: |
     - kind: added
+      description: Allow config.json overrides through configOverrides.
+    - kind: added
       description: Allow configuring the Deployment update strategy.
     - kind: added
       description: Initial Youtarr chart with DHI MariaDB, external database, persistence, and routing support.

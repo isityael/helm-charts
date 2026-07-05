@@ -50,6 +50,10 @@
         "dataPath": { "type": "string" }
       }
     },
+    "configOverrides": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "auth": {
       "type": "object",
       "properties": {
