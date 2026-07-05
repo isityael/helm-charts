@@ -15,6 +15,11 @@ configOverrides:
   autoUpdateYtdlp: true
   ytdlpIpFamily: auto
 
+configSecretOverrides:
+  jellyfinApiKey:
+    secretName: youtarr-jellyfin
+    secretKey: api-key
+
 httpRoute:
   enabled: true
   parentRefs:
