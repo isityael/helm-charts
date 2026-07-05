@@ -20,6 +20,12 @@ youtarr:
   trustProxy: ""
   dataPath: ""
 
+# Values merged into /app/config/config.json before Youtarr starts.
+# Example:
+# configOverrides:
+#   autoUpdateYtdlp: true
+configOverrides: {}
+
 auth:
   enabled: true
   presetExistingSecret:

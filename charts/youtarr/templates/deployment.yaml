@@ -7,6 +7,9 @@
 {{- if and (eq .Values.database.type "external") (not .Values.externalDatabase.existingSecret.name) -}}
 {{- fail "youtarr chart: externalDatabase.existingSecret.name is required when database.type=external" -}}
 {{- end -}}
+{{- if and .Values.configOverrides (not .Values.persistence.config.enabled) -}}
+{{- fail "youtarr chart: configOverrides requires persistence.config.enabled=true" -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,6 +46,33 @@ spec:
       automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.configOverrides }}
+      initContainers:
+        - name: apply-config-overrides
+          image: {{ include "youtarr.image" $ | quote }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          env:
+            - name: YOUTARR_CONFIG_OVERRIDES
+              value: {{ toJson . | quote }}
+          command:
+            - node
+            - -e
+            - |
+              const fs = require('fs');
+              const path = '/app/config/config.json';
+              const overrides = JSON.parse(process.env.YOUTARR_CONFIG_OVERRIDES || '{}');
+              fs.mkdirSync('/app/config', { recursive: true });
+              let current = {};
+              if (fs.existsSync(path)) {
+                current = JSON.parse(fs.readFileSync(path, 'utf8'));
+              }
+              fs.writeFileSync(path, `${JSON.stringify({ ...current, ...overrides }, null, 2)}\n`);
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+      {{- end }}
       containers:
         - name: youtarr
           image: {{ include "youtarr.image" . | quote }}
