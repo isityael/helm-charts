@@ -77,7 +77,12 @@ spec:
               const secretKeys = JSON.parse(process.env.YOUTARR_CONFIG_SECRET_KEYS || '[]');
               for (const key of secretKeys) {
                 const envName = `YOUTARR_CONFIG_SECRET_${key.toUpperCase().replace(/-/g, '_')}`;
-                overrides[key] = process.env[envName] || '';
+                const rawValue = process.env[envName] || '';
+                try {
+                  overrides[key] = JSON.parse(rawValue);
+                } catch {
+                  overrides[key] = rawValue;
+                }
               }
               fs.mkdirSync('/app/config', { recursive: true });
               let current = {};

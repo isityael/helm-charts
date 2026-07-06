@@ -19,6 +19,9 @@ configSecretOverrides:
   jellyfinApiKey:
     secretName: youtarr-jellyfin
     secretKey: api-key
+  appriseUrls:
+    secretName: youtarr-notifications
+    secretKey: appriseUrls
 
 httpRoute:
   enabled: true
