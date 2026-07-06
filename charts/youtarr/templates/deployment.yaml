@@ -10,6 +10,9 @@
 {{- if and (or .Values.configOverrides .Values.configSecretOverrides) (not .Values.persistence.config.enabled) -}}
 {{- fail "youtarr chart: configOverrides and configSecretOverrides require persistence.config.enabled=true" -}}
 {{- end -}}
+{{- if and .Values.cookies.existingSecret.name (not .Values.cookies.existingSecret.key) -}}
+{{- fail "youtarr chart: cookies.existingSecret.key is required when cookies.existingSecret.name is set" -}}
+{{- end -}}
 {{- $hasConfigOverrides := or .Values.configOverrides .Values.configSecretOverrides -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -162,6 +165,12 @@ spec:
             - name: config
               mountPath: /app/config
             {{- end }}
+            {{- if .Values.cookies.existingSecret.name }}
+            - name: cookies
+              mountPath: {{ .Values.cookies.mountPath | quote }}
+              subPath: {{ .Values.cookies.existingSecret.key | quote }}
+              readOnly: true
+            {{- end }}
             {{- if .Values.persistence.jobs.enabled }}
             - name: jobs
               mountPath: /app/jobs
@@ -196,6 +205,14 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: {{ include "youtarr.persistence.claimName" (list . "config" .Values.persistence.config) }}
+        {{- end }}
+        {{- if .Values.cookies.existingSecret.name }}
+        - name: cookies
+          secret:
+            secretName: {{ .Values.cookies.existingSecret.name | quote }}
+            items:
+              - key: {{ .Values.cookies.existingSecret.key | quote }}
+                path: {{ .Values.cookies.existingSecret.key | quote }}
         {{- end }}
         {{- if .Values.persistence.jobs.enabled }}
         - name: jobs

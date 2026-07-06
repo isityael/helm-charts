@@ -34,6 +34,12 @@ configOverrides: {}
 #     secretKey: api-key
 configSecretOverrides: {}
 
+cookies:
+  existingSecret:
+    name: ""
+    key: cookies.user.txt
+  mountPath: /app/config/cookies.user.txt
+
 auth:
   enabled: true
   presetExistingSecret:
