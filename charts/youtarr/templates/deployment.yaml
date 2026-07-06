@@ -60,7 +60,7 @@ spec:
           env:
             - name: YOUTARR_CONFIG_OVERRIDES
               value: {{ toJson .Values.configOverrides | quote }}
-            - name: YOUTARR_CONFIG_SECRET_KEYS
+            - name: YOUTARR_CONFIG_REF_KEYS
               value: {{ keys .Values.configSecretOverrides | toJson | quote }}
             {{- range $key, $ref := .Values.configSecretOverrides }}
             - name: YOUTARR_CONFIG_SECRET_{{ $key | upper | replace "-" "_" }}
@@ -77,7 +77,7 @@ spec:
               const fs = require('fs');
               const path = '/app/config/config.json';
               const overrides = JSON.parse(process.env.YOUTARR_CONFIG_OVERRIDES || '{}');
-              const secretKeys = JSON.parse(process.env.YOUTARR_CONFIG_SECRET_KEYS || '[]');
+              const secretKeys = JSON.parse(process.env.YOUTARR_CONFIG_REF_KEYS || '[]');
               for (const key of secretKeys) {
                 const envName = `YOUTARR_CONFIG_SECRET_${key.toUpperCase().replace(/-/g, '_')}`;
                 const rawValue = process.env[envName] || '';

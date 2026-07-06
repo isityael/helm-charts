@@ -1,10 +1,23 @@
-gotifyURL: http://gotify.default.svc.cluster.local
-existingSecret: fail2ban-gotify-relay-ci
-
-ingress:
-  enabled: true
-  hosts:
-    - host: fail2ban-gotify-relay.bogusdomain.test
-      paths:
-        - path: /
-          pathType: Prefix
+app-template:
+  controllers:
+    main:
+      containers:
+        main:
+          env:
+            GOTIFY_URL: http://gotify.default.svc.cluster.local
+            GOTIFY_TOKEN:
+              valueFrom:
+                secretKeyRef:
+                  name: fail2ban-gotify-relay-ci
+                  key: GOTIFY_TOKEN
+  ingress:
+    main:
+      enabled: true
+      hosts:
+        - host: fail2ban-gotify-relay.bogusdomain.test
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: http

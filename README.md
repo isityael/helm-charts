@@ -20,7 +20,7 @@ helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version
 | `cloudflared`             | 1.4.9   | Cloudflare Tunnel connector                                                 |
 | `cnpg-stack`              | 0.13.37 | CloudNativePG operator, cluster, barman plugin, pooler, and metrics wrapper |
 | `csi-driver-nfs`          | 4.14.4  | NFS CSI driver (isityael fork with configurable fsGroupPolicy)              |
-| `fail2ban-gotify-relay`   | 0.3.3   | Relay fail2ban-ui webhook events to Gotify                                  |
+| `fail2ban-gotify-relay`   | 0.4.0   | Relay fail2ban-ui webhook events to Gotify                                  |
 | `forgejo`                 | 0.1.11  | Forgejo with custom image defaults and optional runner                      |
 | `forgejo-runner`          | 0.1.9   | Forgejo Actions runner with Docker-in-Docker                                |
 | `gitea-runner`            | 1.0.6   | Gitea Actions runner with Docker-in-Docker                                  |

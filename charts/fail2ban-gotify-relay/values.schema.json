@@ -3,21 +3,6 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "image": { "type": "object" },
-    "gotifyURL": { "type": "string" },
-    "existingSecret": { "type": "string" },
-    "serviceAccount": { "type": "object" },
-    "podAnnotations": { "type": "object" },
-    "podLabels": { "type": "object" },
-    "podSecurityContext": { "type": "object" },
-    "securityContext": { "type": "object" },
-    "service": { "type": "object" },
-    "ingress": { "type": "object" },
-    "httpRoute": { "type": "object" },
-    "resources": { "type": "object" },
-    "nodeSelector": { "type": "object" },
-    "tolerations": { "type": "array" },
-    "affinity": { "type": "object" },
-    "imagePullSecrets": { "type": "array" }
+    "app-template": { "type": "object" }
   }
 }

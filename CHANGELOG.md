@@ -2,6 +2,12 @@
 
 ### 🚀 Features
 
+- Feat(fail2ban-gotify-relay): normalize chart on bjw-s app-template
+
+Adds the tiered Helm chart normalization policy and migrates the
+fail2ban-gotify-relay pilot chart to the bjw-s-labs app-template dependency.
+The chart now exposes app-template values under the `app-template:` key.
+
 - Feat: add fail2ban-gotify-relay chart
 
 Helm chart for the fail2ban-gotify-relay webhook translator.
@@ -31,6 +37,12 @@ fix(cnpg-stack): use CNPG-safe image tags and bump 0.1.4
 - Feat: add m0sh1-exporter chart
 
 ### 🐛 Bug Fixes
+
+- Fix(youtarr): avoid kube-linter secret env false positive
+
+Renames the init-container key-list environment variable used for
+configSecretOverrides while keeping the actual override values sourced from
+secretKeyRef entries.
 
 - Fix(ci): remove semantic-release, use Chart.yaml as version source
 
