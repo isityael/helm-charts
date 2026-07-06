@@ -66,6 +66,19 @@
         }
       }
     },
+    "cookies": {
+      "type": "object",
+      "properties": {
+        "existingSecret": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "key": { "type": "string", "minLength": 1 }
+          }
+        },
+        "mountPath": { "type": "string", "minLength": 1 }
+      }
+    },
     "auth": {
       "type": "object",
       "properties": {

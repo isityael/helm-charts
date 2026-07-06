@@ -23,6 +23,11 @@ configSecretOverrides:
     secretName: youtarr-notifications
     secretKey: appriseUrls
 
+cookies:
+  existingSecret:
+    name: youtarr-cookies
+    key: cookies.user.txt
+
 httpRoute:
   enabled: true
   parentRefs:

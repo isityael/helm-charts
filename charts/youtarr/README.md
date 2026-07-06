@@ -73,6 +73,8 @@ write downloads to a node-local media path. PVCs are the default.
 | `auth.presetExistingSecret.name` | `""` | Existing Secret with preset credentials |
 | `configOverrides` | `{}` | Values merged into `/app/config/config.json` before Youtarr starts |
 | `configSecretOverrides` | `{}` | Secret-backed values merged into `/app/config/config.json` before Youtarr starts. Values are JSON-decoded when possible, otherwise used as strings |
+| `cookies.existingSecret.name` | `""` | Existing Secret containing a Netscape-format YouTube cookies file |
+| `cookies.existingSecret.key` | `cookies.user.txt` | Secret key mounted as Youtarr's persistent cookies file |
 | `database.type` | `embedded` | `embedded` or `external` |
 | `mariadb.enabled` | `true` | Deploy embedded MariaDB when `database.type=embedded` |
 | `mariadb.image.repository` | `dhi.io/mariadb` | Embedded MariaDB image repository |
