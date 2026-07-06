@@ -30,6 +30,7 @@ chart_uses_dhi_dependency() {
 }
 
 for chart in charts/*/; do
+  [ -f "${chart}Chart.yaml" ] || continue
   echo "==> Linting ${chart}"
   if chart_uses_dhi_dependency "${chart}" &&
     { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then

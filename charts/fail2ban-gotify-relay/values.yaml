@@ -1,95 +1,92 @@
-# Default values for fail2ban-gotify-relay.
+# fail2ban-gotify-relay is rendered by bjw-s-labs/app-template.
+# See https://bjw-s-labs.github.io/helm-charts/docs/app-template/
+app-template:
+  defaultPodOptions:
+    automountServiceAccountToken: false
+    enableServiceLinks: false
+    nodeSelector:
+      kubernetes.io/os: linux
+    securityContext:
+      fsGroup: 65534
+      seccompProfile:
+        type: RuntimeDefault
 
-image:
-  repository: ghcr.io/isityael/fail2ban-gotify-relay
-  pullPolicy: IfNotPresent
-  # -- Overrides the image tag whose default is the chart appVersion.
-  tag: "4cb886bb@sha256:223bcc375680950c72cd3da907cf30c3e82d376ab95520a6935a7aaf0cae18e7"
+  controllers:
+    main:
+      type: deployment
+      replicas: 1
+      strategy: Recreate
+      revisionHistoryLimit: 3
+      containers:
+        main:
+          nameOverride: fail2ban-gotify-relay
+          image:
+            repository: ghcr.io/isityael/fail2ban-gotify-relay
+            tag: "4cb886bb@sha256:223bcc375680950c72cd3da907cf30c3e82d376ab95520a6935a7aaf0cae18e7"
+            pullPolicy: IfNotPresent
+          env:
+            GOTIFY_URL: ""
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          probes:
+            liveness:
+              enabled: true
+              type: HTTP
+              path: /healthz
+              spec:
+                initialDelaySeconds: 5
+                periodSeconds: 30
+            readiness:
+              enabled: true
+              type: HTTP
+              path: /healthz
+              spec:
+                initialDelaySeconds: 3
+                periodSeconds: 10
+          resources:
+            requests:
+              cpu: 5m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  service:
+    main:
+      controller: main
+      ports:
+        http:
+          port: 8080
+          targetPort: http
+          protocol: TCP
 
-# -- Gotify server URL (e.g. http://gotify.apps.svc.cluster.local)
-gotifyURL: ""
+  ingress:
+    main:
+      enabled: false
+      className: ""
+      hosts:
+        - host: f2b-relay.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              service:
+                identifier: main
+                port: http
 
-# -- Existing secret containing GOTIFY_TOKEN key
-existingSecret: ""
-
-serviceAccount:
-  create: true
-  automount: false
-  annotations: {}
-  name: ""
-
-podAnnotations: {}
-podLabels: {}
-
-podSecurityContext:
-  fsGroup: 65534
-  seccompProfile:
-    type: RuntimeDefault
-
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 65534
-  runAsGroup: 65534
-
-service:
-  type: ClusterIP
-  port: 8080
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: f2b-relay.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-
-httpRoute:
-  enabled: false
-  annotations: {}
-  # HTTPRoute path matches reuse ingress.hosts[*].paths.
-  parentRefs: []
-    # - group: gateway.networking.k8s.io
-    #   kind: Gateway
-    #   name: traefik-gateway
-    #   namespace: traefik
-    #   sectionName: websecure
-  hostnames: []
-
-resources:
-  requests:
-    cpu: 5m
-    memory: 16Mi
-  limits:
-    memory: 32Mi
-
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-  initialDelaySeconds: 5
-  periodSeconds: 30
-
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-  initialDelaySeconds: 3
-  periodSeconds: 10
-
-nodeSelector:
-  kubernetes.io/os: linux
-
-tolerations: []
-affinity: {}
+  route:
+    main:
+      enabled: false
+      kind: HTTPRoute
+      parentRefs: []
+      hostnames: []
+      rules: []

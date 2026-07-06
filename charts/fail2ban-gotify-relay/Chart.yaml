@@ -2,7 +2,7 @@ apiVersion: v2
 name: fail2ban-gotify-relay
 description: Relay fail2ban-ui webhook events to Gotify push notifications
 type: application
-version: 0.3.4
+version: 0.4.0
 appVersion: "0.3.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -16,3 +16,11 @@ keywords:
   - webhook
   - notifications
   - relay
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Normalize the chart onto bjw-s-labs app-template.
+dependencies:
+  - name: app-template
+    version: 5.0.1
+    repository: https://bjw-s-labs.github.io/helm-charts
