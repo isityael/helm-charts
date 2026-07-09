@@ -40,7 +40,7 @@ imagePullSecrets: []
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.1-debian13@sha256:c983e756388ef2762df6699353170cc0013cb16714c8b0e02cd9c6ab5fae29a1"
+    tag: "2.9.2-debian13@sha256:e55bf10a382c84a26691f5f6fb8f8fd2bc7aac4a0fa5d3e0e5bc97443b6c4ab0"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
