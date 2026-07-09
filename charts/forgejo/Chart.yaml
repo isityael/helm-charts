@@ -60,7 +60,7 @@ annotations:
       description: Default the optional runner labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
 dependencies:
   - name: forgejo
-    version: 17.1.1
+    version: 17.1.2
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
