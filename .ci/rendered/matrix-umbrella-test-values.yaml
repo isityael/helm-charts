@@ -24,7 +24,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
   name: ci-matrix-umbrella-test-values-element-web
   namespace: ci-matrix-umbrella
 automountServiceAccountToken: false
@@ -152,7 +152,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
   name: ci-matrix-umbrella-test-values-element-web
   namespace: ci-matrix-umbrella
 data:
@@ -194,7 +194,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
   name: ci-matrix-umbrella-test-values-element-web-nginx
   namespace: ci-matrix-umbrella
 data:
@@ -971,7 +971,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
   name: ci-matrix-umbrella-test-values-element-web
   namespace: ci-matrix-umbrella
 spec:
@@ -1232,7 +1232,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
     k8s.element.io/element-web-config-hash: "4423955cf21de91c001d0d6b7f55d9ab80109287"
     k8s.element.io/nginx-config-hash: "d86911f8422803691910ecb4322f42fc597a40b8"
   name: ci-matrix-umbrella-test-values-element-web
@@ -1257,7 +1257,7 @@ spec:
         app.kubernetes.io/component: matrix-client
         app.kubernetes.io/name: element-web
         app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-        app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+        app.kubernetes.io/version: "v1.12.23"
         k8s.element.io/element-web-config-hash: "4423955cf21de91c001d0d6b7f55d9ab80109287"
         k8s.element.io/nginx-config-hash: "d86911f8422803691910ecb4322f42fc597a40b8"
     spec:
@@ -1284,7 +1284,7 @@ spec:
       containers:
       - name: element-web
         
-        image: "oci.element.io/element-web@sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96"
+        image: "oci.element.io/element-web@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b15898f4d8ea01a8e3d"
         imagePullPolicy: IfNotPresent
         
         env:
@@ -2042,7 +2042,7 @@ metadata:
     app.kubernetes.io/component: matrix-client
     app.kubernetes.io/name: element-web
     app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
-    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    app.kubernetes.io/version: "v1.12.23"
   name: ci-matrix-umbrella-test-values-element-web
   namespace: ci-matrix-umbrella
 spec:
