@@ -475,4 +475,3 @@ spec:
       args:
         - -qO-
         - http://youtarr-ci:80/api/health
-
