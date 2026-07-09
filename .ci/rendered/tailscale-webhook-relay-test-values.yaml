@@ -1,0 +1,145 @@
+---
+# Source: tailscale-webhook-relay/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-tailscale-webhook-relay-test-values
+  labels:
+    helm.sh/chart: tailscale-webhook-relay-0.3.4
+    app.kubernetes.io/name: tailscale-webhook-relay
+    app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+    app.kubernetes.io/version: "4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: tailscale-webhook-relay/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-tailscale-webhook-relay-test-values
+  labels:
+    helm.sh/chart: tailscale-webhook-relay-0.3.4
+    app.kubernetes.io/name: tailscale-webhook-relay
+    app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+    app.kubernetes.io/version: "4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: tailscale-webhook-relay
+    app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+
+---
+# Source: tailscale-webhook-relay/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-tailscale-webhook-relay-test-values
+  labels:
+    helm.sh/chart: tailscale-webhook-relay-0.3.4
+    app.kubernetes.io/name: tailscale-webhook-relay
+    app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+    app.kubernetes.io/version: "4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tailscale-webhook-relay
+      app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: tailscale-webhook-relay-0.3.4
+        app.kubernetes.io/name: tailscale-webhook-relay
+        app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+        app.kubernetes.io/version: "4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: ci-tailscale-webhook-relay-test-values
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 65534
+      containers:
+        - name: tailscale-webhook-relay
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+          image: "ghcr.io/isityael/tailscale-webhook-relay:4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: NTFY_URL
+              value: "https://ntfy.bogusdomain.test/tailscale-events"
+            - name: TAILSCALE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-webhook-relay-ci
+                  key: TAILSCALE_WEBHOOK_SECRET
+            - name: NTFY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-webhook-relay-ci
+                  key: NTFY_TOKEN
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            limits:
+              memory: 32Mi
+            requests:
+              cpu: 5m
+              memory: 16Mi
+      nodeSelector:
+        kubernetes.io/os: linux
+
+---
+# Source: tailscale-webhook-relay/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ci-tailscale-webhook-relay-test-values
+  labels:
+    helm.sh/chart: tailscale-webhook-relay-0.3.4
+    app.kubernetes.io/name: tailscale-webhook-relay
+    app.kubernetes.io/instance: ci-tailscale-webhook-relay-test-values
+    app.kubernetes.io/version: "4cb886bb@sha256:382dacc9dca15ad3a86f4661a83b4912c1f39f28789b70615542c0a58a57653c"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "tailscale-webhook-relay.bogusdomain.test"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ci-tailscale-webhook-relay-test-values
+                port:
+                  name: http

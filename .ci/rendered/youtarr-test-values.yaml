@@ -1,0 +1,478 @@
+---
+# Source: youtarr/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: youtarr-ci-mariadb
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mariadb
+type: Opaque
+stringData:
+  mariadb-root-password: "0tmqT82wBPTtgvKg3Eq252q3pBd4Hgw3"
+  mariadb-password: "kA6HKCmODXOqJO6E0MIaMwRag9cGSWfD"
+
+---
+# Source: youtarr/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtarr-ci-config
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "zfs-youtarr-state-csi"
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Source: youtarr/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtarr-ci-images
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: images
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "zfs-youtarr-state-csi"
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Source: youtarr/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtarr-ci-jobs
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: jobs
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "zfs-youtarr-state-csi"
+  resources:
+    requests:
+      storage: 1Gi
+---
+# Source: youtarr/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: youtarr-ci-mariadb
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "zfs-youtarr-mariadb-csi"
+  resources:
+    requests:
+      storage: 8Gi
+
+---
+# Source: youtarr/templates/mariadb.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtarr-ci-mariadb
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mariadb
+spec:
+  type: ClusterIP
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+  selector:
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/component: mariadb
+
+---
+# Source: youtarr/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtarr-ci
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+
+---
+# Source: youtarr/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: youtarr-ci
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: youtarr
+      app.kubernetes.io/instance: ci-youtarr-test-values
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: youtarr
+        app.kubernetes.io/instance: ci-youtarr-test-values
+    spec:
+      imagePullSecrets:
+        - name: dhi-pull-secret
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: apply-config-overrides
+          image: "docker.io/dialmaster/youtarr:v1.73.0@sha256:614bbece4a8a35703fa4017bb8145e1b0328537ddd0396e2d426664b3d67bbbe"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: YOUTARR_CONFIG_OVERRIDES
+              value: "{\"autoUpdateYtdlp\":true,\"ytdlpIpFamily\":\"auto\"}"
+            - name: YOUTARR_CONFIG_REF_KEYS
+              value: "[\"appriseUrls\",\"jellyfinApiKey\"]"
+            - name: YOUTARR_CONFIG_SECRET_APPRISEURLS
+              valueFrom:
+                secretKeyRef:
+                  name: "youtarr-notifications"
+                  key: "appriseUrls"
+                  optional: false
+            - name: YOUTARR_CONFIG_SECRET_JELLYFINAPIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: "youtarr-jellyfin"
+                  key: "api-key"
+                  optional: false
+          command:
+            - node
+            - -e
+            - |
+              const fs = require('fs');
+              const path = '/app/config/config.json';
+              const overrides = JSON.parse(process.env.YOUTARR_CONFIG_OVERRIDES || '{}');
+              const secretKeys = JSON.parse(process.env.YOUTARR_CONFIG_REF_KEYS || '[]');
+              for (const key of secretKeys) {
+                const envName = `YOUTARR_CONFIG_SECRET_${key.toUpperCase().replace(/-/g, '_')}`;
+                const rawValue = process.env[envName] || '';
+                try {
+                  overrides[key] = JSON.parse(rawValue);
+                } catch {
+                  overrides[key] = rawValue;
+                }
+              }
+              fs.mkdirSync('/app/config', { recursive: true });
+              let current = {};
+              if (fs.existsSync(path)) {
+                current = JSON.parse(fs.readFileSync(path, 'utf8'));
+              }
+              fs.writeFileSync(path, `${JSON.stringify({ ...current, ...overrides }, null, 2)}\n`);
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+      containers:
+        - name: youtarr
+          image: "docker.io/dialmaster/youtarr:v1.73.0@sha256:614bbece4a8a35703fa4017bb8145e1b0328537ddd0396e2d426664b3d67bbbe"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 3011
+              protocol: TCP
+          env:
+            - name: TZ
+              value: "Europe/Berlin"
+            - name: YOUTARR_UID
+              value: "1000"
+            - name: YOUTARR_GID
+              value: "1000"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: AUTH_ENABLED
+              value: "true"
+            - name: DB_HOST
+              value: "youtarr-ci-mariadb"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "youtarr"
+            - name: DB_NAME
+              value: "youtarr"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: youtarr-ci-mariadb
+                  key: mariadb-password
+            - name: YOUTUBE_OUTPUT_DIR
+              value: /usr/src/app/data
+            - name: TRUST_PROXY
+              value: "1"
+            - name: AUTH_PRESET_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: youtarr-auth
+                  key: username
+            - name: AUTH_PRESET_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: youtarr-auth
+                  key: password
+          volumeMounts:
+            - name: downloads
+              mountPath: /usr/src/app/data
+            - name: config
+              mountPath: /app/config
+            - name: cookies
+              mountPath: "/app/config/cookies.user.txt"
+              subPath: "cookies.user.txt"
+              readOnly: true
+            - name: jobs
+              mountPath: /app/jobs
+            - name: images
+              mountPath: /app/server/images
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+      volumes:
+        - name: downloads
+          hostPath:
+            path: "/data/youtarr"
+            type: "DirectoryOrCreate"
+        - name: config
+          persistentVolumeClaim:
+            claimName: youtarr-ci-config
+        - name: cookies
+          secret:
+            secretName: "youtarr-cookies"
+            items:
+              - key: "cookies.user.txt"
+                path: "cookies.user.txt"
+        - name: jobs
+          persistentVolumeClaim:
+            claimName: youtarr-ci-jobs
+        - name: images
+          persistentVolumeClaim:
+            claimName: youtarr-ci-images
+
+---
+# Source: youtarr/templates/mariadb.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: youtarr-ci-mariadb
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mariadb
+spec:
+  serviceName: youtarr-ci-mariadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: youtarr
+      app.kubernetes.io/instance: ci-youtarr-test-values
+      app.kubernetes.io/component: mariadb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: youtarr
+        app.kubernetes.io/instance: ci-youtarr-test-values
+        app.kubernetes.io/component: mariadb
+    spec:
+      imagePullSecrets:
+        - name: dhi-pull-secret
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mariadb
+          image: "dhi.io/mariadb:12.3.2-debian13@sha256:170533219449cece2148e5d998700caf13a89fcae1367fb42964bdee2d6ef100@sha256:9378d3cd184a741d9664d37ad3bdc5729fd7131ff06bb09b7188b6df7b33b3de"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: youtarr-ci-mariadb
+                  key: mariadb-root-password
+            - name: MARIADB_DATABASE
+              value: "youtarr"
+            - name: MARIADB_USER
+              value: "youtarr"
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: youtarr-ci-mariadb
+                  key: mariadb-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: youtarr-ci-mariadb
+---
+# Source: youtarr/templates/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: youtarr-ci
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  parentRefs:
+    - name: internal
+      namespace: gateway-system
+  hostnames:
+    - youtarr.example.test
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/"
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: youtarr-ci
+          port: 80
+          weight: 1
+---
+# Source: youtarr/templates/tests/connection-test.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "youtarr-ci-test-connection"
+  labels:
+    helm.sh/chart: youtarr-0.1.8
+    app.kubernetes.io/name: youtarr
+    app.kubernetes.io/instance: ci-youtarr-test-values
+    app.kubernetes.io/version: "v1.72.1"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    helm.sh/hook: test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: wget
+      image: docker.io/library/busybox:1.37.0
+      command:
+        - wget
+      args:
+        - -qO-
+        - http://youtarr-ci:80/api/health
+

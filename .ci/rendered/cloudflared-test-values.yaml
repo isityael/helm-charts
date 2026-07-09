@@ -1,0 +1,212 @@
+---
+# Source: cloudflared/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ci-cloudflared-test-values
+  labels:
+    helm.sh/chart: cloudflared-1.4.11
+    app: cloudflared
+    app.kubernetes.io/name: cloudflared
+    app.kubernetes.io/instance: ci-cloudflared-test-values
+    app.kubernetes.io/version: "2026.6.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+      app.kubernetes.io/name: cloudflared
+      app.kubernetes.io/instance: ci-cloudflared-test-values
+
+---
+# Source: cloudflared/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-cloudflared-test-values
+  labels:
+    helm.sh/chart: cloudflared-1.4.11
+    app: cloudflared
+    app.kubernetes.io/name: cloudflared
+    app.kubernetes.io/instance: ci-cloudflared-test-values
+    app.kubernetes.io/version: "2026.6.1"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: cloudflared/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: ci-cloudflared-test-values-tunnel-credentials
+  labels:
+    helm.sh/chart: cloudflared-1.4.11
+    app: cloudflared
+    app.kubernetes.io/name: cloudflared
+    app.kubernetes.io/instance: ci-cloudflared-test-values
+    app.kubernetes.io/version: "2026.6.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  credentials.json: "eyJBY2NvdW50VGFnIjoiIiwiVHVubmVsSUQiOiIiLCJUdW5uZWxTZWNyZXQiOiIifQo="
+  cert.pem: "dGVzdA=="
+
+---
+# Source: cloudflared/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-cloudflared-test-values
+  labels:
+    helm.sh/chart: cloudflared-1.4.11
+    app: cloudflared
+    app.kubernetes.io/name: cloudflared
+    app.kubernetes.io/instance: ci-cloudflared-test-values
+    app.kubernetes.io/version: "2026.6.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.yaml: |
+
+    tunnel: test-tunnel
+    credentials-file: /etc/cloudflared/creds/credentials.json
+    originRequest:
+      connectTimeout: 30s
+
+    ingress: 
+      - hostname: example.com
+        service: http://traefik.kube-system.svc.cluster.local:80
+      - service: http_status:404
+
+    metrics: 0.0.0.0:2000
+    metrics-update-freq: 5s
+
+    autoupdate-freq: 24h
+    no-autoupdate: true
+
+    grace-period: 30s
+
+    retries: 5
+
+    # auto, http2, h2mux, quic
+    protocol: auto
+
+    # info, warn, error, fatal, panic
+    loglevel: info
+    transport-loglevel: warn
+
+---
+# Source: cloudflared/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-cloudflared-test-values
+  labels:
+    helm.sh/chart: cloudflared-1.4.11
+    app: cloudflared
+    app.kubernetes.io/name: cloudflared
+    app.kubernetes.io/instance: ci-cloudflared-test-values
+    app.kubernetes.io/version: "2026.6.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app: cloudflared
+      app.kubernetes.io/name: cloudflared
+      app.kubernetes.io/instance: ci-cloudflared-test-values
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  minReadySeconds: 30
+  template:
+    metadata:
+      annotations:
+        checksum/config: af8b693424e20173fc18810fb6636f1eee253826f9e793cedb1d5d1be8527f75
+      labels:
+        app: cloudflared
+        app.kubernetes.io/name: cloudflared
+        app.kubernetes.io/instance: ci-cloudflared-test-values
+    spec:
+      serviceAccountName: ci-cloudflared-test-values
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        sysctls:
+        - name: net.ipv4.ping_group_range
+          value: 0 2147483647
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: cloudflared
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add: []
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 65532
+            runAsNonRoot: true
+            runAsUser: 65532
+          image: "cloudflare/cloudflared@sha256:188bb03589a32affed3cf4d0590565ffe67b78866e6b5582574afab2b705bafe"
+          args:
+            - tunnel
+            - --config
+            - /etc/cloudflared/config/config.yaml
+            - run
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: metrics
+              containerPort: 2000
+              protocol: TCP
+          env:
+            - name: TUNNEL_ORIGIN_CERT
+              value: "/etc/cloudflared/creds/cert.pem"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudflared/config
+              readOnly: true
+            - name: creds
+              mountPath: /etc/cloudflared/creds
+              readOnly: true
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+      volumes:
+        - name: creds
+          projected:
+            sources:
+              - secret:
+                  name: ci-cloudflared-test-values-tunnel-credentials
+        - name: config
+          configMap:
+            name: ci-cloudflared-test-values
+            items:
+              - key: config.yaml
+                path: config.yaml
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists

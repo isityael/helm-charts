@@ -1,0 +1,972 @@
+---
+# Source: forgejo/charts/forgejo/templates/gitea/poddisruptionbudget.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ci-forgejo-test-values
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+      app.kubernetes.io/instance: ci-forgejo-test-values
+  maxUnavailable: 1
+---
+# Source: forgejo/charts/forgejo/templates/gitea/config.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-forgejo-test-values-inline-config
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  _generals_: |-
+    APP_NAME=Forgejo: Beyond coding. We forge.
+    RUN_MODE=prod
+  actions: |-
+    DEFAULT_ACTIONS_URL=https://data.forgejo.org
+    ENABLED=true
+  cache: |-
+    ADAPTER=memory
+    HOST=
+  database: |-
+    DB_TYPE=postgres
+    HOST=postgres.example.test:5432
+    NAME=forgejo
+    SSL_MODE=disable
+    USER=forgejo
+  metrics: ENABLED=true
+  queue: |-
+    CONN_STR=
+    TYPE=level
+  repository: ROOT=/data/git/gitea-repositories
+  security: INSTALL_LOCK=true
+  server: |-
+    APP_DATA_PATH=/data
+    DISABLE_SSH=true
+    DOMAIN=git.example.test
+    ENABLE_PPROF=false
+    HTTP_PORT=3000
+    PROTOCOL=http
+    ROOT_URL=https://git.example.test/
+    SSH_DOMAIN=git.example.test
+    SSH_LISTEN_PORT=2222
+    SSH_PORT=22
+    START_SSH_SERVER=false
+  session: |-
+    PROVIDER=memory
+    PROVIDER_CONFIG=
+---
+# Source: forgejo/charts/forgejo/templates/gitea/config.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-forgejo-test-values
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  assertions: |
+  config_environment.sh: |-
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    function env2ini::log() {
+      printf '%b\n' "$1"
+    }
+    
+    function env2ini::read_config_to_env() {
+      local section="${1}"
+      local line="${2}"
+    
+      if [[ -z "${line}" ]]; then
+        # skip empty line
+        return
+      fi
+    
+      # 'xargs echo -n' trims all leading/trailing whitespaces and a trailing new line
+      local setting
+      setting="$(awk -F '=' '{print $1}' <<< "${line}" | xargs echo -n)"
+    
+      if [[ -z "${setting}" ]]; then
+        env2ini::log '  ! invalid setting'
+        exit 1
+      fi
+    
+      local value=''
+      local regex="^${setting}(\s*)=(\s*)(.*)"
+      if [[ $line =~ $regex ]]; then
+        value="${BASH_REMATCH[3]}"
+      else
+        env2ini::log '  ! invalid setting'
+        exit 1
+      fi
+    
+      env2ini::log "    + '${setting}'"
+    
+      local masked_setting="${setting//./_0X2E_}"                           # '//' instructs to replace all matches
+      masked_setting="${masked_setting//-/_0X2D_}"
+    
+      if [[ -z "${section}" ]]; then
+        export "FORGEJO____${masked_setting^^}=${value}"                           # '^^' makes the variable content uppercase
+        return
+      fi
+    
+      local masked_section="${section//./_0X2E_}"                           # '//' instructs to replace all matches
+      masked_section="${masked_section//-/_0X2D_}"
+    
+      export "FORGEJO__${masked_section^^}__${masked_setting^^}=${value}"          # '^^' makes the variable content uppercase
+    }
+    
+    function env2ini::reload_preset_envs() {
+      env2ini::log "Reloading preset envs..."
+    
+      while read -r line; do
+        if [[ -z "${line}" ]]; then
+          # skip empty line
+          return
+        fi
+    
+        # 'xargs echo -n' trims all leading/trailing whitespaces and a trailing new line
+        local setting
+        setting="$(awk -F '=' '{print $1}' <<< "${line}" | xargs echo -n)"
+    
+        if [[ -z "${setting}" ]]; then
+          env2ini::log '  ! invalid setting'
+          exit 1
+        fi
+    
+        local value=''
+        local regex="^${setting}(\s*)=(\s*)(.*)"
+        if [[ $line =~ $regex ]]; then
+          value="${BASH_REMATCH[3]}"
+        else
+          env2ini::log '  ! invalid setting'
+          exit 1
+        fi
+    
+        env2ini::log "  + '${setting}'"
+    
+        export "${setting^^}=${value}"                           # '^^' makes the variable content uppercase
+      done < "/tmp/existing-envs"
+    
+      rm /tmp/existing-envs
+    }
+    
+    
+    function env2ini::process_config_file() {
+      local config_file="${1}"
+      local section
+      section="$(basename "${config_file}")"
+    
+      if [[ $section == '_generals_' ]]; then
+        env2ini::log "  [ini root]"
+        section=''
+      else
+        env2ini::log "  ${section}"
+      fi
+    
+      while read -r line; do
+        env2ini::read_config_to_env "${section}" "${line}"
+      done < <(awk 1 "${config_file}")                             # Helm .toYaml trims the trailing new line which breaks line processing; awk 1 ... adds it back while reading
+    }
+    
+    function env2ini::load_config_sources() {
+      local path="${1}"
+    
+      if [[ -d "${path}" ]]; then
+        env2ini::log "Processing $(basename "${path}")..."
+    
+        while read -r -d '' configFile; do
+          env2ini::process_config_file "${configFile}"
+        done < <(find "${path}" -type l -not -name '..data' -print0)
+    
+        env2ini::log "\n"
+      fi
+    }
+    
+    function env2ini::generate_initial_secrets() {
+      # These environment variables will either be
+      #   - overwritten with user defined values,
+      #   - initially used to set up Forgejo
+      # Anyway, they won't harm existing app.ini files
+    
+      FORGEJO__SECURITY__INTERNAL_TOKEN=$(gitea generate secret INTERNAL_TOKEN)
+      export FORGEJO__SECURITY__INTERNAL_TOKEN
+      FORGEJO__SECURITY__SECRET_KEY=$(gitea generate secret SECRET_KEY)
+      export FORGEJO__SECURITY__SECRET_KEY
+      FORGEJO__OAUTH2__JWT_SECRET=$(gitea generate secret JWT_SECRET)
+      export FORGEJO__OAUTH2__JWT_SECRET
+      FORGEJO__SERVER__LFS_JWT_SECRET=$(gitea generate secret LFS_JWT_SECRET)
+      export FORGEJO__SERVER__LFS_JWT_SECRET
+    
+      env2ini::log "...Initial secrets generated\n"
+    }
+    
+    # save existing envs prior to script execution. Necessary to keep order of
+    # preexisting and custom envs
+    env | (grep -e '^FORGEJO__' || [[ $? == 1 ]]) > /tmp/existing-envs
+    
+    # MUST BE CALLED BEFORE OTHER CONFIGURATION
+    env2ini::generate_initial_secrets
+    
+    env2ini::load_config_sources '/env-to-ini-mounts/inlines/'
+    env2ini::load_config_sources '/env-to-ini-mounts/additionals/'
+    
+    # load existing envs to override auto generated envs
+    env2ini::reload_preset_envs
+    
+    env2ini::log "=== All configuration sources loaded ===\n"
+    
+    # safety to prevent rewrite of secret keys if an app.ini already exists
+    if [ -f "${GITEA_APP_INI}" ]; then
+      env2ini::log 'An app.ini file already exists. To prevent overwriting secret keys, these settings are dropped and remain unchanged:'
+      env2ini::log '  - security.INTERNAL_TOKEN'
+      env2ini::log '  - security.SECRET_KEY'
+      env2ini::log '  - oauth2.JWT_SECRET'
+      env2ini::log '  - server.LFS_JWT_SECRET'
+    
+      unset FORGEJO__SECURITY__INTERNAL_TOKEN
+      unset FORGEJO__SECURITY__SECRET_KEY
+      unset FORGEJO__OAUTH2__JWT_SECRET
+      unset FORGEJO__SERVER__LFS_JWT_SECRET
+    fi
+    
+    environment-to-ini -o "${GITEA_APP_INI}"
+    
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/init.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-forgejo-test-values-init
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  configure_gpg_environment.sh: |-
+    #!/usr/bin/env bash
+    set -eu
+    
+    gpg --batch --import /raw/private.asc
+    
+  configure_ssh_signing.sh: |-
+    #!/usr/bin/env bash
+    set -eu
+    
+    install -m 600 /raw/ssh-signing-key /data/git/.ssh-signing/key
+    ssh-keygen -y -f /data/git/.ssh-signing/key > /data/git/.ssh-signing/key.pub
+    chmod 644 /data/git/.ssh-signing/key.pub
+    
+  init_directory_structure.sh: |-
+    #!/usr/bin/env bash
+    
+    set -euo pipefail
+    
+    set -x
+    mkdir -p /data/git/.ssh
+    chmod -R 700 /data/git/.ssh
+    [ ! -d /data/gitea/conf ] && mkdir -p /data/gitea/conf
+    
+    # prepare temp directory structure
+    mkdir -p "${GITEA_TEMP}"
+    chmod ug+rwx "${GITEA_TEMP}"
+    
+    
+    
+    
+  configure_gitea.sh: |-
+    #!/usr/bin/env bash
+    
+    set -euo pipefail
+    
+    echo '==== BEGIN GITEA CONFIGURATION ===='
+    
+    { # try
+      gitea migrate
+    } || { # catch
+      echo "Forgejo migrate might fail due to database connection...This init-container will try again in a few seconds"
+      exit 1
+    }
+    
+    function configure_ldap() {
+        echo 'no ldap configuration... skipping.'
+    }
+    
+    configure_ldap
+    
+    function configure_oauth() {
+        echo 'no oauth configuration... skipping.'
+    }
+    
+    configure_oauth
+    
+    echo '==== END GITEA CONFIGURATION ===='
+    
+
+---
+# Source: forgejo/charts/runner/templates/runner-config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-forgejo-test-values-runner-config
+  namespace: ci-forgejo
+  labels:
+    helm.sh/chart: runner-0.1.10
+    app: runner
+    app.kubernetes.io/name: runner
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  config.yaml: |
+
+    cache:
+      dir: /data/.cache/actcache
+      enabled: true
+      external_server: ""
+      host: ""
+      port: 0
+    container:
+      docker_host: '-'
+      enable_ipv6: false
+      force_pull: false
+      network: ""
+      options: ""
+      privileged: false
+      valid_volumes: []
+      workdir_parent: ""
+    host:
+      workdir_parent: ""
+    log:
+      job_level: info
+      level: info
+    runner:
+      capacity: 1
+      env_file: .env
+      envs: {}
+      fetch_interval: 2s
+      fetch_timeout: 5s
+      file: /data/.runner
+      insecure: false
+      timeout: 3h
+
+---
+# Source: forgejo/charts/runner/templates/daemon-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-forgejo-test-values-runner-docker-daemon
+  namespace: ci-forgejo
+  labels:
+    helm.sh/chart: runner-0.1.10
+    app: runner
+    app.kubernetes.io/name: runner
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  daemon.json: |
+    {
+      "registry-mirrors": [],
+      "insecure-registries": [],
+      "features": { "buildkit": true }
+    }
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: forgejo-data
+  namespace: "ci-forgejo"
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  
+  storageClassName: "test-storage-class"
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Source: forgejo/charts/runner/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ci-forgejo-test-values-runner-data
+  namespace: ci-forgejo
+  labels:
+    helm.sh/chart: runner-0.1.10
+    app: runner
+    app.kubernetes.io/name: runner
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "test-storage-class"
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/http-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-forgejo-test-values-http
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 3000
+    targetPort: http
+  selector:
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/ssh-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-forgejo-test-values-ssh
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: ssh
+    protocol: TCP
+  selector:
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-forgejo-test-values
+  namespace: "ci-forgejo"
+  annotations:
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+      app.kubernetes.io/instance: ci-forgejo-test-values
+  template:
+    metadata:
+      annotations:
+        checksum/config: b695c53fa9429750fba0a4e65746f8849345ce580238cf40ae11277299a71e92
+      labels:
+        helm.sh/chart: forgejo-17.1.2
+        app: forgejo
+        app.kubernetes.io/name: forgejo
+        app.kubernetes.io/instance: ci-forgejo-test-values
+        app.kubernetes.io/version: "2b3887b6"
+        version: "2b3887b6"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: init-directories
+          image: "ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/sbin/init_directory_structure.sh"]
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+          volumeMounts:
+            - name: init
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+            
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            limits: {}
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        - name: init-app-ini
+          image: "ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/sbin/config_environment.sh"]
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+            - name: FORGEJO__DATABASE__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: forgejo-db
+          volumeMounts:
+            - name: config
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+            - name: inline-config-sources
+              mountPath: /env-to-ini-mounts/inlines/
+            
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            limits: {}
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        - name: configure-gitea
+          image: "ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+          command: ["/usr/sbin/configure_gitea.sh"]
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+            - name: HOME
+              value: /data/gitea/git
+          volumeMounts:
+            - name: init
+              mountPath: /usr/sbin
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+            
+          resources:
+            limits: {}
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: forgejo
+          image: "ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+          imagePullPolicy: IfNotPresent
+          env:
+            # SSH Port values have to be set here as well for openssh configuration
+            - name: SSH_LISTEN_PORT
+              value: "2222"
+            - name: SSH_PORT
+              value: "22"
+            - name: GITEA_APP_INI
+              value: /data/gitea/conf/app.ini
+            - name: GITEA_CUSTOM
+              value: /data/gitea
+            - name: GITEA_WORK_DIR
+              value: /data
+            - name: GITEA_TEMP
+              value: /tmp/gitea
+            - name: TMPDIR
+              value: /tmp/gitea
+            - name: HOME
+              value: /data/gitea/git
+          ports:
+            - name: ssh
+              containerPort: 2222
+            - name: http
+              containerPort: 3000
+          livenessProbe:
+            failureThreshold: 10
+            initialDelaySeconds: 200
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: http
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 6Gi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: temp
+              mountPath: /tmp
+            - name: data
+              mountPath: /data
+            
+      volumes:
+        - name: init
+          secret:
+            secretName: ci-forgejo-test-values-init
+            defaultMode: 110
+        - name: config
+          secret:
+            secretName: ci-forgejo-test-values
+            defaultMode: 110
+        - name: inline-config-sources
+          secret:
+            secretName: ci-forgejo-test-values-inline-config
+        - name: temp
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: forgejo-data
+
+---
+# Source: forgejo/charts/runner/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-forgejo-test-values-runner
+  namespace: ci-forgejo
+  labels:
+    helm.sh/chart: runner-0.1.10
+    app: runner
+    app.kubernetes.io/name: runner
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: runner
+      app.kubernetes.io/name: runner
+      app.kubernetes.io/instance: ci-forgejo-test-values
+  template:
+    metadata:
+      annotations:
+        checksum/daemon-config: c27db4bc47b9e1f6fa85d2756e49973c38b153ee71a18ab8afe7abe2577d0ec0
+        checksum/runner-config: a14f8ca1ee1c2dbfdcacebb2da27af9c4e0694ccfb9d03229ffeace8fae0eadc
+      labels:
+        app: runner
+        app.kubernetes.io/name: runner
+        app.kubernetes.io/instance: ci-forgejo-test-values
+    spec:
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        
+        - name: dind
+          image: "docker:29.5.3-dind-alpine3.23@sha256:7d85d0eda291f1a7ab6df4a9d1802b5ad4cf9145a088bd11188c78dcb5c7392b"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --host=unix:///var/run/docker.sock
+            - --host=tcp://127.0.0.1:2375
+            - --tls=false
+            - --group=1000
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          securityContext:
+            privileged: true
+            runAsGroup: 0
+            runAsUser: 0
+          volumeMounts:
+            - name: docker-graph
+              mountPath: /var/lib/docker
+            - name: docker-socket
+              mountPath: /var/run
+            - name: docker-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
+          resources:
+            limits:
+              cpu: "2"
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+
+        
+        - name: runner
+          image: "ghcr.io/isityael/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until nc -z 127.0.0.1 2375; do
+                echo "waiting for Docker daemon"
+                sleep 2
+              done
+              if [ ! -s "/data/.runner" ]; then
+                if [ -z "${FORGEJO_INSTANCE_URL:-}" ] || [ -z "${FORGEJO_RUNNER_REGISTRATION_TOKEN:-}" ]; then
+                  echo "missing runner.instanceURL or runner.registrationTokenSecret and no existing .runner file"
+                  exit 1
+                fi
+                forgejo-runner register \
+                  --no-interactive \
+                  --config /etc/forgejo-runner/config.yaml \
+                  --instance "${FORGEJO_INSTANCE_URL}" \
+                  --token "${FORGEJO_RUNNER_REGISTRATION_TOKEN}" \
+                  --name "${FORGEJO_RUNNER_NAME}" \
+                  --labels "${FORGEJO_RUNNER_LABELS}"
+              fi
+              exec forgejo-runner --config /etc/forgejo-runner/config.yaml daemon
+          env:
+            - name: FORGEJO_INSTANCE_URL
+              value: "http://forgejo-http.default.svc.cluster.local:3000/"
+            - name: FORGEJO_RUNNER_NAME
+              value: "test-forgejo-runner"
+            - name: FORGEJO_RUNNER_LABELS
+              value: "docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23"
+            - name: FORGEJO_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-runner-registration
+                  key: REGISTRATION_TOKEN
+            - name: DOCKER_HOST
+              value: tcp://127.0.0.1:2375
+            - name: DOCKER_CONFIG
+              value: /tmp/.docker
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: runner-config
+              mountPath: /etc/forgejo-runner
+              readOnly: true
+            - name: docker-socket
+              mountPath: /var/run
+            - name: runner-data
+              mountPath: /data
+            - name: docker-config
+              mountPath: /tmp/.docker
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+      volumes:
+        - name: runner-config
+          secret:
+            secretName: ci-forgejo-test-values-runner-config
+        - name: docker-graph
+          emptyDir: {}
+        - name: docker-socket
+          emptyDir: {}
+        - name: runner-data
+          persistentVolumeClaim:
+            claimName: ci-forgejo-test-values-runner-data
+        - name: docker-config
+          emptyDir: {}
+        - name: docker-daemon-config
+          configMap:
+            name: ci-forgejo-test-values-runner-docker-daemon
+            items:
+              - key: daemon.json
+                path: daemon.json
+
+---
+# Source: forgejo/charts/forgejo/templates/gitea/httpRoute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ci-forgejo-test-values
+  namespace: "ci-forgejo"
+  labels:
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: test-gateway
+      namespace: traefik
+  hostnames:
+    - git.example.test
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - kind: Service
+      name: ci-forgejo-test-values-http
+      port: 3000
+---
+# Source: forgejo/charts/forgejo/templates/tests/test-http-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "ci-forgejo-test-values-test-connection"
+  labels:
+
+    helm.sh/chart: forgejo-17.1.2
+    app: forgejo
+    app.kubernetes.io/name: forgejo
+    app.kubernetes.io/instance: ci-forgejo-test-values
+    app.kubernetes.io/version: "2b3887b6"
+    version: "2b3887b6"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: "dhi.io/busybox:1.37.0-debian13"
+      command: ['wget']
+      args:  ['ci-forgejo-test-values-http:3000']
+  restartPolicy: Never
+

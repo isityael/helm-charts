@@ -1,0 +1,264 @@
+---
+# Source: wakapi-dhi/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: wakapi-dhi/templates/config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wakapi-config
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+data:
+  ENVIRONMENT: "production"
+  WAKAPI_PORT: "3000"
+  WAKAPI_LISTEN_IPV4: "0.0.0.0"
+  WAKAPI_BASE_PATH: "/"
+  WAKAPI_PUBLIC_URL: "https://wakapi.bogusdomain.test"
+  WAKAPI_TIMEOUT_SEC: "30"
+  # Database (non-sensitive)
+  WAKAPI_DB_TYPE: "sqlite3"
+  WAKAPI_DB_PORT: "5432"
+  WAKAPI_DB_CHARSET: "utf8mb4"
+  WAKAPI_DB_MAX_CONNECTIONS: "10"
+  WAKAPI_DB_SSL: "false"
+  # Security
+  WAKAPI_ALLOW_SIGNUP: "true"
+  WAKAPI_DISABLE_LOCAL_AUTH: "false"
+  WAKAPI_INSECURE_COOKIES: "false"
+  WAKAPI_COOKIE_MAX_AGE: "172800"
+  WAKAPI_EXPOSE_METRICS: "true"
+  # OIDC (non-sensitive — secrets injected separately)
+  WAKAPI_OIDC_ALLOW_SIGNUP: "true"
+  # Application
+  WAKAPI_AGGREGATION_TIME: "02:15"
+  WAKAPI_INACTIVE_DAYS: "7"
+  WAKAPI_LEADERBOARD_ENABLED: "true"
+  WAKAPI_DATA_RETENTION_MONTHS: "-1"
+  # Mail (non-sensitive)
+
+---
+# Source: wakapi-dhi/templates/persistentvolumeclaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "1Gi"
+  storageClassName: "standard"
+
+---
+# Source: wakapi-dhi/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+
+---
+# Source: wakapi-dhi/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wakapi
+      app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+  template:
+    metadata:
+      annotations:
+        checksum/config: 398740b6dcf698266d5cc02dd2b324d165bcee95e3bb8e4711ede76b61dfefde
+      labels:
+        app.kubernetes.io/name: wakapi
+        app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    spec:
+      serviceAccountName: wakapi
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 65532
+      containers:
+        - name: wakapi-dhi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          image: "ghcr.io/isityael/wakapi-dhi:2.17.4-yaelmoshi.2@sha256:21766460c7983bf53e040b895dc47365ca707b8ca2791d61569cc0b9824bcc1b"
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: wakapi-config
+          env:
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: "/api/health"
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: "/api/health"
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: wakapi
+        - name: tmp
+          emptyDir: {}
+
+---
+# Source: wakapi-dhi/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  rules:
+    - host: "wakapi.bogusdomain.test"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wakapi
+                port:
+                  number: 3000
+
+---
+# Source: wakapi-dhi/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wakapi
+      app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: "60s"
+      authorization:
+        credentials:
+          key: token
+          name: wakapi-metrics-token
+        type: Bearer
+
+---
+# Source: wakapi-dhi/templates/vmservicescrape.yaml
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: wakapi
+  labels:
+    helm.sh/chart: wakapi-dhi-1.2.20
+    app.kubernetes.io/name: wakapi
+    app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+    app.kubernetes.io/version: "2.17.4-yaelmoshi.2"
+    app.kubernetes.io/managed-by: Helm
+    release: prometheus-agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wakapi
+      app.kubernetes.io/instance: ci-wakapi-dhi-test-values
+  endpoints:
+    - port: http
+      path: /api/metrics
+      interval: "60s"
+      authorization:
+        credentials:
+          key: token
+          name: wakapi-metrics-token
+        type: Bearer
