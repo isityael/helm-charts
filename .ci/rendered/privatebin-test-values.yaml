@@ -1,0 +1,226 @@
+---
+# Source: privatebin/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-privatebin-test-values-config
+  labels:
+    helm.sh/chart: privatebin-0.1.3
+    app.kubernetes.io/name: privatebin
+    app.kubernetes.io/instance: ci-privatebin-test-values
+    app.kubernetes.io/version: "2.0.4"
+    app.kubernetes.io/managed-by: Helm
+data:
+  conf.php: |
+    ;<?php http_response_code(403); /*
+    [main]
+    name = "PrivateBin"
+    discussion = false
+    password = true
+    fileupload = true
+    burnafterreadingselected = false
+    defaultformatter = "plaintext"
+    sizelimit = 1.6777216e+07
+    template = "bootstrap5"
+    qrcode = true
+    email = false
+    compression = "zlib"
+
+    [expire]
+    default = "1week"
+
+    [expire_options]
+    10min = 600
+    1day = 86400
+    1hour = 3600
+    1month = 2.592e+06
+    1week = 604800
+    5min = 300
+
+    [traffic]
+    limit = 10
+
+    [purge]
+    limit = 300
+    batchsize = 10
+
+    [model]
+    class = S3Storage
+
+    [model_options]
+    region = "us-east-1"
+    version = "2006-03-01"
+    endpoint = "https://s3.example.com"
+    use_path_style_endpoint = true
+    bucket = "privatebin"
+    prefix = "privatebin"
+    ; */
+  php.ini: |
+    upload_max_filesize = 16M
+    post_max_size = 18M
+    memory_limit = 32M
+  robots.txt: |
+    User-agent: *
+    Disallow: /
+    
+
+---
+# Source: privatebin/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-privatebin-test-values
+  labels:
+    helm.sh/chart: privatebin-0.1.3
+    app.kubernetes.io/name: privatebin
+    app.kubernetes.io/instance: ci-privatebin-test-values
+    app.kubernetes.io/version: "2.0.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: privatebin
+    app.kubernetes.io/instance: ci-privatebin-test-values
+
+---
+# Source: privatebin/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-privatebin-test-values
+  labels:
+    helm.sh/chart: privatebin-0.1.3
+    app.kubernetes.io/name: privatebin
+    app.kubernetes.io/instance: ci-privatebin-test-values
+    app.kubernetes.io/version: "2.0.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: privatebin
+      app.kubernetes.io/instance: ci-privatebin-test-values
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: privatebin
+        app.kubernetes.io/instance: ci-privatebin-test-values
+    spec:
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 65532
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: privatebin
+          image: "privatebin/nginx-fpm-alpine:2.0.4@sha256:96171f34dd07f6c655cb3a311de24c1e9bafd05307ea9b6d38443863f6b48153"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsGroup: 65532
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: privatebin-s3
+                  key: accesskey
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: privatebin-s3
+                  key: secretkey
+          volumeMounts:
+            - name: config
+              mountPath: /srv/cfg/conf.php
+              subPath: conf.php
+              readOnly: true
+            - name: config
+              mountPath: /usr/local/etc/php/conf.d/uploads.ini
+              subPath: php.ini
+              readOnly: true
+            - name: config
+              mountPath: /srv/robots.txt
+              subPath: robots.txt
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+      volumes:
+        - name: config
+          configMap:
+            name: ci-privatebin-test-values-config
+        - name: tmp
+          emptyDir: {}
+
+---
+# Source: privatebin/templates/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ci-privatebin-test-values
+  labels:
+    helm.sh/chart: privatebin-0.1.3
+    app.kubernetes.io/name: privatebin
+    app.kubernetes.io/instance: ci-privatebin-test-values
+    app.kubernetes.io/version: "2.0.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - bin.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/"
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: ci-privatebin-test-values
+          port: 80
+          weight: 1

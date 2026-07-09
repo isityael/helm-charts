@@ -1,0 +1,3224 @@
+---
+# Source: matrix-umbrella/charts/cinny/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: matrix-cinny
+  labels:
+    helm.sh/chart: cinny-0.2.23
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    app.kubernetes.io/version: "4.12.3"
+    app.kubernetes.io/managed-by: Helm
+
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+  name: ci-matrix-umbrella-test-values-element-web
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+
+---
+# Source: matrix-umbrella/charts/ess/templates/haproxy/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: haproxy
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-haproxy
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+type: Opaque
+data:
+  
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_secret.yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse
+  namespace: ci-matrix-umbrella
+data:
+  user-00-registration: ZW5hYmxlX3JlZ2lzdHJhdGlvbjogZmFsc2UK
+---
+# Source: matrix-umbrella/charts/cinny/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matrix-cinny-config
+  annotations:
+    confighash: c68dc41f3a62faed9716b8041b06d4e8
+  labels:
+    helm.sh/chart: cinny-0.2.23
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    app.kubernetes.io/version: "4.12.3"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.json: |-
+    {"allowCustomHomeservers":true,"defaultHomeserver":0,"featuredCommunities":{"openAsDefault":false,"rooms":[],"servers":[],"spaces":[]},"hashRouter":{"basename":"/","enabled":false},"homeserverList":["ci.example.test"]}
+
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+  name: ci-matrix-umbrella-test-values-element-web
+  namespace: ci-matrix-umbrella
+data:
+  config.json: |
+    {
+      "bug_report_endpoint_url": "https://rageshakes.element.io/api/submit",
+      "default_server_config": {
+        "m.homeserver": {
+          "base_url": "https://matrix.ci.example.test",
+          "server_name": "ci.example.test"
+        }
+      },
+      "embedded_pages": {
+        "login_for_welcome": true
+      },
+      "map_style_url": "https://api.maptiler.com/maps/streets/style.json?key=fU3vlMsMn4Jb6dnEIFsx",
+      "mobile_guide_app_variant": "element",
+      "setting_defaults": {
+        "UIFeature.deactivate": false,
+        "UIFeature.passwordReset": false,
+        "UIFeature.registration": false,
+        "urlPreviewsEnabled": true
+      },
+      "sso_redirect_options": {
+        "immediate": false
+      }
+    }
+    
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/nginx_configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+  name: ci-matrix-umbrella-test-values-element-web-nginx
+  namespace: ci-matrix-umbrella
+data:
+    
+    default.conf: |
+      # Copy of https://github.com/element-hq/element-web/blob/v1.11.97/docker/nginx-templates/default.conf.template but
+      # * not as a template, using a hard-coded port
+      # * the recommendations from https://github.com/element-hq/element-web/tree/v1.11.97?tab=readme-ov-file#configuration-best-practices added
+      # * /health added for k8s
+      # * setting a charset
+      # * ensuring our security headers include are applied, whether or not paths are in location blocks or not
+      server {
+        listen       8080;
+        listen  [::]:8080 ipv6only=on;
+        server_name  localhost;
+      
+        root   /usr/share/nginx/html;  # noqa
+        index  index.html;
+        charset utf-8;
+      
+        include /etc/nginx/security_headers.conf;
+      
+        # Set no-cache for the version, config, i18n and index.html
+        # As in https://github.com/element-hq/element-web/tree/develop/apps/web#caching-requirements
+        # so that browsers always check for a new copy of Element Web.
+        # NB http://your-domain/ and http://your-domain/? are also covered by this
+      
+        location = /index.html {
+            add_header Cache-Control "no-cache";
+            include /etc/nginx/security_headers.conf;
+        }
+        location = /version {
+            add_header Cache-Control "no-cache";
+            include /etc/nginx/security_headers.conf;
+        }
+        # covers config.json and config.hostname.json requests as it is prefix.
+        location /config {
+            # Serving /app/config.json as per https://github.com/element-hq/element-web/blob/v1.11.97/docker/docker-entrypoint.d/18-load-element-modules.sh#L15
+            root /tmp/element-web-config;
+            add_header Cache-Control "no-cache";
+            include /etc/nginx/security_headers.conf;
+        }
+        location = /i18n {
+            add_header Cache-Control "no-cache";
+            include /etc/nginx/security_headers.conf;
+        }
+        location /modules {
+            alias /modules;
+        }
+        location = /health {
+            allow all;
+            default_type 'application/json';
+            return 200 '{"status": "ok"}';
+        }
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+      }
+      
+    # Customisations that we do at the http rather than the server level
+    http_customisations.conf: |
+      server_tokens off;
+      set_real_ip_from 0.0.0.0/0;
+      set_real_ip_from ::/0;
+      real_ip_header X-Forwarded-For;
+      
+    # For repeated inclusion in default.conf because the add_header directives need to be repeated as per
+    # https://nginx.org/en/docs/http/ngx_http_headers_module.html#add_header as they are only inherited from
+    # the server block iff there's no add_header directives in the location block
+    security_headers.conf: |
+      # Copyright 2025 New Vector Ltd
+      # Copyright 2025 Element Creations Ltd
+      # SPDX-License-Identifier: AGPL-3.0-only
+      
+      add_header Content-Security-Policy "frame-ancestors 'self'";
+      add_header X-Content-Type-Options nosniff;
+      add_header X-Frame-Options SAMEORIGIN;
+      add_header X-Robots-Tag "noindex, nofollow, noarchive, noimageindex";
+      add_header X-XSS-Protection "1; mode=block";
+      
+
+---
+# Source: matrix-umbrella/charts/ess/templates/haproxy/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: haproxy
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-haproxy
+  namespace: ci-matrix-umbrella
+data:
+  haproxy.cfg: |+
+    global
+      log stdout format raw local0 info
+    
+      # Allow for rewriting HTTP headers (e.g. Authorization) up to 4k
+      # https://github.com/haproxy/haproxy/issues/1743
+      tune.maxrewrite 4096
+    
+      # Allow HAProxy Stats sockets
+      stats socket ipv4@127.0.0.1:1999 level admin
+    
+      # In a dual-stack cluster, HAProxy will receive both the A and AAAA records for each backing Pod.
+      # This is either in the additional section of the response or when directly querying the hostname in the SRV response.
+      # As a backend server can only have a single IP address and `resolve-prefer` doesn't appear to impact SRV results,
+      # we end up having the IP for each backend server flapping between IPv4, IPv6.
+      # This also appears to cause a memory leak in HAProxy.
+      # The default (`ipv4,ipv6`) and `auto` (IPv4 + IPv6 if there's an IPv6 gateway) are both problematic and so we must set one.
+      # In the dual-stack case, we pick IPv4 only as that's most likely to work, however this means that IPv6 only clusters
+      # needs to adjust network.ipFamily to `ipv6` rather than leaving it at `dual-stack`.
+      #
+      # The only alternative found is to tweak `hold obsolete` up from the default of 0s in the `resolvers` section.
+      # This has the undesirable behaviour of making HAProxy slower to respond to Pod restarts
+      dns-accept-family ipv4
+    
+    defaults
+      mode http
+    
+      log global
+    
+      # The Ingress Controller should appropriately set an X-Forwarded-For header
+      # We leave it alone if it has, but add in the source address in cases where it hasn't
+      # or the request hasn't come from the ingress controller (i.e. in-cluster)
+      option forwardfor if-none
+    
+      # Set the RFC7239 `Forwarded` header
+      option forwarded
+    
+      # wait for 5s when connecting to a server
+      timeout connect 5s
+    
+      # ... but if there is a backlog of requests, wait for 60s before returning a 500
+      timeout queue 60s
+    
+      # close client connections 5m after the last request
+      # (as recommened by https://support.cloudflare.com/hc/en-us/articles/212794707-General-Best-Practices-for-Load-Balancing-with-CloudFlare)
+      timeout client 900s
+    
+      # give clients 5m between requests (otherwise it defaults to the value of 'timeout http-request')
+      timeout http-keep-alive 900s
+    
+      # give clients 10s to complete a request (either time between handshake and first request, or time spent sending headers)
+      timeout http-request 10s
+    
+      # time out server responses after 90s
+      timeout server 180s
+    
+      # allow backend sessions to be shared across frontend sessions
+      http-reuse aggressive
+    
+      # limit the number of concurrent requests to each server, to stop
+      # the python process having to juggle hundreds of queued
+      # requests. Any requests beyond this limit are held in a queue for
+      # up to <timeout-queue> seconds, before being rejected according
+      # to "errorfile 503" below.
+      #
+      # (bear in mind that we have two haproxies, each of which will use
+      # up to this number of connections, so the actual number of
+      # connections to the server may be up to twice this figure.)
+      #
+      # Note that this is overridden for some servers and backends.
+      default-server maxconn 500
+    
+      option redispatch
+    
+      compression algo gzip
+      compression type text/plain text/html text/xml application/json text/css
+    
+      # Use a consistent hashing scheme so that worker with balancing going down doesn't cause
+      # the traffic for all others to be shuffled around.
+      hash-type consistent sdbm
+    
+    resolvers kubedns
+      parse-resolv-conf
+      accepted_payload_size 8192
+      hold timeout 600s
+      hold refused 600s
+    
+    frontend prometheus
+      bind *:8405
+      bind [::]:8405 v6only
+      http-request use-service prometheus-exporter if { path /metrics }
+      monitor-uri /haproxy_test
+      no log
+    
+    frontend http-blackhole
+      bind *:8009
+      bind [::]:8009 v6only
+    
+      # same as http log, with %Th (handshake time)
+      log-format "%ci:%cp [%tr] %ft %b/%s %Th/%TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r"
+    
+      http-request capture hdr(host) len 32
+      http-request capture req.fhdr(x-forwarded-for) len 64
+      http-request capture req.fhdr(user-agent) len 200
+    
+      http-request deny content-type application/json string '{"errcode": "M_FORBIDDEN", "error": "Blocked"}'
+    
+    
+    frontend startup
+       bind *:8406
+       bind [::]:8406 v6only
+       acl synapse_dead nbsrv(synapse-main) lt 1
+    
+       monitor-uri   /synapse_ready
+       monitor fail  if synapse_dead
+    
+    frontend synapse-http-in
+      bind *:8008
+      bind [::]:8008 v6only
+    
+      # if we hit the maxconn on a server, and the queue timeout expires, we want
+      # to avoid returning 503, since that will cause cloudflare to mark us down.
+      #
+      # https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#1.3.1 says:
+      #
+      #   503  when no server was available to handle the request, or in response to
+      #        monitoring requests which match the "monitor fail" condition
+      #
+      errorfile 503 /synapse/429.http
+    
+      # same as http log, with %Th (handshake time)
+      log-format "%ci:%cp [%tr] %ft %b/%s %Th/%TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r"
+    
+      http-request capture hdr(host) len 32
+      http-request capture req.fhdr(x-forwarded-for) len 64
+      http-request capture req.fhdr(user-agent) len 200
+    
+      # Ingresses by definition run on both 80 & 443 and there's no customising of that
+      # It is up to the ingress controller and any annotations provided to it whether
+      # it sets any additional headers or not or whether it redirects http -> https
+      # We don't have control (or even visiblity) on what the ingress controller is or does
+      # So we can't guarantee the header is present
+      # https is a more sensible default than http for the missing header as we force public_baseurl to https
+      http-request set-header X-Forwarded-Proto https if !{ hdr(X-Forwarded-Proto) -m found }
+      http-request set-var(txn.x_forwarded_proto) hdr(x-forwarded-proto)
+      http-response add-header Strict-Transport-Security max-age=31536000 if { var(txn.x_forwarded_proto) -m str -i "https" }
+    
+      # If we get here then we want to proxy everything to synapse or a worker.
+    
+      # try to extract a useful access token from either the auth header or a
+      # query-param
+      http-request set-var(req.access_token) urlp("access_token") if { urlp("access_token") -m found }
+      http-request set-var(req.access_token) req.fhdr(Authorization),word(2," ") if { hdr_beg("Authorization") -i "Bearer " }
+    
+      # We also need a http header format to allow us to loadbalance and make decisions:
+      http-request set-header X-Access-Token %[var(req.access_token)]
+    
+      # Disable Google FLoC
+      http-response set-header Permissions-Policy "interest-cohort=()"
+    
+      # Load the backend from one of the map files.
+      acl has_get_map path -m reg -M -f /synapse/path_map_file_get
+    
+      http-request set-var(req.backend) path,map_reg(/synapse/path_map_file_get,main) if has_get_map METH_GET
+      http-request set-var(req.backend) path,map_reg(/synapse/path_map_file,main) unless { var(req.backend) -m found }
+      acl rendezvous path_beg /_matrix/client/unstable/org.matrix.msc4108/rendezvous
+      acl rendezvous path_beg /_synapse/client/rendezvous
+      use_backend return_204_rendezvous if { method OPTIONS } rendezvous
+      use_backend return_204_synapse if { method OPTIONS }
+    
+    
+    
+    
+      acl backend_unavailable str(),concat('synapse-',req.backend),nbsrv lt 1
+    
+      acl ess_version path /_synapse/ess/version
+      use_backend ess-version-static if ess_version
+    
+      use_backend synapse-%[var(req.backend)]
+    
+    backend ess-version-static
+      mode http
+    
+      # Set all the same headers as the well-knowns
+      http-after-response set-header X-Frame-Options SAMEORIGIN
+      http-after-response set-header X-Content-Type-Options nosniff
+      http-after-response set-header X-XSS-Protection "1; mode=block"
+      http-after-response set-header Content-Security-Policy "frame-ancestors 'self'"
+      http-after-response set-header X-Robots-Tag "noindex, nofollow, noarchive, noimageindex"
+    
+      http-after-response set-header Access-Control-Allow-Origin *
+      http-after-response set-header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+      http-after-response set-header Access-Control-Allow-Headers "X-Requested-With, Content-Type, Authorization"
+    
+      http-request return status 200 content-type "application/json" file /synapse/ess-version.json
+    
+    backend synapse-main
+      default-server maxconn 250
+    
+      option httpchk
+      http-check connect port 8080
+      http-check send meth GET uri /health
+    
+      # Use DNS SRV service discovery on the headless service
+      server-template main 1 _synapse-http._tcp.ci-matrix-umbrella-test-values-synapse-main.ci-matrix-umbrella.svc.cluster.local. resolvers kubedns init-addr none check
+    
+    # a backend which responds to everything with a 204 mirroring https://github.com/element-hq/synapse/blob/v1.124.0/synapse/http/server.py#L901-L932
+    backend return_204_synapse
+      http-request return status 204 hdr "Access-Control-Allow-Origin" "*" hdr "Access-Control-Allow-Methods" "GET, HEAD, POST, PUT, DELETE, OPTIONS" hdr "Access-Control-Allow-Headers" "Origin, X-Requested-With, Content-Type, Accept, Authorization, Date" hdr "Access-Control-Expose-Headers" "Synapse-Trace-Id, Server"
+    
+    backend return_204_rendezvous
+      http-request return status 204 hdr "Access-Control-Allow-Origin" "*" hdr "Access-Control-Allow-Methods" "GET, HEAD, POST, PUT, DELETE, OPTIONS" hdr "Access-Control-Allow-Headers" "Origin, Content-Type, Accept, Content-Type, If-Match, If-None-Match" hdr "Access-Control-Expose-Headers" "Synapse-Trace-Id, Server, ETag"
+    
+    
+    
+    frontend well-known-in
+      bind *:8010
+      bind [::]:8010 v6only
+    
+      # same as http log, with %Th (handshake time)
+      log-format "%ci:%cp [%tr] %ft %b/%s %Th/%TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r"
+    
+      http-request capture hdr(host) len 32
+      http-request capture req.fhdr(x-forwarded-for) len 64
+      http-request capture req.fhdr(user-agent) len 200
+    
+      acl is_delete_put_post_method method DELETE POST PUT
+      http-request deny status 405 if is_delete_put_post_method
+    
+      acl well-known path /.well-known/matrix/server
+      acl well-known path /.well-known/matrix/client
+      acl well-known path /.well-known/matrix/support
+    
+    
+      http-request redirect  code 301  location https://element.ci.example.test unless well-known
+    
+      use_backend well-known-static if well-known
+      default_backend well-known-no-match
+    
+    backend well-known-static
+      mode http
+    
+      http-after-response set-header X-Frame-Options SAMEORIGIN
+      http-after-response set-header X-Content-Type-Options nosniff
+      http-after-response set-header X-XSS-Protection "1; mode=block"
+      http-after-response set-header Content-Security-Policy "frame-ancestors 'self'"
+      http-after-response set-header X-Robots-Tag "noindex, nofollow, noarchive, noimageindex"
+    
+      http-after-response set-header Access-Control-Allow-Origin *
+      http-after-response set-header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+      http-after-response set-header Access-Control-Allow-Headers "X-Requested-With, Content-Type, Authorization"
+    
+      http-request return status 200 content-type "application/json" file "/well-known/server" if { path /.well-known/matrix/server }
+      http-request return status 200 content-type "application/json" file "/well-known/client" if { path /.well-known/matrix/client }
+      http-request return status 200 content-type "application/json" file "/well-known/support" if { path /.well-known/matrix/support }
+    
+    backend well-known-no-match
+      mode http
+    
+      http-request deny status 404
+    
+    
+    # a fake backend which fonxes every request with a 500. Useful for
+    # handling overloads etc.
+    backend return_500
+      http-request deny deny_status 500
+    
+  placeholder: Ensure there's something after haproxy.cfg for https://github.com/element-hq/ess-helm/issues/821
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+data:
+  mas-config-underrides.yaml: |
+    
+    policy:
+      data:
+        admin_clients: []
+        admin_users: []
+        client_registration:
+          allow_host_mismatch: false
+          allow_insecure_uris: false
+  mas-config-overrides.yaml: |
+    http:
+      public_base: "https://account.ci.example.test"
+      listeners:
+      - name: web
+        binds:
+        - port: 8080
+        resources:
+        - name: human
+        - name: discovery
+        - name: oauth
+        - name: compat
+        - name: assets
+        - name: graphql
+          # This lets us use the GraphQL API with an OAuth 2.0 access token,
+          # which we currently use in the ansible modules and in synapse-admin
+          undocumented_oauth2_access: true
+        - name: adminapi
+      - name: internal
+        binds:
+        - port: 8081
+        resources:
+        - name: health
+        - name: prometheus
+        - name: connection-info
+    
+    
+    database:
+      uri: "postgresql://mas:${POSTGRES_PASSWORD}@postgres.ci.svc.cluster.local:5432/mas?sslmode=prefer&application_name=matrix-authentication-service"
+    
+    telemetry:
+      metrics:
+        exporter: prometheus
+    matrix:
+      homeserver: "ci.example.test"
+      secret_file: /secrets/ci-matrix-umbrella-test-values-generated/MAS_SYNAPSE_SHARED_SECRET
+      endpoint: "http://ci-matrix-umbrella-test-values-synapse-main.ci-matrix-umbrella.svc.cluster.local.:8008"
+      kind: synapse_modern
+    
+    secrets:
+      encryption_file: /secrets/ci-matrix-umbrella-test-values-generated/MAS_ENCRYPTION_SECRET
+      keys:
+      - key_file: /secrets/ci-matrix-umbrella-test-values-generated/MAS_RSA_PRIVATE_KEY
+      - key_file: /secrets/ci-matrix-umbrella-test-values-generated/MAS_ECDSA_PRIME256V1_PRIVATE_KEY
+    
+    
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse
+  namespace: ci-matrix-umbrella
+data:
+  
+  01-homeserver-underrides.yaml: |
+    
+    web_client_location: https://element.ci.example.test/
+    
+    report_stats: false
+    
+    mau_stats_only: true
+    
+    require_auth_for_profile_requests: true
+    
+    federation_client_minimum_tls_version: '1.2'
+    
+    experimental_features:
+      msc4028_push_encrypted_events: true
+      msc4452_enabled: true
+      # QR Code Login. Requires MAS
+      msc4108_enabled: true
+    
+    url_preview_enabled: true
+    # Both these lists are append only. If there are specific ranges within the denylist
+    # that should be allowed, then add them to the allowlist.
+    url_preview_ip_range_whitelist: []
+    url_preview_ip_range_blacklist:
+    - '192.168.0.0/16'
+    - '100.64.0.0/10'
+    - '192.0.0.0/24'
+    - '169.254.0.0/16'
+    - '192.88.99.0/24'
+    - '198.18.0.0/15'
+    - '192.0.2.0/24'
+    - '198.51.100.0/24'
+    - '203.0.113.0/24'
+    - '224.0.0.0/4'
+    - '::1/128'
+    - 'fe80::/10'
+    - 'fc00::/7'
+    - '2001:db8::/32'
+    - 'ff00::/8'
+    - 'fec0::/10'
+    
+    database:
+      args:
+        keepalives: 1
+        keepalives_idle: 10
+        keepalives_interval: 10
+        keepalives_count: 3
+    
+        # Synapse has no defaults, so up from Twisted's defaults of 3-5
+        cp_min: 5
+        cp_max: 10
+    
+  04-homeserver-overrides.yaml: |
+    public_baseurl: https://matrix.ci.example.test/
+    server_name: ci.example.test
+    signing_key_path: /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_SIGNING_KEY
+    enable_metrics: true
+    log_config: "/conf/log_config.yaml"
+    macaroon_secret_key_path:  /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_MACAROON
+    registration_shared_secret_path: /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_REGISTRATION_SHARED_SECRET
+    
+    database:
+      name: psycopg2
+      args:
+        user: synapse
+        password: ${SYNAPSE_POSTGRES_PASSWORD}
+        dbname: synapse
+        host: postgres.ci.svc.cluster.local
+        port: 5432
+        sslmode: prefer
+    
+        application_name: ${APPLICATION_NAME}
+    
+    # The default as of 1.27.0
+    ip_range_blacklist:
+    - '127.0.0.0/8'
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '192.168.0.0/16'
+    - '100.64.0.0/10'
+    - '192.0.0.0/24'
+    - '169.254.0.0/16'
+    - '192.88.99.0/24'
+    - '198.18.0.0/15'
+    - '192.0.2.0/24'
+    - '198.51.100.0/24'
+    - '203.0.113.0/24'
+    - '224.0.0.0/4'
+    - '::1/128'
+    - 'fe80::/10'
+    - 'fc00::/7'
+    - '2001:db8::/32'
+    - 'ff00::/8'
+    - 'fec0::/10'
+    matrix_authentication_service:
+      enabled: true
+      secret_path: /secrets/ci-matrix-umbrella-test-values-generated/MAS_SYNAPSE_SHARED_SECRET
+      endpoint: http://ci-matrix-umbrella-test-values-matrix-authentication-service.ci-matrix-umbrella.svc.cluster.local.:8080/
+      force_http2: true
+    
+    password_config:
+      localdb_enabled: false
+      enabled: false
+    
+    send_federation: true
+    
+    # This is still required despite media_storage_providers as otherwise Synapse attempts to mkdir media_store at the root of the container
+    media_store_path: "/media/media_store"
+    max_upload_size: "100M"
+    
+    start_pushers: true
+    
+    instance_map:
+      main:
+        host: ci-matrix-umbrella-test-values-synapse-main.ci-matrix-umbrella.svc.cluster.local.
+        port: 9093
+    
+    redis:
+      enabled: true
+      host: "valkey.ci.svc.cluster.local"
+      port: 6379
+    
+  05-main.yaml: |
+    
+    worker_app: synapse.app.homeserver
+    listeners:
+    - port: 8008
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: true
+      resources:
+      - names:
+        - client
+        - federation
+        compress: false
+    - port: 9093
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: false
+      resources:
+      - names: [replication]
+        compress: false
+    - type: metrics
+      port: 9001
+      bind_addresses:
+      - "::"
+    - port: 8080
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: false
+      resources:
+      - names: [health]
+        compress: false
+    enable_media_repo: true
+    
+  log_config.yaml: |
+    version: 1
+    
+    formatters:
+      precise:
+        format: '%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s'
+    
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: precise
+    
+    loggers:
+      synapse.storage.SQL:
+        level: "INFO"
+    
+    root:
+      level: "INFO"
+      handlers:
+      - console
+    
+    disable_existing_loggers: false
+    
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_haproxy_configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse-haproxy
+  namespace: ci-matrix-umbrella
+data:
+  429.http: |
+    HTTP/1.0 429 Too Many Requests
+    Cache-Control: no-cache
+    Connection: close
+    Content-Type: application/json
+    access-control-allow-origin: *
+    access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+    access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization
+    
+    {"errcode":"M_UNKNOWN","error":"Server is unavailable"}
+    
+  path_map_file: |
+    # A map file that is used in haproxy config to map from matrix paths to the
+    # named backend. The format is: path_regexp backend_name
+    
+    
+    
+  path_map_file_get: |
+    # A map file that is used in haproxy config to map from matrix paths to the
+    # named backend. The format is: path_regexp backend_name
+    
+    
+  ess-version.json: |
+    {"version": "26.6.2", "edition": "community"}
+---
+# Source: matrix-umbrella/charts/ess/templates/well-known/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-delegation
+    app.kubernetes.io/name: well-known-delegation
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-well-known-delegation
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-well-known-haproxy
+  namespace: ci-matrix-umbrella
+data:
+  client: |
+    {
+      "m.homeserver": {
+        "base_url": "https://matrix.ci.example.test"
+      }
+    }
+  server: |
+    {
+      "m.server": "matrix.ci.example.test:443"
+    }
+  support: |
+    {}
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_persistentvolumeclaim.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse-media
+  namespace: ci-matrix-umbrella
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Source: matrix-umbrella/charts/cinny/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: matrix-cinny
+  labels:
+    helm.sh/chart: cinny-0.2.23
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    app.kubernetes.io/version: "4.12.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+  name: ci-matrix-umbrella-test-values-element-web
+  namespace: ci-matrix-umbrella
+spec:
+  
+  type: ClusterIP
+  
+  internalTrafficPolicy: Cluster
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - port: 80
+    targetPort: element
+    name: web
+  selector:
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+
+---
+# Source: matrix-umbrella/charts/ess/templates/haproxy/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: haproxy
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-haproxy
+  namespace: ci-matrix-umbrella
+spec:
+  type: ClusterIP
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - name: haproxy-metrics
+    port: 8405
+    targetPort: haproxy-metrics
+  selector:
+    app.kubernetes.io/instance: "ci-matrix-umbrella-test-values-haproxy"
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+spec:
+  
+  type: ClusterIP
+  
+  internalTrafficPolicy: Cluster
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - port: 8080
+    protocol: TCP
+    name: http
+  - port: 8081
+    protocol: TCP
+    name: internal
+  selector:
+    app.kubernetes.io/instance: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_http_service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    k8s.element.io/target-name: haproxy
+    k8s.element.io/target-instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-synapse
+  namespace: ci-matrix-umbrella
+spec:
+  
+  type: ClusterIP
+  
+  internalTrafficPolicy: Cluster
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - name: haproxy-synapse
+    port: 8008
+    targetPort: haproxy-synapse
+  - name: haproxy-403
+    port: 8009
+    targetPort: haproxy-403
+  selector:
+    app.kubernetes.io/instance: "ci-matrix-umbrella-test-values-haproxy"
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-main
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+    app.kubernetes.io/version: "v1.155.0"
+    
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+  name: ci-matrix-umbrella-test-values-synapse-main
+  namespace: ci-matrix-umbrella
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - name: synapse-http
+    port: 8008
+    targetPort: synapse-http
+  - name: synapse-repl
+    port: 9093
+    targetPort: synapse-repl
+  - name: synapse-health
+    port: 8080
+    targetPort: synapse-health
+  - name: synapse-metrics
+    port: 9001
+    targetPort: synapse-metrics
+  selector:
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+---
+# Source: matrix-umbrella/charts/ess/templates/well-known/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: well-known-ingress
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-well-known-ingress
+    app.kubernetes.io/version: "3.4.2-debian13"
+    k8s.element.io/target-name: haproxy
+    k8s.element.io/target-instance: ci-matrix-umbrella-test-values-haproxy
+  name: ci-matrix-umbrella-test-values-well-known
+  namespace: ci-matrix-umbrella
+spec:
+  
+  type: ClusterIP
+  
+  internalTrafficPolicy: Cluster
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - name: haproxy-wkd
+    port: 8010
+    targetPort: haproxy-wkd
+  selector:
+    app.kubernetes.io/instance: "ci-matrix-umbrella-test-values-haproxy"
+---
+# Source: matrix-umbrella/charts/cinny/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-cinny
+  labels:
+    helm.sh/chart: cinny-0.2.23
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    app.kubernetes.io/version: "4.12.3"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cinny
+      app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+  template:
+    metadata:
+      annotations:
+        confighash: c68dc41f3a62faed9716b8041b06d4e8
+      labels:
+        app.kubernetes.io/name: cinny
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    spec:
+      serviceAccountName: matrix-cinny
+      securityContext:
+        {}
+      containers:
+        - name: cinny
+          securityContext:
+            {}
+          image: "ghcr.io/cinnyapp/cinny:v4.12.3@sha256:9872ba04330c6707f531bb7681036c2777f762625e373ce00eedfcd28d469a24"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+          volumeMounts:
+            - mountPath: "/app/config.json"
+              name: "config"
+              subPath: "config.json"
+            - mountPath: /var/cache/nginx
+              name: nginx-cache
+            - mountPath: /var/run
+              name: nginx-run
+            - mountPath: /tmp
+              name: tmp
+      volumes:
+        - name: "config"
+          configMap:
+            name: matrix-cinny-config
+            items:
+              - key: config.json
+                path: config.json
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+    k8s.element.io/element-web-config-hash: "4423955cf21de91c001d0d6b7f55d9ab80109287"
+    k8s.element.io/nginx-config-hash: "d86911f8422803691910ecb4322f42fc597a40b8"
+  name: ci-matrix-umbrella-test-values-element-web
+  namespace: ci-matrix-umbrella
+spec:
+  
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-client
+        app.kubernetes.io/name: element-web
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+        app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+        k8s.element.io/element-web-config-hash: "4423955cf21de91c001d0d6b7f55d9ab80109287"
+        k8s.element.io/nginx-config-hash: "d86911f8422803691910ecb4322f42fc597a40b8"
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: ci-matrix-umbrella-test-values-element-web
+      securityContext:
+        fsGroup: 10004
+        runAsGroup: 10004
+        runAsNonRoot: true
+        runAsUser: 10004
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Always
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+        matchLabelKeys:
+        - pod-template-hash
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      containers:
+      - name: element-web
+        
+        image: "oci.element.io/element-web@sha256:c93f51c0445ce48be5c2d66a61470ba51a78315c7c60a4fc0e791595b96f3a96"
+        imagePullPolicy: IfNotPresent
+        
+        env:
+        - name: NGINX_ENVSUBST_TEMPLATE_DIR
+          value: /non-existant-so-that-this-works-with-read-only-root-filesystem
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        ports:
+        - containerPort: 8080
+          name: element
+          protocol: TCP
+        livenessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: element
+            scheme: HTTP
+        readinessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: element
+            scheme: HTTP
+        startupProbe:
+          
+          failureThreshold: 4
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: element
+            scheme: HTTP
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /app/config.json
+          name: config
+          readOnly: true
+          subPath: config.json
+        - mountPath: /etc/nginx/conf.d/default.conf
+          name: nginx-config
+          readOnly: true
+          subPath: default.conf
+        - mountPath: /etc/nginx/conf.d/http_customisations.conf
+          name: nginx-config
+          readOnly: true
+          subPath: http_customisations.conf
+        - mountPath: /etc/nginx/security_headers.conf
+          name: nginx-config
+          readOnly: true
+          subPath: security_headers.conf
+        - mountPath: /tmp
+          name: nginx-tmp
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ci-matrix-umbrella-test-values-element-web
+        name: config
+      - configMap:
+          defaultMode: 420
+          name: ci-matrix-umbrella-test-values-element-web-nginx
+        name: nginx-config
+      - emptyDir:
+          medium: Memory
+        name: nginx-tmp
+
+---
+# Source: matrix-umbrella/charts/ess/templates/haproxy/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: haproxy
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+    k8s.element.io/shared-haproxy-config-hash: "cf7bf539deac2a4a0a5ac7f07410da3243f550d2"
+    k8s.element.io/synapse-haproxy-config-hash: "98f21228580694ebe0aa14f035507e488511686e"
+    k8s.element.io/wellknowndelegation-haproxy-config-hash: 432a279ece9583aa6172beedc9acb86e75eb0cea
+  name: ci-matrix-umbrella-test-values-haproxy
+  namespace: ci-matrix-umbrella
+spec:
+  
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-stack-ingress
+        app.kubernetes.io/name: haproxy
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+        app.kubernetes.io/version: "3.4.2-debian13"
+        k8s.element.io/shared-haproxy-config-hash: cf7bf539deac2a4a0a5ac7f07410da3243f550d2
+        k8s.element.io/synapse-haproxy-config-hash: 98f21228580694ebe0aa14f035507e488511686e
+        k8s.element.io/wellknowndelegation-haproxy-config-hash: 432a279ece9583aa6172beedc9acb86e75eb0cea
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: ci-matrix-umbrella-test-values-haproxy
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Always
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-haproxy
+        matchLabelKeys:
+        - pod-template-hash
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      containers:
+      - name: haproxy
+        args:
+        - "-f"
+        - "/usr/local/etc/haproxy/haproxy.cfg"
+        - "-dW"
+        
+        image: "dhi.io/haproxy@sha256:0bb930bac61c44cdecdc36ec125c0179e3ead95b1844da4560f13b5024499146"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        
+        ports:
+        - containerPort: 8008
+          name: haproxy-synapse
+          protocol: TCP
+        - containerPort: 8009
+          name: haproxy-403
+          protocol: TCP
+        - containerPort: 8010
+          name: haproxy-wkd
+          protocol: TCP
+        - containerPort: 8405
+          name: haproxy-metrics
+          protocol: TCP
+        - containerPort: 8406
+          name: synapse-ready
+          protocol: TCP
+        startupProbe:
+          
+          failureThreshold: 150
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /synapse_ready
+            port: synapse-ready
+        livenessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          httpGet:
+            path: /haproxy_test
+            port: haproxy-metrics
+        readinessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+          httpGet:
+            path: /haproxy_test
+            port: haproxy-metrics
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: haproxy-config
+          mountPath: "/usr/local/etc/haproxy"
+          readOnly: true
+        - name: synapse-haproxy
+          mountPath: "/synapse"
+          readOnly: true
+        - name: well-known-haproxy
+          mountPath: "/well-known"
+          readOnly: true
+      volumes:
+      - configMap:
+          name: "ci-matrix-umbrella-test-values-haproxy"
+          defaultMode: 420
+        name: haproxy-config
+      - configMap:
+          name: "ci-matrix-umbrella-test-values-synapse-haproxy"
+          defaultMode: 420
+        name: synapse-haproxy
+      - configMap:
+          name: "ci-matrix-umbrella-test-values-well-known-haproxy"
+          defaultMode: 420
+        name: well-known-haproxy
+
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+    k8s.element.io/matrix-authentication-service-config-hash: 7982b3491c3bef2d7804c8787ffe3a09d25eedb9
+    k8s.element.io/matrix-authentication-service-secret-hash: da39a3ee5e6b4b0d3255bfef95601890afd80709
+    k8s.element.io/postgres-password-matrixauthenticationserv-hash: 2e35cd2058d58fed9b5381226054063463e1e2a3
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+spec:
+  
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-authentication
+        app.kubernetes.io/name: matrix-authentication-service
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+        app.kubernetes.io/version: "1.19.0"
+        k8s.element.io/matrix-authentication-service-config-hash: "7982b3491c3bef2d7804c8787ffe3a09d25eedb9"
+        k8s.element.io/matrix-authentication-service-secret-hash: "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+        k8s.element.io/postgres-password-matrixauthenticationserv-hash: 2e35cd2058d58fed9b5381226054063463e1e2a3
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: ci-matrix-umbrella-test-values-matrix-authentication-service
+      securityContext:
+        fsGroup: 10005
+        runAsGroup: 10005
+        runAsNonRoot: true
+        runAsUser: 10005
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Always
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+        matchLabelKeys:
+        - pod-template-hash
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      initContainers:
+      
+      - name: render-config
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        args:
+        - render-config
+        - -output
+        - /conf/mas-config.yaml
+        - /config-templates/mas-config-underrides.yaml
+        - /config-templates/mas-config-overrides.yaml
+        
+        env:
+        - name: POSTGRES_PASSWORD
+          value: '{{ readfile "/secrets/matrix-postgres-auth/mas-password" | urlencode }}'
+        resources:
+          limits:
+            memory: 350Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /config-templates
+          name: plain-config
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-matrix-authentication-service
+          name: "secret-48c4e43b2cf3"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+        - mountPath: /conf
+          name: rendered-config
+          readOnly: false
+      - name: db-wait
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        args:
+        - tcpwait
+        - -address
+        - "postgres.ci.svc.cluster.local:5432"
+        resources:
+          limits:
+            memory: 350Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+      - name: database-migrate
+        args: ["database", "migrate"]
+        
+        image: "ghcr.io/element-hq/matrix-authentication-service@sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        
+        env:
+        - name: MAS_CONFIG
+          value: /conf/mas-config.yaml
+        resources:
+          limits:
+            memory: 350Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: "/conf/mas-config.yaml"
+          name: rendered-config
+          subPath: mas-config.yaml
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-matrix-authentication-service
+          name: "secret-48c4e43b2cf3"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+      containers:
+      - name: matrix-authentication-service
+        args:
+        - server
+        - --no-migrate
+
+
+        
+        image: "ghcr.io/element-hq/matrix-authentication-service@sha256:fb25648b12e985d1192ea3dc7b6def38f97ca79bacba262daca5b82532e3a3dd"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        
+        env:
+        - name: MAS_CONFIG
+          value: /conf/mas-config.yaml
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+        - containerPort: 8081
+          protocol: TCP
+          name: internal
+        resources:
+          limits:
+            memory: 350Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        startupProbe:
+          
+          failureThreshold: 4
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: internal
+            scheme: HTTP
+        livenessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: internal
+            scheme: HTTP
+        readinessProbe:
+          
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: internal
+            scheme: HTTP
+        volumeMounts:
+        - mountPath: "/conf/mas-config.yaml"
+          name: rendered-config
+          subPath: mas-config.yaml
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-matrix-authentication-service
+          name: "secret-48c4e43b2cf3"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ci-matrix-umbrella-test-values-matrix-authentication-service
+        name: plain-config
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-matrix-authentication-service
+        name: secret-48c4e43b2cf3
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-generated
+        name: secret-c27b1a2956e2
+      - secret:
+          secretName: matrix-postgres-auth
+        name: secret-b04466406526
+      - emptyDir:
+          medium: Memory
+        name: "rendered-config"
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-main
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+    app.kubernetes.io/version: "v1.155.0"
+    
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+    k8s.element.io/synapse-config-hash: "5aaea4f79b62a9f764c3090a688746500eb19518"
+    k8s.element.io/synapse-secret-hash: "5972a84ed877ead8a286214063305ad3cb52eaee"
+    k8s.element.io/postgres-password-synapse-hash: 36501b6304e5d7d3bd627fcb4e3921a2f0b55d87
+  name: ci-matrix-umbrella-test-values-synapse-main
+  namespace: ci-matrix-umbrella
+spec:
+  
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+  serviceName: ci-matrix-umbrella-test-values-synapse-main
+  updateStrategy:
+    type: RollingUpdate
+  # Without this CrashLoopBackoffs due to config failures block pod recreation
+  podManagementPolicy: Parallel
+  
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-server
+        app.kubernetes.io/name: synapse-main
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+        app.kubernetes.io/version: "v1.155.0"
+        
+        k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse
+        k8s.element.io/synapse-config-hash: "5aaea4f79b62a9f764c3090a688746500eb19518"
+        k8s.element.io/synapse-secret-hash: "5972a84ed877ead8a286214063305ad3cb52eaee"
+        k8s.element.io/postgres-password-synapse-hash: 36501b6304e5d7d3bd627fcb4e3921a2f0b55d87
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: ci-matrix-umbrella-test-values-synapse
+      securityContext:
+        fsGroup: 10091
+        runAsGroup: 10091
+        runAsNonRoot: true
+        runAsUser: 10091
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Always
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-main
+        matchLabelKeys: []
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      initContainers:
+      - name: render-config
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        args:
+        - render-config
+        - -output
+        - /conf/homeserver.yaml
+        - /config-templates/01-homeserver-underrides.yaml
+        - /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_EXTRA
+        - /secrets/ci-matrix-umbrella-test-values-synapse/user-00-registration
+        - /config-templates/04-homeserver-overrides.yaml
+        - /config-templates/05-main.yaml
+        
+        env:
+        - name: APPLICATION_NAME
+          value: '{{ hostname }}'
+        - name: SYNAPSE_POSTGRES_PASSWORD
+          value: '{{ readfile "/secrets/matrix-postgres-auth/synapse-password" | quote }}'
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: /config-templates
+          name: plain-config
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-synapse
+          name: "secret-505a2ab669f2"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+        - mountPath: /conf
+          name: rendered-config
+          readOnly: false
+      - name: db-wait
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        args:
+        - tcpwait
+        - -address
+        - "postgres.ci.svc.cluster.local:5432"
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      containers:
+      - name: synapse
+        
+        image: "oci.element.io/synapse@sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        command:
+        - "python3"
+        - "-m"
+        - synapse.app.homeserver
+        - "-c"
+        - /conf/homeserver.yaml
+        
+        env:
+        - name: LD_PRELOAD
+          value: libjemalloc.so.2
+        ports:
+        - containerPort: 8008
+          name: synapse-http
+          protocol: TCP
+        - containerPort: 9093
+          name: synapse-repl
+          protocol: TCP
+        - containerPort: 8080
+          name: synapse-health
+          protocol: TCP
+        - containerPort: 9001
+          name: synapse-metrics
+          protocol: TCP
+        startupProbe:
+          
+          failureThreshold: 54
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 1
+          httpGet:
+            path: /health
+            port: synapse-health
+        livenessProbe:
+          
+          failureThreshold: 8
+          periodSeconds: 6
+          successThreshold: 1
+          timeoutSeconds: 2
+          httpGet:
+            path: /health
+            port: synapse-health
+        readinessProbe:
+          
+          failureThreshold: 8
+          periodSeconds: 2
+          successThreshold: 2
+          timeoutSeconds: 2
+          httpGet:
+            path: /health
+            port: synapse-health
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - mountPath: "/conf/homeserver.yaml"
+          name: rendered-config
+          subPath: homeserver.yaml
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-synapse
+          name: "secret-505a2ab669f2"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+        - mountPath: /conf/log_config.yaml
+          name: plain-config
+          subPath: log_config.yaml
+          readOnly: false
+        - mountPath: /media
+          name: media
+          readOnly: false
+        - mountPath: /tmp
+          name: tmp
+          readOnly: false
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ci-matrix-umbrella-test-values-synapse
+        name: plain-config
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-synapse
+        name: secret-505a2ab669f2
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-generated
+        name: secret-c27b1a2956e2
+      - secret:
+          secretName: matrix-postgres-auth
+        name: secret-b04466406526
+      - emptyDir:
+          medium: Memory
+        name: "rendered-config"
+      - persistentVolumeClaim:
+          claimName: ci-matrix-umbrella-test-values-synapse-media
+        name: "media"
+      - emptyDir:
+          medium: Memory
+        name: "tmp"
+---
+# Source: matrix-umbrella/charts/ess/templates/element-web/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-client
+    app.kubernetes.io/name: element-web
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-element-web
+    app.kubernetes.io/version: "v1.12.23@sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b1"
+  name: ci-matrix-umbrella-test-values-element-web
+  namespace: ci-matrix-umbrella
+spec:
+  
+  tls:
+  
+    - hosts:
+      - "element.ci.example.test"
+    
+  
+  rules:
+  - host: "element.ci.example.test"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ci-matrix-umbrella-test-values-element-web
+            port:
+              name: web
+
+---
+# Source: matrix-umbrella/charts/ess/templates/matrix-authentication-service/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-authentication
+    app.kubernetes.io/name: matrix-authentication-service
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-matrix-authentication-service
+    app.kubernetes.io/version: "1.19.0"
+  name: ci-matrix-umbrella-test-values-matrix-authentication-service
+  namespace: ci-matrix-umbrella
+spec:
+  
+  tls:
+  
+    - hosts:
+      - "account.ci.example.test"
+    
+  
+  rules:
+  - host: "account.ci.example.test"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ci-matrix-umbrella-test-values-matrix-authentication-service
+            port:
+              name: http
+
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse
+    k8s.element.io/target-name: haproxy
+    k8s.element.io/target-instance: ci-matrix-umbrella-test-values-haproxy
+    app.kubernetes.io/version: "3.4.2-debian13"
+  name: ci-matrix-umbrella-test-values-synapse
+  namespace: ci-matrix-umbrella
+spec:
+  
+  tls:
+  
+    - hosts:
+      - "matrix.ci.example.test"
+    
+  
+  rules:
+  - host: "matrix.ci.example.test"
+    http:
+      paths:
+      - path: /_matrix/client/api/v1/login
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/api/v1/refresh
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/api/v1/logout
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/r0/login
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/r0/refresh
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/r0/logout
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/v3/login
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/v3/refresh
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/v3/logout
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/unstable/login
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/unstable/refresh
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix/client/unstable/logout
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-matrix-authentication-service"
+            port:
+              name: http
+      - path: /_matrix
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-synapse"
+            port:
+              name: haproxy-synapse
+      - path: /_synapse
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-synapse"
+            port:
+              name: haproxy-synapse
+---
+# Source: matrix-umbrella/charts/ess/templates/well-known/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-stack-ingress
+    app.kubernetes.io/name: well-known-ingress
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-well-known-ingress
+    app.kubernetes.io/version: "3.4.2-debian13"
+    k8s.element.io/target-name: haproxy
+    k8s.element.io/target-instance: ci-matrix-umbrella-test-values-haproxy
+  name: ci-matrix-umbrella-test-values-well-known
+  namespace: ci-matrix-umbrella
+spec:
+  
+  tls:
+  
+    - hosts:
+      - "ci.example.test"
+    
+  
+  rules:
+  - host: "ci.example.test"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: "ci-matrix-umbrella-test-values-well-known"
+            port:
+              name: haproxy-wkd
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-11"
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-pre
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+    app.kubernetes.io/version: "0.8.0"
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "9"
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-post
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+    app.kubernetes.io/version: "0.8.0"
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+---
+# Source: matrix-umbrella/charts/ess/templates/init-secrets/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-11"
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: init-secrets
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+    app.kubernetes.io/version: "0.8.0"
+  name: ci-matrix-umbrella-test-values-init-secrets
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_serviceaccount_hook.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-1"
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-check-config
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse-check-config
+  name: ci-matrix-umbrella-test-values-synapse-check-config
+  namespace: ci-matrix-umbrella
+automountServiceAccountToken: false
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_secret_hook.yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-check-config
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse-check-config
+  name: ci-matrix-umbrella-test-values-synapse-hook
+  namespace: ci-matrix-umbrella
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+data:
+  user-00-registration: ZW5hYmxlX3JlZ2lzdHJhdGlvbjogZmFsc2UK
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_configmap_hook.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-check-config
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse-check-config
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+  name: ci-matrix-umbrella-test-values-synapse-hook
+  namespace: ci-matrix-umbrella
+data:
+  
+  01-homeserver-underrides.yaml: |
+    
+    web_client_location: https://element.ci.example.test/
+    
+    report_stats: false
+    
+    mau_stats_only: true
+    
+    require_auth_for_profile_requests: true
+    
+    federation_client_minimum_tls_version: '1.2'
+    
+    experimental_features:
+      msc4028_push_encrypted_events: true
+      msc4452_enabled: true
+      # QR Code Login. Requires MAS
+      msc4108_enabled: true
+    
+    url_preview_enabled: true
+    # Both these lists are append only. If there are specific ranges within the denylist
+    # that should be allowed, then add them to the allowlist.
+    url_preview_ip_range_whitelist: []
+    url_preview_ip_range_blacklist:
+    - '192.168.0.0/16'
+    - '100.64.0.0/10'
+    - '192.0.0.0/24'
+    - '169.254.0.0/16'
+    - '192.88.99.0/24'
+    - '198.18.0.0/15'
+    - '192.0.2.0/24'
+    - '198.51.100.0/24'
+    - '203.0.113.0/24'
+    - '224.0.0.0/4'
+    - '::1/128'
+    - 'fe80::/10'
+    - 'fc00::/7'
+    - '2001:db8::/32'
+    - 'ff00::/8'
+    - 'fec0::/10'
+    
+    database:
+      args:
+        keepalives: 1
+        keepalives_idle: 10
+        keepalives_interval: 10
+        keepalives_count: 3
+    
+        # Synapse has no defaults, so up from Twisted's defaults of 3-5
+        cp_min: 5
+        cp_max: 10
+    
+  04-homeserver-overrides.yaml: |
+    public_baseurl: https://matrix.ci.example.test/
+    server_name: ci.example.test
+    signing_key_path: /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_SIGNING_KEY
+    enable_metrics: true
+    log_config: "/conf/log_config.yaml"
+    macaroon_secret_key_path:  /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_MACAROON
+    registration_shared_secret_path: /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_REGISTRATION_SHARED_SECRET
+    
+    database:
+      name: psycopg2
+      args:
+        user: synapse
+        password: ${SYNAPSE_POSTGRES_PASSWORD}
+        dbname: synapse
+        host: postgres.ci.svc.cluster.local
+        port: 5432
+        sslmode: prefer
+    
+        application_name: ${APPLICATION_NAME}
+    
+    # The default as of 1.27.0
+    ip_range_blacklist:
+    - '127.0.0.0/8'
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '192.168.0.0/16'
+    - '100.64.0.0/10'
+    - '192.0.0.0/24'
+    - '169.254.0.0/16'
+    - '192.88.99.0/24'
+    - '198.18.0.0/15'
+    - '192.0.2.0/24'
+    - '198.51.100.0/24'
+    - '203.0.113.0/24'
+    - '224.0.0.0/4'
+    - '::1/128'
+    - 'fe80::/10'
+    - 'fc00::/7'
+    - '2001:db8::/32'
+    - 'ff00::/8'
+    - 'fec0::/10'
+    matrix_authentication_service:
+      enabled: true
+      secret_path: /secrets/ci-matrix-umbrella-test-values-generated/MAS_SYNAPSE_SHARED_SECRET
+      endpoint: http://ci-matrix-umbrella-test-values-matrix-authentication-service.ci-matrix-umbrella.svc.cluster.local.:8080/
+      force_http2: true
+    
+    password_config:
+      localdb_enabled: false
+      enabled: false
+    
+    send_federation: true
+    
+    # This is still required despite media_storage_providers as otherwise Synapse attempts to mkdir media_store at the root of the container
+    media_store_path: "/media/media_store"
+    max_upload_size: "100M"
+    
+    start_pushers: true
+    
+    instance_map:
+      main:
+        host: ci-matrix-umbrella-test-values-synapse-main.ci-matrix-umbrella.svc.cluster.local.
+        port: 9093
+    
+    redis:
+      enabled: true
+      host: "valkey.ci.svc.cluster.local"
+      port: 6379
+    
+  05-main.yaml: |
+    
+    worker_app: synapse.app.homeserver
+    listeners:
+    - port: 8008
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: true
+      resources:
+      - names:
+        - client
+        - federation
+        compress: false
+    - port: 9093
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: false
+      resources:
+      - names: [replication]
+        compress: false
+    - type: metrics
+      port: 9001
+      bind_addresses:
+      - "::"
+    - port: 8080
+      tls: false
+      bind_addresses:
+      - "::"
+      - "0.0.0.0"
+      type: http
+      x_forwarded: false
+      resources:
+      - names: [health]
+        compress: false
+    enable_media_repo: true
+    
+  log_config.yaml: |
+    version: 1
+    
+    formatters:
+      precise:
+        format: '%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s'
+    
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: precise
+    
+    loggers:
+      synapse.storage.SQL:
+        level: "INFO"
+    
+    root:
+      level: "INFO"
+      handlers:
+      - console
+    
+    disable_existing_loggers: false
+    
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-pre
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-11"
+rules:
+
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: [ "ci-matrix-umbrella-test-values-markers" ]
+  verbs: ["get", "update"]
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-post
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "9"
+rules:
+
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  resourceNames: [ "ci-matrix-umbrella-test-values-markers" ]
+  verbs: ["get", "update"]
+---
+# Source: matrix-umbrella/charts/ess/templates/init-secrets/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ci-matrix-umbrella-test-values-init-secrets
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: init-secrets
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-11"
+rules:
+
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: [ "ci-matrix-umbrella-test-values-generated" ]
+  verbs: ["get", "update"]
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-pre
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-11"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+subjects:
+- kind: ServiceAccount
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+  namespace: ci-matrix-umbrella
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-post
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "9"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+subjects:
+- kind: ServiceAccount
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+  namespace: ci-matrix-umbrella
+---
+# Source: matrix-umbrella/charts/ess/templates/init-secrets/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-matrix-umbrella-test-values-init-secrets
+  namespace: ci-matrix-umbrella
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: init-secrets
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+    app.kubernetes.io/version: "0.8.0"
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-11"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ci-matrix-umbrella-test-values-init-secrets
+subjects:
+- kind: ServiceAccount
+  name: ci-matrix-umbrella-test-values-init-secrets
+  namespace: ci-matrix-umbrella
+---
+# Source: matrix-umbrella/charts/cinny/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "matrix-cinny-test-connection"
+  labels:
+    helm.sh/chart: cinny-0.2.23
+    app.kubernetes.io/name: cinny
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values
+    app.kubernetes.io/version: "4.12.3"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox:1.37.0
+      command: ['wget']
+      args: ['matrix-cinny:80']
+  restartPolicy: Never
+
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-pre
+  namespace: ci-matrix-umbrella
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-pre
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+    app.kubernetes.io/version: "0.8.0"
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  template:
+    metadata:
+      annotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-tools
+        app.kubernetes.io/name: deployment-markers-pre
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+        app.kubernetes.io/version: "0.8.0"
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: ci-matrix-umbrella-test-values-deployment-markers-pre
+      securityContext:
+        fsGroup: 10010
+        runAsGroup: 10010
+        runAsNonRoot: true
+        runAsUser: 10010
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Never
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-pre
+        matchLabelKeys: []
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      containers:
+      - name: deployment-markers
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        
+        env:
+        - name: NAMESPACE
+          value: ci-matrix-umbrella
+        args:
+        - "deployment-markers"
+        - "-step"
+        - "pre"
+        - "-markers"
+        - "ci-matrix-umbrella-test-values-markers:MATRIX_STACK_MSC3861:delegated_auth:delegated_auth;syn2mas_migrated"
+        - "-labels"
+        - "app.kubernetes.io/managed-by=Helm,app.kubernetes.io/part-of=matrix-stack,app.kubernetes.io/component=matrix-tools,app.kubernetes.io/name=deployment-markers,app.kubernetes.io/instance=ci-matrix-umbrella-test-values-deployment-markers,app.kubernetes.io/version=0.8.0"
+---
+# Source: matrix-umbrella/charts/ess/templates/deployment-markers/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ci-matrix-umbrella-test-values-deployment-markers-post
+  namespace: ci-matrix-umbrella
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: deployment-markers-post
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+    app.kubernetes.io/version: "0.8.0"
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  template:
+    metadata:
+      annotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-tools
+        app.kubernetes.io/name: deployment-markers-post
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+        app.kubernetes.io/version: "0.8.0"
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: ci-matrix-umbrella-test-values-deployment-markers-post
+      securityContext:
+        fsGroup: 10010
+        runAsGroup: 10010
+        runAsNonRoot: true
+        runAsUser: 10010
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Never
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-deployment-markers-post
+        matchLabelKeys: []
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      containers:
+      - name: deployment-markers
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        
+        env:
+        - name: NAMESPACE
+          value: ci-matrix-umbrella
+        args:
+        - "deployment-markers"
+        - "-step"
+        - "post"
+        - "-markers"
+        - "ci-matrix-umbrella-test-values-markers:MATRIX_STACK_MSC3861:delegated_auth:delegated_auth;syn2mas_migrated"
+        - "-labels"
+        - "app.kubernetes.io/managed-by=Helm,app.kubernetes.io/part-of=matrix-stack,app.kubernetes.io/component=matrix-tools,app.kubernetes.io/name=deployment-markers,app.kubernetes.io/instance=ci-matrix-umbrella-test-values-deployment-markers,app.kubernetes.io/version=0.8.0"
+---
+# Source: matrix-umbrella/charts/ess/templates/init-secrets/job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ci-matrix-umbrella-test-values-init-secrets
+  namespace: ci-matrix-umbrella
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-tools
+    app.kubernetes.io/name: init-secrets
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+    app.kubernetes.io/version: "0.8.0"
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  template:
+    metadata:
+      annotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-tools
+        app.kubernetes.io/name: init-secrets
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+        app.kubernetes.io/version: "0.8.0"
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: ci-matrix-umbrella-test-values-init-secrets
+      securityContext:
+        fsGroup: 10010
+        runAsGroup: 10010
+        runAsNonRoot: true
+        runAsUser: 10010
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Never
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-init-secrets
+        matchLabelKeys: []
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      containers:
+      - name: init-secrets
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        
+        env:
+        - name: NAMESPACE
+          value: ci-matrix-umbrella
+        args:
+        - "generate-secrets"
+        - "-secrets"
+        - "ci-matrix-umbrella-test-values-generated:SYNAPSE_EXTRA:extra,ci-matrix-umbrella-test-values-generated:SYNAPSE_MACAROON:rand32,ci-matrix-umbrella-test-values-generated:SYNAPSE_REGISTRATION_SHARED_SECRET:rand32,ci-matrix-umbrella-test-values-generated:SYNAPSE_SIGNING_KEY:signingkey,ci-matrix-umbrella-test-values-generated:MAS_SYNAPSE_SHARED_SECRET:rand32,ci-matrix-umbrella-test-values-generated:MAS_ENCRYPTION_SECRET:hex32,ci-matrix-umbrella-test-values-generated:MAS_RSA_PRIVATE_KEY:rsa:4096:der,ci-matrix-umbrella-test-values-generated:MAS_ECDSA_PRIME256V1_PRIVATE_KEY:ecdsaprime256v1"
+        - "-labels"
+        - "app.kubernetes.io/managed-by=Helm,app.kubernetes.io/part-of=matrix-stack,app.kubernetes.io/component=matrix-tools,app.kubernetes.io/name=init-secrets,app.kubernetes.io/instance=ci-matrix-umbrella-test-values-init-secrets,app.kubernetes.io/version=0.8.0"
+---
+# Source: matrix-umbrella/charts/ess/templates/synapse/synapse_check_config_job_hook.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ci-matrix-umbrella-test-values-synapse-check-config
+  namespace: ci-matrix-umbrella
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+  labels:
+    
+    helm.sh/chart: "ess-26.6.2"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: matrix-stack
+    app.kubernetes.io/component: matrix-server
+    app.kubernetes.io/name: synapse-check-config
+    app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+    app.kubernetes.io/version: "v1.155.0"
+    k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse-check-config
+    k8s.element.io/synapse-config-hash: "5aaea4f79b62a9f764c3090a688746500eb19518"
+    k8s.element.io/synapse-secret-hash: "5972a84ed877ead8a286214063305ad3cb52eaee"
+    k8s.element.io/postgres-password-synapse-hash: 36501b6304e5d7d3bd627fcb4e3921a2f0b55d87
+spec:
+  backoffLimit: 0
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  
+  template:
+    metadata:
+      labels:
+        
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/part-of: matrix-stack
+        app.kubernetes.io/component: matrix-server
+        app.kubernetes.io/name: synapse-check-config
+        app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+        app.kubernetes.io/version: "v1.155.0"
+        k8s.element.io/synapse-instance: ci-matrix-umbrella-test-values-synapse-check-config
+        k8s.element.io/synapse-config-hash: "5aaea4f79b62a9f764c3090a688746500eb19518"
+        k8s.element.io/synapse-secret-hash: "5972a84ed877ead8a286214063305ad3cb52eaee"
+        k8s.element.io/postgres-password-synapse-hash: 36501b6304e5d7d3bd627fcb4e3921a2f0b55d87
+      annotations:
+        ignore-check.kube-linter.io/job-ttl-seconds-after-finished: ESS hook Job TTL is upstream-managed.
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: ci-matrix-umbrella-test-values-synapse-check-config
+      securityContext:
+        fsGroup: 10091
+        runAsGroup: 10091
+        runAsNonRoot: true
+        runAsUser: 10091
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+      restartPolicy: Never
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: ci-matrix-umbrella-test-values-synapse-check-config
+        matchLabelKeys: []
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      initContainers:
+      - name: render-config
+        
+        image: "ghcr.io/element-hq/ess-helm/matrix-tools@sha256:05e8ee593c95470bb23378fd99aad4f36fd64ae104b3ba0f4457a5fbd06e2c2f"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        args:
+        - render-config
+        - -output
+        - /conf/homeserver.yaml
+        - /config-templates/01-homeserver-underrides.yaml
+        - /secrets/ci-matrix-umbrella-test-values-generated/SYNAPSE_EXTRA
+        - /secrets/ci-matrix-umbrella-test-values-synapse-hook/user-00-registration
+        - /config-templates/04-homeserver-overrides.yaml
+        - /config-templates/05-main.yaml
+        
+        env:
+        - name: APPLICATION_NAME
+          value: '{{ hostname }}'
+        - name: SYNAPSE_POSTGRES_PASSWORD
+          value: '{{ readfile "/secrets/matrix-postgres-auth/synapse-password" | quote }}'
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: /config-templates
+          name: plain-config
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-synapse-hook
+          name: "secret-5da742318738"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+        - mountPath: /conf
+          name: rendered-config
+          readOnly: false
+      containers:
+      - name: synapse
+        
+        image: "oci.element.io/synapse@sha256:a87d002fba8efba807af19a876f488f4a9d298d6b62f5bab66d14e311a355e99"
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        command:
+        - "python3"
+        - "-m"
+        - synapse.config
+        - "-c"
+        - /conf/homeserver.yaml
+        
+        env:
+        - name: LD_PRELOAD
+          value: libjemalloc.so.2
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+        volumeMounts:
+        - mountPath: "/conf/homeserver.yaml"
+          name: rendered-config
+          subPath: homeserver.yaml
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-synapse-hook
+          name: "secret-5da742318738"
+          readOnly: true
+        - mountPath: /secrets/ci-matrix-umbrella-test-values-generated
+          name: "secret-c27b1a2956e2"
+          readOnly: true
+        - mountPath: /secrets/matrix-postgres-auth
+          name: "secret-b04466406526"
+          readOnly: true
+        - mountPath: /conf/log_config.yaml
+          name: plain-config
+          subPath: log_config.yaml
+          readOnly: false
+        - mountPath: /media
+          name: media
+          readOnly: false
+        - mountPath: /tmp
+          name: tmp
+          readOnly: false
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ci-matrix-umbrella-test-values-synapse-hook
+        name: plain-config
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-synapse-hook
+        name: secret-5da742318738
+      - secret:
+          secretName: ci-matrix-umbrella-test-values-generated
+        name: secret-c27b1a2956e2
+      - secret:
+          secretName: matrix-postgres-auth
+        name: secret-b04466406526
+      - emptyDir:
+          medium: Memory
+        name: "rendered-config"
+      - emptyDir:
+          medium: Memory
+        name: "media"
+      - emptyDir:
+          medium: Memory
+        name: "tmp"
+

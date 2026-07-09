@@ -1,0 +1,724 @@
+---
+# Source: basic-memory/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-basic-memory-test-values
+  labels:
+    helm.sh/chart: basic-memory-0.3.26
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/version: "0.22.1"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: basic-memory/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-basic-memory-test-values-config
+  labels:
+    helm.sh/chart: basic-memory-0.3.26
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/version: "0.22.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  config.json: |
+    {
+      "projects": {
+        "main": {
+          "path": "/app/data/basic-memory",
+          "mode": "local"
+        }
+      },
+      "default_project": "main"
+    }
+---
+# Source: basic-memory/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-basic-memory-test-values-mcp-shim
+  labels:
+    helm.sh/chart: basic-memory-0.3.26
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/version: "0.22.1"
+    app.kubernetes.io/managed-by: Helm
+data:
+  shim.ts: |
+    // MCP JSON-RPC shim.
+    //
+    // Some MCP clients incorrectly omit `jsonrpc: "2.0"` in requests.
+    // FastMCP rejects those requests with HTTP 400. This proxy normalizes the
+    // request body (injects `jsonrpc`) and forwards to the upstream Basic Memory
+    // server, preserving streaming (SSE) responses.
+    //
+    // Deployed as a sidecar container and exposed via the Service.
+    const upstreamPort = Number(Deno.env.get("MCP_SHIM_UPSTREAM_PORT") ?? "8001");
+    const upstreamBase = `http://127.0.0.1:${upstreamPort}`;
+    const listenPort = Number(Deno.env.get("MCP_SHIM_LISTEN_PORT") ?? "8000");
+
+    const CLIENT_COOKIE = "mcp_shim_client";
+    const clientToUpstreamSession = new Map<string, string>();
+
+    // Optional policy enforcement to keep Basic Memory organized and prevent
+    // accidental destructive operations from automated clients.
+    const ALLOWED_NOTE_DIRS = (Deno.env.get("MCP_SHIM_ALLOWED_NOTE_DIRS") ?? "")
+      .split(",").map((s) => s.trim()).filter(Boolean);
+    const ALLOW_DELETE_NOTE = (Deno.env.get("MCP_SHIM_ALLOW_DELETE_NOTE") ?? "false").toLowerCase() === "true";
+    const DEFAULT_PROJECT = (Deno.env.get("MCP_SHIM_DEFAULT_PROJECT") ?? "main").trim();
+    const parsedToolConcurrency = Number(Deno.env.get("MCP_SHIM_MAX_TOOL_CALL_CONCURRENCY") ?? "4");
+    const MAX_TOOL_CALL_CONCURRENCY = Number.isFinite(parsedToolConcurrency) && parsedToolConcurrency > 0
+      ? Math.floor(parsedToolConcurrency)
+      : 4;
+    const parsedQueueTimeoutMs = Number(Deno.env.get("MCP_SHIM_TOOL_CALL_QUEUE_TIMEOUT_MS") ?? "12000");
+    const TOOL_CALL_QUEUE_TIMEOUT_MS = Number.isFinite(parsedQueueTimeoutMs) && parsedQueueTimeoutMs > 0
+      ? Math.floor(parsedQueueTimeoutMs)
+      : 12000;
+    const parsedUpstreamTimeoutMs = Number(Deno.env.get("MCP_SHIM_UPSTREAM_TIMEOUT_MS") ?? "45000");
+    const UPSTREAM_TIMEOUT_MS = Number.isFinite(parsedUpstreamTimeoutMs) && parsedUpstreamTimeoutMs > 0
+      ? Math.floor(parsedUpstreamTimeoutMs)
+      : 45000;
+    const THROTTLED_TOOLS = new Set(
+      (Deno.env.get("MCP_SHIM_THROTTLED_TOOLS") ?? "write_note,edit_note,move_note,delete_note")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
+    let activeToolCalls = 0;
+    const toolCallWaiters: Array<() => void> = [];
+
+    // Basic Memory tools frequently require a project context. Some MCP clients omit
+    // `project` even when the tool schema allows it. To make the endpoint resilient,
+    // we inject a default project only for tools known to accept the `project` argument.
+    // NOTE: `search` and `fetch` must NOT receive `project` (ChatGPT compatibility tools).
+    const PROJECT_AWARE_TOOLS = new Set([
+      "search_notes",
+      "read_note",
+      "view_note",
+      "write_note",
+      "edit_note",
+      "move_note",
+      "delete_note",
+      "read_content",
+      "recent_activity",
+      "list_directory",
+    ]);
+
+    async function acquireToolCallSlot(timeoutMs: number): Promise<() => void> {
+      if (activeToolCalls < MAX_TOOL_CALL_CONCURRENCY) {
+        activeToolCalls += 1;
+        return releaseToolCallSlot;
+      }
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          const idx = toolCallWaiters.indexOf(onReady);
+          if (idx >= 0) toolCallWaiters.splice(idx, 1);
+          reject(new Error("tool queue timeout"));
+        }, timeoutMs);
+        const onReady = () => { clearTimeout(timer); resolve(); };
+        toolCallWaiters.push(onReady);
+      });
+      activeToolCalls += 1;
+      return releaseToolCallSlot;
+    }
+
+    function releaseToolCallSlot(): void {
+      if (activeToolCalls > 0) activeToolCalls -= 1;
+      const waiter = toolCallWaiters.shift();
+      if (waiter) waiter();
+    }
+
+    function isObject(x: unknown): x is Record<string, unknown> {
+      return typeof x === "object" && x !== null && !Array.isArray(x);
+    }
+
+    function jsonRpcError(id: unknown, code: number, message: string, data?: unknown): string {
+      return JSON.stringify({
+        jsonrpc: "2.0",
+        id: (typeof id === "string" || typeof id === "number") ? id : null,
+        error: { code, message, ...(data === undefined ? {} : { data }) },
+      });
+    }
+
+    function normalizeDir(dir: unknown): string {
+      if (typeof dir !== "string") return "";
+      return dir.trim().replace(/^\/+/, "").replace(/\/+$/, "");
+    }
+
+    function isAllowedDir(dir: string): boolean {
+      if (!dir) return false;
+      if (dir.includes("..") || dir.startsWith(".")) return false;
+      if (ALLOWED_NOTE_DIRS.length === 0) return true; // empty allowlist = allow all
+      return ALLOWED_NOTE_DIRS.includes(dir.split("/")[0]);
+    }
+
+    function parseCookies(header: string | null): Record<string, string> {
+      if (!header) return {};
+      const out: Record<string, string> = {};
+      for (const part of header.split(";")) {
+        const [k, ...rest] = part.trim().split("=");
+        if (!k) continue;
+        out[k] = rest.join("=") ?? "";
+      }
+      return out;
+    }
+
+    function randomId(): string { return crypto.randomUUID(); }
+
+    function normalizeJsonRpc(body: unknown): unknown {
+      if (!isObject(body)) return body;
+      if (!("jsonrpc" in body) && ("method" in body || "id" in body)) {
+        return { jsonrpc: "2.0", ...body };
+      }
+      if (
+        !("jsonrpc" in body) &&
+        ("protocolVersion" in body || "clientInfo" in body || "capabilities" in body)
+      ) {
+        const id = typeof body.id === "number" || typeof body.id === "string" ? body.id : 1;
+        return { jsonrpc: "2.0", id, method: "initialize", params: body };
+      }
+      return body;
+    }
+
+    async function fetchWithTimeout(input: URL | string, init: RequestInit): Promise<Response> {
+      return await fetch(input, { ...init, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
+    }
+
+    async function ensureUpstreamSessionId(clientId: string): Promise<string> {
+      const existing = clientToUpstreamSession.get(clientId);
+      if (existing) return existing;
+      const initBody = JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2024-11-05",
+          clientInfo: { name: "mcp-shim", version: "0.1" },
+          capabilities: {},
+        },
+      });
+      const resp = await fetchWithTimeout(`${upstreamBase}/mcp`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "accept": "application/json, text/event-stream",
+        },
+        body: initBody,
+      });
+      const sid = resp.headers.get("mcp-session-id");
+      try { await resp.arrayBuffer(); } catch { /* ignore */ }
+      if (!sid) throw new Error("Upstream did not return mcp-session-id");
+      clientToUpstreamSession.set(clientId, sid);
+      return sid;
+    }
+
+    Deno.serve({ hostname: "0.0.0.0", port: listenPort }, async (req) => {
+      const url = new URL(req.url);
+      const upstreamUrl = new URL(upstreamBase);
+      upstreamUrl.pathname = url.pathname;
+      upstreamUrl.search = url.search;
+
+      const headers = new Headers(req.headers);
+      headers.delete("host");
+      headers.delete("content-length");
+
+      const cookies = parseCookies(req.headers.get("cookie"));
+      const clientId = cookies[CLIENT_COOKIE] || randomId();
+      const setCookie = cookies[CLIENT_COOKIE]
+        ? null
+        : `${CLIENT_COOKIE}=${clientId}; Path=/; HttpOnly; SameSite=Lax`;
+
+      if (url.pathname === "/mcp") {
+        const hasSid = req.headers.has("mcp-session-id");
+        console.log(`[mcp-shim] ${req.method} /mcp hasSessionId=${hasSid} ua=${req.headers.get("user-agent") ?? ""}`);
+      }
+
+      if (url.pathname === "/mcp" && req.method !== "POST") {
+        try {
+          const sid = await ensureUpstreamSessionId(clientId);
+          headers.set("mcp-session-id", sid);
+        } catch (e) {
+          console.error(`[mcp-shim] failed to ensure upstream session id: ${String(e)}`);
+        }
+      }
+
+      if (req.method === "POST" && url.pathname === "/mcp") {
+        const raw = await req.text();
+        let releaseToolCall: (() => void) | null = null;
+        try {
+          const parsed = raw.length ? JSON.parse(raw) : null;
+          const normalized = normalizeJsonRpc(parsed);
+          if (isObject(normalized)) {
+            const method = typeof normalized.method === "string" ? normalized.method : "";
+            console.log(`[mcp-shim] POST /mcp normalizedMethod=${method} jsonrpc=${String(normalized.jsonrpc ?? "")}`);
+
+            if (method === "tools/call" && isObject(normalized.params)) {
+              const toolName = typeof normalized.params.name === "string" ? normalized.params.name : "";
+              const args = isObject(normalized.params.arguments) ? normalized.params.arguments : null;
+              const shouldThrottle = THROTTLED_TOOLS.has(toolName);
+
+              if (shouldThrottle) {
+                try {
+                  releaseToolCall = await acquireToolCallSlot(TOOL_CALL_QUEUE_TIMEOUT_MS);
+                } catch {
+                  const err = jsonRpcError(
+                    normalized.id,
+                    -32004,
+                    `Busy: too many concurrent ${toolName} requests. Try again in a few seconds.`,
+                    { queueTimeoutMs: TOOL_CALL_QUEUE_TIMEOUT_MS, throttledTools: Array.from(THROTTLED_TOOLS) },
+                  );
+                  return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+                }
+              }
+
+              if (args && PROJECT_AWARE_TOOLS.has(toolName)) {
+                if (!("project" in args) || typeof args.project !== "string" || args.project.trim() === "") {
+                  (args as Record<string, unknown>).project = DEFAULT_PROJECT;
+                }
+              }
+
+              if (toolName === "delete_note" && !ALLOW_DELETE_NOTE) {
+                const err = jsonRpcError(
+                  normalized.id,
+                  -32001,
+                  "delete_note is disabled by policy (ask a human before deleting from Basic Memory).",
+                  { allowDeleteEnv: "MCP_SHIM_ALLOW_DELETE_NOTE=true" },
+                );
+                return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+              }
+
+              if (toolName === "write_note" && args) {
+                // Basic Memory's write_note tool uses `folder` as the
+                // parameter name; older shim revisions looked at `directory`
+                // (an alias that never existed server-side). Check both so
+                // either spelling works.
+                const dir = normalizeDir(args.folder || args.directory);
+                if (!isAllowedDir(dir)) {
+                  const err = jsonRpcError(
+                    normalized.id,
+                    -32002,
+                    `write_note blocked: directory "${dir}" is not allowed. Allowed: ${ALLOWED_NOTE_DIRS.join(", ") || "(none — allowlist is empty)"}.`,
+                    { allowed: ALLOWED_NOTE_DIRS },
+                  );
+                  return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+                }
+              }
+
+              if (toolName === "move_note" && args) {
+                const dest = normalizeDir(args.destination_path || args.destination_folder);
+                const top = dest.split("/")[0] ?? "";
+                if (!isAllowedDir(top)) {
+                  const err = jsonRpcError(
+                    normalized.id,
+                    -32003,
+                    `move_note blocked: destination "${dest}" is not allowed. Allowed: ${ALLOWED_NOTE_DIRS.join(", ") || "(none)"}.`,
+                    { allowed: ALLOWED_NOTE_DIRS },
+                  );
+                  return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+                }
+              }
+            }
+
+            if (method === "initialize") {
+              headers.delete("mcp-session-id");
+            } else {
+              try {
+                const sid = await ensureUpstreamSessionId(clientId);
+                headers.set("mcp-session-id", sid);
+              } catch (e) {
+                console.error(`[mcp-shim] failed to ensure upstream session id: ${String(e)}`);
+              }
+            }
+          }
+          const body = normalized === null ? "" : JSON.stringify(normalized);
+          const upstreamResp = await fetchWithTimeout(upstreamUrl, { method: "POST", headers, body });
+
+          const upstreamSid = upstreamResp.headers.get("mcp-session-id");
+          if (upstreamSid) clientToUpstreamSession.set(clientId, upstreamSid);
+
+          const respHeaders = new Headers(upstreamResp.headers);
+          if (setCookie) respHeaders.append("set-cookie", setCookie);
+
+          if (upstreamResp.status >= 400) {
+            const errText = await upstreamResp.text();
+            console.log(`[mcp-shim] upstream error status=${upstreamResp.status} body=${errText.slice(0, 300)}`);
+            return new Response(errText, {
+              status: upstreamResp.status,
+              statusText: upstreamResp.statusText,
+              headers: respHeaders,
+            });
+          }
+
+          return new Response(upstreamResp.body, {
+            status: upstreamResp.status,
+            statusText: upstreamResp.statusText,
+            headers: respHeaders,
+          });
+        } catch (e) {
+          if (!(e instanceof SyntaxError)) {
+            const err = jsonRpcError(null, -32005, `Upstream request failed: ${String(e)}`, { timeoutMs: UPSTREAM_TIMEOUT_MS });
+            return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+          }
+          const upstreamResp = await fetchWithTimeout(upstreamUrl, { method: "POST", headers, body: raw });
+          const respHeaders = new Headers(upstreamResp.headers);
+          if (setCookie) respHeaders.append("set-cookie", setCookie);
+          if (upstreamResp.status >= 400) {
+            const errText = await upstreamResp.text();
+            console.log(`[mcp-shim] upstream error status=${upstreamResp.status} body=${errText.slice(0, 300)}`);
+            return new Response(errText, {
+              status: upstreamResp.status,
+              statusText: upstreamResp.statusText,
+              headers: respHeaders,
+            });
+          }
+          return new Response(upstreamResp.body, {
+            status: upstreamResp.status,
+            statusText: upstreamResp.statusText,
+            headers: respHeaders,
+          });
+        } finally {
+          if (releaseToolCall) releaseToolCall();
+        }
+      }
+
+      const upstreamResp = await fetchWithTimeout(upstreamUrl, {
+        method: req.method,
+        headers,
+        body: req.body,
+      });
+      if (!setCookie) return upstreamResp;
+      const respHeaders = new Headers(upstreamResp.headers);
+      respHeaders.append("set-cookie", setCookie);
+      return new Response(upstreamResp.body, {
+        status: upstreamResp.status,
+        statusText: upstreamResp.statusText,
+        headers: respHeaders,
+      });
+    });
+
+---
+# Source: basic-memory/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-basic-memory-test-values
+  labels:
+    helm.sh/chart: basic-memory-0.3.26
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/version: "0.22.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv4
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/component: server
+
+---
+# Source: basic-memory/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-basic-memory-test-values
+  labels:
+    helm.sh/chart: basic-memory-0.3.26
+    app.kubernetes.io/name: basic-memory
+    app.kubernetes.io/instance: ci-basic-memory-test-values
+    app.kubernetes.io/version: "0.22.1"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: basic-memory
+      app.kubernetes.io/instance: ci-basic-memory-test-values
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      annotations:
+        checksum/config: efe6d721fb0f1cb6b0c50c2d30548b5bf2cb2c540e6d84735294cd0ab7809c45
+      labels:
+        app.kubernetes.io/name: basic-memory
+        app.kubernetes.io/instance: ci-basic-memory-test-values
+        app.kubernetes.io/component: server
+    spec:
+      serviceAccountName: ci-basic-memory-test-values
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+      initContainers:
+        # Prepare writable Basic Memory home dir for config + runtime logs.
+        # ConfigMap volumes are read-only, so we copy config.json into the home PVC.
+        - name: basic-memory-home-init
+          image: busybox:1.37
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              mkdir -p /config-home/config
+              cp /config-src/config.json /config-home/config/config.json
+              chmod 0700 /config-home/config
+              chmod 0644 /config-home/config/config.json
+          volumeMounts:
+            - name: basic-memory-config
+              mountPath: /config-src
+              readOnly: true
+            - name: basic-memory-home
+              mountPath: /config-home
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+        # Warm the fastembed model cache onto persistent storage BEFORE the
+        # runtime container enters offline mode (HF_HUB_OFFLINE=1). Keeps
+        # semantic search stable on fresh PVCs without re-enabling network
+        # fetches at runtime.
+        - name: semantic-model-cache-init
+          image: "ghcr.io/basicmachines-co/basic-memory:0.22.1@sha256:0da35f465fed7b58b6c2e31e7c0dbcbc728760a1b6a71857cfe3ced847c727a1"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: HOME
+              value: /tmp
+            - name: HF_HUB_OFFLINE
+              value: "0"
+            - name: BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR
+              value: "/app/data/fastembed_cache"
+            - name: BASIC_MEMORY_SEMANTIC_MODEL_NAME
+              value: "BAAI/bge-small-en-v1.5"
+          command:
+            - /app/.venv/bin/python
+            - -c
+            - |
+              import os
+              from fastembed import TextEmbedding
+              cache_dir = os.environ["BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR"]
+              model_name = os.environ["BASIC_MEMORY_SEMANTIC_MODEL_NAME"]
+              os.makedirs(cache_dir, exist_ok=True)
+              embedding = TextEmbedding(model_name=model_name, cache_dir=cache_dir)
+              next(iter(embedding.embed(["basic-memory semantic cache bootstrap"])))
+              print(f"semantic model cache ready for {model_name} at {cache_dir}")
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+      containers:
+        - name: basic-memory
+          image: "ghcr.io/basicmachines-co/basic-memory:0.22.1@sha256:0da35f465fed7b58b6c2e31e7c0dbcbc728760a1b6a71857cfe3ced847c727a1"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - basic-memory
+            - mcp
+            - --transport
+            - streamable-http
+            - --port
+            - "8001"
+          ports:
+            - name: upstream
+              containerPort: 8001
+              protocol: TCP
+          env:
+            - name: BASIC_MEMORY_CONFIG_DIR
+              value: "/home/appuser/.basic-memory/config"
+            - name: BASIC_MEMORY_DEFAULT_PROJECT
+              value: "main"
+            - name: BASIC_MEMORY_HOME
+              value: "/app/data/basic-memory"
+            - name: BASIC_MEMORY_LOG_LEVEL
+              value: "INFO"
+            - name: BASIC_MEMORY_SEMANTIC_EMBEDDING_CACHE_DIR
+              value: "/app/data/fastembed_cache"
+            - name: BASIC_MEMORY_SYNC_MAX_CONCURRENT_FILES
+              value: "4"
+            - name: BASIC_MEMORY_SYNC_THREAD_POOL_SIZE
+              value: "2"
+            - name: BASIC_MEMORY_WATCH_PROJECT_RELOAD_INTERVAL
+              value: "900"
+            - name: HF_HUB_OFFLINE
+              value: "1"
+          volumeMounts:
+            - name: basic-memory-home
+              mountPath: /home/appuser/.basic-memory
+            - name: data
+              mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
+            - name: pip-local
+              mountPath: /home/appuser/.local
+            - name: pip-cache
+              mountPath: /home/appuser/.cache
+          startupProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+        # MCP compatibility shim sidecar — normalises non-compliant JSON-RPC
+        # and enforces write/delete policy. The Service targets this container.
+        - name: mcp-shim
+          image: "dhi.io/deno:2.9.2-debian13@sha256:e55bf10a382c84a26691f5f6fb8f8fd2bc7aac4a0fa5d3e0e5bc97443b6c4ab0"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: HOME
+              value: /tmp
+            - name: MCP_SHIM_LISTEN_PORT
+              value: "8000"
+            - name: MCP_SHIM_UPSTREAM_PORT
+              value: "8001"
+            - name: MCP_SHIM_DEFAULT_PROJECT
+              value: "main"
+            - name: MCP_SHIM_MAX_TOOL_CALL_CONCURRENCY
+              value: "4"
+            - name: MCP_SHIM_TOOL_CALL_QUEUE_TIMEOUT_MS
+              value: "12000"
+            - name: MCP_SHIM_UPSTREAM_TIMEOUT_MS
+              value: "45000"
+            - name: MCP_SHIM_THROTTLED_TOOLS
+              value: "write_note,edit_note,move_note,delete_note"
+            - name: MCP_SHIM_ALLOWED_NOTE_DIRS
+              value: "ci-test"
+            - name: MCP_SHIM_ALLOW_DELETE_NOTE
+              value: "false"
+          command:
+            - deno
+            - run
+            - -A
+            - /shim/shim.ts
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: mcp-shim
+              mountPath: /shim
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            limits:
+              cpu: 250m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+      volumes:
+        - name: basic-memory-config
+          configMap:
+            name: ci-basic-memory-test-values-config
+        - name: basic-memory-home
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: pip-local
+          emptyDir: {}
+        - name: pip-cache
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+        - name: mcp-shim
+          configMap:
+            name: ci-basic-memory-test-values-mcp-shim

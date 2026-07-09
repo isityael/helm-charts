@@ -1,0 +1,270 @@
+---
+# Source: forgejo-runner/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: forgejo-runner-ci
+  namespace: ci-forgejo-runner
+  labels:
+    helm.sh/chart: forgejo-runner-0.1.10
+    app: forgejo-runner
+    app.kubernetes.io/name: forgejo-runner
+    app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+
+---
+# Source: forgejo-runner/templates/runner-config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-forgejo-runner-test-values-config
+  namespace: ci-forgejo-runner
+  labels:
+    helm.sh/chart: forgejo-runner-0.1.10
+    app: forgejo-runner
+    app.kubernetes.io/name: forgejo-runner
+    app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  config.yaml: |
+
+    cache:
+      dir: /data/.cache/actcache
+      enabled: true
+      external_server: ""
+      host: ""
+      port: 0
+    container:
+      docker_host: '-'
+      enable_ipv6: false
+      force_pull: false
+      network: ""
+      options: ""
+      privileged: false
+      valid_volumes: []
+      workdir_parent: ""
+    host:
+      workdir_parent: ""
+    log:
+      job_level: info
+      level: info
+    runner:
+      capacity: 1
+      env_file: .env
+      envs: {}
+      fetch_interval: 2s
+      fetch_timeout: 5s
+      file: /data/.runner
+      insecure: false
+      timeout: 3h
+
+---
+# Source: forgejo-runner/templates/daemon-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-forgejo-runner-test-values-docker-daemon
+  namespace: ci-forgejo-runner
+  labels:
+    helm.sh/chart: forgejo-runner-0.1.10
+    app: forgejo-runner
+    app.kubernetes.io/name: forgejo-runner
+    app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+data:
+  daemon.json: |
+    {
+      "registry-mirrors": ["https://mirror.bogusdomain.test"],
+      "insecure-registries": [],
+      "features": { "buildkit": true }
+    }
+
+---
+# Source: forgejo-runner/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ci-forgejo-runner-test-values-data
+  namespace: ci-forgejo-runner
+  labels:
+    helm.sh/chart: forgejo-runner-0.1.10
+    app: forgejo-runner
+    app.kubernetes.io/name: forgejo-runner
+    app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "test-storage-class"
+
+---
+# Source: forgejo-runner/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-forgejo-runner-test-values
+  namespace: ci-forgejo-runner
+  labels:
+    helm.sh/chart: forgejo-runner-0.1.10
+    app: forgejo-runner
+    app.kubernetes.io/name: forgejo-runner
+    app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    app.kubernetes.io/version: "12.12.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: forgejo-runner
+      app.kubernetes.io/name: forgejo-runner
+      app.kubernetes.io/instance: ci-forgejo-runner-test-values
+  template:
+    metadata:
+      annotations:
+        checksum/daemon-config: e2ebd3b603ccffaba2d91e9cdf43142647312cf37093011a047e56cfcfe697ea
+        checksum/runner-config: 19f4c3fbe37e71ec818c58222897296010014cfff176cfad1f1202e2143a1c2e
+      labels:
+        app: forgejo-runner
+        app.kubernetes.io/name: forgejo-runner
+        app.kubernetes.io/instance: ci-forgejo-runner-test-values
+    spec:
+      serviceAccountName: forgejo-runner-ci
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        
+        - name: dind
+          image: "docker:29.5.3-dind-alpine3.23@sha256:7d85d0eda291f1a7ab6df4a9d1802b5ad4cf9145a088bd11188c78dcb5c7392b"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --host=unix:///var/run/docker.sock
+            - --host=tcp://127.0.0.1:2375
+            - --tls=false
+            - --group=1000
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          securityContext:
+            privileged: true
+            runAsGroup: 0
+            runAsUser: 0
+          volumeMounts:
+            - name: docker-graph
+              mountPath: /var/lib/docker
+            - name: docker-socket
+              mountPath: /var/run
+            - name: docker-daemon-config
+              mountPath: /etc/docker/daemon.json
+              subPath: daemon.json
+          resources:
+            limits:
+              cpu: "2"
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+
+        
+        - name: runner
+          image: "ghcr.io/isityael/forgejo-runner:12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85"
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until nc -z 127.0.0.1 2375; do
+                echo "waiting for Docker daemon"
+                sleep 2
+              done
+              if [ ! -s "/data/.runner" ]; then
+                if [ -z "${FORGEJO_INSTANCE_URL:-}" ] || [ -z "${FORGEJO_RUNNER_REGISTRATION_TOKEN:-}" ]; then
+                  echo "missing runner.instanceURL or runner.registrationTokenSecret and no existing .runner file"
+                  exit 1
+                fi
+                forgejo-runner register \
+                  --no-interactive \
+                  --config /etc/forgejo-runner/config.yaml \
+                  --instance "${FORGEJO_INSTANCE_URL}" \
+                  --token "${FORGEJO_RUNNER_REGISTRATION_TOKEN}" \
+                  --name "${FORGEJO_RUNNER_NAME}" \
+                  --labels "${FORGEJO_RUNNER_LABELS}"
+              fi
+              exec forgejo-runner --config /etc/forgejo-runner/config.yaml daemon
+          env:
+            - name: FORGEJO_INSTANCE_URL
+              value: "https://forgejo.bogusdomain.test"
+            - name: FORGEJO_RUNNER_NAME
+              value: "ci-runner"
+            - name: FORGEJO_RUNNER_LABELS
+              value: "docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm"
+            - name: FORGEJO_RUNNER_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-runner-ci
+                  key: REGISTRATION_TOKEN
+            - name: DOCKER_HOST
+              value: tcp://127.0.0.1:2375
+            - name: DOCKER_CONFIG
+              value: /tmp/.docker
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: runner-config
+              mountPath: /etc/forgejo-runner
+              readOnly: true
+            - name: docker-socket
+              mountPath: /var/run
+            - name: runner-data
+              mountPath: /data
+            - name: docker-config
+              mountPath: /tmp/.docker
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+      volumes:
+        - name: runner-config
+          secret:
+            secretName: ci-forgejo-runner-test-values-config
+        - name: docker-graph
+          emptyDir: {}
+        - name: docker-socket
+          emptyDir: {}
+        - name: runner-data
+          persistentVolumeClaim:
+            claimName: ci-forgejo-runner-test-values-data
+        - name: docker-config
+          emptyDir: {}
+        - name: docker-daemon-config
+          configMap:
+            name: ci-forgejo-runner-test-values-docker-daemon
+            items:
+              - key: daemon.json
+                path: daemon.json

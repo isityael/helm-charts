@@ -1,0 +1,445 @@
+---
+# Source: searxng/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ci-searxng-test-values-secret
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+stringData:
+  SEARXNG_SECRET: "test-secret-change-me"
+
+---
+# Source: searxng/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-searxng-test-values-config
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+data:
+  settings.yml: |
+    use_default_settings: true
+    server:
+      base_url: "https://search.example.com/"
+      method: "GET"
+      limiter: true
+      image_proxy: true
+      public_instance: false
+      secret_key: "__SEARXNG_SECRET__"
+    search:
+      safe_search: 0
+      autocomplete: "duckduckgo"
+      formats:
+        - html
+        - json
+    ui:
+      default_theme: "m0sh1-dark"
+      theme_args:
+        simple_style: "dark"
+      query_in_title: true
+      infinite_scroll: false
+      results_on_new_tab: true
+    outgoing:
+      request_timeout: 3
+      max_request_timeout: 10
+    valkey:
+      url: "valkey://ci-searxng-test-values-valkey:6379/0"
+  limiter.toml: |
+    [botdetection.ip_limit]
+    link_token = true
+    
+
+---
+# Source: searxng/templates/theme-overrides-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ci-searxng-test-values-theme-overrides
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+data:
+  m0sh1-dark.css: |
+    :root.theme-auto,
+    :root.theme-light,
+    :root.theme-dark,
+    :root.theme-black {
+      --color-btn-background: #3f5cff;
+      --color-categories-item-selected-font: #3f5cff;
+      --color-categories-item-border-selected: #3f5cff;
+      --color-result-link-font: #6f8cff;
+      --color-result-link-font-highlight: #6f8cff;
+    }
+    
+
+---
+# Source: searxng/templates/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ci-searxng-test-values-cache
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "local-path"
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Source: searxng/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-searxng-test-values
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+
+---
+# Source: searxng/templates/valkey.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-searxng-test-values-valkey
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: valkey
+spec:
+  type: ClusterIP
+  ports:
+    - name: valkey
+      port: 6379
+      targetPort: valkey
+  selector:
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/component: valkey
+
+---
+# Source: searxng/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-searxng-test-values
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: searxng
+      app.kubernetes.io/instance: ci-searxng-test-values
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: searxng
+        app.kubernetes.io/instance: ci-searxng-test-values
+    spec:
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 977
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: render-config
+          image: "dhi.io/busybox:1.37.0-debian13@sha256:4619232465fb1d1c460a76b5511843cf3de4a6d59e525d373a73998bbfd8cb0c"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 977
+            runAsNonRoot: true
+            runAsUser: 977
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              secret_escaped="$(printf '%s' "$SEARXNG_SECRET" | sed 's/[\/&]/\\&/g')"
+              sed "s/__SEARXNG_SECRET__/${secret_escaped}/g" /config-src/settings.yml > /config-rendered/settings.yml
+              cp /config-src/limiter.toml /config-rendered/limiter.toml
+          env:
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ci-searxng-test-values-secret
+                  key: SEARXNG_SECRET
+          volumeMounts:
+            - name: config-source
+              mountPath: /config-src
+              readOnly: true
+            - name: config-rendered
+              mountPath: /config-rendered
+        - name: prepare-themes
+          image: "ghcr.io/searxng/searxng:2026.5.13-8e5aa9d39@sha256:e37c25170d9f5947b16713af33e0ab41f0e6e6e73685e19c30fc6bb63562f801"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsGroup: 977
+            runAsNonRoot: true
+            runAsUser: 977
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              source_theme="simple"
+              static_root=/theme-static
+              templates_root=/theme-templates
+              cp -a /usr/local/searxng/searx/static/themes/. "${static_root}/"
+              cp -a /usr/local/searxng/searx/templates/. "${templates_root}/"
+              test -d "${static_root}/${source_theme}"
+              test -d "${templates_root}/${source_theme}"
+              rm -rf "${static_root}/m0sh1-dark" "${templates_root}/m0sh1-dark"
+              cp -a "${static_root}/${source_theme}" "${static_root}/m0sh1-dark"
+              cp -a "${templates_root}/${source_theme}" "${templates_root}/m0sh1-dark"
+              if [ -s "/theme-overrides/m0sh1-dark.css" ]; then
+                cat "/theme-overrides/m0sh1-dark.css" >> "${static_root}/m0sh1-dark/sxng-ltr.min.css"
+                cat "/theme-overrides/m0sh1-dark.css" >> "${static_root}/m0sh1-dark/sxng-rtl.min.css"
+                rm -f \
+                  "${static_root}/m0sh1-dark/sxng-ltr.min.css.br" \
+                  "${static_root}/m0sh1-dark/sxng-ltr.min.css.gz" \
+                  "${static_root}/m0sh1-dark/sxng-rtl.min.css.br" \
+                  "${static_root}/m0sh1-dark/sxng-rtl.min.css.gz"
+              fi
+          volumeMounts:
+            - name: theme-static
+              mountPath: /theme-static
+            - name: theme-templates
+              mountPath: /theme-templates
+            - name: theme-overrides
+              mountPath: /theme-overrides
+              readOnly: true
+      containers:
+        - name: searxng
+          image: "ghcr.io/searxng/searxng:2026.5.13-8e5aa9d39@sha256:e37c25170d9f5947b16713af33e0ab41f0e6e6e73685e19c30fc6bb63562f801"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsGroup: 977
+            runAsNonRoot: true
+            runAsUser: 977
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SEARXNG_PORT
+              value: "8080"
+            - name: SEARXNG_SETTINGS_PATH
+              value: /etc/searxng/settings.yml
+          volumeMounts:
+            - name: config-rendered
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
+              readOnly: true
+            - name: config-rendered
+              mountPath: /etc/searxng/limiter.toml
+              subPath: limiter.toml
+              readOnly: true
+            - name: cache
+              mountPath: /var/cache/searxng
+            - name: theme-static
+              mountPath: /usr/local/searxng/searx/static/themes
+            - name: theme-templates
+              mountPath: /usr/local/searxng/searx/templates
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 750m
+              memory: 768Mi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+      volumes:
+        - name: config-source
+          configMap:
+            name: ci-searxng-test-values-config
+        - name: config-rendered
+          emptyDir: {}
+        - name: cache
+          persistentVolumeClaim:
+            claimName: ci-searxng-test-values-cache
+        - name: theme-static
+          emptyDir: {}
+        - name: theme-templates
+          emptyDir: {}
+        - name: theme-overrides
+          configMap:
+            name: ci-searxng-test-values-theme-overrides
+
+---
+# Source: searxng/templates/valkey.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ci-searxng-test-values-valkey
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: valkey
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: searxng
+      app.kubernetes.io/instance: ci-searxng-test-values
+      app.kubernetes.io/component: valkey
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: searxng
+        app.kubernetes.io/instance: ci-searxng-test-values
+        app.kubernetes.io/component: valkey
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1000
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: valkey
+          image: "dhi.io/valkey:9.1.0-debian13@sha256:9c534dfa305961bb3eaa1326f8af68b21a386950cc94e693ce32647c9a41a360"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          ports:
+            - name: valkey
+              containerPort: 6379
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+# Source: searxng/templates/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ci-searxng-test-values
+  labels:
+    helm.sh/chart: searxng-0.2.8
+    app.kubernetes.io/name: searxng
+    app.kubernetes.io/instance: ci-searxng-test-values
+    app.kubernetes.io/version: "2026.5.13-8e5aa9d39"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - search.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/"
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: ci-searxng-test-values
+          port: 8080
+          weight: 1
