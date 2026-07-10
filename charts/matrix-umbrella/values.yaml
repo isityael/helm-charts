@@ -44,7 +44,7 @@ ess:
       registry: dhi.io
       repository: postgres
       tag: "18.4-alpine3.24"
-      digest: sha256:3bec1efd91149f9ef010bd9c1cf6f17466eff0efb103719f0514a0362c3dfc41
+      digest: sha256:a9cf0fdee9601c46bd68f5215213d6f21e72f9ccf60224a2a5bafc984f7cb8a8
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
   redis:
@@ -372,7 +372,7 @@ matrix-appservice-irc:
     image:
       repository: dhi.io/postgres
       tag: "18.4-alpine3.24"
-      digest: sha256:3bec1efd91149f9ef010bd9c1cf6f17466eff0efb103719f0514a0362c3dfc41
+      digest: sha256:a9cf0fdee9601c46bd68f5215213d6f21e72f9ccf60224a2a5bafc984f7cb8a8
       pullPolicy: IfNotPresent
   redis:
     enabled: false
