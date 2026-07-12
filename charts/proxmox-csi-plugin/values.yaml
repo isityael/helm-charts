@@ -118,7 +118,7 @@ controller:
       repository: ghcr.io/isityael/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:3c24eef1d37df4e1412c812958114de396f60731c6d2805312b0750e06f99726
+      tag: edge@sha256:262e6b5da6779108d523c19be3866e428bc8f28690a6fb11a20cd9157299c20c
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -131,7 +131,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:5d99041032f3d999c52ee2fd2351f6b3d18bea763c6586ed0b794703c543971e
+      tag: 4.12.0-debian13@sha256:e3f97f38ed4fe009e7af47b9154a65de0dc4a1bee3de2afa47cc14bb9163bbd5
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -148,7 +148,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:1bb001209650bb0fe7d692caacb53bcac0b72ba8289a8e8f41e9f284f337ea79
+      tag: 6.3.0-debian13@sha256:dedc902d90591d8cb24ca5ebf96e9d155f250ad632c905ba4d749fc753984770
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -165,7 +165,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.1-debian13@sha256:13f6efd2c45ad56fd165bc461768a8fd06e599bb7c15fb50bdb50f4df763172f
+      tag: 2.2.1-debian13@sha256:c844c2ede7786315a9d9b779e88b7d50c46478f17af98d61eefff27ec8c36798
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -182,7 +182,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.6.0-debian13@sha256:bf4be7e02dec2ef844716021697664b91c5ac4d00b96391405a08b8d995b8c8e
+      tag: 8.6.0-debian13@sha256:472bad04dfdf72b8a86be491a9c2edab0763e33f2ef932bc09491ce2dc55a5ba
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -200,7 +200,7 @@ node:
       repository: ghcr.io/isityael/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:e7f201046d0a6141ea21904ff6318f4cd59b983b0bfee46d5be03c9b987cce11
+      tag: edge@sha256:a174da7d19d8bd60a52a5c4aaeb705a5e923d96e7e27ebf1faed587b20705e3a
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
@@ -210,7 +210,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:65b3072e8a10ea1b1c5a563801193f2aecb6faf4832332c775a7255a5712085f
+      tag: 2.17.0-debian13@sha256:84885cccc30faf2505a6ab9c447553db507429389c98988d4c7aa77559d55f98
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
@@ -251,7 +251,7 @@ livenessprobe:
   image:
     repository: dhi.io/livenessprobe
     pullPolicy: IfNotPresent
-    tag: 2.19.0-debian13@sha256:a0cbde3ba6c5791d1305027191c56587686a92050f5d63b89aa935d8808fcc9a
+    tag: 2.19.0-debian13@sha256:147d321f5b2d80586c4ffd4a71185981029cc592810c8c0bdd81c8dda4962848
   # -- Failure threshold for livenessProbe
   failureThreshold: 5
   # -- Initial delay seconds for livenessProbe

@@ -40,7 +40,7 @@ imagePullSecrets: []
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.2-debian13@sha256:ea680fe689e849e41c16824966ac1a62bcc58049e27ef6f1190cb7ee036a6f2c"
+    tag: "2.9.2-debian13@sha256:db7b6c8338985aa462a913eaa2852366f53bdca4796ac8dc373aa8cfc9f548b7"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ obsidianSync:
   couchdb:
     image:
       repository: dhi.io/couchdb
-      tag: "3.5.2-debian13@sha256:d89e4206beeedbe8b7a12e57ab5fbd04413f69e6367b81d205c4b70c60e2b5fc"
+      tag: "3.5.2-debian13@sha256:e2d4f723b41230dcb3f69bebe6e3daf8ea8dcda3f7005cf633ba06724d1ed054"
       pullPolicy: IfNotPresent
     # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
     existingSecret:
