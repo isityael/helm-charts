@@ -4,6 +4,10 @@ set -euo pipefail
 config=renovate.json
 
 jq -e '
+  .extends | index("local>isityael/infra//.github/renovate/base.json") != null
+' "$config" >/dev/null
+
+jq -e '
   .enabledManagers | index("custom.regex") != null
 ' "$config" >/dev/null
 
