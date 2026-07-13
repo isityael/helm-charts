@@ -341,12 +341,12 @@ matrix-appservice-irc:
   host: irc.example.com
   image:
     repository: matrixdotorg/matrix-appservice-irc
-    tag: "release-4.0.0"
+    tag: "release-4.0.0@sha256:ab906656406d8cfa273e39385c0a3182f5cf9d9c4a03e981bb1dd62162802d37"
     pullPolicy: IfNotPresent
   pool:
     image:
       repository: matrixdotorg/matrix-appservice-irc
-      tag: "release-4.0.0"
+      tag: "release-4.0.0@sha256:ab906656406d8cfa273e39385c0a3182f5cf9d9c4a03e981bb1dd62162802d37"
       pullPolicy: IfNotPresent
   waitForRedis:
     image:
