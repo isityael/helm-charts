@@ -43,7 +43,7 @@ ess:
     image:
       registry: dhi.io
       repository: postgres
-      tag: "18.4-alpine3.24"
+      tag: "18.4-alpine3.24@sha256:f8178800ae5509fb86e37e395e4a2163a8853a18071d1b7aec1f8603d22e1fb7"
       digest: sha256:a9cf0fdee9601c46bd68f5215213d6f21e72f9ccf60224a2a5bafc984f7cb8a8
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
@@ -51,7 +51,7 @@ ess:
     image:
       registry: dhi.io
       repository: valkey
-      tag: "9.1.0-debian13"
+      tag: "9.1.0-debian13@sha256:b624ddf73fa133cf8dc59bdf7944b171308948336bd575d6dbccef84af8a4d31"
       digest: sha256:9697cb735fda12759e252a4bebaf97f0e4637cdfc915c40edf65e0b5f3cc02cf
 
   storage:
@@ -64,7 +64,7 @@ ess:
     image:
       registry: dhi.io
       repository: haproxy
-      tag: "3.4.2-debian13"
+      tag: "3.4.2-debian13@sha256:a51ef78770261f815369b66d08be43242bf5b0feffb8d242129b68e3eb86a272"
       digest: sha256:0bb930bac61c44cdecdc36ec125c0179e3ead95b1844da4560f13b5024499146
 
   elementWeb:
@@ -351,7 +351,7 @@ matrix-appservice-irc:
   waitForRedis:
     image:
       repository: dhi.io/busybox
-      tag: "1.38.0-alpine3.24"
+      tag: "1.38.0-alpine3.24@sha256:69a25015bda2c7dfac5d3a88990b56bc0f38539b313c448b171edef1497193ad"
       digest: sha256:69a25015bda2c7dfac5d3a88990b56bc0f38539b313c448b171edef1497193ad
       pullPolicy: IfNotPresent
   homeserver:
@@ -371,14 +371,14 @@ matrix-appservice-irc:
     enabled: false
     image:
       repository: dhi.io/postgres
-      tag: "18.4-alpine3.24"
+      tag: "18.4-alpine3.24@sha256:f8178800ae5509fb86e37e395e4a2163a8853a18071d1b7aec1f8603d22e1fb7"
       digest: sha256:a9cf0fdee9601c46bd68f5215213d6f21e72f9ccf60224a2a5bafc984f7cb8a8
       pullPolicy: IfNotPresent
   redis:
     enabled: false
     image:
       repository: dhi.io/valkey
-      tag: "9.1.0-debian13"
+      tag: "9.1.0-debian13@sha256:b624ddf73fa133cf8dc59bdf7944b171308948336bd575d6dbccef84af8a4d31"
       digest: sha256:9697cb735fda12759e252a4bebaf97f0e4637cdfc915c40edf65e0b5f3cc02cf
       pullPolicy: IfNotPresent
     args:
