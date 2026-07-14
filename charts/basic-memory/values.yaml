@@ -301,7 +301,7 @@ obsidianSync:
   couchdb:
     image:
       repository: dhi.io/couchdb
-      tag: "3.5.2-debian13@sha256:22c471858b1472d1b2a5bedecb760a3f225511188f8e5acde3080420c43460e6"
+      tag: "3.5.2-debian13@sha256:22fa5a11d19887cf2aefe617a28155915acffcdfee7346e9f4fc47dff3a08181"
       pullPolicy: IfNotPresent
     # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
     existingSecret:
