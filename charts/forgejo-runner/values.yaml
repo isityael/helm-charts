@@ -12,11 +12,9 @@ dind:
   enabled: true
   image:
     repository: docker
-    tag: "29.5.3-dind-alpine3.23@sha256:7d85d0eda291f1a7ab6df4a9d1802b5ad4cf9145a088bd11188c78dcb5c7392b"
+    tag: "29.6.1-dind-alpine3.24@sha256:66d292e5c26bd33a6f6f61cacb880de2186339a524ecba1ce098dbbaceed6515"
     pullPolicy: IfNotPresent
   args:
-    - --host=unix:///var/run/docker.sock
-    - --host=tcp://127.0.0.1:2375
     - --tls=false
     - --group=1000
   securityContext:
