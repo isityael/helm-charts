@@ -1,0 +1,25 @@
+upstream:
+  images:
+    # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar
+    registrar: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar:v2.16.0@sha256:080b91dd6672ad452697775546c86193c818c7ba6b4cd05dbd41a026b6213bff
+    # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner
+    provisioner: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner:v6.2.0@sha256:da5da1117687afc445d15f02ec67ab2879352123af3d8da03593be983234ed87
+    # renovate: datasource=docker depName=ghcr.io/isityael/csi-s3-driver
+    csi: ghcr.io/isityael/csi-s3-driver:v0.43.7-ym4@sha256:11af9c84646ffe501ae976ef17a9970eddcd9b33cf2312e9a4ad1c661ce73e69
+
+  secret:
+    create: false
+    name: csi-s3-secret
+
+  storageClass:
+    create: false
+
+  tolerations:
+    all: false
+    node: []
+    controller: []
+
+  nodeSelector: {}
+  kubeletPath: /var/lib/kubelet
+
+storageClasses: []

@@ -1,0 +1,42 @@
+{{- range .Values.storageClasses }}
+{{- $name := required "storageClasses[].name is required" .name }}
+{{- $reclaimPolicy := .reclaimPolicy | default "Retain" }}
+{{- $mounter := .mounter | default "geesefs" }}
+{{- $secretName := .secretName | default $.Values.upstream.secret.name }}
+{{- $secretNamespace := .secretNamespace | default $.Release.Namespace }}
+{{- if not (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $name) }}
+{{- fail (printf "storageClasses[%s].name must be a valid DNS label" $name) }}
+{{- end }}
+{{- if and .bucket (not (regexMatch "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" .bucket)) }}
+{{- fail (printf "storageClasses[%s].bucket must be a valid S3 bucket name" $name) }}
+{{- end }}
+{{- if not (has $reclaimPolicy (list "Retain" "Delete")) }}
+{{- fail (printf "storageClasses[%s].reclaimPolicy must be Retain or Delete" $name) }}
+{{- end }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ $name | quote }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+provisioner: ru.yandex.s3.csi
+reclaimPolicy: {{ $reclaimPolicy | quote }}
+volumeBindingMode: {{ .volumeBindingMode | default "Immediate" | quote }}
+parameters:
+  mounter: {{ $mounter | quote }}
+  options: {{ .mountOptions | default "--memory-limit 512 --dir-mode 0777 --file-mode 0666" | quote }}
+  {{- with .bucket }}
+  bucket: {{ . | quote }}
+  {{- end }}
+  csi.storage.k8s.io/provisioner-secret-name: {{ $secretName | quote }}
+  csi.storage.k8s.io/provisioner-secret-namespace: {{ $secretNamespace | quote }}
+  csi.storage.k8s.io/controller-publish-secret-name: {{ $secretName | quote }}
+  csi.storage.k8s.io/controller-publish-secret-namespace: {{ $secretNamespace | quote }}
+  csi.storage.k8s.io/node-stage-secret-name: {{ $secretName | quote }}
+  csi.storage.k8s.io/node-stage-secret-namespace: {{ $secretNamespace | quote }}
+  csi.storage.k8s.io/node-publish-secret-name: {{ $secretName | quote }}
+  csi.storage.k8s.io/node-publish-secret-namespace: {{ $secretNamespace | quote }}
+{{- end }}

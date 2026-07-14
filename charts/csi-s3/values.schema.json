@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "upstream": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "images": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "registrar": {
+              "type": "string",
+              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+@sha256:[a-f0-9]{64}$"
+            },
+            "provisioner": {
+              "type": "string",
+              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+@sha256:[a-f0-9]{64}$"
+            },
+            "csi": {
+              "type": "string",
+              "pattern": "^ghcr\\.io/isityael/csi-s3-driver:v[^\\s@]+@sha256:[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "registrar",
+            "provisioner",
+            "csi"
+          ]
+        }
+      }
+    },
+    "storageClasses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "reclaimPolicy": {
+            "type": "string",
+            "enum": [
+              "Retain",
+              "Delete"
+            ]
+          },
+          "volumeBindingMode": {
+            "type": "string",
+            "enum": [
+              "Immediate",
+              "WaitForFirstConsumer"
+            ]
+          },
+          "bucket": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
+          },
+          "mounter": {
+            "type": "string",
+            "enum": [
+              "geesefs",
+              "s3fs",
+              "rclone"
+            ]
+          },
+          "mountOptions": {
+            "type": "string",
+            "minLength": 1
+          },
+          "secretName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "secretNamespace": {
+            "type": "string",
+            "minLength": 1
+          },
+          "annotations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  }
+}
