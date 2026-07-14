@@ -5,6 +5,7 @@
   "properties": {
     "replicaCount": { "type": "integer", "minimum": 0 },
     "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
+    "strategy": { "type": "object" },
     "imagePullSecrets": { "type": "array" },
     "dind": {
       "type": "object",
