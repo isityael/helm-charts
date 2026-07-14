@@ -1,0 +1,37 @@
+name: Release csi-s3 chart
+
+on:
+  push:
+    tags:
+      - csi-s3-v*
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out mirrored tag
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.0
+
+      - name: Package chart
+        run: |
+          helm repo add yandex-cloud https://yandex-cloud.github.io/k8s-csi-s3/charts
+          helm dependency build charts/csi-s3
+          helm lint charts/csi-s3 --values charts/csi-s3/ci/test-values.yaml
+          helm package charts/csi-s3
+          sha256sum csi-s3-*.tgz > csi-s3-chart.sha256
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}"
+          csi-s3-*.tgz
+          csi-s3-chart.sha256
+          --generate-notes
+          --title "${GITHUB_REF_NAME}"
