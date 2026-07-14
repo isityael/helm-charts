@@ -2,7 +2,7 @@ apiVersion: v2
 name: csi-s3
 description: Maintained k8s-csi-s3 wrapper with an owned driver image and multiple StorageClasses
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: "0.43.7-ym4"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/isityael/k8s-csi-s3
