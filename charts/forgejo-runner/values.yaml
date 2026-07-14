@@ -4,6 +4,7 @@ revisionHistoryLimit: 2
 # -- Recreate avoids a rollout deadlock when the runner data PVC is ReadWriteOnce.
 strategy:
   type: Recreate
+  rollingUpdate: null
 
 nameOverride: ""
 fullnameOverride: ""

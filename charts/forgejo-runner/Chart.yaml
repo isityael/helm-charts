@@ -4,7 +4,7 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.12
+version: 0.1.13
 appVersion: "12.12.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -57,3 +57,5 @@ annotations:
     - kind: fixed
       description: >-
         Default to a Recreate deployment strategy so a single ReadWriteOnce runner PVC can move between revisions.
+    - kind: fixed
+      description: Clear the previous rollingUpdate field when switching an existing Deployment to Recreate.
