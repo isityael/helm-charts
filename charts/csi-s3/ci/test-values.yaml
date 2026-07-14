@@ -1,0 +1,18 @@
+upstream:
+  secret:
+    create: false
+    name: ci-s3-secret
+  storageClass:
+    create: false
+  tolerations:
+    node:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+storageClasses:
+  - name: csi-s3-ci
+    reclaimPolicy: Retain
+    bucket: csi-s3-ci
+    mountOptions: "--memory-limit 256 --dir-mode 0777 --file-mode 0666 --no-systemd"
+    secretName: ci-s3-secret

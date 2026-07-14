@@ -47,6 +47,17 @@
       "depNameTemplate": "{{#if registry}}{{{registry}}}/{{/if}}{{{repository}}}",
       "autoReplaceStringTemplate": "{{{indent}}}{{#if registry}}registry: {{{registry}}}\n{{{indent}}}{{/if}}repository: {{{repository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Full image references in the csi-s3 wrapper",
+      "managerFilePatterns": [
+        "/charts/csi-s3/values\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>docker) depName=(?<depName>[^\\s]+)\\n(?<indent>[ \\t]+)(?<key>[a-zA-Z]+): [^\\s:]+:(?<currentValue>[^@\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
+      ],
+      "autoReplaceStringTemplate": "# renovate: datasource=docker depName={{{depName}}}\n{{{indent}}}{{{key}}}: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}"
     }
   ],
   "lockFileMaintenance": {
@@ -90,6 +101,44 @@
         ],
         "executionMode": "update"
       }
+    },
+    {
+      "description": "Keep csi-s3 upstream dependency and vendored archive in sync",
+      "matchManagers": ["helmv3"],
+      "matchFileNames": ["charts/csi-s3/Chart.yaml"],
+      "groupName": "csi-s3 upstream chart",
+      "labels": ["dependencies", "helm", "csi-s3"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump csi-s3 for upstream chart updates",
+          "filePatterns": ["charts/csi-s3/Chart.yaml"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "bumpType": "patch"
+        }
+      ],
+      "postUpgradeTasks": {
+        "commands": ["helm dependency update {{{packageFileDir}}}"],
+        "fileFilters": [
+          "{{{packageFileDir}}}/Chart.lock",
+          "{{{packageFileDir}}}/charts/**"
+        ],
+        "executionMode": "update"
+      }
+    },
+    {
+      "description": "Patch-bump csi-s3 when its image references change",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["charts/csi-s3/values.yaml"],
+      "groupName": "csi-s3 images",
+      "labels": ["dependencies", "docker", "csi-s3"],
+      "bumpVersions": [
+        {
+          "name": "Patch-bump csi-s3 for image updates",
+          "filePatterns": ["charts/csi-s3/Chart.yaml"],
+          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "bumpType": "patch"
+        }
+      ]
     },
     {
       "description": "Group matrix-umbrella DHI image updates",
