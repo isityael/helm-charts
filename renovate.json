@@ -30,22 +30,9 @@
         "/charts/.+/examples/.+\\.yaml$/"
       ],
       "matchStrings": [
-        ":\\s*[\"']?(?<depName>dhi\\.io/[^:\"'\\s]+):(?<currentValue>[^@\"'\\s]+)(?:@sha256:[a-f0-9]+)?[\"']?"
+        ":\\s*[\"']?(?<depName>dhi\\.io/[^:\"'\\s]+):(?<currentValue>[^@\"'\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?"
       ],
-      "autoReplaceStringTemplate": ": {{{depName}}}:{{{newValue}}}",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "description": "DHI split image values using repository plus sibling tag keys",
-      "managerFilePatterns": [
-        "/charts/.+/values(?:-[^/]+)?\\.yaml$/",
-        "/charts/.+/ci/.+\\.yaml$/",
-        "/charts/.+/examples/.+\\.yaml$/"
-      ],
-      "matchStrings": [
-        "(?<indent>\\s*)repository:\\s*(?<depName>dhi\\.io/[^\\s\"']+)\\s+tag:\\s*[\"']?(?<currentValue>[^@\"'\\s]+)(?:@sha256:[a-f0-9]+)?[\"']?"
-      ],
+      "autoReplaceStringTemplate": ": {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
     },
     {
@@ -58,6 +45,7 @@
         "(?<indent>[ \\t]*)(?:registry:\\s*(?<registry>[^\\s\\\"']+)\\s+)?repository:\\s*(?<repository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "depNameTemplate": "{{#if registry}}{{{registry}}}/{{/if}}{{{repository}}}",
+      "autoReplaceStringTemplate": "{{{indent}}}{{#if registry}}registry: {{{registry}}}\n{{{indent}}}{{/if}}repository: {{{repository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
       "datasourceTemplate": "docker"
     }
   ],
