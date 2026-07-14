@@ -1,4 +1,6 @@
 upstream:
+  enabled: false
+
   images:
     # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar
     registrar: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar:v2.16.0@sha256:080b91dd6672ad452697775546c86193c818c7ba6b4cd05dbd41a026b6213bff
@@ -10,6 +12,10 @@ upstream:
   secret:
     create: false
     name: csi-s3-secret
+    accessKey: ""
+    secretKey: ""
+    endpoint: https://storage.yandexcloud.net
+    region: ""
 
   storageClass:
     create: false
@@ -21,5 +27,35 @@ upstream:
 
   nodeSelector: {}
   kubeletPath: /var/lib/kubelet
+
+  resources:
+    nodeRegistrar:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 384Mi
+    nodeDriver:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 768Mi
+    controllerProvisioner:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 384Mi
+    controllerDriver:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 768Mi
 
 storageClasses: []

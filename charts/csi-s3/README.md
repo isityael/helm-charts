@@ -20,7 +20,7 @@ helm install csi-s3 oci://ghcr.io/isityael/charts/csi-s3 \
 
 ## Configuration
 
-The upstream chart is available under `upstream`. Secret creation and the upstream single StorageClass are disabled by default. Set `upstream.secret.create: true` only when credentials are supplied securely at installation time.
+The upstream chart is vendored and available under `upstream`. Its renderer is disabled by default because it lacks the resource and security controls applied by this maintained wrapper. Set `upstream.enabled: true` only to test the unmodified upstream renderer. Secret creation and the upstream single StorageClass are disabled by default. Set `upstream.secret.create: true` only when credentials are supplied securely at installation time.
 
 ## Values example
 
