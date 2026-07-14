@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.17
+version: 0.1.18
 appVersion: "15.0.3"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -62,12 +62,14 @@ annotations:
       description: Depend on forgejo-runner 0.1.11 to fix duplicate Docker daemon listener bindings.
     - kind: fixed
       description: Depend on forgejo-runner 0.1.12 so runner PVC rollouts use a Recreate strategy.
+    - kind: fixed
+      description: Depend on forgejo-runner 0.1.13 to clear stale rollingUpdate state during migration.
 dependencies:
   - name: forgejo
     version: 17.1.2
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
-    version: 0.1.12
+    version: 0.1.13
     repository: oci://ghcr.io/isityael/charts
     condition: runner.enabled
