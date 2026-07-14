@@ -7,6 +7,7 @@ steps:
   - name: helm-lint
     image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
     commands:
+      - helm repo add yandex-cloud https://yandex-cloud.github.io/k8s-csi-s3/charts
       - helm dependency build charts/csi-s3
       - helm lint charts/csi-s3 --values charts/csi-s3/ci/test-values.yaml
 
@@ -18,6 +19,8 @@ steps:
       GHCR_TOKEN:
         from_secret: github_token
     commands:
+      - helm repo add yandex-cloud https://yandex-cloud.github.io/k8s-csi-s3/charts
+      - helm dependency build charts/csi-s3
       - helm package charts/csi-s3
       - printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
       - helm push csi-s3-*.tgz oci://ghcr.io/isityael/charts
