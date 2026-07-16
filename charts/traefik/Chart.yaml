@@ -2,7 +2,7 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "3.7.5"
 kubeVersion: ">=1.29.0-0"
 home: https://traefik.io/traefik/
@@ -28,9 +28,6 @@ annotations:
     - name: dhi-traefik
       image: dhi.io/traefik:3.7.5-alpine3.24@sha256:38126c9632cf7b93ad9db950323bb896a87c65048b3e3e99cd7aa16e5aaad7e8
   artifacthub.io/changes: |
-    - kind: added
-      description: Add an m0sh1 Traefik chart wrapping DHI traefik-chart 41.0.1 / Traefik 3.7.5.
-    - kind: added
-      description: Default to the m0sh1 Alpine 3.24 Traefik image with the CrowdSec plugin and CA bundle fix.
-    - kind: added
-      description: Carry m0sh1 Gateway API, CrowdSec bouncer, apex redirect, and security header resources.
+    - kind: security
+      description: >-
+        Protect embedded Gateway API CRDs from ArgoCD pruning and use server-side apply during the ownership handoff.
