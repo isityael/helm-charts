@@ -9,6 +9,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/4530
+    argocd.argoproj.io/sync-options: Prune=false,ServerSideApply=true
     gateway.networking.k8s.io/bundle-version: v1.5.1
     gateway.networking.k8s.io/channel: experimental
   name: tcproutes.gateway.networking.k8s.io
@@ -747,6 +748,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     api-approved.kubernetes.io: https://github.com/kubernetes-sigs/gateway-api/pull/4530
+    argocd.argoproj.io/sync-options: Prune=false,ServerSideApply=true
     gateway.networking.k8s.io/bundle-version: v1.5.1
     gateway.networking.k8s.io/channel: experimental
   name: tlsroutes.gateway.networking.k8s.io
