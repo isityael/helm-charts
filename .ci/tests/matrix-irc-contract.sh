@@ -24,8 +24,16 @@ helm_args=(
   --set global.matrixIrcContract=true
   --set matrix-appservice-irc.host=irc-media.example.test
   --set matrix-appservice-irc.homeserver.domain=example.test
+  --set matrix-appservice-irc.waitForRedis.image.repository=busybox
+  --set matrix-appservice-irc.waitForRedis.image.tag=1.36
   --set-string "matrix-appservice-irc.waitForRedis.image.digest=${wait_digest}"
+  --set matrix-appservice-irc.postgres.enabled=true
+  --set matrix-appservice-irc.postgres.image.repository=postgres
+  --set matrix-appservice-irc.postgres.image.tag=16-alpine
   --set-string "matrix-appservice-irc.postgres.image.digest=${postgres_digest}"
+  --set matrix-appservice-irc.redis.enabled=true
+  --set matrix-appservice-irc.redis.image.repository=redis
+  --set matrix-appservice-irc.redis.image.tag=7-alpine
   --set-string "matrix-appservice-irc.redis.image.digest=${redis_digest}"
 )
 
