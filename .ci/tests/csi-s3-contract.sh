@@ -28,10 +28,14 @@ if grep -qx list <<<"$secret_verbs"; then
   fail "provisioner ClusterRole must not list Secrets"
 fi
 
-service_name="$(yq eval-all 'select(.kind == "Service") | .metadata.name' "$rendered")"
 statefulset_service_name="$(yq eval-all 'select(.kind == "StatefulSet") | .spec.serviceName' "$rendered")"
-[[ -n "$service_name" && "$service_name" == "$statefulset_service_name" ]] ||
-  fail "Service name ${service_name} does not match StatefulSet serviceName ${statefulset_service_name}"
+[[ "$statefulset_service_name" == "csi-provisioner-s3" ]] ||
+  fail "StatefulSet must preserve immutable serviceName csi-provisioner-s3, got ${statefulset_service_name}"
+for service_name in csi-provisioner-s3 csi-s3-provisioner; do
+  SERVICE_NAME="$service_name" yq eval-all \
+    'select(.kind == "Service" and .metadata.name == strenv(SERVICE_NAME)) | .metadata.name' \
+    "$rendered" | grep -qx "$service_name" || fail "missing compatibility Service ${service_name}"
+done
 
 node_sa_automount="$(
   yq eval-all 'select(.kind == "ServiceAccount" and .metadata.name == "csi-s3") | .automountServiceAccountToken' \

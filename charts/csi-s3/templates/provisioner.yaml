@@ -43,6 +43,22 @@ roleRef:
 kind: Service
 apiVersion: v1
 metadata:
+  name: csi-provisioner-s3
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: csi-s3-provisioner
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: csi-s3-provisioner
+  ports:
+    - name: csi-s3-dummy
+      port: 65535
+---
+kind: Service
+apiVersion: v1
+metadata:
   name: csi-s3-provisioner
   namespace: {{ .Release.Namespace }}
   labels:
@@ -60,7 +76,7 @@ metadata:
   name: csi-s3-provisioner
   namespace: {{ .Release.Namespace }}
 spec:
-  serviceName: "csi-s3-provisioner"
+  serviceName: "csi-provisioner-s3"
   replicas: 1
   selector:
     matchLabels:
