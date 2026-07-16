@@ -24,7 +24,7 @@ helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version
 | `forgejo`                 | 0.1.11  | Forgejo with custom image defaults and optional runner                      |
 | `forgejo-runner`          | 0.1.9   | Forgejo Actions runner with Docker-in-Docker                                |
 | `gitea-runner`            | 1.0.6   | Gitea Actions runner with Docker-in-Docker                                  |
-| `m0sh1-exporter`          | 0.1.17  | Network exporters bundle for OPNsense, SNMP, and Proxmox VE                 |
+| `m0sh1-exporter`          | 0.1.19  | Network exporters bundle for OPNsense, SNMP, and Proxmox VE                 |
 | `matrix-umbrella`         | 0.1.25  | DHI-first Matrix Synapse, MAS, Element Web, Cinny, and bridge umbrella      |
 | `privatebin`              | 0.1.3   | Encrypted paste and file sharing                                            |
 | `proxmox-csi-plugin`      | 0.5.40  | Proxmox CSI plugin (isityael fork)                                          |
@@ -41,6 +41,23 @@ Charts are automatically published to GHCR OCI on push to `main` when `charts/**
 Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally create GitHub Releases with packaged `.tgz` artefacts.
 
 The publish script records pushed immutable OCI digest references in `.ci/published-oci-refs.txt`. If `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` are present in the script environment, those digest references are signed with `cosign sign --key env://COSIGN_PRIVATE_KEY`.
+
+### Artifact Hub OCI metadata
+
+The release pipeline also publishes repository metadata to the `artifacthub.io`
+tag of every active chart repository. The OCI payload contains the owners from
+`artifacthub-repo.yml`, but deliberately omits its `repositoryID`: that ID
+belongs to the legacy HTTP chart repository and is not valid for OCI charts.
+
+Artifact Hub requires one repository registration per OCI chart. Register each
+chart in the Artifact Hub control panel with a URL in this form:
+
+```text
+oci://ghcr.io/isityael/charts/<chart-name>
+```
+
+Each registration receives a unique repository ID. Add per-chart IDs only if
+Verified Publisher status is needed; never reuse the legacy HTTP repository ID.
 
 ## Development
 
