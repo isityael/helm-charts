@@ -133,7 +133,7 @@ pveexporter:
       type: RuntimeDefault
   serviceAccount:
     create: false
-    name: opnsense-exporter
+    name: prometheus-pve-exporter
   resources:
     requests:
       cpu: 10m

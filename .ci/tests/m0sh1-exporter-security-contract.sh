@@ -14,16 +14,18 @@ fail() {
 rendered="${tmpdir}/rendered.yaml"
 helm template m0sh1-exporter "$chart" >"$rendered"
 
-service_account_automount="$(
-  yq eval-all '
-    select(.kind == "ServiceAccount" and .metadata.name == "opnsense-exporter") |
-    .automountServiceAccountToken
-  ' "$rendered"
-)"
-[ "$service_account_automount" = "false" ] ||
-  fail "shared exporter ServiceAccount must disable token automount"
+for service_account_name in opnsense-exporter prometheus-pve-exporter; do
+  service_account_automount="$(
+    SERVICE_ACCOUNT_NAME="$service_account_name" yq eval-all '
+      select(.kind == "ServiceAccount" and .metadata.name == strenv(SERVICE_ACCOUNT_NAME)) |
+      .automountServiceAccountToken
+    ' "$rendered"
+  )"
+  [ "$service_account_automount" = "false" ] ||
+    fail "${service_account_name} ServiceAccount must disable token automount"
+done
 
-for workload in opnsense-exporter prometheus-snmp-exporter prometheus-pve-exporter; do
+for workload in opnsense-exporter prometheus-snmp-exporter; do
   service_account="$(
     WORKLOAD="$workload" yq eval-all '
       select(.kind == "Deployment" and .metadata.name == strenv(WORKLOAD)) |
@@ -33,6 +35,15 @@ for workload in opnsense-exporter prometheus-snmp-exporter prometheus-pve-export
   [ "$service_account" = "opnsense-exporter" ] ||
     fail "${workload} must use the shared restricted ServiceAccount"
 done
+
+pve_service_account="$(
+  yq eval-all '
+    select(.kind == "Deployment" and .metadata.name == "prometheus-pve-exporter") |
+    .spec.template.spec.serviceAccountName
+  ' "$rendered"
+)"
+[ "$pve_service_account" = "prometheus-pve-exporter" ] ||
+  fail "prometheus-pve-exporter must use its dedicated restricted ServiceAccount"
 
 opnsense_automount="$(
   yq eval-all '
