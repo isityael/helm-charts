@@ -15,10 +15,10 @@ dependencies:
   repository: file://charts/mautrix-bridge
   version: 0.0.34
 - name: matrix-appservice-irc
-  repository: https://cyclikal94.github.io/matrix-helm-charts
+  repository: file://charts/matrix-appservice-irc
   version: 1.0.0
 - name: cinny
   repository: file://charts/cinny
   version: 0.2.23
-digest: sha256:c2f1db9cbe192c029f71d105c0ba841f7e57dbd654bcdbe09f4eaed87aab65ce
-generated: "2026-07-10T17:05:20.500032966Z"
+digest: sha256:a7d9df116e05e3a3f655e9ebf04806a7e3e3e02c14302415d7925da573392181
+generated: "2026-07-16T14:18:36.699869+02:00"

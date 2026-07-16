@@ -107,7 +107,7 @@ dependencies:
       - mautrix-whatsapp
   - name: matrix-appservice-irc
     version: 1.0.0
-    repository: https://cyclikal94.github.io/matrix-helm-charts
+    repository: file://charts/matrix-appservice-irc
     tags:
       - matrix-appservice-irc
   - name: cinny
