@@ -19,7 +19,7 @@ if ! command -v "$oras_bin" >/dev/null 2>&1; then
   exit 1
 fi
 
-oci_metadata_file="$(mktemp "${TMPDIR:-/tmp}/artifacthub-repo-oci.XXXXXX")"
+oci_metadata_file="$(mktemp "./.artifacthub-repo-oci.XXXXXX")"
 trap 'rm -f "$oci_metadata_file"' EXIT
 awk '
   /^owners:[[:space:]]*$/ {

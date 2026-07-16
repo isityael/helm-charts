@@ -34,6 +34,12 @@ if [ "$1" = login ]; then
 fi
 if [ "$1" = push ]; then
   layer="${!#}"
+  case "${layer%%:*}" in
+    /*)
+      echo "absolute payload path rejected" >&2
+      exit 1
+      ;;
+  esac
   cp "${layer%%:*}" "${ORAS_PAYLOADS_DIR}/$(basename "$2").yml"
 fi
 printf '%s\n' "$*" >>"$ORAS_LOG"
@@ -63,11 +69,11 @@ test_publishes_metadata_for_every_chart_repository() {
   local expected_bravo='push ghcr.io/isityael/charts/bravo:artifacthub.io'
   expected_bravo+=' --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml'
   grep -F "$expected_alpha" "${workdir}/oras.log" \
-    | grep -F '/artifacthub-repo-oci.' \
+    | grep -F './.artifacthub-repo-oci.' \
     | grep -Fq ':application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml' \
     || fail "expected metadata push for alpha"
   grep -F "$expected_bravo" "${workdir}/oras.log" \
-    | grep -F '/artifacthub-repo-oci.' \
+    | grep -F './.artifacthub-repo-oci.' \
     | grep -Fq ':application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml' \
     || fail "expected metadata push for bravo"
   for payload in \
