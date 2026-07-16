@@ -175,6 +175,32 @@ test_deleted_chart_passes() {
   expect_check_success "${workdir}"
 }
 
+test_shallow_ci_clone_deepens_current_ref() {
+  local source_repo="${tmpdir}/shallow-source"
+  local remote_repo="${tmpdir}/shallow-remote.git"
+  local workdir="${tmpdir}/shallow-clone"
+  local output
+
+  mkdir -p "${source_repo}"
+  setup_repo "${source_repo}"
+  sed -i.bak 's/replicaCount: 1/replicaCount: 2/' "${source_repo}/charts/demo/values.yaml"
+  rm "${source_repo}/charts/demo/values.yaml.bak"
+  sed -i.bak 's/version: 1.2.3/version: 1.2.4/' "${source_repo}/charts/demo/Chart.yaml"
+  rm "${source_repo}/charts/demo/Chart.yaml.bak"
+  commit_all "${source_repo}" "Bump chart version"
+
+  git init -q --bare "${remote_repo}"
+  git -C "${source_repo}" remote add origin "${remote_repo}"
+  git -C "${source_repo}" push -q -u origin HEAD:main
+  git --git-dir="${remote_repo}" symbolic-ref HEAD refs/heads/main
+  git clone -q --depth=1 "file://${remote_repo}" "${workdir}"
+
+  output="$(
+    cd "${workdir}"
+    CI=woodpecker CI_COMMIT_REF=refs/heads/main "${script}" 2>&1
+  )" || fail "expected shallow CI checkout to deepen and pass, got: ${output}"
+}
+
 test_ci_uses_check_only_version_gates() {
   local pipeline="${repo_root}/.woodpecker/build.yaml"
 
@@ -199,6 +225,7 @@ test_explicit_version_bump_passes
 test_non_chart_change_passes
 test_new_chart_passes
 test_deleted_chart_passes
+test_shallow_ci_clone_deepens_current_ref
 test_ci_uses_check_only_version_gates
 
 echo "chart-version-check tests passed"
