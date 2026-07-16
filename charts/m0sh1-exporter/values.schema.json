@@ -8,6 +8,14 @@
     "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": { "type": "boolean" },
+        "automount": { "type": "boolean" }
+      }
+    },
     "podSecurityContext": { "type": "object" },
     "nodeSelector": { "type": "object" },
     "podAnnotations": { "type": "object" },

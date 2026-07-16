@@ -6,6 +6,10 @@ revisionHistoryLimit: 1
 nameOverride: ""
 fullnameOverride: ""
 
+serviceAccount:
+  create: true
+  automount: false
+
 opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
@@ -53,12 +57,24 @@ snmpExporter:
     repository: ghcr.io/isityael/snmp-exporter
     tag: "v0.30.1-m0sh1.1@sha256:b5ee0d63f2fcf405a3d3f0448627ce4a9ba086ea8ba7e4fb79056da0fed725e6"
     pullPolicy: IfNotPresent
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
   containerSecurityContext:
     runAsNonRoot: true
     runAsUser: 1000
     readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
     seccompProfile:
       type: RuntimeDefault
+  rbac:
+    create: false
+  serviceAccount:
+    create: false
+    name: opnsense-exporter
   resources:
     requests:
       cpu: 10m
@@ -101,7 +117,7 @@ pveexporter:
     registry: docker.io
     repository: prompve/prometheus-pve-exporter
     tag: "3.9.0@sha256:78a58df7a31c9fbee94962cd06422672668529de6421892df9aed4b6cee0757f"
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
   securityContext:
     runAsNonRoot: true
     runAsUser: 65534
@@ -112,6 +128,12 @@ pveexporter:
         - ALL
     seccompProfile:
       type: RuntimeDefault
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount:
+    create: false
+    name: opnsense-exporter
   resources:
     requests:
       cpu: 10m
