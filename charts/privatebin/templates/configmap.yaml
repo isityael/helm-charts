@@ -1,3 +1,7 @@
+{{- $extra := .Values.config.extra | default "" -}}
+{{- if and (eq .Values.storage.backend "s3") (regexMatch `(?im)^[ \t]*(accesskey|secretkey)[ \t]*=` $extra) -}}
+{{- fail "privatebin chart: config.extra must not define accesskey or secretkey when storage.backend=s3; use storage.s3.existingSecret" -}}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -50,16 +54,10 @@ data:
     use_path_style_endpoint = {{ .Values.storage.s3.usePathStyleEndpoint }}
     bucket = {{ .Values.storage.s3.bucket | quote }}
     prefix = {{ .Values.storage.s3.prefix | quote }}
-    {{- if .Values.storage.s3.accessKey }}
-    accesskey = {{ .Values.storage.s3.accessKey | quote }}
-    {{- end }}
-    {{- if .Values.storage.s3.secretKey }}
-    secretkey = {{ .Values.storage.s3.secretKey | quote }}
-    {{- end }}
     {{- else }}
     dir = {{ .Values.persistence.mountPath | quote }}
     {{- end }}
-    {{- with .Values.config.extra }}
+    {{- with $extra }}
     {{ . | nindent 4 }}
     {{- end }}
     ; */

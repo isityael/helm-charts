@@ -94,7 +94,107 @@
       "type": "object"
     },
     "storage": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "type": "string",
+          "enum": [
+            "filesystem",
+            "s3"
+          ]
+        },
+        "s3": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "region": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "endpoint": {
+              "type": "string"
+            },
+            "bucket": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "usePathStyleEndpoint": {
+              "type": "boolean"
+            },
+            "existingSecret": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "accessKeyKey": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "secretKeyKey": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "accessKeyKey",
+                "secretKeyKey"
+              ]
+            }
+          },
+          "required": [
+            "region",
+            "version",
+            "endpoint",
+            "bucket",
+            "prefix",
+            "usePathStyleEndpoint",
+            "existingSecret"
+          ]
+        }
+      },
+      "required": [
+        "backend",
+        "s3"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "backend": {
+                "const": "s3"
+              }
+            },
+            "required": [
+              "backend"
+            ]
+          },
+          "then": {
+            "properties": {
+              "s3": {
+                "properties": {
+                  "existingSecret": {
+                    "properties": {
+                      "name": {
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "tmpVolume": {
       "type": "object"
