@@ -24,7 +24,7 @@ spec:
       hostNetwork: true  # controller also needs to mount nfs to create dir
       dnsPolicy: {{ .Values.controller.dnsPolicy }}
       serviceAccountName: {{ .Values.serviceAccount.controller }}
-      automountServiceAccountToken: true
+      automountServiceAccountToken: false
     # runOnControlPlane=true or runOnMaster=true only takes effect if affinity is not set
     {{- if tpl "{{ .Values.controller.affinity }}" . | contains "nodeSelectorTerms" }}
       {{- with .Values.controller.affinity }}
@@ -87,6 +87,9 @@ spec:
           volumeMounts:
             - mountPath: /csi
               name: socket-dir
+            - name: kube-api-access
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
           resources: {{- toYaml .Values.controller.resources.csiProvisioner | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
@@ -117,6 +120,9 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
+            - name: kube-api-access
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
           resources: {{- toYaml .Values.controller.resources.csiResizer | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
@@ -147,6 +153,9 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
+            - name: kube-api-access
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -226,6 +235,24 @@ spec:
               name: socket-dir
           resources: {{- toYaml .Values.controller.resources.nfs | nindent 12 }}
       volumes:
+        - name: kube-api-access
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
         - name: pods-mount-dir
           hostPath:
             path: {{ .Values.kubeletDir }}/pods

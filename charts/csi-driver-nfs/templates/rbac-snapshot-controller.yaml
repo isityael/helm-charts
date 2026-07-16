@@ -12,7 +12,7 @@ metadata:
   name: {{ .Values.externalSnapshotter.name }}
   namespace: {{ .Release.Namespace }}
 {{ include "nfs.labels" . | indent 2 }}
-automountServiceAccountToken: true
+automountServiceAccountToken: false
 
 ---
 kind: ClusterRole
