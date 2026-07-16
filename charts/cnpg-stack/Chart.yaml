@@ -2,8 +2,8 @@ apiVersion: v2
 name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
-version: 0.13.48
-appVersion: "1.29.1"
+version: 0.13.49
+appVersion: "1.30.0"
 kubeVersion: ">=1.29.0-0"
 maintainers:
   - name: m0sh1
@@ -14,6 +14,12 @@ keywords:
   - pgbouncer
   - barman
   - backup
+annotations:
+  artifacthub.io/changes: |
+    - kind: fixed
+      description: Sanitize Database resource names while preserving PostgreSQL database names.
+    - kind: changed
+      description: Align the wrapper app version with the vendored CloudNativePG operator.
 dependencies:
   - name: cloudnative-pg-chart
     alias: cloudnative-pg

@@ -4,10 +4,17 @@
 {{- if $cluster.enabled }}
 {{- range $databases }}
 {{- if .enabled }}
+{{- $databaseName := toString .name -}}
+{{- $metadataSuffix := regexReplaceAll "[^a-z0-9-]+" (lower $databaseName) "-" | trimAll "-" -}}
+{{- $metadataName := printf "%s-%s" $cluster.name $metadataSuffix -}}
+{{- if or (ne $metadataSuffix $databaseName) (gt (len $metadataName) 63) -}}
+{{- $nameHash := sha256sum $databaseName | trunc 8 -}}
+{{- $metadataName = printf "%s-%s" ($metadataName | trunc 54 | trimSuffix "-") $nameHash -}}
+{{- end }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: {{ printf "%s-%s" $cluster.name .name | trunc 63 | trimSuffix "-" }}
+  name: {{ $metadataName }}
   namespace: {{ $cluster.namespace }}
   labels:
     app.kubernetes.io/name: cloudnative-pg
