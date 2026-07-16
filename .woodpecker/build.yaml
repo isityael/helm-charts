@@ -1,8 +1,7 @@
 # helm-charts — CI: lint all charts
 # Triggers on push to main and pull requests (GitHub forge).
 # OCI publishing is handled by release-all.yaml (push to charts/**).
-# Per-chart GitHub Releases are created by tag-triggered pipelines
-# (release.yaml, release-basic-memory.yaml, release-csi-s3.yaml, release-nfs-csi.yaml).
+# Per-chart GitHub Releases are created by the tag-triggered release-tag.yaml.
 when:
   - event: pull_request
   - event: push
