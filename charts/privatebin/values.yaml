@@ -63,8 +63,6 @@ storage:
       name: ""
       accessKeyKey: accesskey
       secretKeyKey: secretkey
-    accessKey: ""
-    secretKey: ""
 
 tmpVolume:
   enabled: true

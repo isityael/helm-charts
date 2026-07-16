@@ -1,3 +1,14 @@
+{{- $dockerConfigDir := "/tmp/.docker" }}
+{{- if .Values.registryAuthSecret }}
+{{- $dockerConfigDir = dir .Values.registryAuthMountPath }}
+{{- end }}
+{{- $dockerConfigEnvOverridden := false }}
+{{- range .Values.runner.extraEnv }}
+{{- if and (eq (default "" .name) "DOCKER_CONFIG") (kindIs "string" .value) }}
+{{- $dockerConfigDir = .value }}
+{{- $dockerConfigEnvOverridden = true }}
+{{- end }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +17,7 @@ metadata:
   labels:
     {{- include "forgejo-runner.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount | default 1 }}
+  replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 2 }}
   {{- with .Values.strategy }}
   strategy:
@@ -156,8 +167,10 @@ spec:
             - name: DOCKER_HOST
               value: tcp://127.0.0.1:2375
             {{- end }}
+            {{- if not $dockerConfigEnvOverridden }}
             - name: DOCKER_CONFIG
-              value: /tmp/.docker
+              value: {{ $dockerConfigDir | quote }}
+            {{- end }}
             {{- range .Values.runner.extraEnv }}
             - {{- toYaml . | nindent 14 }}
             {{- end }}
@@ -176,10 +189,10 @@ spec:
             - name: runner-data
               mountPath: {{ .Values.runner.dataMountPath }}
             - name: docker-config
-              mountPath: /tmp/.docker
+              mountPath: {{ $dockerConfigDir | quote }}
             {{- if .Values.registryAuthSecret }}
             - name: registry-auth
-              mountPath: {{ .Values.registryAuthMountPath }}
+              mountPath: {{ printf "%s/config.json" (trimSuffix "/" $dockerConfigDir) | quote }}
               subPath: config.json
               readOnly: true
             {{- end }}
