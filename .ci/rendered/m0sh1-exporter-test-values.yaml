@@ -1,74 +1,30 @@
 ---
-# Source: m0sh1-exporter/charts/pveexporter/templates/serviceaccount.yaml
+# Source: m0sh1-exporter/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opnsense-exporter
+  namespace: ci-m0sh1-exporter
+  labels:
+    helm.sh/chart: m0sh1-exporter-0.1.19
+    app.kubernetes.io/name: opnsense-exporter
+    app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
+    app.kubernetes.io/version: 0.0.15
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: false
+---
+# Source: m0sh1-exporter/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus-pve-exporter
   labels:
-    helm.sh/chart: pveexporter-2.8.0
-    app.kubernetes.io/name: pveexporter
+    helm.sh/chart: m0sh1-exporter-0.1.19
+    app.kubernetes.io/name: opnsense-exporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "3.9.0"
+    app.kubernetes.io/version: 0.0.15
     app.kubernetes.io/managed-by: Helm
-
----
-# Source: m0sh1-exporter/charts/snmpExporter/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:    
-    helm.sh/chart: snmpExporter-9.16.1
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: snmpExporter
-    app.kubernetes.io/name: snmpExporter
-    app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1"
-  name: prometheus-snmp-exporter
-  namespace: ci-m0sh1-exporter
----
-# Source: m0sh1-exporter/charts/snmpExporter/templates/role.yaml
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: prometheus-snmp-exporter
-  namespace: ci-m0sh1-exporter
-  labels:    
-    helm.sh/chart: snmpExporter-9.16.1
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: snmpExporter
-    app.kubernetes.io/name: snmpExporter
-    app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1"
-rules:
-- apiGroups: [""]
-  resources: ["endpoints"]
-  verbs: ["get"]
-
----
-# Source: m0sh1-exporter/charts/snmpExporter/templates/rolebinding.yaml
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: prometheus-snmp-exporter
-  namespace: ci-m0sh1-exporter
-  labels:    
-    helm.sh/chart: snmpExporter-9.16.1
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/component: metrics
-    app.kubernetes.io/part-of: snmpExporter
-    app.kubernetes.io/name: snmpExporter
-    app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1"
-subjects:
-- kind: ServiceAccount
-  name: prometheus-snmp-exporter
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: prometheus-snmp-exporter
-
+automountServiceAccountToken: false
 ---
 # Source: m0sh1-exporter/charts/pveexporter/templates/service.yaml
 apiVersion: v1
@@ -79,7 +35,7 @@ metadata:
     helm.sh/chart: pveexporter-2.8.0
     app.kubernetes.io/name: pveexporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "3.9.0"
+    app.kubernetes.io/version: 3.9.0
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -91,7 +47,6 @@ spec:
   selector:
     app.kubernetes.io/name: pveexporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-
 ---
 # Source: m0sh1-exporter/charts/snmpExporter/templates/service.yaml
 kind: Service
@@ -99,24 +54,23 @@ apiVersion: v1
 metadata:
   name: prometheus-snmp-exporter
   namespace: ci-m0sh1-exporter
-  labels:    
+  labels:
     helm.sh/chart: snmpExporter-9.16.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: snmpExporter
     app.kubernetes.io/name: snmpExporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1"
+    app.kubernetes.io/version: v0.30.1
 spec:
   type: ClusterIP
   ports:
     - name: http
       port: 9116
       protocol: TCP
-  selector:    
+  selector:
     app.kubernetes.io/name: snmpExporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-
 ---
 # Source: m0sh1-exporter/templates/service.yaml
 apiVersion: v1
@@ -125,15 +79,17 @@ metadata:
   name: opnsense-exporter
   namespace: ci-m0sh1-exporter
   labels:
-    helm.sh/chart: m0sh1-exporter-0.1.17
+    helm.sh/chart: m0sh1-exporter-0.1.19
     app.kubernetes.io/name: opnsense-exporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "0.0.15"
+    app.kubernetes.io/version: 0.0.15
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
   ipFamilyPolicy: PreferDualStack
-  ipFamilies: [IPv4, IPv6]
+  ipFamilies:
+    - IPv4
+    - IPv6
   ports:
     - port: 8080
       targetPort: metrics
@@ -142,7 +98,6 @@ spec:
   selector:
     app.kubernetes.io/name: opnsense-exporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-
 ---
 # Source: m0sh1-exporter/charts/pveexporter/templates/deployment.yaml
 apiVersion: apps/v1
@@ -153,7 +108,7 @@ metadata:
     helm.sh/chart: pveexporter-2.8.0
     app.kubernetes.io/name: pveexporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "3.9.0"
+    app.kubernetes.io/version: 3.9.0
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -171,28 +126,28 @@ spec:
       serviceAccountName: prometheus-pve-exporter
       containers:
         - name: pveexporter
-          image: "docker.io/prompve/prometheus-pve-exporter:3.9.0@sha256:78a58df7a31c9fbee94962cd06422672668529de6421892df9aed4b6cee0757f"
-          imagePullPolicy: Always
+          image: docker.io/prompve/prometheus-pve-exporter:3.9.0@sha256:78a58df7a31c9fbee94962cd06422672668529de6421892df9aed4b6cee0757f
+          imagePullPolicy: IfNotPresent
           env:
             - name: PVE_USER
-              value: "pve-exporter@pve"
+              value: pve-exporter@pve
             - name: PVE_VERIFY_SSL
               value: "false"
             - name: PVE_TOKEN_NAME
               valueFrom:
                 secretKeyRef:
-                  name: "monitoring-pve-exporter"
-                  key: "tokenName"
+                  name: monitoring-pve-exporter
+                  key: tokenName
             - name: PVE_TOKEN_VALUE
               valueFrom:
                 secretKeyRef:
-                  name: "monitoring-pve-exporter"
-                  key: "tokenValue"
+                  name: monitoring-pve-exporter
+                  key: tokenValue
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 65534
@@ -223,7 +178,6 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
-
 ---
 # Source: m0sh1-exporter/charts/snmpExporter/templates/deployment.yaml
 apiVersion: apps/v1
@@ -231,18 +185,18 @@ kind: Deployment
 metadata:
   name: prometheus-snmp-exporter
   namespace: ci-m0sh1-exporter
-  labels:    
+  labels:
     helm.sh/chart: snmpExporter-9.16.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: snmpExporter
     app.kubernetes.io/name: snmpExporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1"
+    app.kubernetes.io/version: v0.30.1
 spec:
   replicas: 1
   selector:
-    matchLabels:      
+    matchLabels:
       app.kubernetes.io/name: snmpExporter
       app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
   strategy:
@@ -252,24 +206,27 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      labels:        
+      labels:
         helm.sh/chart: snmpExporter-9.16.1
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: snmpExporter
         app.kubernetes.io/name: snmpExporter
         app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-        app.kubernetes.io/version: "v0.30.1"
-      annotations:
-        {}
+        app.kubernetes.io/version: v0.30.1
+      annotations: {}
     spec:
       restartPolicy: Always
-      serviceAccountName: prometheus-snmp-exporter
+      serviceAccountName: opnsense-exporter
       containers:
         - name: snmp-exporter
-          image: "ghcr.io/isityael/snmp-exporter:v0.30.1-m0sh1.1@sha256:b5ee0d63f2fcf405a3d3f0448627ce4a9ba086ea8ba7e4fb79056da0fed725e6"
+          image: ghcr.io/isityael/snmp-exporter:v0.30.1-m0sh1.1@sha256:b5ee0d63f2fcf405a3d3f0448627ce4a9ba086ea8ba7e4fb79056da0fed725e6
           imagePullPolicy: IfNotPresent
           securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
@@ -295,8 +252,10 @@ spec:
               path: /-/healthy
               port: http
           volumeMounts:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       volumes:
-
 ---
 # Source: m0sh1-exporter/templates/deployment.yaml
 apiVersion: apps/v1
@@ -305,10 +264,10 @@ metadata:
   name: opnsense-exporter
   namespace: ci-m0sh1-exporter
   labels:
-    helm.sh/chart: m0sh1-exporter-0.1.17
+    helm.sh/chart: m0sh1-exporter-0.1.19
     app.kubernetes.io/name: opnsense-exporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "0.0.15"
+    app.kubernetes.io/version: 0.0.15
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -323,12 +282,15 @@ spec:
         app.kubernetes.io/name: opnsense-exporter
         app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
     spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      serviceAccountName: opnsense-exporter
       securityContext:
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: opnsense-exporter
-          image: "ghcr.io/isityael/opnsense-exporter:v0.0.15-m0sh1.3@sha256:f36a0ab09d00f9cdd8531dfa7289f586a3dc1e04c10d1618b836c3826073292d"
+          image: ghcr.io/isityael/opnsense-exporter:v0.0.15-m0sh1.3@sha256:f36a0ab09d00f9cdd8531dfa7289f586a3dc1e04c10d1618b836c3826073292d
           imagePullPolicy: IfNotPresent
           args:
             - --opnsense.protocol=https
@@ -377,10 +339,10 @@ spec:
             runAsUser: 65534
             allowPrivilegeEscalation: false
             capabilities:
-              drop: ["ALL"]
+              drop:
+                - ALL
             seccompProfile:
               type: RuntimeDefault
-
 ---
 # Source: m0sh1-exporter/templates/vmservicescrape-opnsense.yaml
 apiVersion: operator.victoriametrics.com/v1beta1
@@ -389,10 +351,10 @@ metadata:
   name: opnsense-exporter
   namespace: ci-m0sh1-exporter
   labels:
-    helm.sh/chart: m0sh1-exporter-0.1.17
+    helm.sh/chart: m0sh1-exporter-0.1.19
     app.kubernetes.io/name: opnsense-exporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "0.0.15"
+    app.kubernetes.io/version: 0.0.15
     app.kubernetes.io/managed-by: Helm
     release: kube-prometheus-stack
 spec:
@@ -409,7 +371,6 @@ spec:
       metricRelabelConfigs:
         - replacement: opnsense
           targetLabel: instance
-
 ---
 # Source: m0sh1-exporter/templates/vmservicescrape-pve.yaml
 apiVersion: operator.victoriametrics.com/v1beta1
@@ -421,7 +382,7 @@ metadata:
     helm.sh/chart: pveexporter-2.8.0
     app.kubernetes.io/name: pveexporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "3.9.0"
+    app.kubernetes.io/version: 3.9.0
     app.kubernetes.io/managed-by: Helm
     release: kube-prometheus-stack
 spec:
@@ -449,7 +410,6 @@ spec:
       metricRelabelConfigs:
         - replacement: prometheus-pve-exporter
           targetLabel: instance
-
 ---
 # Source: m0sh1-exporter/templates/vmservicescrape-snmp.yaml
 apiVersion: operator.victoriametrics.com/v1beta1
@@ -464,8 +424,8 @@ metadata:
     app.kubernetes.io/part-of: snmpExporter
     app.kubernetes.io/name: snmpExporter
     app.kubernetes.io/instance: ci-m0sh1-exporter-test-values
-    app.kubernetes.io/version: "v0.30.1-m0sh1.1"
-    release: "kube-prometheus-stack"
+    app.kubernetes.io/version: v0.30.1-m0sh1.1
+    release: kube-prometheus-stack
 spec:
   namespaceSelector:
     matchNames:
@@ -488,14 +448,16 @@ spec:
         target:
           - 10.0.0.2
       metricRelabelConfigs:
-        - sourceLabels: [instance]
+        - sourceLabels:
+            - instance
           targetLabel: instance
           replacement: 10.0.0.2
           action: replace
-        - sourceLabels: [target]
+        - sourceLabels:
+            - target
           targetLabel: target
           replacement: edgerouter-x
           action: replace
         - targetLabel: instance
-          replacement: "edgerouter-x"
+          replacement: edgerouter-x
           action: replace
