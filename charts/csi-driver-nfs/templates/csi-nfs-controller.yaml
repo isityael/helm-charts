@@ -94,8 +94,10 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 65532
+            # The NFS plugin creates its Unix socket as root with owner-only
+            # write permission. Socket clients therefore require UID 0.
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
               drop:
               - ALL
@@ -128,8 +130,8 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 65532
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
               drop:
               - ALL
@@ -161,8 +163,8 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 65532
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
               drop:
               - ALL
@@ -186,8 +188,8 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 65532
+            runAsNonRoot: false
+            runAsUser: 0
             capabilities:
               drop:
               - ALL
