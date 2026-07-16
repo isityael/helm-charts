@@ -3,7 +3,7 @@ name: youtarr
 description: Public Helm chart for Youtarr with optional DHI MariaDB
 home: https://github.com/DialmasterOrg/Youtarr
 type: application
-version: 0.1.11
+version: 0.1.12
 appVersion: "v1.75.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -29,6 +29,8 @@ annotations:
     - name: Chart source
       url: https://github.com/isityael/helm-charts/tree/main/charts/youtarr
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Keep Renovate-managed MariaDB digests in the dedicated digest value.
     - kind: fixed
       description: Rename the config override key-list environment variable to avoid kube-linter false positives.
     - kind: added
