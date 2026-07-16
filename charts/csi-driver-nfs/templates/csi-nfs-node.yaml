@@ -25,6 +25,7 @@ spec:
       hostNetwork: true # original nfs connection would be broken without hostNetwork setting
       dnsPolicy: {{ .Values.node.dnsPolicy }}
       serviceAccountName: {{ .Values.serviceAccount.node }}
+      automountServiceAccountToken: false
       priorityClassName: {{ .Values.node.priorityClassName }}
       securityContext:
         seccompProfile:
@@ -63,7 +64,9 @@ spec:
               mountPath: /csi
           resources: {{- toYaml .Values.node.resources.livenessProbe | nindent 12 }}
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL
@@ -111,6 +114,9 @@ spec:
 {{- end }}
           resources: {{- toYaml .Values.node.resources.nodeDriverRegistrar | nindent 12 }}
           securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL

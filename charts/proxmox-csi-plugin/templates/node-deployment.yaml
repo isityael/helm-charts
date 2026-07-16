@@ -52,6 +52,18 @@ spec:
             - "-v={{ .Values.logVerbosityLevel }}"
             - "--csi-address=unix:///csi/csi.sock"
             - "--node-id=$(NODE_NAME)"
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            failureThreshold: {{ .Values.livenessprobe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.livenessprobe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessprobe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessprobe.timeoutSeconds }}
           env:
             - name: NODE_NAME
               valueFrom:
@@ -106,6 +118,7 @@ spec:
           args:
             - "-v={{ .Values.logVerbosityLevel }}"
             - "--csi-address=unix:///csi/csi.sock"
+            - "--health-port=9808"
           volumeMounts:
             - name: socket
               mountPath: /csi

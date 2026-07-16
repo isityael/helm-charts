@@ -28,11 +28,29 @@
       }
     },
     "existingConfigSecret": {
-      "type": ["string", "null"]
+      "type": ["string", "null"],
+      "minLength": 1
     },
-    "existingConfigSecretKey": { "type": "string" },
+    "existingConfigSecretKey": { "type": "string", "minLength": 1 },
     "configFile": { "type": "string" },
-    "config": { "type": "object" },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "features": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": { "type": "string" }
+          }
+        },
+        "clusters": {
+          "type": "array",
+          "maxItems": 0
+        }
+      },
+      "required": ["features", "clusters"]
+    },
     "storageClass": { "type": "array" },
     "controller": { "$ref": "#/definitions/componentGroup" },
     "node": { "$ref": "#/definitions/componentGroup" },

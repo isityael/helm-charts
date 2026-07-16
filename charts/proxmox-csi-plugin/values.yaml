@@ -46,26 +46,20 @@ options:
   # ref: https://github.com/kubernetes-csi/external-provisioner
   enableCapacity: true
 
-# -- Proxmox cluster config stored in secrets.
+# -- Name of a pre-created Secret containing the Proxmox cluster config.
 existingConfigSecret: ~
-# -- Proxmox cluster config stored in secrets key.
+# -- Key in the pre-created Proxmox cluster config Secret.
 existingConfigSecretKey: config.yaml
 
 # -- Proxmox cluster config path.
 configFile: /etc/proxmox/config.yaml
 
-# -- Proxmox cluster config.
-# ref: https://github.com/isityael/proxmox-csi-plugin/blob/yaelmoshi/main/docs/install.md
+# Inline cluster credentials are intentionally unsupported. Use
+# existingConfigSecret and existingConfigSecretKey instead.
 config:
   features:
-    # specify provider: proxmox if you are using capmox (cluster api provider for proxmox)
     provider: "default"
   clusters: []
-  #   - url: https://cluster-api-1.exmple.com:8006/api2/json
-  #     insecure: false
-  #     token_id: "login!name"
-  #     token_secret: "secret"
-  #     region: cluster-1
 
 # -- Storage class definition.
 storageClass: []
