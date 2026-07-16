@@ -273,7 +273,7 @@ mautrix-telegram:
   image:
     registry: dock.mau.dev
     repository: mautrix/telegram
-    tag: "v0.2606.0"
+    tag: "v0.2607.0"
     digest: sha256:8c6c559446f049c1f3c4cbc4b284aed14c27aefde9b88a785d262633bdafe510
     pullPolicy: IfNotPresent
   command:
@@ -315,7 +315,7 @@ mautrix-whatsapp:
   image:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
-    tag: "v0.2606.0"
+    tag: "v0.2607.0"
     digest: sha256:3ecf348ac3451199fe1e7b894469bd8cf9b2abe58699f3b9a8029172c4356877
     pullPolicy: IfNotPresent
   command:
