@@ -19,7 +19,7 @@ secret_verbs="$(
   yq eval-all '
     select(.kind == "ClusterRole" and .metadata.name == "csi-s3-external-provisioner-runner") |
     .rules[] |
-    select(.apiGroups == [""] and .resources == ["secrets"]) |
+    select(.apiGroups[] == "" and .resources[] == "secrets") |
     .verbs[]
   ' "$rendered"
 )"

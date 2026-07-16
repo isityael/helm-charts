@@ -13,7 +13,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["secrets"]
-    verbs: ["get", "list"]
+    verbs: ["get"]
   - apiGroups: [""]
     resources: ["persistentvolumes"]
     verbs: ["get", "list", "watch", "create", "patch", "delete"]
@@ -60,7 +60,7 @@ metadata:
   name: csi-s3-provisioner
   namespace: {{ .Release.Namespace }}
 spec:
-  serviceName: "csi-provisioner-s3"
+  serviceName: "csi-s3-provisioner"
   replicas: 1
   selector:
     matchLabels:

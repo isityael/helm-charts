@@ -42,7 +42,10 @@ test_long_database_metadata_names_remain_unique() {
   local second_name
 
   render_databases "${rendered}" '[{"enabled":true,"name":"this_is_a_very_long_database_name_with_a_shared_prefix_for_collision_a","owner":"app"},{"enabled":true,"name":"this_is_a_very_long_database_name_with_a_shared_prefix_for_collision_b","owner":"app"}]'
-  names="$(yq eval-all 'select(.kind == "Database") | .metadata.name' "${rendered}")"
+  names="$(
+    yq eval-all 'select(.kind == "Database") | .metadata.name' "${rendered}" |
+      sed '/^---$/d; /^[[:space:]]*$/d'
+  )"
   first_name="$(sed -n '1p' <<<"${names}")"
   second_name="$(sed -n '2p' <<<"${names}")"
 
