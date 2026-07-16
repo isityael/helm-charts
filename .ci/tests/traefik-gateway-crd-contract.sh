@@ -8,27 +8,21 @@ trap 'rm -f "${rendered}"' EXIT
 
 helm template traefik "${chart}" >"${rendered}"
 
-for crd in \
-  tcproutes.gateway.networking.k8s.io \
-  tlsroutes.gateway.networking.k8s.io; do
-  sync_options="$(
-    CRD_NAME="${crd}" yq eval-all '
+gateway_crd_count="$(
+  yq eval-all '
+    [
       select(
         .kind == "CustomResourceDefinition" and
-        .metadata.name == strenv(CRD_NAME)
-      ) |
-      .metadata.annotations."argocd.argoproj.io/sync-options"
-    ' "${rendered}"
-  )"
+        .spec.group == "gateway.networking.k8s.io"
+      )
+    ] |
+    length
+  ' "${rendered}"
+)"
 
-  grep -Eq '(^|,)Prune=false(,|$)' <<<"${sync_options}" || {
-    echo "FAIL: ${crd} must disable ArgoCD pruning" >&2
-    exit 1
-  }
-  grep -Eq '(^|,)ServerSideApply=true(,|$)' <<<"${sync_options}" || {
-    echo "FAIL: ${crd} must use ArgoCD server-side apply" >&2
-    exit 1
-  }
-done
+[[ "${gateway_crd_count}" == "0" ]] || {
+  echo "FAIL: Traefik chart rendered ${gateway_crd_count} Gateway API CRD(s); expected zero" >&2
+  exit 1
+}
 
-echo "Traefik Gateway API CRD protection contract passed"
+echo "Traefik external Gateway API CRD contract passed"
