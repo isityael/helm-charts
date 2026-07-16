@@ -65,6 +65,8 @@ assert_restricted_container() {
     fail "${workload_name}/${container_name} must use a read-only root filesystem"
   [ "$(yq -r '.runAsNonRoot' <<<"$context")" = "true" ] ||
     fail "${workload_name}/${container_name} must run as non-root"
+  [ "$(yq -r '.runAsUser' <<<"$context")" = "65532" ] ||
+    fail "${workload_name}/${container_name} must use the DHI non-root UID 65532"
   [ "$(yq -r '.capabilities.drop[]' <<<"$context")" = "ALL" ] ||
     fail "${workload_name}/${container_name} must drop all capabilities"
 }
