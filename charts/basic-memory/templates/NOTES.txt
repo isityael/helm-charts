@@ -51,8 +51,12 @@ Components enabled:
      - Database name: {{ .Values.obsidianSync.livesync.database }}
      - Username:      admin
      - Password:      (from the Secret above)
-{{- if .Values.obsidianSync.livesync.passphrase }}
-     - Passphrase:    (matches obsidianSync.livesync.passphrase in your values)
+{{- if .Values.obsidianSync.livesync.existingSecret.name }}
+     - Passphrase:    configured from an existing Secret
+     - Secret name:   {{ .Values.obsidianSync.livesync.existingSecret.name }}
+     - Secret key:    {{ .Values.obsidianSync.livesync.existingSecret.passphraseKey }}
+{{- else }}
+     - Passphrase:    not configured (LiveSync encryption is disabled)
 {{- end }}
 {{- end }}
 

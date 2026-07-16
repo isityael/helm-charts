@@ -7,11 +7,20 @@ tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}"' EXIT
 
 status=0
+notes_template="${chart_dir}/templates/NOTES.txt"
 
 fail() {
   echo "FAIL: $*" >&2
   status=1
 }
+
+if rg -q 'obsidianSync\.livesync\.passphrase' "${notes_template}"; then
+  fail "NOTES still references the removed inline LiveSync passphrase"
+fi
+rg -Fq '.Values.obsidianSync.livesync.existingSecret.name' "${notes_template}" \
+  || fail "NOTES does not reference the LiveSync existing Secret name"
+rg -Fq '.Values.obsidianSync.livesync.existingSecret.passphraseKey' "${notes_template}" \
+  || fail "NOTES does not reference the LiveSync passphrase Secret key"
 
 render_livesync() {
   local output="$1"
