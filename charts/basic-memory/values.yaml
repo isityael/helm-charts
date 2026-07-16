@@ -350,9 +350,11 @@ obsidianSync:
     configInitImage: {}
     # Obsidian LiveSync database name (must match the plugin config).
     database: obsidian
-    # End-to-end encryption passphrase. Leave empty for no encryption; set
-    # to the same value as your Obsidian plugin configuration otherwise.
-    passphrase: ""
+    # Optional pre-created Secret containing the end-to-end encryption
+    # passphrase. Leave name empty for unencrypted LiveSync.
+    existingSecret:
+      name: ""
+      passphraseKey: passphrase
     # Scan for offline changes on startup. Disable to avoid a race condition
     # on large vaults where many files need syncing at once.
     scanOfflineChanges: false

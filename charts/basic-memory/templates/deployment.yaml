@@ -200,8 +200,13 @@ spec:
             - |
               const cfg = JSON.parse(await Deno.readTextFile("/config-template/config.json"));
               const pw = Deno.env.get("COUCHDB_PASSWORD") ?? "";
+              const passphrase = Deno.env.get("LIVESYNC_PASSPHRASE") ?? "";
               for (const peer of (cfg.peers ?? [])) {
-                if (peer.type === "couchdb") peer.password = pw;
+                if (peer.type === "couchdb") {
+                  peer.password = pw;
+                  peer.passphrase = passphrase;
+                  peer.obfuscatePassphrase = passphrase;
+                }
               }
               await Deno.writeTextFile(
                 "/config-out/config.json",
@@ -216,6 +221,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.obsidianSync.couchdb.existingSecret.name }}
                   key: {{ .Values.obsidianSync.couchdb.existingSecret.passwordKey }}
+            {{- if .Values.obsidianSync.livesync.existingSecret.name }}
+            - name: LIVESYNC_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.obsidianSync.livesync.existingSecret.name }}
+                  key: {{ .Values.obsidianSync.livesync.existingSecret.passphraseKey }}
+            {{- end }}
           volumeMounts:
             - name: livesync-config-template
               mountPath: /config-template

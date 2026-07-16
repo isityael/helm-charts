@@ -69,4 +69,6 @@ obsidianSync:
           secretName: livesync-tls
   livesync:
     database: obsidian-vault
-    passphrase: "change-me-to-match-your-obsidian-plugin"
+    existingSecret:
+      name: basic-memory-livesync
+      passphraseKey: passphrase
