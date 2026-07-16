@@ -37,9 +37,10 @@
     },
     {
       "customType": "regex",
-      "description": "Matrix umbrella images with sibling digest keys",
+      "description": "Images with sibling digest keys",
       "managerFilePatterns": [
-        "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/"
+        "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/",
+        "/charts/youtarr/values(?:-[^/]+)?\\.yaml$/"
       ],
       "matchStrings": [
         "(?<indent>[ \\t]*)(?:registry:\\s*(?<registry>[^\\s\\\"']+)\\s+)?repository:\\s*(?<repository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
@@ -187,13 +188,17 @@
       ]
     },
     {
-      "description": "Keep matrix-umbrella split image digests out of tag values",
+      "description": "Keep split image digests out of tag values",
       "matchManagers": ["helm-values"],
       "matchDatasources": ["docker"],
-      "matchFileNames": ["charts/matrix-umbrella/values*.yaml"],
+      "matchFileNames": [
+        "charts/matrix-umbrella/values*.yaml",
+        "charts/youtarr/values*.yaml"
+      ],
       "matchPackageNames": [
         "dhi.io/busybox",
         "dhi.io/haproxy",
+        "dhi.io/mariadb",
         "dhi.io/postgres",
         "dhi.io/valkey",
         "ghcr.io/cinnyapp/cinny",
