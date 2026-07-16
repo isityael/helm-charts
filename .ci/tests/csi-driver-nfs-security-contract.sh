@@ -89,12 +89,104 @@ assert_http_liveness_probe() {
     fail "${workload_name}/${container_name} must probe its configured /healthz endpoint"
 }
 
-assert_automount ServiceAccount csi-nfs-controller-sa true
+assert_token_mount() {
+  local workload_kind="$1"
+  local workload_name="$2"
+  local container_name="$3"
+  local mount
+
+  mount="$(
+    RESOURCE_KIND="$workload_kind" RESOURCE_NAME="$workload_name" CONTAINER_NAME="$container_name" \
+      yq eval-all -o=json -I=0 '
+        select(.kind == strenv(RESOURCE_KIND) and .metadata.name == strenv(RESOURCE_NAME)) |
+        .spec.template.spec.containers[] |
+        select(.name == strenv(CONTAINER_NAME)) |
+        .volumeMounts[] |
+        select(.name == "kube-api-access")
+      ' "$rendered"
+  )"
+
+  [ "$(yq -r '.mountPath' <<<"$mount")" = "/var/run/secrets/kubernetes.io/serviceaccount" ] ||
+    fail "${workload_name}/${container_name} must mount projected API credentials at the standard path"
+  [ "$(yq -r '.readOnly' <<<"$mount")" = "true" ] ||
+    fail "${workload_name}/${container_name} API credential mount must be read-only"
+}
+
+assert_no_token_mount() {
+  local workload_kind="$1"
+  local workload_name="$2"
+  local container_name="$3"
+  local count
+
+  count="$(
+    RESOURCE_KIND="$workload_kind" RESOURCE_NAME="$workload_name" CONTAINER_NAME="$container_name" \
+      yq eval-all '
+        select(.kind == strenv(RESOURCE_KIND) and .metadata.name == strenv(RESOURCE_NAME)) |
+        .spec.template.spec.containers[] |
+        select(.name == strenv(CONTAINER_NAME)) |
+        [.volumeMounts[]? | select(.name == "kube-api-access")] |
+        length
+      ' "$rendered"
+  )"
+
+  [ "$count" = "0" ] || fail "${workload_name}/${container_name} must not receive Kubernetes API credentials"
+}
+
+assert_projected_token_volume() {
+  local workload_kind="$1"
+  local workload_name="$2"
+  local ca_path
+  local namespace_path
+  local token_path
+
+  token_path="$(
+    RESOURCE_KIND="$workload_kind" RESOURCE_NAME="$workload_name" yq eval-all '
+      select(.kind == strenv(RESOURCE_KIND) and .metadata.name == strenv(RESOURCE_NAME)) |
+      .spec.template.spec.volumes[] |
+      select(.name == "kube-api-access") |
+      .projected.sources[].serviceAccountToken.path
+    ' "$rendered"
+  )"
+
+  grep -qx token <<<"$token_path" || fail "${workload_name} must project a bounded ServiceAccount token"
+
+  ca_path="$(
+    RESOURCE_KIND="$workload_kind" RESOURCE_NAME="$workload_name" yq eval-all '
+      select(.kind == strenv(RESOURCE_KIND) and .metadata.name == strenv(RESOURCE_NAME)) |
+      .spec.template.spec.volumes[] |
+      select(.name == "kube-api-access") |
+      .projected.sources[].configMap.items[].path
+    ' "$rendered"
+  )"
+  grep -qx ca.crt <<<"$ca_path" || fail "${workload_name} must project the Kubernetes API CA"
+
+  namespace_path="$(
+    RESOURCE_KIND="$workload_kind" RESOURCE_NAME="$workload_name" yq eval-all '
+      select(.kind == strenv(RESOURCE_KIND) and .metadata.name == strenv(RESOURCE_NAME)) |
+      .spec.template.spec.volumes[] |
+      select(.name == "kube-api-access") |
+      .projected.sources[].downwardAPI.items[].path
+    ' "$rendered"
+  )"
+  grep -qx namespace <<<"$namespace_path" || fail "${workload_name} must project its namespace"
+}
+
+assert_automount ServiceAccount csi-nfs-controller-sa false
 assert_automount ServiceAccount csi-nfs-node-sa false
-assert_automount Deployment csi-nfs-controller true
+assert_automount Deployment csi-nfs-controller false
 assert_automount DaemonSet csi-nfs-node false
-assert_automount ServiceAccount snapshot-controller true
-assert_automount Deployment snapshot-controller true
+assert_automount ServiceAccount snapshot-controller false
+assert_automount Deployment snapshot-controller false
+
+assert_projected_token_volume Deployment csi-nfs-controller
+for container in csi-provisioner csi-resizer csi-snapshotter; do
+  assert_token_mount Deployment csi-nfs-controller "$container"
+done
+assert_no_token_mount Deployment csi-nfs-controller liveness-probe
+assert_no_token_mount Deployment csi-nfs-controller nfs
+
+assert_projected_token_volume Deployment snapshot-controller
+assert_token_mount Deployment snapshot-controller snapshot-controller
 
 for container in csi-provisioner csi-resizer csi-snapshotter liveness-probe; do
   assert_restricted_container Deployment csi-nfs-controller "$container"

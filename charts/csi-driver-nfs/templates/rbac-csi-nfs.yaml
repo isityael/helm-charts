@@ -6,7 +6,7 @@ metadata:
   name: {{ .Values.serviceAccount.controller }}
   namespace: {{ .Release.Namespace }}
 {{ include "nfs.labels" . | indent 2 }}
-automountServiceAccountToken: true
+automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: ServiceAccount
