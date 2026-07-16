@@ -58,11 +58,22 @@ spec:
             - "--metrics-address=:{{ .Values.metrics.port }}"
             {{- end }}
           ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
             {{- if .Values.metrics.enabled }}
             - name: metrics
               containerPort: {{ .Values.metrics.port }}
               protocol: TCP
             {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            failureThreshold: {{ .Values.livenessprobe.failureThreshold }}
+            initialDelaySeconds: {{ .Values.livenessprobe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessprobe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessprobe.timeoutSeconds }}
           resources:
             {{- toYaml .Values.controller.plugin.resources | nindent 12 }}
           volumeMounts:
@@ -70,6 +81,7 @@ spec:
               mountPath: /csi
             - name: cloud-config
               mountPath: /etc/proxmox/
+              readOnly: true
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -165,6 +177,7 @@ spec:
           args:
             - "-v={{ .Values.logVerbosityLevel }}"
             - "--csi-address=unix:///csi/csi.sock"
+            - "--health-port=9808"
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -181,8 +194,7 @@ spec:
                 path: config.yaml
         {{- else }}
         - name: cloud-config
-          secret:
-            secretName: {{ include "proxmox-csi-plugin.fullname" . }}
+          emptyDir: {}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

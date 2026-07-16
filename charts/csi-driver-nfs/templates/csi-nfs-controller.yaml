@@ -24,6 +24,7 @@ spec:
       hostNetwork: true  # controller also needs to mount nfs to create dir
       dnsPolicy: {{ .Values.controller.dnsPolicy }}
       serviceAccountName: {{ .Values.serviceAccount.controller }}
+      automountServiceAccountToken: true
     # runOnControlPlane=true or runOnMaster=true only takes effect if affinity is not set
     {{- if tpl "{{ .Values.controller.affinity }}" . | contains "nodeSelectorTerms" }}
       {{- with .Values.controller.affinity }}
@@ -88,7 +89,9 @@ spec:
               name: socket-dir
           resources: {{- toYaml .Values.controller.resources.csiProvisioner | nindent 12 }}
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL
@@ -116,6 +119,9 @@ spec:
               mountPath: /csi
           resources: {{- toYaml .Values.controller.resources.csiResizer | nindent 12 }}
           securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL
@@ -142,6 +148,9 @@ spec:
             - name: socket-dir
               mountPath: /csi
           securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL
@@ -163,7 +172,9 @@ spec:
               mountPath: /csi
           resources: {{- toYaml .Values.controller.resources.livenessProbe | nindent 12 }}
           securityContext:
+            allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL

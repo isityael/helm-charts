@@ -40,6 +40,7 @@ spec:
         app: {{ .Values.externalSnapshotter.name }}
     spec:
       serviceAccountName: {{ .Values.externalSnapshotter.name }}
+      automountServiceAccountToken: true
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
 {{ toYaml .Values.imagePullSecrets | indent 8 }}
@@ -89,6 +90,9 @@ spec:
           resources: {{- toYaml .Values.externalSnapshotter.resources | nindent 12 }}
           imagePullPolicy: {{ .Values.image.externalSnapshotter.pullPolicy }}
           securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
             capabilities:
               drop:
               - ALL
