@@ -29,11 +29,11 @@ repos:
   - repo: local
     hooks:
       - id: chart-version-bump
-        name: bump chart version for changed values/templates
+        name: bump owning chart version for packaged chart changes
         entry: .ci/pre-commit/chart-version-bump.sh
         language: system
         pass_filenames: false
-        files: ^charts/[^/]+/(values[^/]*\.ya?ml|templates/)
+        files: ^charts/[^/]+/
 
       - id: helm-lint
         name: helm lint (changed charts)

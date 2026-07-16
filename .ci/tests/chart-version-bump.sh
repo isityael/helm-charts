@@ -20,11 +20,12 @@ setup_repo() {
   git -C "$workdir" config user.email test@example.invalid
   git -C "$workdir" config user.name "Chart Version Test"
 
-  mkdir -p "$workdir/charts/demo/templates"
+  mkdir -p "$workdir/charts/demo/charts/child" "$workdir/charts/demo/ci" "$workdir/charts/demo/templates"
   cat >"$workdir/charts/demo/Chart.yaml" <<YAML
 apiVersion: v2
 name: demo
 version: ${version}
+appVersion: "1.0.0"
 YAML
   cat >"$workdir/charts/demo/values.yaml" <<'YAML'
 image:
@@ -36,6 +37,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demo
+YAML
+  cat >"$workdir/charts/demo/values.schema.json" <<'JSON'
+{"type":"object"}
+JSON
+  cat >"$workdir/charts/demo/README.md" <<'MARKDOWN'
+# Demo
+MARKDOWN
+  cat >"$workdir/charts/demo/ci/test-values.yaml" <<'YAML'
+replicaCount: 1
+YAML
+  cat >"$workdir/charts/demo/charts/child/values.yaml" <<'YAML'
+enabled: true
 YAML
 
   git -C "$workdir" add charts/demo
@@ -87,6 +100,93 @@ test_template_change_bumps_chart_version() {
   assert_staged "$workdir" "charts/demo/Chart.yaml"
 }
 
+test_schema_change_bumps_chart_version() {
+  local workdir="${tmpdir}/schema-change"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  printf '%s\n' '{"type":"object","additionalProperties":false}' >"$workdir/charts/demo/values.schema.json"
+  git -C "$workdir" add charts/demo/values.schema.json
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
+test_app_version_change_bumps_chart_version() {
+  local workdir="${tmpdir}/app-version-change"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  sed -i.bak 's/appVersion: "1.0.0"/appVersion: "1.0.1"/' "$workdir/charts/demo/Chart.yaml"
+  rm "$workdir/charts/demo/Chart.yaml.bak"
+  git -C "$workdir" add charts/demo/Chart.yaml
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
+test_nested_dependency_change_bumps_chart_version() {
+  local workdir="${tmpdir}/nested-dependency-change"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  sed -i.bak 's/enabled: true/enabled: false/' "$workdir/charts/demo/charts/child/values.yaml"
+  rm "$workdir/charts/demo/charts/child/values.yaml.bak"
+  git -C "$workdir" add charts/demo/charts/child/values.yaml
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
+test_deleted_packaged_file_bumps_chart_version() {
+  local workdir="${tmpdir}/deleted-file"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  rm "$workdir/charts/demo/templates/deployment.yaml"
+  git -C "$workdir" add charts/demo/templates/deployment.yaml
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
+test_readme_change_bumps_chart_version() {
+  local workdir="${tmpdir}/readme-change"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  printf '\nInstall with Helm.\n' >>"$workdir/charts/demo/README.md"
+  git -C "$workdir" add charts/demo/README.md
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
+test_ci_asset_change_bumps_chart_version() {
+  local workdir="${tmpdir}/ci-asset-change"
+  mkdir -p "$workdir"
+  setup_repo "$workdir"
+
+  sed -i.bak 's/replicaCount: 1/replicaCount: 2/' "$workdir/charts/demo/ci/test-values.yaml"
+  rm "$workdir/charts/demo/ci/test-values.yaml.bak"
+  git -C "$workdir" add charts/demo/ci/test-values.yaml
+
+  (cd "$workdir" && "$script")
+
+  assert_version "$workdir" "1.2.4"
+  assert_staged "$workdir" "charts/demo/Chart.yaml"
+}
+
 test_existing_chart_version_change_is_not_bumped_again() {
   local workdir="${tmpdir}/already-bumped"
   mkdir -p "$workdir"
@@ -121,6 +221,12 @@ test_v_prefixed_version_is_preserved() {
 
 test_values_change_bumps_chart_version
 test_template_change_bumps_chart_version
+test_schema_change_bumps_chart_version
+test_app_version_change_bumps_chart_version
+test_nested_dependency_change_bumps_chart_version
+test_deleted_packaged_file_bumps_chart_version
+test_readme_change_bumps_chart_version
+test_ci_asset_change_bumps_chart_version
 test_existing_chart_version_change_is_not_bumped_again
 test_v_prefixed_version_is_preserved
 

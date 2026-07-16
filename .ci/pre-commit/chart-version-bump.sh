@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-changed_files="$(git diff --cached --name-only --diff-filter=ACMRT | grep -E '^charts/[^/]+/(values[^/]*\.ya?ml|templates/.+)$' || true)"
+changed_files="$(git diff --cached --name-only --diff-filter=ACDMRT | awk -F/ '$1 == "charts" && NF >= 3')"
 if [ -z "$changed_files" ]; then
   exit 0
 fi
