@@ -4,6 +4,15 @@ set -eu
 base_ref="${1:-HEAD^}"
 head_ref="${2:-HEAD}"
 
+if [ "$#" -eq 0 ] && [ "${CI:-}" = "woodpecker" ] &&
+  ! git rev-parse --verify "${base_ref}^{commit}" >/dev/null 2>&1; then
+  if [ -z "${CI_COMMIT_REF:-}" ]; then
+    echo "cannot deepen Woodpecker checkout: CI_COMMIT_REF is unset" >&2
+    exit 2
+  fi
+  git fetch --quiet --no-tags --deepen=1 origin "${CI_COMMIT_REF}"
+fi
+
 if ! git rev-parse --verify "${base_ref}^{commit}" >/dev/null 2>&1; then
   echo "cannot resolve base commit ${base_ref}" >&2
   exit 2
