@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: release-4.0.0
+description: Helm chart for matrix-appservice-irc
+home: https://matrix-org.github.io/matrix-appservice-irc/latest/
+name: matrix-appservice-irc
+sources:
+- https://github.com/matrix-org/matrix-appservice-irc
+type: application
+version: 1.0.0
