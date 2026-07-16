@@ -10,9 +10,21 @@ when:
   - event: manual
   - event: push
     branch: main
-    path: "charts/**"
+    path:
+      include:
+        - ".ci/install-oras.sh"
+        - ".ci/publish-artifacthub-metadata.sh"
+        - ".ci/publish-oci.sh"
+        - ".woodpecker/release-all.yaml"
+        - "artifacthub-repo.yml"
+        - "charts/**"
 
 steps:
+  - name: install-oras
+    image: alpine:3.22@sha256:310c62b5e7ca5b08167e4384c68db0fd2905dd9c7493756d356e893909057601
+    commands:
+      - ORAS_INSTALL_DIR=.ci/oras-bin sh .ci/install-oras.sh
+
   - name: publish-oci
     image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
     environment:
@@ -26,3 +38,4 @@ steps:
         from_secret: dhi_password
     commands:
       - bash .ci/publish-oci.sh
+      - ORAS_BIN=.ci/oras-bin/oras bash .ci/publish-artifacthub-metadata.sh
