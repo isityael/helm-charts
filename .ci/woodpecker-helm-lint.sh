@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+bash .ci/tests/renovate-helm-archive-refresh.sh
+
 for chart in charts/*/; do
   [ -f "${chart}Chart.yaml" ] || continue
   grep -E '^\s*repository:\s+https?://' "${chart}Chart.yaml" 2>/dev/null | awk '{print $2}' || true
