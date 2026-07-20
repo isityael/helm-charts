@@ -4,6 +4,6 @@ dependencies:
   version: 17.1.3
 - name: forgejo-runner
   repository: oci://ghcr.io/isityael/charts
-  version: 0.1.14
-digest: sha256:631a554990383a9023a6778789e4802c682f206cd23af4b62f63234828db774c
-generated: "2026-07-16T12:24:16.668623675Z"
+  version: 0.1.15
+digest: sha256:4992a3a57751946cf88d9c289024bc68f0df7c43416bf1ef9b64d16fe4c0f057
+generated: "2026-07-20T10:21:08.163561085Z"
