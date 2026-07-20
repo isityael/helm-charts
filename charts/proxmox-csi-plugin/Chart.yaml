@@ -17,7 +17,7 @@ sources:
   - https://github.com/sergelogvinov/proxmox-csi-plugin
   - https://github.com/isityael/proxmox-csi-plugin
 type: application
-version: 0.5.50
+version: 0.5.51
 annotations:
   artifacthub.io/changes: |
     - kind: security
