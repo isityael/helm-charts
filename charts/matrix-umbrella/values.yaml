@@ -85,7 +85,7 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
-      tag: "1.20.0"
+      tag: "1.21.0"
       digest: sha256:1b0cc87ca6bd6186172a123228cfc3be4c94522d5ecc71e7baeaf23e48ce883a
     ingress:
       host: account.example.com
