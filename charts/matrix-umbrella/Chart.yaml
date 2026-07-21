@@ -2,7 +2,7 @@ apiVersion: v2
 name: matrix-umbrella
 description: DHI-first umbrella chart for Matrix Synapse, MAS, Element Web, Cinny, and mautrix bridges
 type: application
-version: 0.1.35
+version: 0.1.36
 appVersion: "26.6.2"
 kubeVersion: ">=1.28.0-0"
 home: https://matrix.org
