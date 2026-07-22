@@ -105,7 +105,7 @@ ess:
     image:
       registry: oci.element.io
       repository: synapse
-      tag: "v1.157.0"
+      tag: "v1.157.1"
       digest: sha256:d2215c4a0e0bbd304489af228345b31d6857c1a228175471358d3fda187c0d91
     ingress:
       host: matrix.example.com
