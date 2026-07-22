@@ -102,7 +102,7 @@ valkey:
   enabled: true
   image:
     repository: dhi.io/valkey
-    tag: "9.1.0-debian13@sha256:080a4198f4a69c65ec1cd5bd663f8324547efed223b0155f9c381bdac4acd416"
+    tag: "9.1.1-debian13@sha256:3c7bf5a9eec641e2ddf063c5fe63cf3eb490bb9fde7843720910a5d7b114ee4b"
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   url: ""
