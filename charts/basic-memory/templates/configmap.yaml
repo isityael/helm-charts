@@ -64,6 +64,12 @@ data:
         .map((s) => s.trim())
         .filter(Boolean),
     );
+    const BLOCKED_TOOLS = new Set(
+      (Deno.env.get("MCP_SHIM_BLOCKED_TOOLS") ?? "create_memory_project,delete_project")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
     let activeToolCalls = 0;
     const toolCallWaiters: Array<() => void> = [];
 
@@ -164,6 +170,32 @@ data:
       return await fetch(input, { ...init, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
     }
 
+    async function filterBlockedToolsResponse(upstreamResp: Response, setCookie: string | null): Promise<Response> {
+      const headers = new Headers(upstreamResp.headers);
+      if (setCookie) headers.append("set-cookie", setCookie);
+      const body = await upstreamResp.text();
+      try {
+        const parsed: unknown = JSON.parse(body);
+        if (isObject(parsed) && isObject(parsed.result) && Array.isArray(parsed.result.tools)) {
+          parsed.result.tools = parsed.result.tools.filter((tool) =>
+            !isObject(tool) || typeof tool.name !== "string" || !BLOCKED_TOOLS.has(tool.name)
+          );
+          return new Response(JSON.stringify(parsed), {
+            status: upstreamResp.status,
+            statusText: upstreamResp.statusText,
+            headers,
+          });
+        }
+      } catch {
+        // Forward malformed or non-JSON upstream responses unchanged.
+      }
+      return new Response(body, {
+        status: upstreamResp.status,
+        statusText: upstreamResp.statusText,
+        headers,
+      });
+    }
+
     async function ensureUpstreamSessionId(clientId: string): Promise<string> {
       const existing = clientToUpstreamSession.get(clientId);
       if (existing) return existing;
@@ -236,6 +268,16 @@ data:
               const toolName = typeof normalized.params.name === "string" ? normalized.params.name : "";
               const args = isObject(normalized.params.arguments) ? normalized.params.arguments : null;
               const shouldThrottle = THROTTLED_TOOLS.has(toolName);
+
+              if (BLOCKED_TOOLS.has(toolName)) {
+                const err = jsonRpcError(
+                  normalized.id,
+                  -32006,
+                  `${toolName} is disabled by policy (ask a human before changing Basic Memory projects).`,
+                  { blockedTools: Array.from(BLOCKED_TOOLS) },
+                );
+                return new Response(err, { status: 200, headers: { "content-type": "application/json" } });
+              }
 
               if (shouldThrottle) {
                 try {
@@ -327,6 +369,10 @@ data:
               statusText: upstreamResp.statusText,
               headers: respHeaders,
             });
+          }
+
+          if (isObject(normalized) && normalized.method === "tools/list") {
+            return await filterBlockedToolsResponse(upstreamResp, setCookie);
           }
 
           return new Response(upstreamResp.body, {

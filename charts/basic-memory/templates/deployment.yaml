@@ -9,6 +9,9 @@
 {{- $shimImage := mergeOverwrite (deepCopy $denoRoot) (.Values.mcpShim.image | default dict) -}}
 {{- $livesyncImage := mergeOverwrite (deepCopy $lsbRoot) (.Values.obsidianSync.livesync.image | default dict) -}}
 {{- $livesyncInitImage := mergeOverwrite (deepCopy $denoRoot) (.Values.obsidianSync.livesync.configInitImage | default dict) -}}
+{{- if and .Values.obsidianSync.enabled (not .Values.persistence.enabled) -}}
+{{- fail "basic-memory chart: obsidianSync.enabled requires persistence.enabled=true for LiveSync checkpoint recovery" -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -344,6 +347,8 @@ spec:
               value: {{ .Values.mcpShim.upstreamTimeoutMs | quote }}
             - name: MCP_SHIM_THROTTLED_TOOLS
               value: {{ join "," .Values.mcpShim.throttledTools | quote }}
+            - name: MCP_SHIM_BLOCKED_TOOLS
+              value: {{ join "," .Values.mcpShim.blockedTools | quote }}
             - name: MCP_SHIM_ALLOWED_NOTE_DIRS
               value: {{ join "," .Values.mcpShim.policy.allowedNoteDirs | quote }}
             - name: MCP_SHIM_ALLOW_DELETE_NOTE
@@ -459,44 +464,42 @@ spec:
             - name: LSB_CONFIG
               value: /app/dat/config.json
             - name: LSB_STATE_DIR
-              value: /app/dat
+              value: {{ .Values.obsidianSync.livesync.state.dir | quote }}
+            - name: LSB_HEALTH_PORT
+              value: {{ .Values.obsidianSync.livesync.health.port | quote }}
             - name: LSB_DEBUG
               value: "false"
           command:
             - node
-            - --eval
-            - |
-              const { spawn } = await import("node:child_process");
-              const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-              const waitForExit = (child) => new Promise((resolve) => {
-                child.on("exit", (code) => resolve(code ?? 0));
-                child.on("error", (error) => {
-                  console.error(`[livesync-bridge] child process error: ${error}`);
-                  resolve(1);
-                });
-              });
-
-              const port = {{ .Values.obsidianSync.couchdb.service.port }};
-              const url = `http://127.0.0.1:${port}/`;
-              console.log(`waiting for couchdb on ${url} ...`);
-              while (true) {
-                try {
-                  const res = await fetch(url);
-                  if (res.ok) break;
-                } catch (_err) { /* ignore until CouchDB is up */ }
-                await sleep(2000);
-              }
-
-              console.log("[livesync-bridge] Starting with crash recovery wrapper...");
-              const restartDelayMs = 5000;
-              while (true) {
-                const child = spawn("node", ["/app/dist/main.js"], { stdio: "inherit", env: process.env });
-                const code = await waitForExit(child);
-                if (code === 0) { console.log("[livesync-bridge] exited normally"); break; }
-                console.log(`[livesync-bridge] crashed with exit code ${code} at ${new Date().toISOString()}`);
-                console.log(`[livesync-bridge] restarting in ${restartDelayMs / 1000}s ...`);
-                await sleep(restartDelayMs);
-              }
+            - /app/dist/main.js
+          ports:
+            - name: health
+              containerPort: {{ .Values.obsidianSync.livesync.health.port }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.obsidianSync.livesync.health.port }}
+            initialDelaySeconds: {{ .Values.obsidianSync.livesync.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.obsidianSync.livesync.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.obsidianSync.livesync.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.obsidianSync.livesync.probes.startup.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.obsidianSync.livesync.health.port }}
+            initialDelaySeconds: {{ .Values.obsidianSync.livesync.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.obsidianSync.livesync.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.obsidianSync.livesync.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.obsidianSync.livesync.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.obsidianSync.livesync.health.port }}
+            initialDelaySeconds: {{ .Values.obsidianSync.livesync.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.obsidianSync.livesync.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.obsidianSync.livesync.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.obsidianSync.livesync.probes.liveness.failureThreshold }}
           volumeMounts:
             - name: data
               mountPath: /app/data

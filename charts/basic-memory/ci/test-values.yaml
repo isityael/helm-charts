@@ -5,8 +5,8 @@
 #
 # Persistence is disabled to keep the CI cluster simple (no PVC waiting).
 # The semantic-model-cache-init initContainer still runs and writes into an
-# emptyDir, which is fine for template validation but takes ~60s for a
-# real install — adjust ct install timeout if needed.
+# emptyDir, which is fine for install validation but takes ~60s for a real
+# install — adjust ct install timeout if needed.
 
 persistence:
   enabled: false
@@ -30,6 +30,5 @@ mcpShim:
 
 obsidianSync:
   enabled: false
-  # Full obsidianSync profile requires a pre-created Secret which CI can't
-  # provide. Template rendering is still exercised via `helm template` in
-  # the lint stage; install-time coverage is limited to mcpShim here.
+  # Full obsidianSync is rendered with ci/full-stack-values.yaml. Keeping this
+  # install profile secret- and PVC-free lets chart-testing install the shim.
