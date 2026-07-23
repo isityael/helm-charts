@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.37
+version: 0.3.38
 appVersion: "0.22.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,6 +42,8 @@ annotations:
     - name: Chart source
       url: https://github.com/isityael/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Persist LiveSync checkpoints on the Basic Memory data PVC and expose configurable health probes.
     - kind: security
       description: Enforce LiveSync path exclusions on both CouchDB and filesystem peers.
     - kind: security

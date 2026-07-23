@@ -70,7 +70,7 @@ livesyncBridge:
     repository: ghcr.io/isityael/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-01c6d292c69554f9d53f0df39dd55a3300a4ef14@sha256:07fcbc0b21b3a8a6acd03cb6a77b051c1014fb32c6aac325eba04ac67f0adf8b"
+    tag: "sha-d1135650c57e9401f2eeb61e12d33dc852011626@sha256:aec3816b8fbab333475dd9732cc4f2c71c630bc932e2675ec1acf742c7dd9078"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
@@ -272,6 +272,12 @@ mcpShim:
     - edit_note
     - move_note
     - delete_note
+  # Project creation/deletion changes the Basic Memory filesystem contract.
+  # Keep those administrative tools unavailable to automated MCP clients.
+  # Set an empty list only when a human-approved workflow needs them.
+  blockedTools:
+    - create_memory_project
+    - delete_project
   # Policy enforcement. Keeps LLM writes organised.
   policy:
     # Top-level directories (relative to BASIC_MEMORY_HOME) that write_note
@@ -388,6 +394,34 @@ obsidianSync:
     existingSecret:
       name: ""
       passphraseKey: passphrase
+    # Persistent checkpoint state for replay recovery. The data volume is
+    # mounted at /app/data in the LiveSync container, so this uses the
+    # existing Basic Memory data PVC.
+    state:
+      dir: /app/data/.livesync-state
+    # The bridge exposes /healthz on this local-only port. No Service exposes
+    # it; Kubernetes probes use it to distinguish replay, readiness and stale
+    # replication state.
+    health:
+      port: 8080
+    probes:
+      # A first replay can be slow on an existing vault. Kubernetes disables
+      # readiness and liveness checks until this succeeds (30 minutes max).
+      startup:
+        initialDelaySeconds: 0
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 180
+      readiness:
+        initialDelaySeconds: 0
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+      liveness:
+        initialDelaySeconds: 0
+        periodSeconds: 30
+        timeoutSeconds: 5
+        failureThreshold: 3
     # Scan for offline changes on startup. Disable to avoid a race condition
     # on large vaults where many files need syncing at once.
     scanOfflineChanges: false
@@ -399,6 +433,8 @@ obsidianSync:
       - ".smart-env"
       - ".trash"
       - ".deno"
+      - ".livesync-state"
+      - ".livesync-state/**"
       - ".basic-memory-config"
       - ".basic-memory-config/**"
       - "node_modules"

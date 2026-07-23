@@ -114,7 +114,9 @@ obsidianSync:
   enabled: true
   livesync:
     database: obsidian-vault
-    passphrase: "change-me-to-match-your-obsidian-plugin"
+    existingSecret:
+      name: basic-memory-livesync
+      passphraseKey: passphrase
   couchdb:
     persistence:
       size: 5Gi
@@ -128,7 +130,7 @@ obsidianSync:
           secretName: livesync-tls
 ```
 
-Point the Self-hosted LiveSync plugin in Obsidian at `https://livesync.example.com`, database `obsidian-vault`, and the same passphrase.
+Point the Self-hosted LiveSync plugin in Obsidian at `https://livesync.example.com`, database `obsidian-vault`, and the passphrase stored in `basic-memory-livesync`.
 
 If your cluster uses Gateway API for the CouchDB endpoint, disable `obsidianSync.couchdb.ingress`
 and configure `obsidianSync.couchdb.httpRoute` instead:
@@ -191,9 +193,13 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
 | `mcpShim.policy.allowedNoteDirs` | `[]` | Empty = allow all; list to restrict |
 | `mcpShim.policy.allowDeleteNote` | `false` | Set `true` to let LLMs delete notes |
+| `mcpShim.blockedTools` | `create_memory_project`, `delete_project` | Tools hidden from discovery and rejected on invocation |
 | `obsidianSync.enabled` | `false` | Enable CouchDB + livesync-bridge |
 | `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
 | `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
+| `obsidianSync.livesync.state.dir` | `/app/data/.livesync-state` | Persistent replay checkpoint directory on the data PVC |
+| `obsidianSync.livesync.health.port` | `8080` | Local-only LiveSync `/healthz` port used by Kubernetes probes |
+| `obsidianSync.livesync.probes` | See `values.yaml` | Startup, readiness and liveness probe timings for `/healthz` |
 | `obsidianSync.livesync.ignorePaths` | See `values.yaml` | Paths excluded from both CouchDB and filesystem peers |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
 | `obsidianSync.couchdb.cors.enabled` | `false` | Enable browser CORS; prefer Obsidian's Request API |
@@ -229,6 +235,12 @@ mcpShim:
 ```
 
 This keeps LiveSync daemon updates from accidentally replacing Deno-only helper containers with a Node-only runtime image.
+
+### Upgrading to 0.3.38
+
+LiveSync now keeps its replay checkpoint in `/app/data/.livesync-state` on the Basic Memory data PVC. The chart requires `persistence.enabled: true` whenever `obsidianSync.enabled: true`; an attempted ephemeral LiveSync deployment now fails during rendering. The state directory is ignored by both LiveSync peers, so it is never synchronised as vault content.
+
+The LiveSync container now runs directly and Kubernetes observes an exit as a container failure. It also receives startup, readiness and liveness probes on the bridge's local `/healthz` endpoint (port `8080` by default). The startup probe allows up to 30 minutes for an initial replay; tune `obsidianSync.livesync.probes` only when your vault size and replay performance justify it.
 
 ## Gotchas
 
