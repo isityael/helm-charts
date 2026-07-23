@@ -31,7 +31,7 @@ jq -e '
       and (.managerFilePatterns | index("/charts/youtarr/values(?:-[^/]+)?\\.yaml$/")) != null
       and ([.matchStrings[] | contains("(?<depName>")] | all)
       and ([.matchStrings[] | contains("(?<repository>")] | any | not)
-      and (.autoReplaceStringTemplate | contains("{{{depName}}}"))
+      and (has("autoReplaceStringTemplate") | not)
   )
   and any(
     .customManagers[];
@@ -45,8 +45,7 @@ jq -e '
       and ([.matchStrings[] | contains("(?<repository>")] | any | not)
       and (.depNameTemplate | contains("imageRegistry"))
       and (.depNameTemplate | contains("imageRepository"))
-      and (.autoReplaceStringTemplate | contains("imageRegistry"))
-      and (.autoReplaceStringTemplate | contains("imageRepository"))
+      and (has("autoReplaceStringTemplate") | not)
   )
 ' "$config" >/dev/null
 
