@@ -56,7 +56,8 @@ spec:
         # Prepare writable Basic Memory home dir for config + runtime logs.
         # ConfigMap volumes are read-only, so we copy config.json into the home PVC.
         - name: basic-memory-home-init
-          image: busybox:1.37
+          image: "{{ .Values.busyboxTools.image.repository }}:{{ .Values.busyboxTools.image.tag }}"
+          imagePullPolicy: {{ .Values.busyboxTools.image.pullPolicy }}
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
@@ -146,7 +147,8 @@ spec:
         # can't bind-mount a ConfigMap file there directly (would be read-only
         # and CouchDB would fail with EACCES). Copy the ini into an emptyDir.
         - name: couchdb-locald-init
-          image: busybox:1.37
+          image: "{{ .Values.busyboxTools.image.repository }}:{{ .Values.busyboxTools.image.tag }}"
+          imagePullPolicy: {{ .Values.busyboxTools.image.pullPolicy }}
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
