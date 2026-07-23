@@ -37,16 +37,28 @@
     },
     {
       "customType": "regex",
-      "description": "Images with sibling digest keys",
+      "description": "Combined repository images with sibling digest keys",
       "managerFilePatterns": [
         "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/",
         "/charts/youtarr/values(?:-[^/]+)?\\.yaml$/"
       ],
       "matchStrings": [
-        "(?<indent>[ \\t]*)(?:registry:\\s*(?<imageRegistry>[^\\s\\\"']+)\\s+)?repository:\\s*(?<imageRepository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
+        "(?<indent>[ \\t]*)repository:\\s*(?<depName>dhi\\.io/[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
       ],
-      "depNameTemplate": "{{#if imageRegistry}}{{{imageRegistry}}}/{{/if}}{{{imageRepository}}}",
-      "autoReplaceStringTemplate": "{{{indent}}}{{#if imageRegistry}}registry: {{{imageRegistry}}}\n{{{indent}}}{{/if}}repository: {{{imageRepository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
+      "autoReplaceStringTemplate": "{{{indent}}}repository: {{{depName}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Split registry images with sibling digest keys",
+      "managerFilePatterns": [
+        "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/"
+      ],
+      "matchStrings": [
+        "(?<indent>[ \\t]*)registry:\\s*(?<imageRegistry>[^\\s\\\"']+)\\s+repository:\\s*(?<imageRepository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "depNameTemplate": "{{{imageRegistry}}}/{{{imageRepository}}}",
+      "autoReplaceStringTemplate": "{{{indent}}}registry: {{{imageRegistry}}}\n{{{indent}}}repository: {{{imageRepository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
       "datasourceTemplate": "docker"
     },
     {
