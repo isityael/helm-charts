@@ -43,10 +43,10 @@
         "/charts/youtarr/values(?:-[^/]+)?\\.yaml$/"
       ],
       "matchStrings": [
-        "(?<indent>[ \\t]*)(?:registry:\\s*(?<registry>[^\\s\\\"']+)\\s+)?repository:\\s*(?<repository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
+        "(?<indent>[ \\t]*)(?:registry:\\s*(?<imageRegistry>[^\\s\\\"']+)\\s+)?repository:\\s*(?<imageRepository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
       ],
-      "depNameTemplate": "{{#if registry}}{{{registry}}}/{{/if}}{{{repository}}}",
-      "autoReplaceStringTemplate": "{{{indent}}}{{#if registry}}registry: {{{registry}}}\n{{{indent}}}{{/if}}repository: {{{repository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
+      "depNameTemplate": "{{#if imageRegistry}}{{{imageRegistry}}}/{{/if}}{{{imageRepository}}}",
+      "autoReplaceStringTemplate": "{{{indent}}}{{#if imageRegistry}}registry: {{{imageRegistry}}}\n{{{indent}}}{{/if}}repository: {{{imageRepository}}}\n{{{indent}}}tag: \"{{{newValue}}}\"\n{{{indent}}}digest: {{{newDigest}}}",
       "datasourceTemplate": "docker"
     },
     {

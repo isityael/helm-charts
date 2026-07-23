@@ -31,6 +31,14 @@ jq -e '
       and (.managerFilePatterns | index("/charts/youtarr/values(?:-[^/]+)?\\.yaml$/")) != null
       and (.matchStrings | length) > 0
       and ([.matchStrings[] | contains("(?<currentDigest>sha256:")] | all)
+      and ([.matchStrings[] | contains("(?<imageRegistry>")] | all)
+      and ([.matchStrings[] | contains("(?<imageRepository>")] | all)
+      and ([.matchStrings[] | contains("(?<registry>")] | any | not)
+      and ([.matchStrings[] | contains("(?<repository>")] | any | not)
+      and (.depNameTemplate | contains("imageRegistry"))
+      and (.depNameTemplate | contains("imageRepository"))
+      and (.autoReplaceStringTemplate | contains("imageRegistry"))
+      and (.autoReplaceStringTemplate | contains("imageRepository"))
   )
 ' "$config" >/dev/null
 
