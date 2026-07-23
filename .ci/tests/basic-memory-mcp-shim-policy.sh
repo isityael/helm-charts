@@ -8,8 +8,14 @@ shim_pid=""
 upstream_pid=""
 
 cleanup() {
-  [ -z "${shim_pid}" ] || kill "${shim_pid}" 2>/dev/null || true
-  [ -z "${upstream_pid}" ] || kill "${upstream_pid}" 2>/dev/null || true
+  if [ -n "${shim_pid}" ]; then
+    kill "${shim_pid}" 2>/dev/null || true
+    wait "${shim_pid}" 2>/dev/null || true
+  fi
+  if [ -n "${upstream_pid}" ]; then
+    kill "${upstream_pid}" 2>/dev/null || true
+    wait "${upstream_pid}" 2>/dev/null || true
+  fi
   rm -rf "${tmpdir}"
 }
 trap cleanup EXIT
@@ -37,6 +43,17 @@ blocked_tools="$(
 [ "${blocked_tools}" = "create_memory_project,delete_project" ] ||
   fail "mcpShim must pass the default blocked tools policy to the sidecar"
 
+default_rendered="${tmpdir}/default-rendered.yaml"
+helm template basic-memory "${chart_dir}" >"${default_rendered}"
+default_containers="$(
+  yq -r '
+    select(.kind == "Deployment") |
+    .spec.template.spec.containers[].name
+  ' "${default_rendered}"
+)"
+grep -qx 'mcp-shim' <<<"${default_containers}" ||
+  fail "mcpShim must be enabled by default"
+
 deno eval '
   Deno.serve({ hostname: "127.0.0.1", port: 18001 }, async (request) => {
     const body = await request.json();
@@ -52,7 +69,9 @@ deno eval '
         result: { tools: [
           { name: "create_memory_project" },
           { name: "delete_project" },
+          { name: "read_note" },
           { name: "write_note" },
+          { name: "move_note" },
         ] },
       });
     }
@@ -81,23 +100,44 @@ tools_list="$(curl --silent --show-error --fail \
   http://127.0.0.1:18000/mcp)"
 
 tool_names="$(yq -r '.result.tools[].name' <<<"${tools_list}")"
-grep -qx 'write_note' <<<"${tool_names}" || fail "tools/list must retain allowed tools"
+for allowed_tool in read_note write_note move_note; do
+  grep -qx "${allowed_tool}" <<<"${tool_names}" ||
+    fail "tools/list must retain ${allowed_tool}"
+done
 if grep -Eq '^(create_memory_project|delete_project)$' <<<"${tool_names}"; then
   fail "tools/list must hide blocked project-management tools"
 fi
 
-blocked_call="$(curl --silent --show-error --fail \
-  --header 'content-type: application/json' \
-  --data '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"delete_project","arguments":{}}}' \
-  http://127.0.0.1:18000/mcp)"
-[ "$(yq -r '.error.code' <<<"${blocked_call}")" = "-32006" ] ||
-  fail "tools/call must reject blocked project-management tools"
+request_id=2
+for blocked_tool in create_memory_project delete_project; do
+  blocked_call="$(curl --silent --show-error --fail \
+    --header 'content-type: application/json' \
+    --data "{\"jsonrpc\":\"2.0\",\"id\":${request_id},\"method\":\"tools/call\",\"params\":{\"name\":\"${blocked_tool}\",\"arguments\":{}}}" \
+    http://127.0.0.1:18000/mcp)"
+  [ "$(yq -r '.error.code' <<<"${blocked_call}")" = "-32006" ] ||
+    fail "tools/call must reject ${blocked_tool}"
+  request_id=$((request_id + 1))
+done
 
-allowed_call="$(curl --silent --show-error --fail \
-  --header 'content-type: application/json' \
-  --data '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"write_note","arguments":{"folder":"ci-test"}}}' \
-  http://127.0.0.1:18000/mcp)"
-[ "$(yq -r '.result.forwarded' <<<"${allowed_call}")" = "true" ] ||
-  fail "tools/call must preserve allowed note writes"
+for allowed_tool in read_note write_note move_note; do
+  case "${allowed_tool}" in
+    write_note)
+      allowed_args='{"folder":"ci-test"}'
+      ;;
+    move_note)
+      allowed_args='{"destination_path":"ci-test/moved-note.md"}'
+      ;;
+    *)
+      allowed_args='{}'
+      ;;
+  esac
+  allowed_call="$(curl --silent --show-error --fail \
+    --header 'content-type: application/json' \
+    --data "{\"jsonrpc\":\"2.0\",\"id\":${request_id},\"method\":\"tools/call\",\"params\":{\"name\":\"${allowed_tool}\",\"arguments\":${allowed_args}}}" \
+    http://127.0.0.1:18000/mcp)"
+  [ "$(yq -r '.result.forwarded' <<<"${allowed_call}")" = "true" ] ||
+    fail "tools/call must preserve ${allowed_tool}"
+  request_id=$((request_id + 1))
+done
 
 echo "basic-memory MCP shim policy tests passed"

@@ -24,7 +24,7 @@ livesync_container="$(
 )"
 [ -n "${livesync_container}" ] || fail "full-stack CI values must render the LiveSync container"
 
-expected_image="ghcr.io/isityael/livesync-bridge:sha-d1135650c57e9401f2eeb61e12d33dc852011626@sha256:aec3816b8fbab333475dd9732cc4f2c71c630bc932e2675ec1acf742c7dd9078"
+expected_image="ghcr.io/isityael/livesync-bridge:sha-6b9136ee311c95b276f8958d9667fa5c192d18a3@sha256:67bd36ff6e8119420010f1ed4289107a5d3cab76d06a8c9972295c0c05551e7b"
 [ "$(yq -r '.image' <<<"${livesync_container}")" = "${expected_image}" ] ||
   fail "LiveSync must use the deployed immutable GHCR image"
 
