@@ -73,7 +73,7 @@ ess:
       registry: oci.element.io
       repository: element-web
       tag: "v1.12.24"
-      digest: sha256:2a65f32acc6fd7163523d1c4b5174de354b5ceb085898b15898f4d8ea01a8e3d
+      digest: sha256:9f9b546280e67e492d56f6e775c449e74356bffb98daaf211abc755276713fad
     ingress:
       host: element.example.com
 
@@ -86,7 +86,7 @@ ess:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
       tag: "1.21.0"
-      digest: sha256:1b0cc87ca6bd6186172a123228cfc3be4c94522d5ecc71e7baeaf23e48ce883a
+      digest: sha256:73bb86fb8f412082829e603417b2df3e351bbda79bedaa46beb0f3f533bdcc1c
     ingress:
       host: account.example.com
     postgres:
@@ -106,7 +106,7 @@ ess:
       registry: oci.element.io
       repository: synapse
       tag: "v1.157.1"
-      digest: sha256:d2215c4a0e0bbd304489af228345b31d6857c1a228175471358d3fda187c0d91
+      digest: sha256:d1fce43d7501428c461f2758dc10342555b946dc9f1d03c1b1b8aec1a4e8d130
     ingress:
       host: matrix.example.com
     postgres:
@@ -274,7 +274,7 @@ mautrix-telegram:
     registry: dock.mau.dev
     repository: mautrix/telegram
     tag: "v0.2607.0"
-    digest: sha256:8c6c559446f049c1f3c4cbc4b284aed14c27aefde9b88a785d262633bdafe510
+    digest: sha256:5a8c0e02f6333c7610ca429a2d643f15ea02fcf52e95647af6e76d5d5cbc78f3
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-telegram
@@ -316,7 +316,7 @@ mautrix-whatsapp:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
     tag: "v0.2607.0"
-    digest: sha256:3ecf348ac3451199fe1e7b894469bd8cf9b2abe58699f3b9a8029172c4356877
+    digest: sha256:716cb6e6b59b1710bde0b7740e295aa889fef6494a8efcd4ad02ea1965293eaf
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-whatsapp
