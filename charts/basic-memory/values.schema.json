@@ -78,6 +78,11 @@
     }
   },
   "properties": {
+    "global": {
+      "type": "object",
+      "description": "Values Helm shares with all subcharts.",
+      "additionalProperties": true
+    },
     "replicaCount": { "type": "integer", "minimum": 1 },
     "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
     "nameOverride": { "type": "string" },
@@ -200,7 +205,19 @@
         "runAsNonRoot": { "type": "boolean" },
         "runAsUser": { "type": "integer", "minimum": 1 },
         "runAsGroup": { "type": "integer", "minimum": 1 },
-        "fsGroup": { "type": "integer", "minimum": 1 }
+        "fsGroup": { "type": "integer", "minimum": 1 },
+        "seccompProfile": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["RuntimeDefault", "Localhost", "Unconfined"]
+            },
+            "localhostProfile": { "type": "string", "minLength": 1 }
+          },
+          "required": ["type"]
+        }
       }
     },
     "startupProbe": { "$ref": "#/definitions/probe" },
