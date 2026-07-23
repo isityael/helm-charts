@@ -303,6 +303,27 @@ obsidianSync:
       repository: dhi.io/couchdb
       tag: "3.5.2-debian13@sha256:ed3ebe194c6ab8557be9d1c183019820093833b1b7fe4ac6a03c8f009e739fd8"
       pullPolicy: IfNotPresent
+    # Self-hosted LiveSync clients should normally enable Obsidian's Request
+    # API and leave browser CORS disabled. If browser CORS is unavoidable,
+    # configure an exact origin allowlist. Credentialed wildcard CORS is
+    # rejected during chart rendering.
+    cors:
+      enabled: false
+      origins: []
+      methods:
+        - GET
+        - PUT
+        - POST
+        - HEAD
+        - DELETE
+      headers:
+        - accept
+        - authorization
+        - content-type
+        - origin
+        - referer
+        - x-csrf-token
+      credentials: false
     # Name of a pre-created Secret containing COUCHDB_USER + COUCHDB_PASSWORD.
     existingSecret:
       name: basic-memory-couchdb

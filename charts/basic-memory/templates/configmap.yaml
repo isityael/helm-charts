@@ -377,6 +377,13 @@ data:
     });
 {{- end }}
 {{- if .Values.obsidianSync.enabled }}
+{{- $cors := .Values.obsidianSync.couchdb.cors }}
+{{- if and $cors.enabled (eq (len $cors.origins) 0) }}
+{{- fail "obsidianSync.couchdb.cors.origins must contain at least one exact origin when CORS is enabled" }}
+{{- end }}
+{{- if and $cors.enabled $cors.credentials (has "*" $cors.origins) }}
+{{- fail "obsidianSync.couchdb.cors cannot use wildcard origins with credentials" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -388,15 +395,17 @@ data:
   livesync.ini: |
     [chttpd]
     max_document_size = 50000000
-    enable_cors = true
+    enable_cors = {{ $cors.enabled }}
     bind_address = 0.0.0.0
 
+{{- if $cors.enabled }}
     [cors]
-    origins = *
-    methods = GET, PUT, POST, HEAD, DELETE
-    headers = accept, authorization, content-type, origin, referer, x-csrf-token
-    credentials = true
+    origins = {{ join ", " $cors.origins }}
+    methods = {{ join ", " $cors.methods }}
+    headers = {{ join ", " $cors.headers }}
+    credentials = {{ $cors.credentials }}
 
+{{- end }}
     [chttpd_auth]
     timeout = 3600
 ---

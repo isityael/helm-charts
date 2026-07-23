@@ -11,6 +11,38 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
+        "couchdb": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "cors": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "enabled": { "type": "boolean" },
+                "origins": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "uniqueItems": true
+                },
+                "methods": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "headers": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "credentials": { "type": "boolean" }
+              },
+              "required": ["enabled", "origins", "methods", "headers", "credentials"]
+            }
+          }
+        },
         "livesync": {
           "type": "object",
           "additionalProperties": false,
