@@ -12,8 +12,8 @@ show_env   = false
 truncate   = true
 
 [tools]
-node        = "26.4.0"
-helm        = "4.2.2"
+node        = "26.5.0"
+helm        = "4.2.3"
 kubectl     = "1.36.2"
 kustomize   = "5.8.1"
 kubeconform = "0.8.0"
@@ -22,10 +22,10 @@ helm-diff   = { version = "3.15.10", bin = "diff", bin_path = "diff/bin", rename
 trivy       = "0.72.0"
 python      = "3.15.0b3"
 shellcheck  = "0.11.0"
-eza         = "0.23.4"
-rg          = "15.1.0"
+eza         = "0.23.5"
+rg          = "15.2.0"
 git-cliff   = "2.13.1"
-prek        = "0.4.8"
+prek        = "0.4.10"
 
 [env]
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
