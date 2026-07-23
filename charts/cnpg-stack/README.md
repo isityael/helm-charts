@@ -13,7 +13,7 @@ CloudNativePG wrapper chart for deploying:
 ## Install
 
 ```bash
-helm install cnpg-stack oci://ghcr.io/isityael/charts/cnpg-stack --version 0.13.11
+helm install cnpg-stack oci://ghcr.io/isityael/charts/cnpg-stack --version 0.13.52
 ```
 
 ## Configure
@@ -29,5 +29,8 @@ Start with:
 
 ## Notes
 
+- The default PostgreSQL operand and bootstrap client use DHI Alpine 3.24. The
+  CNPG operand wrapper preserves the required UID/GID 26 contract.
 - `cnpg.pgbouncer.image` must contain a PgBouncer executable reachable at `/usr/bin/pgbouncer` for CNPG Pooler manager compatibility.
-- This chart is publishable via `/Users/smeya/git/m0sh1.cc/helm-charts/.woodpecker/release-all.yaml` and `/Users/smeya/git/m0sh1.cc/helm-charts/.ci/publish-oci.sh`.
+- This chart is published by `.woodpecker/release-all.yaml` using
+  `.ci/publish-oci.sh`.
