@@ -230,7 +230,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "enabled": { "type": "boolean" },
+        "enabled": { "type": "boolean", "default": true },
         "image": { "$ref": "#/definitions/image" },
         "maxToolCallConcurrency": { "type": "integer", "minimum": 1 },
         "toolCallQueueTimeoutMs": { "type": "integer", "minimum": 1 },

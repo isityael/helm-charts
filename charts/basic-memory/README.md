@@ -189,7 +189,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `persistence.size` | `5Gi` | Scale this to your vault size |
 | `service.port` | `8000` | ClusterIP port |
 | `service.ipFamilyPolicy` | `SingleStack` | See *Gotchas* below |
-| `mcpShim.enabled` | `false` | Enable the MCP compatibility shim |
+| `mcpShim.enabled` | `true` | Enable the MCP compatibility shim |
 | `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
 | `mcpShim.policy.allowedNoteDirs` | `[]` | Empty = allow all; list to restrict |
 | `mcpShim.policy.allowDeleteNote` | `false` | Set `true` to let LLMs delete notes |

@@ -70,7 +70,7 @@ livesyncBridge:
     repository: ghcr.io/isityael/livesync-bridge
     # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-d1135650c57e9401f2eeb61e12d33dc852011626@sha256:aec3816b8fbab333475dd9732cc4f2c71c630bc932e2675ec1acf742c7dd9078"
+    tag: "sha-6b9136ee311c95b276f8958d9667fa5c192d18a3@sha256:67bd36ff6e8119420010f1ed4289107a5d3cab76d06a8c9972295c0c05551e7b"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
@@ -253,7 +253,7 @@ affinity: {}
 # Uses denoTools.image by default. Override here if you need a different
 # image for the shim.
 mcpShim:
-  enabled: false
+  enabled: true
   # Optional image override. Leave empty ({}) to inherit from
   # .Values.denoTools.image. Fields are merged on top of the root
   # block, so you can override just `tag` without restating repository etc.
@@ -281,7 +281,7 @@ mcpShim:
   # Policy enforcement. Keeps LLM writes organised.
   policy:
     # Top-level directories (relative to BASIC_MEMORY_HOME) that write_note
-    # and move_note are allowed to target. Empty list = block all writes.
+    # and move_note are allowed to target. Empty list = allow all directories.
     # Example: ["notes", "decisions", "inbox"]
     allowedNoteDirs: []
     # Set true to allow the MCP client to call delete_note. Default is
