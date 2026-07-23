@@ -199,7 +199,7 @@
       ]
     },
     {
-      "description": "Keep split image digests out of tag values",
+      "description": "Let custom regex own images with sibling digest keys",
       "matchManagers": ["helm-values"],
       "matchDatasources": ["docker"],
       "matchFileNames": [
@@ -219,7 +219,7 @@
         "oci.element.io/synapse",
         "/^dock\\.mau\\.dev\\/mautrix\\//"
       ],
-      "pinDigests": false
+      "enabled": false
     },
     {
       "description": "Patch-bump chart versions when Renovate changes chart values",

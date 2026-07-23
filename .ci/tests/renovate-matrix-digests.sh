@@ -14,12 +14,12 @@ jq -e '
 jq -e '
   any(
     .packageRules[];
-    .description == "Keep split image digests out of tag values"
+    .description == "Let custom regex own images with sibling digest keys"
       and .matchManagers == ["helm-values"]
       and (.matchFileNames | index("charts/matrix-umbrella/values*.yaml")) != null
       and (.matchFileNames | index("charts/youtarr/values*.yaml")) != null
       and (.matchPackageNames | index("dhi.io/mariadb")) != null
-      and .pinDigests == false
+      and .enabled == false
   )
 ' "$config" >/dev/null
 
