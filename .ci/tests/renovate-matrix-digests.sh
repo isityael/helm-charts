@@ -26,9 +26,17 @@ jq -e '
 jq -e '
   any(
     .customManagers[];
-    .description == "Images with sibling digest keys"
+    .description == "Combined repository images with sibling digest keys"
       and (.managerFilePatterns | index("/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/")) != null
       and (.managerFilePatterns | index("/charts/youtarr/values(?:-[^/]+)?\\.yaml$/")) != null
+      and ([.matchStrings[] | contains("(?<depName>")] | all)
+      and ([.matchStrings[] | contains("(?<repository>")] | any | not)
+      and (.autoReplaceStringTemplate | contains("{{{depName}}}"))
+  )
+  and any(
+    .customManagers[];
+    .description == "Split registry images with sibling digest keys"
+      and (.managerFilePatterns | index("/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/")) != null
       and (.matchStrings | length) > 0
       and ([.matchStrings[] | contains("(?<currentDigest>sha256:")] | all)
       and ([.matchStrings[] | contains("(?<imageRegistry>")] | all)
