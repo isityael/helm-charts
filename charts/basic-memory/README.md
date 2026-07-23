@@ -193,6 +193,9 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
 | `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
+| `obsidianSync.couchdb.cors.enabled` | `false` | Enable browser CORS; prefer Obsidian's Request API |
+| `obsidianSync.couchdb.cors.origins` | `[]` | Exact allowed browser origins; required when CORS is enabled |
+| `obsidianSync.couchdb.cors.credentials` | `false` | Permit credentialed CORS; wildcard origins are rejected |
 | `obsidianSync.couchdb.httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure for the CouchDB endpoint |
 | `ingress.enabled` | `false` | Standard Helm ingress block |
 | `httpRoute.enabled` | `false` | Gateway API HTTPRoute exposure (mutually exclusive with `ingress.enabled`) |
