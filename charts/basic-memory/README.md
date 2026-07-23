@@ -192,6 +192,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `obsidianSync.enabled` | `false` | Enable CouchDB + livesync-bridge |
 | `obsidianSync.livesync.image` | `{}` *(inherits)* | Optional override on top of `livesyncBridge.image` |
 | `obsidianSync.livesync.configInitImage` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
+| `obsidianSync.livesync.ignorePaths` | See `values.yaml` | Paths excluded from both CouchDB and filesystem peers |
 | `obsidianSync.couchdb.existingSecret.name` | `basic-memory-couchdb` | Pre-created CouchDB credentials |
 | `obsidianSync.couchdb.cors.enabled` | `false` | Enable browser CORS; prefer Obsidian's Request API |
 | `obsidianSync.couchdb.cors.origins` | `[]` | Exact allowed browser origins; required when CORS is enabled |
