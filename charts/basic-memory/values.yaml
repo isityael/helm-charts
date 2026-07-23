@@ -29,6 +29,18 @@ image:
 imagePullSecrets: []
 
 # -----------------------------------------------------------------------------
+# BusyBox utility image for chart-owned init containers.
+# -----------------------------------------------------------------------------
+# The runtime variant is sufficient: these containers only use POSIX shell,
+# mkdir, cp, chmod, and echo. The -dev image would add build tooling that is
+# unnecessary for the init-container tasks.
+busyboxTools:
+  image:
+    repository: dhi.io/busybox
+    tag: "1.38.0-alpine3.24@sha256:1717d1a1f11506127476d11c8cada3b702aa730bfc9213513434e153b1d0e0bc"
+    pullPolicy: IfNotPresent
+
+# -----------------------------------------------------------------------------
 # Deno utility image for chart-owned helper scripts.
 # -----------------------------------------------------------------------------
 # Used by:

@@ -4,6 +4,7 @@
   "additionalProperties": true,
   "properties": {
     "image": { "type": "object" },
+    "busyboxTools": { "type": "object" },
     "persistence": { "type": "object" },
     "basicMemoryHome": { "type": "object" },
     "mcpShim": { "type": "object" },
