@@ -431,6 +431,7 @@ data:
           "customChunkSize": 100,
           "minimumChunkSize": 20,
           "baseDir": "",
+          "ignorePaths": {{ .Values.obsidianSync.livesync.ignorePaths | default list | toJson }},
           "useRemoteTweaks": true
         },
         {

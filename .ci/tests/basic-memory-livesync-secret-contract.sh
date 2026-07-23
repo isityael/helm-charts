@@ -75,6 +75,10 @@ grep -q '"obfuscatePassphrase": "__LIVESYNC_PASSPHRASE__"' "${configmap}" \
 placeholder_count="$(grep -Ec '"(passphrase|obfuscatePassphrase)": "__LIVESYNC_PASSPHRASE__"' "${configmap}" || true)"
 [[ "${placeholder_count}" == "2" ]] || fail "LiveSync ConfigMap does not contain exactly two passphrase placeholders"
 
+ignore_paths_count="$(grep -Ec '"ignorePaths":' "${configmap}" || true)"
+[[ "${ignore_paths_count}" == "2" ]] \
+  || fail "LiveSync exclusions must be enforced by both CouchDB and storage peers"
+
 grep -q 'const passphrase = Deno.env.get("LIVESYNC_PASSPHRASE") ?? "";' "${secret_render}" \
   || fail "LiveSync config init does not read the optional passphrase environment variable"
 grep -q 'peer.passphrase = passphrase;' "${secret_render}" \
