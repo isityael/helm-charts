@@ -39,7 +39,7 @@ cnpg:
     # CNPG-compatible wrapper around DHI Postgres Alpine with UID/GID 26 mapping.
     # CNPG admission rejects :latest tags for operand images.
     imageName: "ghcr.io/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8@sha256:674301250f5d5c9c6a2923c53167f3817ec0607891a10f34b4d8d9a5c602f390"
-    psqlImage: "dhi.io/postgres:18.4-alpine3.24@sha256:32877b00fb3b8bdeacbd9cb9af92f0d1a58f6dc169e7520dbc445b3b3e7f36ce"
+    psqlImage: "dhi.io/postgres:18.4-alpine3.24@sha256:086a78c79bd53cf0fa655a28a45d8132b0fed8d6bda53e18ae3ebc2eff1bc6f1"
     enableSuperuserAccess: true
     imagePullSecrets: []
 
