@@ -44,7 +44,7 @@ ess:
       registry: dhi.io
       repository: postgres
       tag: "18.4-alpine3.24"
-      digest: sha256:32877b00fb3b8bdeacbd9cb9af92f0d1a58f6dc169e7520dbc445b3b3e7f36ce
+      digest: sha256:086a78c79bd53cf0fa655a28a45d8132b0fed8d6bda53e18ae3ebc2eff1bc6f1
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
   redis:
@@ -352,7 +352,7 @@ matrix-appservice-irc:
     image:
       repository: dhi.io/busybox
       tag: "1.38.0-alpine3.24"
-      digest: sha256:1717d1a1f11506127476d11c8cada3b702aa730bfc9213513434e153b1d0e0bc
+      digest: sha256:fb54dd41a484dac7e12b88dad31053c7ef89200960714e4e153bc8e5fa56dfcb
       pullPolicy: IfNotPresent
   homeserver:
     url: http://ess-synapse:8008
@@ -372,7 +372,7 @@ matrix-appservice-irc:
     image:
       repository: dhi.io/postgres
       tag: "18.4-alpine3.24"
-      digest: sha256:32877b00fb3b8bdeacbd9cb9af92f0d1a58f6dc169e7520dbc445b3b3e7f36ce
+      digest: sha256:086a78c79bd53cf0fa655a28a45d8132b0fed8d6bda53e18ae3ebc2eff1bc6f1
       pullPolicy: IfNotPresent
   redis:
     enabled: false
