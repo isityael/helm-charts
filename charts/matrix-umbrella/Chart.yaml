@@ -79,7 +79,7 @@ annotations:
 dependencies:
   - name: matrix-stack
     alias: ess
-    version: 26.7.1
+    version: 26.7.2
     repository: oci://ghcr.io/element-hq/ess-helm
   - name: mautrix-bridge
     alias: mautrix-discord
