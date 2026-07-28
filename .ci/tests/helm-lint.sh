@@ -107,6 +107,28 @@ test_repo_name_collision_uses_next_available_name() {
     fail "expected hook to add missing repository as repo-1"
 }
 
+test_dhi_dependency_build_skipped_without_credentials() {
+  local workdir="${tmpdir}/dhi-dependency"
+  local bindir="${workdir}/bin"
+  local log="${workdir}/helm.log"
+  mkdir -p "$workdir" "$bindir"
+  setup_repo "$workdir"
+  write_fake_helm "$bindir" "$log"
+
+  sed -i '' 's#https://charts.christianhuth.de#oci://dhi.io#' "$workdir/charts/demo/Chart.yaml"
+  git -C "$workdir" add charts/demo/Chart.yaml
+
+  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-lint.out 2>&1 ||
+    fail "expected the hook to skip DHI dependency builds without credentials"
+
+  if grep -qx "dependency build charts/demo" "$log"; then
+    fail "expected the hook not to build DHI dependencies without credentials"
+  fi
+  grep -qx "lint --with-subcharts charts/demo" "$log" ||
+    fail "expected the hook to lint vendored DHI dependencies"
+}
+
 test_repo_name_collision_uses_next_available_name
+test_dhi_dependency_build_skipped_without_credentials
 
 echo "helm-lint tests passed"

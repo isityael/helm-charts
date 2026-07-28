@@ -36,6 +36,10 @@ repos=$(for chart in $charts; do
   grep -E '^[[:space:]]*repository:[[:space:]]+https?://' "$chart_file" 2>/dev/null | awk '{print $2}' || true
 done | sort -u)
 
+chart_uses_dhi_dependency() {
+  grep -qE '^[[:space:]]*repository:[[:space:]]+oci://dhi\.io' "$1/Chart.yaml"
+}
+
 if [ -n "$repos" ]; then
   added=0
   i=0
@@ -58,7 +62,12 @@ for chart in $charts; do
   chart_file="$chart/Chart.yaml"
   [ -f "$chart_file" ] || continue
   echo "helm lint: $chart"
-  helm dependency build "$chart"
+  if chart_uses_dhi_dependency "$chart" &&
+    { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
+    echo "Skipping dependency build for $chart; DHI credentials are not available."
+  else
+    helm dependency build "$chart"
+  fi
   case "$chart" in
     charts/matrix-umbrella)
       # matrix-umbrella is validated with parent values because some upstream
