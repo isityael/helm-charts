@@ -1,7 +1,7 @@
 dependencies:
 - name: matrix-stack
   repository: oci://ghcr.io/element-hq/ess-helm
-  version: 26.7.0
+  version: 26.7.1
 - name: mautrix-bridge
   repository: file://charts/mautrix-bridge
   version: 0.0.34
@@ -20,5 +20,5 @@ dependencies:
 - name: cinny
   repository: file://charts/cinny
   version: 0.2.23
-digest: sha256:a7d9df116e05e3a3f655e9ebf04806a7e3e3e02c14302415d7925da573392181
-generated: "2026-07-16T14:18:36.699869+02:00"
+digest: sha256:fc9e21f781cf8f918d0d17e6cf86a83cc2356c18cc3cdc5086acadc2b1f6d280
+generated: "2026-07-28T11:48:26.63853+02:00"
