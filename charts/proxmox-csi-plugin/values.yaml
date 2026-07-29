@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:dedc902d90591d8cb24ca5ebf96e9d155f250ad632c905ba4d749fc753984770
+      tag: 6.3.0-debian13@sha256:2e07adcbc21b9f8fb4ffdb596cbba9abaea71cae307e21dd49a642b171e71e69
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
