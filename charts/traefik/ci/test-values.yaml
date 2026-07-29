@@ -11,6 +11,7 @@ crowdsecBouncer:
   appsecFailureBlock: false
   appsecUnreachableBlock: false
   appsecBodyLimit: 10485760
+  appsecUnreadableBodyBlock: false
   trustedIPs:
     - 10.0.10.14
 
