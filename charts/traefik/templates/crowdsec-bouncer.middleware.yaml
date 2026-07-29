@@ -20,6 +20,7 @@ spec:
       crowdsecAppsecFailureBlock: {{ .Values.crowdsecBouncer.appsecFailureBlock }}
       crowdsecAppsecUnreachableBlock: {{ .Values.crowdsecBouncer.appsecUnreachableBlock }}
       crowdsecAppsecBodyLimit: {{ .Values.crowdsecBouncer.appsecBodyLimit }}
+      crowdsecAppsecUnreadableBodyBlock: {{ .Values.crowdsecBouncer.appsecUnreadableBodyBlock }}
       {{- end }}
       clientTrustedIPs:
       {{- range .Values.crowdsecBouncer.trustedIPs }}
