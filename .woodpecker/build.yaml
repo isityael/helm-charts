@@ -3,6 +3,7 @@
 # OCI publishing is handled by release-all.yaml (push to charts/**).
 # Per-chart GitHub Releases are created by the tag-triggered release-tag.yaml.
 when:
+  - event: manual
   - event: pull_request
   - event: push
     branch: main

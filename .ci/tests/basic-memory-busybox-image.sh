@@ -2,7 +2,14 @@
 set -euo pipefail
 
 chart_dir="charts/basic-memory"
-expected_image="dhi.io/busybox:1.38.0-alpine3.24@sha256:1717d1a1f11506127476d11c8cada3b702aa730bfc9213513434e153b1d0e0bc"
+expected_image="$(
+  yq -r '.busyboxTools.image.repository + ":" + .busyboxTools.image.tag' \
+    "${chart_dir}/values.yaml"
+)"
+[[ "${expected_image}" =~ ^dhi\.io/busybox:[^@]+@sha256:[0-9a-f]{64}$ ]] || {
+  echo "busyboxTools image must use a digest-pinned DHI BusyBox runtime image" >&2
+  exit 1
+}
 rendered="$(mktemp)"
 trap 'rm -f "${rendered}"' EXIT
 
