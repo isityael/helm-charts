@@ -22,7 +22,7 @@ steps:
   - name: repository-contracts
     image: harbor.m0sh1.cc/apps/k8s-lint-tools:af5bc038@sha256:1de123539de443429396350d2b1ff916863a041101567039e9ca4d82fc020d95
     commands:
-      - apk add --no-cache deno jq
+      - apk add --no-cache deno jq ripgrep
       - bash .ci/test-shell.sh
 
   - name: helm-lint-pr
