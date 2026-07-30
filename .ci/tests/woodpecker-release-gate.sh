@@ -20,4 +20,7 @@ fail() {
 [[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(. == "bash .ci/test-shell.sh")] | length' "$build_workflow")" -eq 1 ]] \
   || fail "build validation must execute the repository contract suite"
 
+[[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(test("(^| )ripgrep( |$)"))] | length' "$build_workflow")" -eq 1 ]] \
+  || fail "repository contract image must install ripgrep for rg-based checks"
+
 echo "Woodpecker release gating contract passed"
