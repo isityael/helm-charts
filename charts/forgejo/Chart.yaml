@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.23
+version: 0.1.24
 appVersion: "15.0.3"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -70,7 +70,7 @@ annotations:
       description: Vendor forgejo-runner 0.1.15 so the checked-in dependency matches Chart.lock.
 dependencies:
   - name: forgejo
-    version: 17.1.3
+    version: 17.1.4
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner
