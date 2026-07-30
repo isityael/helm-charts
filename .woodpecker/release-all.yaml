@@ -15,6 +15,7 @@ when:
         - ".ci/install-oras.sh"
         - ".ci/publish-artifacthub-metadata.sh"
         - ".ci/publish-oci.sh"
+        - ".woodpecker/build.yaml"
         - ".woodpecker/release-all.yaml"
         - "artifacthub-repo.yml"
         - "charts/**"
