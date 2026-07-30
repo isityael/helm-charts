@@ -17,6 +17,9 @@ fail() {
   && [[ "$(yq -r '.depends_on[0]' "$release_workflow")" == "build" ]] \
   || fail "release-all must depend on successful build validation"
 
+[[ "$(yq -r '[.when[] | select(.event == "push" and .branch == "main") | .path.include[] | select(. == ".woodpecker/build.yaml")] | length' "$release_workflow")" -eq 1 ]] \
+  || fail "build workflow repairs must retrigger release-all for previously blocked chart changes"
+
 [[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(. == "bash .ci/test-shell.sh")] | length' "$build_workflow")" -eq 1 ]] \
   || fail "build validation must execute the repository contract suite"
 
