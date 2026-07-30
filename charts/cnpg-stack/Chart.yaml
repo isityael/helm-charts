@@ -2,7 +2,7 @@ apiVersion: v2
 name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
-version: 0.13.56
+version: 0.13.57
 appVersion: "1.30.0"
 kubeVersion: ">=1.29.0-0"
 maintainers:
@@ -16,6 +16,8 @@ keywords:
   - backup
 annotations:
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Scope the upstream Barman Cloud readiness-port lint exception to CI renders.
     - kind: changed
       description: Run PostgreSQL 18.4 on the CNPG-compatible DHI Alpine 3.24 image.
     - kind: fixed
