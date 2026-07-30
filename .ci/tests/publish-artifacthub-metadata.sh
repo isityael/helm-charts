@@ -105,7 +105,33 @@ test_requires_repository_metadata() {
     || fail "expected missing metadata error"
 }
 
+test_limits_metadata_to_published_charts() {
+  local workdir="${tmpdir}/published-only"
+  setup_workdir "$workdir"
+  printf '%s\n' \
+    'ghcr.io/isityael/charts/alpha@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \
+    >"${workdir}/published-refs.txt"
+
+  (
+    cd "$workdir"
+    ORAS_LOG="${workdir}/oras.log" \
+      ORAS_PAYLOADS_DIR="$workdir" \
+      ARTIFACTHUB_PUBLISHED_REFS_FILE="${workdir}/published-refs.txt" \
+      PATH="${workdir}/bin:${PATH}" \
+      GHCR_USERNAME="test-user" \
+      GHCR_TOKEN="test-token" \
+      "$publish_script"
+  )
+
+  grep -Fq 'push ghcr.io/isityael/charts/alpha:artifacthub.io' "${workdir}/oras.log" \
+    || fail "expected metadata push for published alpha chart"
+  if grep -Fq 'push ghcr.io/isityael/charts/bravo:artifacthub.io' "${workdir}/oras.log"; then
+    fail "metadata push must skip charts that were not published"
+  fi
+}
+
 test_publishes_metadata_for_every_chart_repository
 test_requires_repository_metadata
+test_limits_metadata_to_published_charts
 
 echo "Artifact Hub OCI metadata publishing tests passed"
