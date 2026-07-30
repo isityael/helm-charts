@@ -115,7 +115,8 @@ test_dhi_dependency_build_skipped_without_credentials() {
   setup_repo "$workdir"
   write_fake_helm "$bindir" "$log"
 
-  sed -i '' 's#https://charts.christianhuth.de#oci://dhi.io#' "$workdir/charts/demo/Chart.yaml"
+  sed -i.bak 's#https://charts.christianhuth.de#oci://dhi.io#' "$workdir/charts/demo/Chart.yaml"
+  rm -f "$workdir/charts/demo/Chart.yaml.bak"
   git -C "$workdir" add charts/demo/Chart.yaml
 
   (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-lint.out 2>&1 ||
