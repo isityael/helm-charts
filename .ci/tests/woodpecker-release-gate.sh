@@ -17,4 +17,7 @@ fail() {
   && [[ "$(yq -r '.depends_on[0]' "$release_workflow")" == "build" ]] \
   || fail "release-all must depend on successful build validation"
 
+[[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(. == "bash .ci/test-shell.sh")] | length' "$build_workflow")" -eq 1 ]] \
+  || fail "build validation must execute the repository contract suite"
+
 echo "Woodpecker release gating contract passed"
