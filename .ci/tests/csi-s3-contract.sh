@@ -13,6 +13,12 @@ fail() {
   status=1
 }
 
+expected_driver="ghcr.io/isityael/csi-s3-driver:v0.43.8-ym2@sha256:59c6f5900c8b0ce85dc53e6bc3e3db7c20e466cb7b0f83ef2317628f5db9fb5f"
+actual_driver="$(yq '.upstream.images.csi' "${chart}/values.yaml")"
+if [[ "${actual_driver}" != "${expected_driver}" ]]; then
+  fail "csi-s3 driver image must be the scanned immutable v0.43.8-ym2 release"
+fi
+
 helm template csi-s3 "$chart" >"$rendered"
 
 secret_verbs="$(
