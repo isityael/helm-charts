@@ -23,4 +23,7 @@ fail() {
 [[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(test("(^| )ripgrep( |$)"))] | length' "$build_workflow")" -eq 1 ]] \
   || fail "repository contract image must install ripgrep for rg-based checks"
 
+[[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(test("(^| )perl( |$)"))] | length' "$build_workflow")" -eq 1 ]] \
+  || fail "repository contract image must install Perl for chart-version fixtures"
+
 echo "Woodpecker release gating contract passed"
