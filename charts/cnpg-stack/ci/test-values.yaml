@@ -1,3 +1,8 @@
+plugin-barman-cloud:
+  commonAnnotations:
+    ignore-check.kube-linter.io/readiness-port: >-
+      Upstream chart 0.7.1 probes TCP port 8081 without declaring the informational containerPort.
+
 cnpg:
   cluster:
     enabled: true
