@@ -19,6 +19,12 @@ steps:
     commands:
       - chart-version-guard check --ci woodpecker --repo .
 
+  - name: repository-contracts
+    image: harbor.m0sh1.cc/apps/k8s-lint-tools:af5bc038@sha256:1de123539de443429396350d2b1ff916863a041101567039e9ca4d82fc020d95
+    commands:
+      - apk add --no-cache deno jq
+      - bash .ci/test-shell.sh
+
   - name: helm-lint-pr
     image: dhi.io/helm:4.2.0-debian13-dev@sha256:2d3e501f60d564a46a37320c75e15e20481bd38d879066468e4daf5d48b4ebe2
     commands:

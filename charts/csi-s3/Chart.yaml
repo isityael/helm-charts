@@ -2,7 +2,7 @@ apiVersion: v2
 name: csi-s3
 description: Maintained k8s-csi-s3 wrapper with an owned driver image and multiple StorageClasses
 type: application
-version: 0.1.6
+version: 0.1.7
 appVersion: "0.43.8-ym2"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/isityael/k8s-csi-s3
@@ -20,8 +20,8 @@ keywords:
   - kubernetes
 annotations:
   artifacthub.io/changes: |
-    - kind: security
-      description: Upgrade the owned CSI S3 driver to v0.43.8-ym2, rebuilt with patched gRPC and x/text modules.
+    - kind: changed
+      description: Keep the install example version-independent so documentation cannot drift from chart releases.
 dependencies:
   - name: csi-s3
     alias: upstream

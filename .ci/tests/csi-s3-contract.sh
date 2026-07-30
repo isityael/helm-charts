@@ -19,6 +19,10 @@ if [[ "${actual_driver}" != "${expected_driver}" ]]; then
   fail "csi-s3 driver image must be the scanned immutable v0.43.8-ym2 release"
 fi
 
+if grep -Eq -- '--version [0-9]+\.[0-9]+\.[0-9]+' "${chart}/README.md"; then
+  fail "csi-s3 install documentation must not pin a chart version that can drift"
+fi
+
 helm template csi-s3 "$chart" >"$rendered"
 
 secret_verbs="$(
