@@ -1,6 +1,6 @@
 dependencies:
 - name: traefik-chart
   repository: oci://dhi.io
-  version: 41.0.2
-digest: sha256:90ecc4c01dff1103088e37398e99b71a6d78f8d66659cfb7c749ef1a46de6247
-generated: "2026-07-07T11:45:36.164581547Z"
+  version: 41.1.0
+digest: sha256:ad733afd38ff4c8b6f6cc5f2425719699288c5d41d1fdc0bca743ce9feec16dd
+generated: "2026-07-31T08:34:07.785097007Z"
