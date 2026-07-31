@@ -94,7 +94,7 @@
       "description": "Refresh committed locks and vendored archives for every chart dependency update",
       "matchManagers": ["helmv3"],
       "postUpgradeTasks": {
-        "commands": ["helm dependency update {{{packageFileDir}}}"],
+        "commands": ["node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"],
         "fileFilters": [
           "{{{packageFileDir}}}/Chart.lock",
           "{{{packageFileDir}}}/charts/**"
