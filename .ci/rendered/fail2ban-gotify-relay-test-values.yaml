@@ -60,15 +60,15 @@ spec:
       app.kubernetes.io/instance: ci-fail2ban-gotify-relay-test-values
   template:
     metadata:
-      labels: 
+      labels:
         app.kubernetes.io/controller: main
         app.kubernetes.io/instance: ci-fail2ban-gotify-relay-test-values
         app.kubernetes.io/name: ci-fail2ban-gotify-relay-test-values
-    spec: 
+    spec:
       enableServiceLinks: false
       serviceAccountName: ci-fail2ban-gotify-relay-test-values
       automountServiceAccountToken: false
-      securityContext: 
+      securityContext:
         fsGroup: 65534
         seccompProfile:
           type: RuntimeDefault
@@ -76,9 +76,9 @@ spec:
       hostNetwork: false
       hostPID: false
       dnsPolicy: ClusterFirst
-      nodeSelector: 
+      nodeSelector:
         kubernetes.io/os: linux
-      containers: 
+      containers:
         - env:
           - name: GOTIFY_TOKEN
             valueFrom:

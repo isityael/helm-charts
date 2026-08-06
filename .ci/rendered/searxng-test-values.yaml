@@ -57,7 +57,7 @@ data:
   limiter.toml: |
     [botdetection.ip_limit]
     link_token = true
-    
+
 
 ---
 # Source: searxng/templates/theme-overrides-configmap.yaml
@@ -83,7 +83,7 @@ data:
       --color-result-link-font: #6f8cff;
       --color-result-link-font-highlight: #6f8cff;
     }
-    
+
 
 ---
 # Source: searxng/templates/pvc.yaml
