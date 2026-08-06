@@ -3,7 +3,9 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^\.ci/rendered/
       - id: end-of-file-fixer
+        exclude: ^\.ci/rendered/
       - id: check-yaml
         args: [ --allow-multiple-documents ]
         exclude: ^(apps/.*/templates/|charts/.*/templates/)
@@ -21,6 +23,7 @@ repos:
     rev: v1.38.0
     hooks:
       - id: yamllint
+        exclude: ^\.ci/rendered/
         args:
           - -c
           - .yamllint.yml
