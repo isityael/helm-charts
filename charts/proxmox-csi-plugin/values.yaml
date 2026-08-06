@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:c0ce45af598632bc89c10239d0b36d313940c003b4821adc1883342fcd689a0a
+      tag: 4.12.0-debian13@sha256:838af19fb572e5c9b2257adec8610edf5eca98ff008adc94826d2a087c3e05f0
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:2e07adcbc21b9f8fb4ffdb596cbba9abaea71cae307e21dd49a642b171e71e69
+      tag: 6.3.0-debian13@sha256:c448255e203f52a09ce6510dc37971f0d1c3cd1c88722152e6b71b7fa3bb18d4
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -159,7 +159,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.1-debian13@sha256:4deac8ff423a865480dcdc4444dad3235af0fcec3021a7f903853f09528af9fa
+      tag: 2.2.1-debian13@sha256:36dd339de06402b946190623230f86f25d5e39f7f42d085901b5c67358e00d85
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -204,7 +204,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:5bae2f9f4e172d1974f7ebef10db27847075c3bfaab0a712e011ceb792bc8d10
+      tag: 2.17.0-debian13@sha256:13958bc7a274bc3d84b6862a8d1f11eb0d2254deb68835205d6b7c33de34bb28
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
