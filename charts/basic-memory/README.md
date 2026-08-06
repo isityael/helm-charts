@@ -158,7 +158,7 @@ obsidianSync:
 
 All three components play nicely:
 
-```
+```text
                          ┌────────────────────┐
  MCP client ──/mcp──▶    │    mcp-shim        │ ──▶ 127.0.0.1:8001 (basic-memory)
                          └────────────────────┘

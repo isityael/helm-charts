@@ -61,6 +61,7 @@ kubectl apply -f examples/argocd/cyberchef.yaml
 **Features:**
 
 - Optional ingress values shown (disabled by default)
+
 ### 6. WUD (`wud.yaml`)
 
 Example showing how to deploy the WUD chart.

@@ -5,23 +5,24 @@ description: "A Matrix puppeting bridge mautrix."
 
 ---
 
-# mautrix-bridge
+## mautrix-bridge
 
 ![Version: 0.0.33](https://img.shields.io/badge/Version-0.0.33-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 A Matrix puppeting bridge mautrix.
 
-## Maintainers
+### Maintainers
 
 | Name | Email | Url |
 | ---- | ------ | --- |
 | WrenIX |  | <https://wrenix.eu> |
 
 For use of the bridge:
+
 * **signal**, use the `./bridge-values/signal/values.yaml`
 * **slack**, use the `./bridge-values/slack/values.yaml`
 
-## Usage
+### Usage
 
 Helm must be installed and setup to your kubernetes cluster to use the charts.
 Refer to Helm's [documentation](https://helm.sh/docs) to get started.
@@ -43,7 +44,7 @@ To uninstall a chart release use `helm`'s delete command:
 helm uninstall mautrix-bridge-release
 ```
 
-## Values
+### Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -96,12 +97,12 @@ helm uninstall mautrix-bridge-release
 | config.bridge.relay.enabled | bool | `false` | Whether relay mode should be allowed. If allowed, `!wa set-relay` can be used to turn any authenticated user into a relaybot for that chat. |
 | config.bridge.relay.message_formats | object | `{"m.audio":"<b>{{ .Sender.DisambiguatedName }}</b> sent an audio file{{ if .Caption }}: {{ .Caption }}{{ end }}","m.emote":"* <b>{{ .Sender.DisambiguatedName }}</b> {{ .Message }}","m.file":"<b>{{ .Sender.DisambiguatedName }}</b> sent a file{{ if .Caption }}: {{ .Caption }}{{ end }}","m.image":"<b>{{ .Sender.DisambiguatedName }}</b> sent an image{{ if .Caption }}: {{ .Caption }}{{ end }}","m.location":"<b>{{ .Sender.DisambiguatedName }}</b> sent a location{{ if .Caption }}: {{ .Caption }}{{ end }}","m.notice":"<b>{{ .Sender.DisambiguatedName }}</b>: {{ .Message }}","m.text":"<b>{{ .Sender.DisambiguatedName }}</b>: {{ .Message }}","m.video":"<b>{{ .Sender.DisambiguatedName }}</b> sent a video{{ if .Caption }}: {{ .Caption }}{{ end }}"}` | The formats to use when sending messages via the relaybot. Available variables:   .Sender.UserID - The Matrix user ID of the sender.   .Sender.Displayname - The display name of the sender (if set).   .Sender.RequiresDisambiguation - Whether the sender's name may be confused with the name of another user in the room.   .Sender.DisambiguatedName - The disambiguated name of the sender. This will be the displayname if set,                               plus the user ID in parentheses if the displayname is not unique.                               If the displayname is not set, this is just the user ID.   .Message - The `formatted_body` field of the message.   .Caption - The `formatted_body` field of the message, if it's a caption. Otherwise an empty string.   .FileName - The name of the file being sent. |
 | config.bridge.tag_only_on_create | bool | `true` | Should room tags only be synced when creating the portal? Tags mean things like favorite/pin and archive/low priority. Tags currently can't be synced back to the remote network, so a continuous sync means tagging from Matrix will be undone. |
-| config.database.max_conn_idle_time | string | `nil` | Maximum connection idle time and lifetime before they're closed. Disabled if null. Parsed with https://pkg.go.dev/time#ParseDuration |
+| config.database.max_conn_idle_time | string | `nil` | Maximum connection idle time and lifetime before they're closed. Disabled if null. Parsed with <https://pkg.go.dev/time#ParseDuration> |
 | config.database.max_conn_lifetime | string | `nil` |  |
 | config.database.max_idle_conns | int | `2` |  |
 | config.database.max_open_conns | int | `20` | Maximum number of connections. Mostly relevant for Postgres. |
 | config.database.type | string | `"postgres"` | The database type. "sqlite3-fk-wal" and "postgres" are supported. |
-| config.database.uri | string | `"postgres://user:password@host/database?sslmode=disable"` | The database URI.   SQLite: A raw file path is supported, but `file:<path>?_txlock=immediate` is recommended.           https://github.com/mattn/go-sqlite3#connection-string   Postgres: Connection string. For example, postgres://user:password@host/database?sslmode=disable             To connect via Unix socket, use something like postgres:///dbname?host=/var/run/postgresql |
+| config.database.uri | string | `"postgres://user:password@host/database?sslmode=disable"` | The database URI.   SQLite: A raw file path is supported, but `file:<path>?_txlock=immediate` is recommended.           <https://github.com/mattn/go-sqlite3#connection-string>   Postgres: Connection string. For example, postgres://user:password@host/database?sslmode=disable             To connect via Unix socket, use something like postgres:///dbname?host=/var/run/postgresql |
 | config.direct_media.allow_proxy | bool | `true` | If the remote network supports media downloads over HTTP, then the bridge will use MSC3860/MSC3916 media download redirects if the requester supports it. Optionally, you can force redirects and not allow proxying at all by setting this to false. This option does nothing if the remote network does not support media downloads over HTTP. |
 | config.direct_media.enabled | bool | `false` | Should custom mxc:// URIs be used instead of reuploading media? |
 | config.direct_media.media_id_prefix | string | `nil` | Optionally specify a custom prefix for the media ID part of the MXC URI. |
@@ -109,7 +110,7 @@ helm uninstall mautrix-bridge-release
 | config.direct_media.server_name | string | `"discord-media.example.com"` | The server name to use for the custom mxc:// URIs. This server name will effectively be a real Matrix server, it just won't implement anything other than media. You must either set up .well-known delegation from this domain to the bridge, or proxy the domain directly to the bridge. |
 | config.direct_media.well_known_response | string | `nil` | Optionally a custom .well-known response. This defaults to `server_name:443` |
 | config.double_puppet.allow_discovery | bool | `false` | Whether to allow client API URL discovery for other servers. When using this option, users on other servers can use double puppeting even if their server URLs aren't explicitly added to the servers map above. |
-| config.double_puppet.secrets | object | `{"example.com":"as_token:foobar"}` | Shared secrets for automatic double puppeting. See https://docs.mau.fi/bridges/general/double-puppeting.html for instructions. |
+| config.double_puppet.secrets | object | `{"example.com":"as_token:foobar"}` | Shared secrets for automatic double puppeting. See <https://docs.mau.fi/bridges/general/double-puppeting.html> for instructions. |
 | config.double_puppet.servers | object | `{"example.com":"https://example.com"}` | Servers to always allow double puppeting from. This is only for other servers and should NOT contain the server the bridge is on. |
 | config.encryption.allow | bool | `false` | Allow encryption, work in group chat rooms with e2ee enabled |
 | config.encryption.allow_key_sharing | bool | `false` | Enable key sharing? If enabled, key requests for rooms where users are in will be fulfilled. You must use a client that supports requesting keys from other users to use this feature. |
@@ -135,7 +136,7 @@ helm uninstall mautrix-bridge-release
 | config.encryption.verification_levels.send | string | `"unverified"` | Minimum level that the bridge should accept for incoming Matrix messages. |
 | config.encryption.verification_levels.share | string | `"cross-signed-tofu"` | Minimum level that the bridge should require for accepting key requests. |
 | config.homeserver.address | string | `"https://matrix.example.com"` | The address that this appservice can use to connect to the homeserver. |
-| config.homeserver.async_media | bool | `false` | Does the homeserver support https://github.com/matrix-org/matrix-spec-proposals/pull/2246? |
+| config.homeserver.async_media | bool | `false` | Does the homeserver support <https://github.com/matrix-org/matrix-spec-proposals/pull/2246>? |
 | config.homeserver.domain | string | `"example.com"` | The domain of the homeserver (also known as server_name, used for MXIDs, etc). |
 | config.homeserver.message_send_checkpoint_endpoint | string | `nil` | Endpoint for reporting per-message status. |
 | config.homeserver.ping_interval_seconds | int | `0` | How often should the websocket be pinged? Pinging will be disabled if this is zero. |
@@ -192,7 +193,7 @@ helm uninstall mautrix-bridge-release
 | nodeSelector | object | `{}` |  |
 | persistence.accessMode | string | `"ReadWriteOnce"` | accessMode |
 | persistence.annotations | object | `{}` |  |
-| persistence.enabled | bool | `true` | Enable persistence using Persistent Volume Claims ref: http://kubernetes.io/docs/user-guide/persistent-volumes/ |
+| persistence.enabled | bool | `true` | Enable persistence using Persistent Volume Claims ref: <http://kubernetes.io/docs/user-guide/persistent-volumes/> |
 | persistence.existingClaim | string | `nil` | A manually managed Persistent Volume and Claim Requires persistence.enabled: true If defined, PVC must be created manually before volume will be bound |
 | persistence.hostPath | string | `nil` | Do not create an PVC, direct use hostPath in Pod |
 | persistence.size | string | `"10Gi"` | size |

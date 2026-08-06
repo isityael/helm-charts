@@ -3279,8 +3279,8 @@ spec:
       maxUnavailable: 0
       maxSurge: 1
   minReadySeconds: 0
-  
-  template: 
+
+  template:
     metadata:
       annotations:
         prometheus.io/path: /metrics
@@ -3514,20 +3514,20 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-      
-      
+
+
     - name: websecure
       port: 443
       protocol: HTTPS
       allowedRoutes:
         namespaces:
           from: All
-      
-      
+
+
       tls:
-        
+
         mode: Terminate
-        
+
         certificateRefs:
           - name: wildcard-m0sh1-cc
             namespace: traefik

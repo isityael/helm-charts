@@ -5,19 +5,19 @@ description: "A Helm Chart to install cinny (yet another matrix client)"
 
 ---
 
-# cinny
+## cinny
 
 ![Version: 0.2.23](https://img.shields.io/badge/Version-0.2.23-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.12.3](https://img.shields.io/badge/AppVersion-4.12.3-informational?style=flat-square)
 
 A Helm Chart to install cinny (yet another matrix client)
 
-## Maintainers
+### Maintainers
 
 | Name | Email | Url |
 | ---- | ------ | --- |
 | WrenIX |  | <https://wrenix.eu> |
 
-## Usage
+### Usage
 
 Helm must be installed and setup to your kubernetes cluster to use the charts.
 Refer to Helm's [documentation](https://helm.sh/docs) to get started.
@@ -39,7 +39,7 @@ To uninstall a chart release use `helm`'s delete command:
 helm uninstall cinny-release
 ```
 
-## Values
+### Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

@@ -4,7 +4,7 @@ min_version = "2026.6.12"
 [settings]
 auto_install           = true
 not_found_auto_install = true
-task_run_auto_install  = true
+task.run_auto_install  = true
 
 [settings.status]
 show_tools = true
@@ -30,16 +30,13 @@ prek        = "0.4.10"
 [env]
 _.python.venv = { path = ".venv", create = true } # create the venv if it doesn't exist
 
-[tasks.helm-deps-update]
+[tasks."helm:deps-update"]
 description = "Update Helm chart dependencies"
-run = """
-set -euo pipefail
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
-  echo "Updating Helm dependencies for ${chart}"
-  helm dependency update "${chart}"
-done
-"""
+run         = ".ci/helm-deps-update.sh"
+
+[tasks.helm-deps-update]
+description = "Compatibility alias for helm:deps-update"
+depends     = ["helm:deps-update"]
 
 [tasks.helm-deps-check]
 run         = ".ci/check-helm-dependencies.sh"

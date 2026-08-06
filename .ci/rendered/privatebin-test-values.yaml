@@ -62,7 +62,7 @@ data:
   robots.txt: |
     User-agent: *
     Disallow: /
-    
+
 
 ---
 # Source: privatebin/templates/service.yaml
