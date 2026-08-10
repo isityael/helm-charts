@@ -115,7 +115,7 @@ spec:
             - name: socket-dir
               mountPath: {{ $cfg.kubeletPath }}/plugins/ru.yandex.s3.csi
         - name: csi-s3
-          image: {{ printf "%s:%s" $cfg.images.csi.repository $cfg.images.csi.tag }}
+          image: {{ printf "%s:%s" $.Values.maintainedImage.repository $.Values.maintainedImage.tag }}
           imagePullPolicy: IfNotPresent
           args:
             - "--endpoint=$(CSI_ENDPOINT)"
