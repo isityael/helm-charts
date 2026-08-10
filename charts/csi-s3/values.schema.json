@@ -23,8 +23,22 @@
               "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+@sha256:[a-f0-9]{64}$"
             },
             "csi": {
-              "type": "string",
-              "pattern": "^ghcr\\.io/isityael/csi-s3-driver:v[^\\s@]+@sha256:[a-f0-9]{64}$"
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "const": "ghcr.io/isityael/csi-s3-driver"
+                },
+                "tag": {
+                  "type": "string",
+                  "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+-ym\\.[1-9][0-9]*$"
+                }
+              },
+              "required": [
+                "repository",
+                "tag"
+              ]
             }
           },
           "required": [

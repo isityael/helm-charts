@@ -6,8 +6,10 @@ upstream:
     registrar: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar:v2.16.0@sha256:080b91dd6672ad452697775546c86193c818c7ba6b4cd05dbd41a026b6213bff
     # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner
     provisioner: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner:v6.2.0@sha256:da5da1117687afc445d15f02ec67ab2879352123af3d8da03593be983234ed87
-    # renovate: datasource=docker depName=ghcr.io/isityael/csi-s3-driver
-    csi: ghcr.io/isityael/csi-s3-driver:v0.43.8-ym2@sha256:59c6f5900c8b0ce85dc53e6bc3e3db7c20e466cb7b0f83ef2317628f5db9fb5f
+    csi:
+      repository: ghcr.io/isityael/csi-s3-driver
+      # renovate: datasource=docker depName=ghcr.io/isityael/csi-s3-driver
+      tag: v0.43.8-ym.3
 
   secret:
     create: false

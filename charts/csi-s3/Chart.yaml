@@ -2,8 +2,8 @@ apiVersion: v2
 name: csi-s3
 description: Maintained k8s-csi-s3 wrapper with an owned driver image and multiple StorageClasses
 type: application
-version: 0.1.7
-appVersion: "0.43.8-ym2"
+version: 0.1.8
+appVersion: "0.43.8-ym.3"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/isityael/k8s-csi-s3
 icon: https://raw.githubusercontent.com/yandex-cloud/geesefs/master/doc/geesefs.png
@@ -21,7 +21,9 @@ keywords:
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: Keep the install example version-independent so documentation cannot drift from chart releases.
+      description: >-
+        Split the maintained CSI driver repository and tag values so Argo CD
+        Image Updater can write releases back to Git.
 dependencies:
   - name: csi-s3
     alias: upstream
