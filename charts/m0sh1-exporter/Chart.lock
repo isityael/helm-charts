@@ -4,6 +4,6 @@ dependencies:
   version: 9.17.0
 - name: prometheus-pve-exporter
   repository: https://charts.christianhuth.de
-  version: 2.8.0
-digest: sha256:2d7ea520b332dbd8365a8054d08ff3f935095123f5688e845f3a578ca65c6bf0
-generated: "2026-07-29T02:38:42.280518933Z"
+  version: 2.9.0
+digest: sha256:b554fc765af5de9c5ab9953cc8c42147dbffe8c617045eaba92073d68c78e505
+generated: "2026-08-10T09:33:15.196723889Z"
