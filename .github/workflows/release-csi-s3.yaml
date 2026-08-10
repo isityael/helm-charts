@@ -2,11 +2,17 @@ name: Release csi-s3 chart
 
 on:
   push:
+    branches:
+      - main
     tags:
       - csi-s3-v*
+    paths:
+      - .github/workflows/release-csi-s3.yaml
+      - charts/csi-s3/**
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -26,7 +32,15 @@ jobs:
           helm package charts/csi-s3
           sha256sum csi-s3-*.tgz > csi-s3-chart.sha256
 
+      - name: Publish chart to GHCR
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          helm push csi-s3-*.tgz oci://ghcr.io/isityael/charts
+
       - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
