@@ -62,4 +62,4 @@ storageClasses: []
 maintainedImage:
   repository: ghcr.io/isityael/csi-s3-driver
   # renovate: datasource=docker depName=ghcr.io/isityael/csi-s3-driver
-  tag: v0.43.8-ym.3
+  tag: v0.43.8-ym.3@sha256:cc4c6fc2204fb3cc5b79461d7c50c958d1c104f85081e5e8ca71743303ade996
