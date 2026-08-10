@@ -66,7 +66,7 @@ spec:
               add: ["SYS_ADMIN"]
               drop: ["NET_RAW"]
             allowPrivilegeEscalation: true
-          image: {{ printf "%s:%s" $cfg.images.csi.repository $cfg.images.csi.tag }}
+          image: {{ printf "%s:%s" $.Values.maintainedImage.repository $.Values.maintainedImage.tag }}
           imagePullPolicy: IfNotPresent
           args:
             - "--endpoint=$(CSI_ENDPOINT)"
