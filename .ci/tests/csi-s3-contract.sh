@@ -13,10 +13,12 @@ fail() {
   status=1
 }
 
-expected_driver="ghcr.io/isityael/csi-s3-driver:v0.43.8-ym2@sha256:59c6f5900c8b0ce85dc53e6bc3e3db7c20e466cb7b0f83ef2317628f5db9fb5f"
-actual_driver="$(yq '.upstream.images.csi' "${chart}/values.yaml")"
+expected_driver="ghcr.io/isityael/csi-s3-driver:v0.43.8-ym.3"
+actual_driver="$(
+  yq '.maintainedImage.repository + ":" + .maintainedImage.tag' "${chart}/values.yaml"
+)"
 if [[ "${actual_driver}" != "${expected_driver}" ]]; then
-  fail "csi-s3 driver image must be the scanned immutable v0.43.8-ym2 release"
+  fail "csi-s3 maintained image must keep repository and tag fields separate for ArgoCD Image Updater"
 fi
 
 if grep -Eq -- '--version [0-9]+\.[0-9]+\.[0-9]+' "${chart}/README.md"; then
@@ -24,6 +26,18 @@ if grep -Eq -- '--version [0-9]+\.[0-9]+\.[0-9]+' "${chart}/README.md"; then
 fi
 
 helm template csi-s3 "$chart" >"$rendered"
+
+rendered_driver_images="$(
+  yq eval-all '
+    select(.kind == "DaemonSet" or .kind == "StatefulSet") |
+    .spec.template.spec.containers[] |
+    select(.name == "csi-s3") |
+    .image
+  ' "$rendered"
+)"
+if [[ "$(sort -u <<<"$rendered_driver_images" | sed '/^---$/d')" != "${expected_driver}" ]]; then
+  fail "maintained workloads must render ${expected_driver}"
+fi
 
 secret_verbs="$(
   yq eval-all '

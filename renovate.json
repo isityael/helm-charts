@@ -18,7 +18,8 @@
     "npm"
   ],
   "ignorePaths": [
-    "charts/**/charts/**"
+    "charts/**/charts/**",
+    "charts/deprecated/**"
   ],
   "customManagers": [
     {
@@ -58,17 +59,6 @@
       ],
       "depNameTemplate": "{{{imageRegistry}}}/{{{imageRepository}}}",
       "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "description": "Full image references in the csi-s3 wrapper",
-      "managerFilePatterns": [
-        "/charts/csi-s3/values\\.yaml$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>docker) depName=(?<depName>[^\\s]+)\\n(?<indent>[ \\t]+)(?<key>[a-zA-Z]+): [^\\s:]+:(?<currentValue>[^@\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
-      ],
-      "autoReplaceStringTemplate": "# renovate: datasource=docker depName={{{depName}}}\n{{{indent}}}{{{key}}}: {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}"
     }
   ],
   "lockFileMaintenance": {
@@ -85,8 +75,8 @@
   "packageRules": [
     {
       "matchManagers": ["helmv3", "helm-values"],
-      "groupName": "Helm charts",
-      "groupSlug": "helm-charts",
+      "groupName": "{{parentDir}} Helm chart",
+      "groupSlug": "{{parentDir}}-helm-chart",
       "separateMinorPatch": true,
       "labels": ["dependencies", "helm"]
     },
@@ -137,8 +127,9 @@
     },
     {
       "description": "Patch-bump csi-s3 when its image references change",
-      "matchManagers": ["custom.regex"],
+      "matchManagers": ["helm-values"],
       "matchFileNames": ["charts/csi-s3/values.yaml"],
+      "matchPackageNames": ["ghcr.io/isityael/csi-s3-driver"],
       "groupName": "csi-s3 images",
       "labels": ["dependencies", "docker", "csi-s3"],
       "bumpVersions": [
@@ -149,6 +140,13 @@
           "bumpType": "patch"
         }
       ]
+    },
+    {
+      "description": "Keep CSI-S3 maintained image tags compatible with ArgoCD Image Updater",
+      "matchManagers": ["helm-values"],
+      "matchFileNames": ["charts/csi-s3/values.yaml"],
+      "matchPackageNames": ["ghcr.io/isityael/csi-s3-driver"],
+      "pinDigests": false
     },
     {
       "description": "Group matrix-umbrella DHI image updates",
