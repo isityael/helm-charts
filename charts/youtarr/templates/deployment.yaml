@@ -61,7 +61,7 @@ spec:
             - name: YOUTARR_CONFIG_OVERRIDES
               value: {{ toJson .Values.configOverrides | quote }}
             - name: YOUTARR_CONFIG_REF_KEYS
-              value: {{ keys .Values.configSecretOverrides | toJson | quote }}
+              value: {{ keys .Values.configSecretOverrides | sortAlpha | toJson | quote }}
             {{- range $key, $ref := .Values.configSecretOverrides }}
             - name: YOUTARR_CONFIG_SECRET_{{ $key | upper | replace "-" "_" }}
               valueFrom:
