@@ -21,11 +21,7 @@ if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
   fi
 fi
 
-if [ -n "${DHI_USERNAME:-}" ] && [ -n "${DHI_PASSWORD:-}" ]; then
-  bash .ci/check-helm-dependencies.sh
-else
-  echo "Skipping Helm dependency guard; DHI credentials are not available."
-fi
+bash .ci/check-helm-dependencies.sh
 
 chart_uses_dhi_dependency() {
   grep -qsE '^\s*repository:\s+oci://dhi\.io' "$1/Chart.yaml"

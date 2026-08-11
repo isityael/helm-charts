@@ -17,6 +17,16 @@ grep -Fx 'bash .ci/tests/renovate-helm-archive-refresh.sh' "$pipeline_script" >/
   exit 1
 }
 
+grep -Fx 'bash .ci/check-helm-dependencies.sh' "$pipeline_script" >/dev/null || {
+  echo "Woodpecker Helm lint does not run the dependency guard for pull requests" >&2
+  exit 1
+}
+
+if grep -Fq 'Skipping Helm dependency guard; DHI credentials are not available.' "$pipeline_script"; then
+  echo "Woodpecker Helm lint skips all dependency checks when only DHI credentials are unavailable" >&2
+  exit 1
+fi
+
 grep -Fq 'node --test .ci/tests/renovate-helm-dependency-update.mjs' .woodpecker/build.yaml || {
   echo "Woodpecker does not enforce the Renovate Helm authentication contract" >&2
   exit 1
