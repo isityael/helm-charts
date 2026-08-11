@@ -54,4 +54,4 @@ if [ ! -f "$artifact" ]; then
   exit 1
 fi
 
-echo "Pulled existing OCI chart for GitHub release: ${artifact}"
+echo "Verified Forgejo release tag against existing OCI chart: ${artifact}"
