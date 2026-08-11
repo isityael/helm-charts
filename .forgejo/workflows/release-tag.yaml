@@ -1,0 +1,44 @@
+name: Tag published charts
+on:
+  push:
+    branches: [main]
+    paths: [charts/**]
+  workflow_dispatch:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {fetch-depth: 0}
+      - name: Tag each changed published chart
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          FORGEJO_API_URL: ${{ github.server_url }}/api/v1
+          FORGEJO_REPOSITORY: ${{ github.repository }}
+          FORGEJO_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          hack/wait-for-woodpecker-success.sh "$GITHUB_SHA" ci/woodpecker/push/build ci/woodpecker/push/release-all
+          before="$BEFORE_SHA"
+          case "$before" in ''|0000000000000000000000000000000000000000) before="$GITHUB_SHA^";; esac
+          charts="$(
+            git diff --name-only "$before" "$GITHUB_SHA" -- 'charts/*' |
+              awk -F/ 'NF >= 3 {print $2}' |
+              sort -u
+          )"
+          for chart_dir in $charts; do
+            chart="charts/$chart_dir/Chart.yaml"
+            [ -f "$chart" ] || continue
+            name="$(sed -n 's/^name:[[:space:]]*//p' "$chart" | head -1)"
+            version="$(sed -n 's/^version:[[:space:]]*//p' "$chart" | head -1)"
+            tag="${name}-v${version}"
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              [ "$(git rev-list -n1 "$tag")" = "$GITHUB_SHA" ] && continue
+              echo "$tag already exists at another commit" >&2; exit 1
+            fi
+            curl -fsS -X POST \
+              -H "Authorization: token ${FORGEJO_TOKEN}" \
+              -H 'Content-Type: application/json' \
+              --data "{\"tag_name\":\"${tag}\",\"target\":\"${GITHUB_SHA}\"}" \
+              "${FORGEJO_API_URL}/repos/${FORGEJO_REPOSITORY}/tags"
+          done
