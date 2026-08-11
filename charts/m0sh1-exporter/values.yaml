@@ -14,7 +14,7 @@ opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
     repository: ghcr.io/isityael/opnsense-exporter
-    tag: "v0.0.15-m0sh1.3@sha256:d823185af7b56fb4331cfa39fbca7ccac7cdd66250abe1521236f118d99d1b79"
+    tag: "v0.0.15-m0sh1.3@sha256:691158a166527fa646ea40e46ac2951332f8056bcec31b5bae0a448b7ee2ec3e"
     pullPolicy: IfNotPresent
   opnsense:
     protocol: https
@@ -55,7 +55,7 @@ snmpExporter:
   fullnameOverride: prometheus-snmp-exporter
   image:
     repository: ghcr.io/isityael/snmp-exporter
-    tag: "v0.30.1-m0sh1.1@sha256:3312df8d388f318171ffbae6e82abdc2bbdab5cce4f1617b6c75be87d6ed741d"
+    tag: "v0.30.1-m0sh1.1@sha256:b3d3551e94d8b5190644fe563b432f8effbd9df983cd5e3726d4e40990814076"
     pullPolicy: IfNotPresent
   securityContext:
     seccompProfile:
