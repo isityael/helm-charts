@@ -1,7 +1,8 @@
-# helm-charts - create a GitHub Release from an existing OCI chart
+# helm-charts - verify a Forgejo release tag against the existing OCI chart
 #
 # Tags must be <chart>-v<Chart.yaml version>. OCI publication remains owned by
-# release-all.yaml; this pipeline only pulls the exact published version.
+# release-all.yaml; this pipeline only verifies and pulls the exact published
+# version. The canonical release is the Forgejo tag plus the GHCR OCI artifact.
 when:
   - event: tag
     ref: refs/tags/*-v*
@@ -16,17 +17,3 @@ steps:
         from_secret: github_token
     commands:
       - bash .ci/release-tag.sh
-
-  - name: github-release
-    image: woodpeckerci/plugin-release@sha256:caf18bc34de626dff1de0cc0638ee8dff11af6c9372a5f3d79ab27b91a5ee4d9
-    settings:
-      api_key:
-        from_secret: github_token
-      base_url: https://api.github.com
-      files:
-        - "release-artifacts/*.tgz"
-      checksum:
-        - sha256
-      title: "${CI_COMMIT_TAG}"
-      note: "auto"
-      draft: false

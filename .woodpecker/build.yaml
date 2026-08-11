@@ -1,7 +1,7 @@
 # helm-charts — CI: lint all charts
 # Triggers on push to main and pull requests (GitHub forge).
 # OCI publishing is handled by release-all.yaml (push to charts/**).
-# Per-chart GitHub Releases are created by the tag-triggered release-tag.yaml.
+# Per-chart Forgejo tags are verified by the tag-triggered release-tag.yaml.
 when:
   - event: manual
   - event: pull_request
