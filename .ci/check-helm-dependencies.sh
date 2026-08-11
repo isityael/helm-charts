@@ -5,7 +5,7 @@ charts=()
 for chart in charts/*/; do
   [ -f "${chart}Chart.yaml" ] || continue
   chart="${chart%/}"
-  if [ "${chart}" = "charts/cnpg-stack" ] &&
+  if grep -qsE '^[[:space:]]*repository:[[:space:]]+oci://dhi\.io' "${chart}/Chart.yaml" &&
     { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
     echo "Skipping dependency check for ${chart}; DHI credentials are not available."
     continue

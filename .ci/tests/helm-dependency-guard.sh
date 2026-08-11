@@ -167,13 +167,13 @@ test_skips_dhi_build_without_credentials() {
   local workdir="${tmpdir}/dhi-no-creds"
   local bindir="${workdir}/bin"
   mkdir -p "$workdir" "$bindir"
-  setup_repo "$workdir" cnpg-stack "oci://dhi.io"
+  setup_repo "$workdir" demo "oci://dhi.io"
   write_failing_dependency_build_helm "$bindir"
 
   (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected DHI dependency build to be skipped without credentials"
 
-  grep -q "Skipping dependency check for charts/cnpg-stack" /tmp/helm-dependency-guard.out ||
+  grep -q "Skipping dependency check for charts/demo" /tmp/helm-dependency-guard.out ||
     fail "expected output to mention skipped DHI dependency check"
 }
 
@@ -181,16 +181,16 @@ test_checks_dhi_build_with_credentials() {
   local workdir="${tmpdir}/dhi-with-creds"
   local bindir="${workdir}/bin"
   mkdir -p "$workdir" "$bindir"
-  setup_repo "$workdir" cnpg-stack "oci://dhi.io"
+  setup_repo "$workdir" demo "oci://dhi.io"
   write_fake_helm "$bindir" "ok"
 
   (cd "$workdir" &&
     DHI_USERNAME=test-user DHI_PASSWORD=test-password HELM_LOG="${workdir}/helm.log" PATH="$bindir:$PATH" "$script") >/tmp/helm-dependency-guard.out 2>&1 ||
     fail "expected DHI dependency build to be checked with credentials"
 
-  grep -qx "dependency list charts/cnpg-stack" "${workdir}/helm.log" ||
+  grep -qx "dependency list charts/demo" "${workdir}/helm.log" ||
     fail "expected dependency list to run for DHI chart with credentials"
-  grep -qx "dependency build charts/cnpg-stack" "${workdir}/helm.log" ||
+  grep -qx "dependency build charts/demo" "${workdir}/helm.log" ||
     fail "expected dependency build to run for DHI chart with credentials"
 }
 
