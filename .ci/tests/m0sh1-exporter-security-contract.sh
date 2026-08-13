@@ -11,6 +11,12 @@ fail() {
   exit 1
 }
 
+dependency_list="$(helm dependency list "$chart")"
+if printf '%s\n' "$dependency_list" | awk 'NR > 1 && $NF != "ok" { bad = 1 } END { exit bad ? 0 : 1 }'; then
+  printf '%s\n' "$dependency_list" >&2
+  fail "m0sh1-exporter vendored dependencies must match Chart.yaml and Chart.lock"
+fi
+
 rendered="${tmpdir}/rendered.yaml"
 helm template m0sh1-exporter "$chart" >"$rendered"
 
