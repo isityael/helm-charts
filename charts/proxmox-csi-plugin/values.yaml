@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:a09ce6de03440331d281e623a0e77df059d73fea73df6338355bba9f362c550a
+      tag: 4.12.0-debian13@sha256:fcd6582f2d4f5b5c2cabe611191d39bd0f49f32a04da06d0bf0c90a17d3f624d
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:fbea566d85df0bed5d377770d19e46e95eb43ad3cae71924ea33945e92e6eed2
+      tag: 6.3.0-debian13@sha256:36eb1861f1849d414f03d7c9efeb666921bb621374003760621909a8e8563abd
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -159,7 +159,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.1-debian13@sha256:0eb51009450b785d71dd64c5db301672745b257197b8d1e3b4a11fb8c51805b5
+      tag: 2.2.1-debian13@sha256:d09bff4296d049829fc27e0dc7112f4a3cb05eebd1375435793e0e6711ed06fd
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -204,7 +204,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.17.0-debian13@sha256:6bf5360070a53a692565a02b77f5fd65910e80a388a3a1686806b288b75e9ec5
+      tag: 2.17.0-debian13@sha256:0c0a3320de92663177ac470b2365835e790a96c93e15ead73303064c9932c704
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
@@ -245,7 +245,7 @@ livenessprobe:
   image:
     repository: dhi.io/livenessprobe
     pullPolicy: IfNotPresent
-    tag: 2.19.0-debian13@sha256:e082b154c12d0c97e8cce513bdf5cf0d4ff0875b889474823e80c024bf91b0ff
+    tag: 2.19.0-debian13@sha256:8ca2175005718b752bb1f662dc1bec9cc250c7d3191d011a49b18b7b34662d24
   # -- Failure threshold for livenessProbe
   failureThreshold: 5
   # -- Initial delay seconds for livenessProbe
