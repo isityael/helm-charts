@@ -52,7 +52,7 @@ ess:
       registry: dhi.io
       repository: valkey
       tag: "9.1.1-debian13"
-      digest: sha256:39dcb86892911210dc16db33524e8810bf17d79577089f1e9cb882a34f0b865e
+      digest: sha256:a78d417bc5d7932247c5bd0564091bed8e211c8f9c9bb7f683a166b2447b2083
 
   storage:
     resourcePolicy: keep
@@ -379,7 +379,7 @@ matrix-appservice-irc:
     image:
       repository: dhi.io/valkey
       tag: "9.1.1-debian13"
-      digest: sha256:39dcb86892911210dc16db33524e8810bf17d79577089f1e9cb882a34f0b865e
+      digest: sha256:a78d417bc5d7932247c5bd0564091bed8e211c8f9c9bb7f683a166b2447b2083
       pullPolicy: IfNotPresent
     args:
       - valkey-server
