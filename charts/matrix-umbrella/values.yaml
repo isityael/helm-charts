@@ -189,8 +189,8 @@ mautrix-discord:
   image:
     registry: dock.mau.dev
     repository: mautrix/discord
-    tag: "v0.7.6"
-    digest: sha256:e4946b0df6a2786c88ed490e0d2692e352f1b79b9ff0e821a33764bd8bd1fffd
+    tag: "v0.7.7"
+    digest: sha256:065405ca2f961b2687ca577c4eb65592c139d641342a9611d98b5394f30cf84a
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-discord
