@@ -2,7 +2,7 @@ apiVersion: v2
 name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
-version: 0.13.77
+version: 0.13.78
 appVersion: "1.30.0"
 kubeVersion: ">=1.29.0-0"
 maintainers:
@@ -16,6 +16,8 @@ keywords:
   - backup
 annotations:
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Refresh the mutable CloudNativePG 0.29.0 dependency archive.
     - kind: fixed
       description: Scope the upstream Barman Cloud readiness-port lint exception to CI renders.
     - kind: changed
