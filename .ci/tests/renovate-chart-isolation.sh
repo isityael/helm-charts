@@ -51,3 +51,31 @@ jq -e '
 }
 
 echo "Renovate CSI-S3 image contract passed"
+
+jq -e '
+  any(
+    .customManagers[];
+    .description == "Youtarr Chart appVersion"
+      and .managerFilePatterns == ["/charts/youtarr/Chart\\.yaml$/"]
+      and .depNameTemplate == "docker.io/dialmaster/youtarr"
+      and .datasourceTemplate == "docker"
+  )
+' "$config" >/dev/null || {
+  echo "Renovate must track the Youtarr Chart appVersion alongside the default image" >&2
+  exit 1
+}
+
+jq -e '
+  any(
+    .packageRules[];
+    .description == "Keep Youtarr image and appVersion in one update"
+      and .matchManagers == ["helm-values", "custom.regex"]
+      and .matchPackageNames == ["docker.io/dialmaster/youtarr"]
+      and .groupSlug == "youtarr-helm-chart"
+  )
+' "$config" >/dev/null || {
+  echo "Renovate must group the Youtarr image and Chart appVersion updates" >&2
+  exit 1
+}
+
+echo "Renovate Youtarr appVersion contract passed"
