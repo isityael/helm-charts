@@ -50,6 +50,20 @@
     },
     {
       "customType": "regex",
+      "description": "Youtarr Chart appVersion",
+      "managerFilePatterns": [
+        "/charts/youtarr/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "appVersion:\\s*[\"']?(?<currentValue>v?[^\"'\\s]+)[\"']?"
+      ],
+      "autoReplaceStringTemplate": "appVersion: \"{{{newValue}}}\"",
+      "depNameTemplate": "docker.io/dialmaster/youtarr",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
       "description": "Split registry images with sibling digest keys",
       "managerFilePatterns": [
         "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/"
@@ -78,6 +92,14 @@
       "groupName": "{{parentDir}} Helm chart",
       "groupSlug": "{{parentDir}}-helm-chart",
       "separateMinorPatch": true,
+      "labels": ["dependencies", "helm"]
+    },
+    {
+      "description": "Keep Youtarr image and appVersion in one update",
+      "matchManagers": ["helm-values", "custom.regex"],
+      "matchPackageNames": ["docker.io/dialmaster/youtarr"],
+      "groupName": "youtarr Helm chart",
+      "groupSlug": "youtarr-helm-chart",
       "labels": ["dependencies", "helm"]
     },
     {
