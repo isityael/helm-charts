@@ -55,7 +55,7 @@ mariadb:
   image:
     repository: dhi.io/mariadb
     tag: 12.3.2-debian13
-    digest: sha256:056b8f3cc022c4d30760b91296558728936d00b80f053f5bbd8301d10d7e42fd
+    digest: sha256:33e157981c48fdb1b1bf67f2577562450f07fc1fa4f722944e99c1f421f3fe23
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   auth:
