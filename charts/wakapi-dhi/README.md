@@ -83,6 +83,9 @@ existingSecrets:
   passwordSalt:
     secretName: wakapi-password-salt
     key: salt
+  cookieKey:
+    secretName: wakapi-cookie-key
+    key: cookie_key
 
 persistence:
   enabled: false

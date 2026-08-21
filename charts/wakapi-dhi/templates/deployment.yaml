@@ -68,6 +68,14 @@ spec:
                   name: {{ .secretName }}
                   key: {{ .key }}
             {{- end }}
+            {{- /* Stable cookie/session key from Secret */}}
+            {{- with .Values.existingSecrets.cookieKey }}
+            - name: WAKAPI_COOKIE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .key }}
+            {{- end }}
             {{- /* OIDC credentials from Secret */}}
             {{- with .Values.existingSecrets.oidc }}
             - name: WAKAPI_OIDC_PROVIDERS_0_CLIENT_ID

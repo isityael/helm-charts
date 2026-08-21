@@ -311,6 +311,9 @@
         "passwordSalt": {
           "$ref": "#/definitions/secretKeyRef"
         },
+        "cookieKey": {
+          "$ref": "#/definitions/secretKeyRef"
+        },
         "oidc": {
           "type": "object",
           "required": ["secretName", "clientIdKey", "clientSecretKey"],

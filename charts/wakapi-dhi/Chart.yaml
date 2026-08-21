@@ -4,8 +4,8 @@ description: Public Helm chart for the isityael Wakapi DHI distribution
 home: https://wakapi.dev
 icon: https://wakapi.dev/assets/images/logo.svg
 type: application
-version: 1.2.31
-appVersion: "2.17.4-yaelmoshi.2"
+version: 1.2.32
+appVersion: "2.17.6-yaelmoshi.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
   - name: m0sh1
