@@ -21,6 +21,9 @@ helm install csi-s3 oci://ghcr.io/isityael/charts/csi-s3 \
 
 The upstream chart is vendored and available under `upstream`. Its renderer is disabled by default because it lacks the resource and security controls applied by this maintained wrapper. Set `upstream.enabled: true` only to test the unmodified upstream renderer. Secret creation and the upstream single StorageClass are disabled by default. Set `upstream.secret.create: true` only when credentials are supplied securely at installation time.
 
+Set `maintainedImage.digest` to a `sha256:` digest to pin the maintained driver
+without discarding its human-readable version tag.
+
 ## Values example
 
 ```yaml
@@ -28,6 +31,10 @@ upstream:
   secret:
     create: false
     name: csi-s3-secret
+
+maintainedImage:
+  tag: v0.43.8-ym.3
+  digest: sha256:cc4c6fc2204fb3cc5b79461d7c50c958d1c104f85081e5e8ca71743303ade996
 
 storageClasses:
   - name: s3-archive

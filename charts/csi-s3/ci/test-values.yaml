@@ -10,6 +10,9 @@ upstream:
         operator: Exists
         effect: NoSchedule
 
+maintainedImage:
+  digest: sha256:cc4c6fc2204fb3cc5b79461d7c50c958d1c104f85081e5e8ca71743303ade996
+
 storageClasses:
   - name: csi-s3-ci
     reclaimPolicy: Retain
