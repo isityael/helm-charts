@@ -19,4 +19,4 @@ Port-forward locally:
   open http://127.0.0.1:3000
 {{- end }}
 
-Sensitive values such as database passwords, password salts, OIDC secrets, and SMTP credentials should be injected through existingSecrets.
+Sensitive values such as database passwords, password salts, cookie keys, OIDC secrets, and SMTP credentials should be injected through existingSecrets.
