@@ -24,7 +24,7 @@ image:
   repository: ghcr.io/basicmachines-co/basic-memory
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.22.1@sha256:0da35f465fed7b58b6c2e31e7c0dbcbc728760a1b6a71857cfe3ced847c727a1"
+  tag: "0.23.0@sha256:acd470454b783264dd83dad0819214ed70b80c3b7a7ec710d6a11d0577daddda"
 
 imagePullSecrets: []
 
@@ -37,7 +37,7 @@ imagePullSecrets: []
 busyboxTools:
   image:
     repository: dhi.io/busybox
-    tag: "1.38.0-alpine3.24@sha256:54a81a1ecc209164cb1f73515792a72df90c31d874f806021d93452ac14a7d25"
+    tag: "1.38.0-alpine3.24@sha256:59ec745ef4b2e553eafea215cf9550f545daf68edf151bdb88a2abbe392da132"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
