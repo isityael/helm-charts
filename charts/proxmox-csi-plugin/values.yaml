@@ -112,7 +112,7 @@ controller:
       repository: ghcr.io/isityael/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:75c080539e92e56e1b3b3d361bd7c1e773db734cff4daa25d2ce72a03d6f24ca
+      tag: edge@sha256:38b102248884a00c51fcf39e07134498d2b13226ab1dee1a8da0b374014e862a
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:ac3d4b32aacad64a6ccfc10950a6b0ce3a1ee6df02169c64162995e4b0fa5e5d
+      tag: 4.12.0-debian13@sha256:4473c562779348bd5fa20091bca1f20318c2438dbe713db037a0230d88926354
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:ffb79d9ceddfc50b3f31c3aa4fb52672b3111255c614508b4230815ef031d23a
+      tag: 6.3.0-debian13@sha256:d9e154e2cbf622fc95f7b1e691885f1a6480675522033b85ec96993e725bf022
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -194,7 +194,7 @@ node:
       repository: ghcr.io/isityael/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:fd46e9436a84a07f3a52b254827021615760fbfe71f3915858b44da986c91579
+      tag: edge@sha256:39ebb837703ad171629374034f8e779be6cb3ce56221ac39b5ccc81b66fcfd9d
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
