@@ -24,7 +24,7 @@ image:
   repository: ghcr.io/basicmachines-co/basic-memory
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.23.0@sha256:acd470454b783264dd83dad0819214ed70b80c3b7a7ec710d6a11d0577daddda"
+  tag: "0.23.2@sha256:939f1173d96626c280763e14622f2381d49fbbb7db17cae2e832f4f639405643"
 
 imagePullSecrets: []
 
