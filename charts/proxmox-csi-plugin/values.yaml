@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.12.0-debian13@sha256:4473c562779348bd5fa20091bca1f20318c2438dbe713db037a0230d88926354
+      tag: 4.12.0-debian13@sha256:f16b0ad636330120b4beb0209c5a6b2d7a3d996d5591174c1cef93996a390780
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:d9e154e2cbf622fc95f7b1e691885f1a6480675522033b85ec96993e725bf022
+      tag: 6.3.0-debian13@sha256:b8d9f0093ff540adbe59006ccced4b7f675f21fe1ad47d1b28f2a222bf28f1e0
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
