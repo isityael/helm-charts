@@ -2,7 +2,7 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.18
+version: 0.1.19
 appVersion: "3.7.5"
 kubeVersion: ">=1.29.0-0"
 home: https://traefik.io/traefik/
@@ -28,6 +28,8 @@ annotations:
     - name: dhi-traefik
       image: dhi.io/traefik:3.7.5-alpine3.24@sha256:38126c9632cf7b93ad9db950323bb896a87c65048b3e3e99cd7aa16e5aaad7e8
   artifacthub.io/changes: |
+    - kind: changed
+      description: Vendor the DHI Traefik 41.4.0 dependency archive.
     - kind: changed
       description: Vendor the DHI Traefik 41.3.0 dependency archive.
     - kind: changed
