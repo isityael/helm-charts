@@ -39,6 +39,54 @@ data:
 
     const CLIENT_COOKIE = "mcp_shim_client";
     const clientToUpstreamSession = new Map<string, string>();
+    const parsedMaxBodyBytes = Number(Deno.env.get("MCP_SHIM_MAX_BODY_BYTES") ?? "1048576");
+    const MAX_BODY_BYTES = Number.isFinite(parsedMaxBodyBytes) && parsedMaxBodyBytes >= 1024
+      ? Math.floor(parsedMaxBodyBytes)
+      : 1048576;
+    const parsedMaxSessions = Number(Deno.env.get("MCP_SHIM_MAX_SESSIONS") ?? "256");
+    const MAX_SESSIONS = Number.isFinite(parsedMaxSessions) && parsedMaxSessions > 0
+      ? Math.floor(parsedMaxSessions)
+      : 256;
+
+    class BodyTooLargeError extends Error {}
+
+    async function readBodyWithLimit(req: Request): Promise<string> {
+      if (!req.body) return "";
+      const reader = req.body.getReader();
+      const decoder = new TextDecoder();
+      let size = 0;
+      let body = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > MAX_BODY_BYTES) throw new BodyTooLargeError("request body too large");
+          body += decoder.decode(value, { stream: true });
+        }
+        return body + decoder.decode();
+      } finally {
+        reader.releaseLock();
+      }
+    }
+
+    function lookupUpstreamSession(clientId: string): string | undefined {
+      const existing = clientToUpstreamSession.get(clientId);
+      if (!existing) return undefined;
+      clientToUpstreamSession.delete(clientId);
+      clientToUpstreamSession.set(clientId, existing);
+      return existing;
+    }
+
+    function rememberUpstreamSession(clientId: string, sessionId: string): void {
+      clientToUpstreamSession.delete(clientId);
+      while (clientToUpstreamSession.size >= MAX_SESSIONS) {
+        const oldest = clientToUpstreamSession.keys().next().value;
+        if (oldest === undefined) break;
+        clientToUpstreamSession.delete(oldest);
+      }
+      clientToUpstreamSession.set(clientId, sessionId);
+    }
 
     // Optional policy enforcement to keep Basic Memory organized and prevent
     // accidental destructive operations from automated clients.
@@ -197,7 +245,7 @@ data:
     }
 
     async function ensureUpstreamSessionId(clientId: string): Promise<string> {
-      const existing = clientToUpstreamSession.get(clientId);
+      const existing = lookupUpstreamSession(clientId);
       if (existing) return existing;
       const initBody = JSON.stringify({
         jsonrpc: "2.0",
@@ -220,7 +268,7 @@ data:
       const sid = resp.headers.get("mcp-session-id");
       try { await resp.arrayBuffer(); } catch { /* ignore */ }
       if (!sid) throw new Error("Upstream did not return mcp-session-id");
-      clientToUpstreamSession.set(clientId, sid);
+      rememberUpstreamSession(clientId, sid);
       return sid;
     }
 
@@ -255,7 +303,15 @@ data:
       }
 
       if (req.method === "POST" && url.pathname === "/mcp") {
-        const raw = await req.text();
+        let raw: string;
+        try {
+          raw = await readBodyWithLimit(req);
+        } catch (e) {
+          if (e instanceof BodyTooLargeError) {
+            return new Response("request body too large", { status: 413 });
+          }
+          throw e;
+        }
         let releaseToolCall: (() => void) | null = null;
         try {
           const parsed = raw.length ? JSON.parse(raw) : null;
@@ -356,7 +412,7 @@ data:
           const upstreamResp = await fetchWithTimeout(upstreamUrl, { method: "POST", headers, body });
 
           const upstreamSid = upstreamResp.headers.get("mcp-session-id");
-          if (upstreamSid) clientToUpstreamSession.set(clientId, upstreamSid);
+          if (upstreamSid) rememberUpstreamSession(clientId, upstreamSid);
 
           const respHeaders = new Headers(upstreamResp.headers);
           if (setCookie) respHeaders.append("set-cookie", setCookie);

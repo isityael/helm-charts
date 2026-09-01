@@ -265,6 +265,11 @@ mcpShim:
   toolCallQueueTimeoutMs: 12000
   # Upstream request timeout. Prevents hanging client requests.
   upstreamTimeoutMs: 45000
+  # Maximum POST body accepted by the shim before JSON parsing.
+  maxBodyBytes: 1048576
+  # Maximum client-to-upstream session mappings retained in memory. The
+  # least-recently-used mapping is evicted when this capacity is reached.
+  maxSessions: 256
   # Tool names that count against the throttled concurrency slot above.
   # Defaults to mutating tools; reads pass through unthrottled.
   throttledTools:

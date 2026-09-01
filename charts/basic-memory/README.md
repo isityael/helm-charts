@@ -191,6 +191,8 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `service.ipFamilyPolicy` | `SingleStack` | See *Gotchas* below |
 | `mcpShim.enabled` | `true` | Enable the MCP compatibility shim |
 | `mcpShim.image` | `{}` *(inherits)* | Optional override on top of `denoTools.image` |
+| `mcpShim.maxBodyBytes` | `1048576` | Maximum MCP POST body accepted before JSON parsing |
+| `mcpShim.maxSessions` | `256` | Maximum LRU client-to-upstream session mappings |
 | `mcpShim.policy.allowedNoteDirs` | `[]` | Empty = allow all; list to restrict |
 | `mcpShim.policy.allowDeleteNote` | `false` | Set `true` to let LLMs delete notes |
 | `mcpShim.blockedTools` | `create_memory_project`, `delete_project` | Tools hidden from discovery and rejected on invocation |
