@@ -55,9 +55,17 @@ grep -qx 'mcp-shim' <<<"${default_containers}" ||
   fail "mcpShim must be enabled by default"
 
 deno eval '
+  let initializations = 0;
   Deno.serve({ hostname: "127.0.0.1", port: 18001 }, async (request) => {
+    if (new URL(request.url).pathname === "/count") {
+      return new Response(String(initializations));
+    }
+    if (request.method !== "POST") {
+      return new Response("ok");
+    }
     const body = await request.json();
     if (body.method === "initialize") {
+      initializations += 1;
       return new Response(JSON.stringify({ jsonrpc: "2.0", id: body.id, result: {} }), {
         headers: { "content-type": "application/json", "mcp-session-id": "test-session" },
       });
@@ -84,6 +92,8 @@ upstream_pid="$!"
 MCP_SHIM_LISTEN_PORT=18000 \
 MCP_SHIM_UPSTREAM_PORT=18001 \
 MCP_SHIM_BLOCKED_TOOLS="${blocked_tools}" \
+MCP_SHIM_MAX_BODY_BYTES=1024 \
+MCP_SHIM_MAX_SESSIONS=2 \
 deno run --allow-env --allow-net "${tmpdir}/shim.ts" >"${tmpdir}/shim.log" 2>&1 &
 shim_pid="$!"
 
@@ -93,6 +103,20 @@ for _ in $(seq 1 50); do
   fi
   sleep 0.1
 done
+
+oversized_status="$(head -c 2048 /dev/zero | tr '\0' x | curl --silent --output /dev/null \
+  --write-out '%{http_code}' --header 'content-type: application/json' --data-binary @- \
+  http://127.0.0.1:18000/mcp)"
+[ "${oversized_status}" = "413" ] || fail "MCP shim must reject oversized request bodies"
+
+initial_session_count="$(curl --silent --show-error --fail http://127.0.0.1:18001/count)"
+for client_id in client-a client-b client-c client-a; do
+  curl --silent --show-error --fail --cookie "mcp_shim_client=${client_id}" \
+    http://127.0.0.1:18000/mcp >/dev/null
+done
+session_initializations="$(curl --silent --show-error --fail http://127.0.0.1:18001/count)"
+[ "$((session_initializations - initial_session_count))" = "4" ] ||
+  fail "MCP shim must evict the least recently used session when its capacity is reached"
 
 tools_list="$(curl --silent --show-error --fail \
   --header 'content-type: application/json' \

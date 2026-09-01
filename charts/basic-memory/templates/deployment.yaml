@@ -345,6 +345,10 @@ spec:
               value: {{ .Values.mcpShim.toolCallQueueTimeoutMs | quote }}
             - name: MCP_SHIM_UPSTREAM_TIMEOUT_MS
               value: {{ .Values.mcpShim.upstreamTimeoutMs | quote }}
+            - name: MCP_SHIM_MAX_BODY_BYTES
+              value: {{ .Values.mcpShim.maxBodyBytes | quote }}
+            - name: MCP_SHIM_MAX_SESSIONS
+              value: {{ .Values.mcpShim.maxSessions | quote }}
             - name: MCP_SHIM_THROTTLED_TOOLS
               value: {{ join "," .Values.mcpShim.throttledTools | quote }}
             - name: MCP_SHIM_BLOCKED_TOOLS

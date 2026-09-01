@@ -252,6 +252,8 @@
         "maxToolCallConcurrency": { "type": "integer", "minimum": 1 },
         "toolCallQueueTimeoutMs": { "type": "integer", "minimum": 1 },
         "upstreamTimeoutMs": { "type": "integer", "minimum": 1 },
+        "maxBodyBytes": { "type": "integer", "minimum": 1024 },
+        "maxSessions": { "type": "integer", "minimum": 1 },
         "throttledTools": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
         "blockedTools": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
         "policy": {
