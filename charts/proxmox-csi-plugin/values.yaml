@@ -112,7 +112,7 @@ controller:
       repository: ghcr.io/isityael/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:38b102248884a00c51fcf39e07134498d2b13226ab1dee1a8da0b374014e862a
+      tag: edge@sha256:98fcf4d7bd6d084b87b7866e921858be67822fe47f5b4374f8dc10484cd0d6da
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -176,7 +176,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.6.0-debian13@sha256:4f1e9a6e058fce6b90c4b9e09b3c3aa5b203c2dfa21c2607666159162c68373b
+      tag: 8.6.0-debian13@sha256:ada8e6a443e993ee2b50efffe5cfb603cbd1dfaac69bc966153be18e98b9fc6e
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -194,7 +194,7 @@ node:
       repository: ghcr.io/isityael/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:39ebb837703ad171629374034f8e779be6cb3ce56221ac39b5ccc81b66fcfd9d
+      tag: edge@sha256:e691d058d47b4157f27694b74880c928138a9051ca7ca01a7fee8d196b49b9d1
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
