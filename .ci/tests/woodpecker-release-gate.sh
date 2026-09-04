@@ -32,4 +32,10 @@ fail() {
 [[ "$(yq -r '[.steps[] | select(.name == "repository-contracts") | .commands[] | select(test("(^| )perl-utils( |$)"))] | length' "$build_workflow")" -eq 1 ]] \
   || fail "repository contract image must install shasum for archive fixtures"
 
+[[ "$(yq -r '[.steps[] | select(.name == "repository-contracts")] | length' "$build_workflow")" -eq 1 ]] \
+  || fail "build workflow must define exactly one repository-contracts step"
+repository_contract_image="$(yq -r '.steps[] | select(.name == "repository-contracts") | .image' "$build_workflow")"
+[[ "$repository_contract_image" =~ ^harbor\.m0sh1\.cc/apps/k8s-lint-tools:ci-contract-[0-9a-f]{8}-[0-9]+@sha256:[0-9a-f]{64}$ ]] \
+  || fail "repository contract image must use a retained immutable ci-contract artifact"
+
 echo "Woodpecker release gating contract passed"
