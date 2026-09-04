@@ -25,7 +25,7 @@ steps:
       - chart-version-guard check --ci woodpecker --repo .
 
   - name: repository-contracts
-    image: harbor.m0sh1.cc/apps/k8s-lint-tools:af5bc038@sha256:1de123539de443429396350d2b1ff916863a041101567039e9ca4d82fc020d95
+    image: harbor.m0sh1.cc/apps/k8s-lint-tools:ci-contract-955439a6-600@sha256:08ded45a856932cfaec69c72dc9efddc24fd97083a143131497ccf8998f06bf3
     commands:
       - apk add --no-cache deno jq perl perl-utils ripgrep
       - bash .ci/test-shell.sh
