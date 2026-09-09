@@ -52,7 +52,7 @@ busyboxTools:
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.6-debian13@sha256:7e126e7ff91a4e7deeeb13e18419a563edd835872f6aa9fe1607377d1b0cd6b3"
+    tag: "2.9.6-debian13@sha256:0a0f9c64587e3fde0f837dfc49919728e5e3606ae6f47d8f9cb92d4db9d3db2c"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
@@ -324,7 +324,7 @@ obsidianSync:
   couchdb:
     image:
       repository: dhi.io/couchdb
-      tag: "3.5.2-debian13@sha256:8d99766eda17e588948f6580828a636cff0d9712ee40d2443a01639ca0d1bf16"
+      tag: "3.5.2-debian13@sha256:e8beb96163b726ee2fbe4b24ea71a6d3613c3b93c4b77d676f684113588d4249"
       pullPolicy: IfNotPresent
     # Self-hosted LiveSync clients should normally enable Obsidian's Request
     # API and leave browser CORS disabled. If browser CORS is unavoidable,
