@@ -112,7 +112,7 @@ controller:
       repository: ghcr.io/isityael/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:e614965adf67baf4dfddbd36b4ec9367084c1383ecc8da08e6c791d34e41fdd5
+      tag: edge@sha256:c00d2c1642d21a2fcc5ae3e52b656337a838af0d7968947e811a104de2e0cfaf
     # -- Controller resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources:
@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.13.0-debian13@sha256:a4f65815d707ac1c61f7a5beb8db9386625be54175e7871671d0f0449859826e
+      tag: 4.13.0-debian13@sha256:5bc8d303b61a87c23d40d20340ee4e9f81a03128126bf4af60e1b31bbda6a764
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -176,7 +176,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.6.0-debian13@sha256:4dd77d05d94f2b2279a4a19144765890134978738fe54d3436b5d7ea9134332e
+      tag: 8.6.0-debian13@sha256:6d4eb8866d09f2988ce7e3d6781f5f48576adbd8d07d65a0f328761063c3a0b4
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -194,7 +194,7 @@ node:
       repository: ghcr.io/isityael/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: edge@sha256:eb7b40f4e6edd8b58d54e430f27365f3f8d09e6bc8671e6dde7ac82b0ab91682
+      tag: edge@sha256:467cff2c96eaf78925da993893cbace02d65c05df67b2751d316659d1cc49f4f
     # -- Node CSI Driver resource requests and limits.
     # ref: https://kubernetes.io/docs/user-guide/compute-resources/
     resources: {}
