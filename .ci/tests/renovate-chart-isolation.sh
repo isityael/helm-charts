@@ -79,3 +79,17 @@ jq -e '
 }
 
 echo "Renovate Youtarr appVersion contract passed"
+
+jq -e '
+  any(
+    .packageRules[];
+    .description == "Keep Youtarr chart appVersion version-only"
+      and .matchManagers == ["custom.regex"]
+      and .matchFileNames == ["charts/youtarr/Chart.yaml"]
+      and .matchPackageNames == ["docker.io/dialmaster/youtarr"]
+      and .pinDigests == false
+  )
+' "$config" >/dev/null || {
+  echo "Renovate must not append an image digest to Youtarr chart appVersion" >&2
+  exit 1
+}
