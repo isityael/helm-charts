@@ -88,6 +88,13 @@
   ],
   "packageRules": [
     {
+      "description": "Keep Youtarr chart appVersion version-only",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["charts/youtarr/Chart.yaml"],
+      "matchPackageNames": ["docker.io/dialmaster/youtarr"],
+      "pinDigests": false
+    },
+    {
       "matchManagers": ["helmv3", "helm-values"],
       "groupName": "{{parentDir}} Helm chart",
       "groupSlug": "{{parentDir}}-helm-chart",
