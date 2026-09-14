@@ -33,8 +33,8 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/ess-helm/matrix-tools
-      tag: "0.8.1"
-      digest: sha256:c41cd3592938ac760d0aa49ff3e09684335137ce9fefa2cdbd2fde41c1503763
+      tag: "0.10.0"
+      digest: sha256:ac92a82ef43950f90b3de590d85168ca5f9d65fa5b49f7f7080810ab9f6ab861
       pullSecrets: []
 
   # Production default: use an external PostgreSQL service.
@@ -44,7 +44,7 @@ ess:
       registry: dhi.io
       repository: postgres
       tag: "18.6-alpine3.24"
-      digest: sha256:f6b514c00d86e3a222718af99deba716b2a933bd71b0f8b9879a29846d48124f
+      digest: sha256:c7a3bdacc95c194d9a83ea000f5fdfc40def1cd1900c1d905ce77a7568d07739
 
   # Production default: use an external Redis-compatible service, preferably Valkey.
   redis:
@@ -52,7 +52,7 @@ ess:
       registry: dhi.io
       repository: valkey
       tag: "9.1.2-debian13"
-      digest: sha256:513b68223beda35461e218f9103a71407ab3473d2d9ebafa0d2a1422792a753d
+      digest: sha256:66c97f2e36bfc6728ba46316e53c61b31ec40b50353adf11ce21eb1fd9b3dd6f
 
   storage:
     resourcePolicy: keep
@@ -65,15 +65,15 @@ ess:
       registry: dhi.io
       repository: haproxy
       tag: "3.4.4-debian13"
-      digest: sha256:07ff8af7d6653388ebbb22a503144e393504f99fdc54c19dcbdd379b2215946a
+      digest: sha256:86fc4f71f14f789ca90b0ab10de11f9ab63704693d955f645665f08238b9d50f
 
   elementWeb:
     enabled: true
     image:
       registry: oci.element.io
       repository: element-web
-      tag: "v1.12.26"
-      digest: sha256:a9be04cef41ed94cba0dcaeca5a81f89826d4f8be3d57ba5a6fa988f34eda703
+      tag: "v1.12.27"
+      digest: sha256:7050130b263bbcf0e4ad8da875a2821cd89dc55b2f04e93aaa13f682d013019e
     ingress:
       host: element.example.com
 
@@ -85,8 +85,8 @@ ess:
     image:
       registry: ghcr.io
       repository: element-hq/matrix-authentication-service
-      tag: "1.23.0"
-      digest: sha256:e82b2e4a5f9c7ca74096743349160795f5b5a792556fb85c6b5166a9180a5985
+      tag: "1.24.0"
+      digest: sha256:52c18ffcc940220a3b6aa5985b7e09d24ac27f5ed10a4d660c312e48f73ff105
     ingress:
       host: account.example.com
     postgres:
@@ -372,14 +372,14 @@ matrix-appservice-irc:
     image:
       repository: dhi.io/postgres
       tag: "18.6-alpine3.24"
-      digest: sha256:f6b514c00d86e3a222718af99deba716b2a933bd71b0f8b9879a29846d48124f
+      digest: sha256:c7a3bdacc95c194d9a83ea000f5fdfc40def1cd1900c1d905ce77a7568d07739
       pullPolicy: IfNotPresent
   redis:
     enabled: false
     image:
       repository: dhi.io/valkey
       tag: "9.1.2-debian13"
-      digest: sha256:513b68223beda35461e218f9103a71407ab3473d2d9ebafa0d2a1422792a753d
+      digest: sha256:66c97f2e36bfc6728ba46316e53c61b31ec40b50353adf11ce21eb1fd9b3dd6f
       pullPolicy: IfNotPresent
     args:
       - valkey-server
