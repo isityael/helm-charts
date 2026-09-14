@@ -58,24 +58,31 @@ if [ -n "$repos" ]; then
   fi
 fi
 
+# Helm repackages file:// dependencies with fresh archive metadata. Validate a
+# complete sibling chart tree so linting never rewrites tracked archives.
+validation_root="$(mktemp -d)"
+trap 'rm -rf "$validation_root"' EXIT
+cp -R charts "$validation_root/charts"
+
 for chart in $charts; do
   chart_file="$chart/Chart.yaml"
   [ -f "$chart_file" ] || continue
+  validation_chart="$validation_root/$chart"
   echo "helm lint: $chart"
   if chart_uses_dhi_dependency "$chart" &&
     { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
     echo "Skipping dependency build for $chart; DHI credentials are not available."
   else
-    helm dependency build "$chart"
+    helm dependency build "$validation_chart"
   fi
   case "$chart" in
     charts/matrix-umbrella)
       # matrix-umbrella is validated with parent values because some upstream
       # dependencies do not lint standalone with their own defaults.
-      helm lint "$chart"
+      helm lint "$validation_chart"
       ;;
     *)
-      helm lint --with-subcharts "$chart"
+      helm lint --with-subcharts "$validation_chart"
       ;;
   esac
 done
