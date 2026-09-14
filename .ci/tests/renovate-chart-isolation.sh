@@ -72,6 +72,7 @@ jq -e '
       and .matchManagers == ["helm-values", "custom.regex"]
       and .matchPackageNames == ["docker.io/dialmaster/youtarr"]
       and .groupSlug == "youtarr-helm-chart"
+      and .separateMinorPatch == false
   )
 ' "$config" >/dev/null || {
   echo "Renovate must group the Youtarr image and Chart appVersion updates" >&2

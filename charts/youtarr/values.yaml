@@ -4,7 +4,7 @@ strategy: {}
 
 image:
   repository: docker.io/dialmaster/youtarr
-  tag: v1.82.0@sha256:88fb4d754c79f6b212195a287c218852d7f298b0b3815bc5190497e2dd3a64e4
+  tag: v1.82.1@sha256:874f90b1a704bb29a6c5c9c4e213daf1d184750068f1c3015aa40502fd4f947d
   digest: ""
   pullPolicy: IfNotPresent
 
