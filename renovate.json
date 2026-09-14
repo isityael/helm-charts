@@ -107,6 +107,7 @@
       "matchPackageNames": ["docker.io/dialmaster/youtarr"],
       "groupName": "youtarr Helm chart",
       "groupSlug": "youtarr-helm-chart",
+      "separateMinorPatch": false,
       "labels": ["dependencies", "helm"]
     },
     {
