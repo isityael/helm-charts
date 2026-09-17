@@ -152,8 +152,8 @@ cinny:
   image:
     registry: ghcr.io
     repository: cinnyapp/cinny
-    tag: "v4.12.6"
-    digest: sha256:a7805a8a60ff621d343c128dbca6ba42ac5383ed5292522fd72248a77b9c836f
+    tag: "v4.12.7"
+    digest: sha256:83de4bd62b0684c536afd1af22f8eb11216f0ae52209e170b56cdae02498a97f
     pullPolicy: IfNotPresent
   config:
     defaultHomeserver: 0
