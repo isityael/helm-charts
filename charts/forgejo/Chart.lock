@@ -1,9 +1,9 @@
 dependencies:
 - name: forgejo
   repository: oci://code.forgejo.org/forgejo-helm
-  version: 17.1.6
+  version: 17.1.7
 - name: forgejo-runner
   repository: oci://ghcr.io/isityael/charts
   version: 0.1.20
-digest: sha256:e9a71732a4069d8765ef2bdd1b99dca7181f7faa542db3f4cd2f5ba0660d3237
-generated: "2026-09-17T18:12:19.111371671Z"
+digest: sha256:709cfcae0e8513fddd096a23be42874e1d2cc1788f084b15cfbfd1947e873c1a
+generated: "2026-09-18T07:36:33.629177128Z"
