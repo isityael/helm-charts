@@ -315,8 +315,8 @@ mautrix-whatsapp:
   image:
     registry: dock.mau.dev
     repository: mautrix/whatsapp
-    tag: "v0.2608.0"
-    digest: sha256:86237c4d0d33a1e08910b1f820e6c561f9b8e21dc26943caf266e01021087002
+    tag: "v0.2609.0"
+    digest: sha256:e92b5217929622aabfea3cf72b279d1b73790a035a293d7149bcce7ae220b86f
     pullPolicy: IfNotPresent
   command:
     - /usr/bin/mautrix-whatsapp
