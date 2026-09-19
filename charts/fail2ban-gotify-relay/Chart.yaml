@@ -2,7 +2,7 @@ apiVersion: v2
 name: fail2ban-gotify-relay
 description: Relay fail2ban-ui webhook events to Gotify push notifications
 type: application
-version: 0.4.5
+version: 0.4.6
 appVersion: "0.3.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -18,6 +18,8 @@ keywords:
   - relay
 annotations:
   artifacthub.io/changes: |
+    - kind: fixed
+      description: Rebuild vendored app-template dependency archive to match Chart.lock.
     - kind: changed
       description: Normalize the chart onto bjw-s-labs app-template.
 dependencies:
