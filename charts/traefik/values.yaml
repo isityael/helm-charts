@@ -6,9 +6,14 @@ securityHeaders: {}
 
 apexRedirect:
   enabled: false
+  name: apex-redirect
+  hostnames: []
+  hostname: ""
 
 securityTxt:
   enabled: false
+  hostnames: []
+  content: ""
 
 traefik:
   image:

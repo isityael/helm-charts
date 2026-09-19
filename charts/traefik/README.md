@@ -16,3 +16,11 @@ The embedded DHI chart values are nested under `traefik`.
 
 Gateway API CRDs are intentionally managed outside this chart so their
 cluster-scoped lifecycle is independent from Traefik upgrades and removals.
+
+### Upgrade to 0.1.24
+
+Enabled apex resources now require deployment values: `apexRedirect.hostnames`,
+`apexRedirect.hostname`, `securityTxt.hostnames`, and `securityTxt.content`. Set
+`apexRedirect.name` to preserve an existing route name. Security text changes
+trigger a pod rollout through a content checksum. The vendored DHI Traefik
+dependency now matches the declared 41.6.0 lock.

@@ -1,26 +1,6 @@
 {{- with .Values.securityTxt }}
 {{- if .enabled }}
-{{- /*
-  security.txt (RFC 9116) served at
-    https://m0sh1.cc/.well-known/security.txt
-    https://www.m0sh1.cc/.well-known/security.txt
 
-  Addresses the Cloudflare Security Insights Low finding "Security.txt
-  not configured" (SecurityInsights CSV 2026-04-09). Content is the
-  file Cloudflare recommended based on the registered admin contact.
-
-  Stack:
-    ConfigMap   (security.txt content as a single key)
-    Deployment  (dhi.io/nginx:1.30.0-alpine3.23, 1 replica)
-    Service     (ClusterIP port 80 → 8080)
-    IngressRoute (PathPrefix /.well-known/ with priority 100 beats
-                  the apex-redirect catchall that otherwise 301s
-                  everything on Host(m0sh1.cc) to status.m0sh1.cc)
-
-  The content lives in `.Values.securityTxt.content` so future updates
-  (e.g. bumping the Expires date before 2027-01-01) are a one-line
-  values.yaml edit + commit.
-*/ -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -32,11 +12,7 @@ metadata:
     app.kubernetes.io/component: apex-static
 data:
   security.txt: |
-    Contact: mailto:admin@m0sh1.cc
-    Expires: 2027-01-01T12:00:00Z
-    Encryption: https://keys.openpgp.org/search?q=admin@m0sh1.cc
-    Encryption: https://keys.openpgp.org/vks/v1/by-fingerprint/046948367766138C8771F5D8F9C916A26B6AF494
-    Preferred-Languages: en, de
+    {{- required "securityTxt.content is required" .content | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -53,6 +29,8 @@ spec:
       app.kubernetes.io/name: apex-security-txt
   template:
     metadata:
+      annotations:
+        checksum/content: {{ .content | sha256sum }}
       labels:
         app.kubernetes.io/name: apex-security-txt
         app.kubernetes.io/component: apex-static
@@ -161,8 +139,7 @@ spec:
       namespace: {{ $.Release.Namespace }}
       sectionName: websecure
   hostnames:
-    - "m0sh1.cc"
-    - "www.m0sh1.cc"
+    {{- required "hostnames are required when apex resources are enabled" .hostnames | toYaml | nindent 4 }}
   rules:
     - matches:
         - path:

@@ -22,9 +22,15 @@ securityHeaders:
 
 apexRedirect:
   enabled: true
+  hostnames: [example.com, www.example.com]
+  hostname: status.example.com
 
 securityTxt:
   enabled: true
+  hostnames: [example.com, www.example.com]
+  content: |
+    Contact: mailto:security@example.com
+    Expires: 2027-01-01T12:00:00Z
 
 traefik:
   deployment:
