@@ -12,12 +12,8 @@ expected_post_upgrade_contracts='[{"matchManagers":["helmv3"],"matchFileNames":n
   exit 1
 }
 
-grep -Fx 'bash .ci/tests/renovate-helm-archive-refresh.sh' "$pipeline_script" >/dev/null || {
-  echo "Woodpecker Helm lint does not enforce the Renovate archive refresh contract" >&2
-  exit 1
-}
-
-grep -Fx 'bash .ci/check-helm-dependencies.sh' "$pipeline_script" >/dev/null || {
+# This test itself runs via .ci/test-shell.sh (repository-contracts step).
+grep -Eqx 'bash \.ci/check-helm-dependencies\.sh( "\$\{selected\[@\]\}")?' "$pipeline_script" || {
   echo "Woodpecker Helm lint does not run the dependency guard for pull requests" >&2
   exit 1
 }
