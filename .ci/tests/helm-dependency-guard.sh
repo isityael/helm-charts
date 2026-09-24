@@ -190,7 +190,7 @@ test_checks_dhi_build_with_credentials() {
 
   grep -qx "dependency list charts/demo" "${workdir}/helm.log" ||
     fail "expected dependency list to run for DHI chart with credentials"
-  grep -qx "dependency build charts/demo" "${workdir}/helm.log" ||
+  grep -qx "dependency build charts/demo --skip-refresh" "${workdir}/helm.log" ||
     fail "expected dependency build to run for DHI chart with credentials"
 }
 

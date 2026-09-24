@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-bash .ci/tests/renovate-helm-archive-refresh.sh
+# Only the charts this run needs (all on push; touched charts on PRs).
+# Command substitution (not <(...)) so a helper failure aborts under set -e.
+selected_list="$(bash .ci/changed-charts.sh)"
+mapfile -t selected <<<"${selected_list}"
+[ -n "${selected_list}" ] || selected=()
+if [ "${#selected[@]}" -eq 0 ]; then
+  echo "No charts changed; nothing to lint."
+  exit 0
+fi
+printf 'Charts in scope:\n'; printf '  %s\n' "${selected[@]}"
 
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
+for chart in "${selected[@]}"; do
+  chart="${chart}/"
   grep -E '^\s*repository:\s+https?://' "${chart}Chart.yaml" 2>/dev/null | awk '{print $2}' || true
 done | sort -u | while read -r repo; do
   [ -n "${repo}" ] || continue
@@ -21,21 +30,13 @@ if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
   fi
 fi
 
-bash .ci/check-helm-dependencies.sh
+# Builds dependencies for the selected charts and fails on vendored drift.
+bash .ci/check-helm-dependencies.sh "${selected[@]}"
 
-chart_uses_dhi_dependency() {
-  grep -qsE '^\s*repository:\s+oci://dhi\.io' "$1/Chart.yaml"
-}
-
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
+# Dependencies were already built by check-helm-dependencies.sh above.
+for chart in "${selected[@]}"; do
+  chart="${chart}/"
   echo "==> Linting ${chart}"
-  if chart_uses_dhi_dependency "${chart}" &&
-    { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
-    echo "Skipping dependency build for ${chart}; DHI credentials are not available."
-  else
-    helm dependency build "${chart}"
-  fi
   case "${chart}" in
     charts/matrix-umbrella/)
       # The umbrella chart renders with parent values, but two upstream
@@ -51,8 +52,8 @@ done
 
 rm -rf .ci/rendered
 mkdir -p .ci/rendered
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
+for chart in "${selected[@]}"; do
+  chart="${chart}/"
   name="$(basename "${chart}")"
   ci_values="$(find "${chart}ci" -maxdepth 1 -type f -name '*values*.yaml' 2>/dev/null | sort || true)"
   if [ -n "${ci_values}" ]; then
@@ -71,7 +72,8 @@ for chart in charts/*/; do
   fi
 done
 
-if grep -InE 'app\.kubernetes\.io/version:.*@sha256:' .ci/rendered/matrix-umbrella-*.yaml; then
+if compgen -G '.ci/rendered/matrix-umbrella-*.yaml' >/dev/null &&
+  grep -InE 'app\.kubernetes\.io/version:.*@sha256:' .ci/rendered/matrix-umbrella-*.yaml; then
   echo "Rendered matrix-umbrella manifests contain digest-bearing app.kubernetes.io/version labels." >&2
   echo "Keep image tags label-safe and put OCI digests in chart-specific digest fields where supported." >&2
   exit 1
