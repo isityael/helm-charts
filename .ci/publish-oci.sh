@@ -63,16 +63,7 @@ for chart in charts/*/; do
   helm dependency build "$chart"
 
   echo "Linting ${name}..."
-  case "$name" in
-    matrix-umbrella)
-      # This umbrella chart is validated with parent values because some
-      # upstream dependencies do not lint standalone with their defaults.
-      helm lint "$chart"
-      ;;
-    *)
-      helm lint --with-subcharts "$chart"
-      ;;
-  esac
+  helm lint --with-subcharts "$chart"
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"

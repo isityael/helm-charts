@@ -40,7 +40,6 @@
       "customType": "regex",
       "description": "Combined repository images with sibling digest keys",
       "managerFilePatterns": [
-        "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/",
         "/charts/youtarr/values(?:-[^/]+)?\\.yaml$/"
       ],
       "matchStrings": [
@@ -61,18 +60,6 @@
       "depNameTemplate": "docker.io/dialmaster/youtarr",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "description": "Split registry images with sibling digest keys",
-      "managerFilePatterns": [
-        "/charts/matrix-umbrella/values(?:-[^/]+)?\\.yaml$/"
-      ],
-      "matchStrings": [
-        "(?<indent>[ \\t]*)registry:\\s*(?<imageRegistry>[^\\s\\\"']+)\\s+repository:\\s*(?<imageRepository>[^\\s\\\"']+)\\s+tag:\\s*[\\\"']?(?<currentValue>[^@\\\"'\\s]+)[\\\"']?\\s+digest:\\s*(?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "depNameTemplate": "{{{imageRegistry}}}/{{{imageRepository}}}",
-      "datasourceTemplate": "docker"
     }
   ],
   "lockFileMaintenance": {
@@ -126,21 +113,6 @@
       }
     },
     {
-      "description": "Keep matrix-umbrella chart dependencies and vendored archives in sync",
-      "matchManagers": ["helmv3"],
-      "matchFileNames": ["charts/matrix-umbrella/Chart.yaml"],
-      "groupName": "matrix-umbrella helm deps",
-      "labels": ["dependencies", "helm", "matrix"],
-      "bumpVersions": [
-        {
-          "name": "Patch-bump matrix-umbrella for chart dependency updates",
-          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
-          "bumpType": "patch"
-        }
-      ]
-    },
-    {
       "description": "Keep csi-s3 upstream dependency and vendored archive in sync",
       "matchManagers": ["helmv3"],
       "matchFileNames": ["charts/csi-s3/Chart.yaml"],
@@ -179,71 +151,16 @@
       "pinDigests": false
     },
     {
-      "description": "Group matrix-umbrella DHI image updates",
-      "matchManagers": ["helm-values", "custom.regex"],
-      "matchDatasources": ["docker"],
-      "matchFileNames": [
-        "charts/matrix-umbrella/values*.yaml",
-        "charts/matrix-umbrella/ci/**",
-        "charts/matrix-umbrella/examples/**"
-      ],
-      "matchPackageNames": ["/^dhi\\.io\\//"],
-      "groupName": "matrix-umbrella DHI images",
-      "labels": ["dependencies", "docker", "dhi", "matrix"],
-      "bumpVersions": [
-        {
-          "name": "Patch-bump matrix-umbrella for DHI image updates",
-          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
-          "bumpType": "patch"
-        }
-      ]
-    },
-    {
-      "description": "Group matrix-umbrella upstream Matrix image updates",
-      "matchManagers": ["helm-values"],
-      "matchDatasources": ["docker"],
-      "matchFileNames": ["charts/matrix-umbrella/values*.yaml"],
-      "matchPackageNames": [
-        "oci.element.io/synapse",
-        "oci.element.io/element-web",
-        "ghcr.io/element-hq/matrix-authentication-service",
-        "ghcr.io/element-hq/ess-helm/matrix-tools",
-        "ghcr.io/cinnyapp/cinny",
-        "/^dock\\.mau\\.dev\\/mautrix\\//",
-        "matrixdotorg/matrix-appservice-irc"
-      ],
-      "groupName": "matrix-umbrella upstream images",
-      "labels": ["dependencies", "docker", "matrix"],
-      "bumpVersions": [
-        {
-          "name": "Patch-bump matrix-umbrella for upstream image updates",
-          "filePatterns": ["charts/matrix-umbrella/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
-          "bumpType": "patch"
-        }
-      ]
-    },
-    {
       "description": "Let custom regex own images with sibling digest keys",
       "matchManagers": ["helm-values"],
       "matchDatasources": ["docker"],
-      "matchFileNames": [
-        "charts/matrix-umbrella/values*.yaml",
-        "charts/youtarr/values*.yaml"
-      ],
+      "matchFileNames": ["charts/youtarr/values*.yaml"],
       "matchPackageNames": [
         "dhi.io/busybox",
         "dhi.io/haproxy",
         "dhi.io/mariadb",
         "dhi.io/postgres",
-        "dhi.io/valkey",
-        "ghcr.io/cinnyapp/cinny",
-        "ghcr.io/element-hq/ess-helm/matrix-tools",
-        "ghcr.io/element-hq/matrix-authentication-service",
-        "oci.element.io/element-web",
-        "oci.element.io/synapse",
-        "/^dock\\.mau\\.dev\\/mautrix\\//"
+        "dhi.io/valkey"
       ],
       "enabled": false
     },
