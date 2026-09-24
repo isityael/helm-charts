@@ -32,7 +32,6 @@ operator stacks. Current examples:
 - `csi-driver-nfs`
 - `proxmox-csi-plugin`
 - `cnpg-stack`
-- `matrix-umbrella`
 - `forgejo`
 - `traefik`
 - `m0sh1-exporter`

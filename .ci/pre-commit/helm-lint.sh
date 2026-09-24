@@ -75,14 +75,5 @@ for chart in $charts; do
   else
     helm dependency build "$validation_chart"
   fi
-  case "$chart" in
-    charts/matrix-umbrella)
-      # matrix-umbrella is validated with parent values because some upstream
-      # dependencies do not lint standalone with their own defaults.
-      helm lint "$validation_chart"
-      ;;
-    *)
-      helm lint --with-subcharts "$validation_chart"
-      ;;
-  esac
+  helm lint --with-subcharts "$validation_chart"
 done

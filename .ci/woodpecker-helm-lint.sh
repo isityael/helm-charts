@@ -37,17 +37,7 @@ bash .ci/check-helm-dependencies.sh "${selected[@]}"
 for chart in "${selected[@]}"; do
   chart="${chart}/"
   echo "==> Linting ${chart}"
-  case "${chart}" in
-    charts/matrix-umbrella/)
-      # The umbrella chart renders with parent values, but two upstream
-      # dependencies do not lint as standalone charts with their own defaults.
-      # Keep dependency drift checks + rendered manifest validation below.
-      helm lint "${chart}"
-      ;;
-    *)
-      helm lint --with-subcharts "${chart}"
-      ;;
-  esac
+  helm lint --with-subcharts "${chart}"
 done
 
 rm -rf .ci/rendered
@@ -71,10 +61,3 @@ for chart in "${selected[@]}"; do
       > ".ci/rendered/${name}.yaml"
   fi
 done
-
-if compgen -G '.ci/rendered/matrix-umbrella-*.yaml' >/dev/null &&
-  grep -InE 'app\.kubernetes\.io/version:.*@sha256:' .ci/rendered/matrix-umbrella-*.yaml; then
-  echo "Rendered matrix-umbrella manifests contain digest-bearing app.kubernetes.io/version labels." >&2
-  echo "Keep image tags label-safe and put OCI digests in chart-specific digest fields where supported." >&2
-  exit 1
-fi
