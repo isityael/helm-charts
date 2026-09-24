@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Optional arguments limit the check to those chart directories.
+if [ "$#" -gt 0 ]; then
+  candidates=("$@")
+else
+  candidates=(charts/*/)
+fi
+
 charts=()
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
+for chart in "${candidates[@]}"; do
   chart="${chart%/}"
+  [ -f "${chart}/Chart.yaml" ] || continue
   if grep -qsE '^[[:space:]]*repository:[[:space:]]+oci://dhi\.io' "${chart}/Chart.yaml" &&
     { [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; }; then
     echo "Skipping dependency check for ${chart}; DHI credentials are not available."
@@ -37,6 +44,9 @@ dependency_snapshot() {
   done
 }
 
+# Refresh repository indexes once instead of once per chart.
+helm repo update >/dev/null 2>&1 || true
+
 for chart in "${charts[@]}"; do
   if ! grep -qE '^[[:space:]]*dependencies:' "${chart}/Chart.yaml"; then
     continue
@@ -51,7 +61,7 @@ for chart in "${charts[@]}"; do
   fi
 
   status_before="$(dependency_snapshot "${chart}")"
-  if ! helm dependency build "${chart}"; then
+  if ! helm dependency build "${chart}" --skip-refresh; then
     failed=1
     continue
   fi
