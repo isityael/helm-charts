@@ -50,6 +50,16 @@
   ],
   "packageRules": [
     {
+      "description": "Fork releases are <upstream>-yael.<n>: compare the fork build number instead of treating it as a compatibility suffix",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "ghcr.io/isityael/proxmox-csi-controller",
+        "ghcr.io/isityael/proxmox-csi-node",
+        "ghcr.io/isityael/wakapi-dhi"
+      ],
+      "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-yael\\.(?<build>\\d+)$"
+    },
+    {
       "matchManagers": ["helmv3", "helm-values"],
       "groupName": "{{parentDir}} Helm chart",
       "groupSlug": "{{parentDir}}-helm-chart",
