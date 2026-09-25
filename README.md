@@ -14,29 +14,34 @@ helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version
 
 ## Charts
 
-| Chart                     | Version | Description                                                                 |
-| ------------------------- | ------- | --------------------------------------------------------------------------- |
-| `basic-memory`            | 0.3.22  | Basic Memory MCP server with optional Obsidian LiveSync integration         |
-| `cloudflared`             | 1.4.9   | Cloudflare Tunnel connector                                                 |
-| `cnpg-stack`              | 0.13.37 | CloudNativePG operator, cluster, barman plugin, pooler, and metrics wrapper |
-| `csi-driver-nfs`          | 4.14.4  | NFS CSI driver (isityael fork with configurable fsGroupPolicy)              |
-| `forgejo`                 | 0.1.11  | Forgejo with custom image defaults and optional runner                      |
-| `forgejo-runner`          | 0.1.9   | Forgejo Actions runner with Docker-in-Docker                                |
-| `gitea-runner`            | 1.0.6   | Gitea Actions runner with Docker-in-Docker                                  |
-| `m0sh1-exporter`          | 0.1.19  | Network exporters bundle for OPNsense, SNMP, and Proxmox VE                 |
-| `privatebin`              | 0.1.3   | Encrypted paste and file sharing                                            |
-| `proxmox-csi-plugin`      | 0.5.40  | Proxmox CSI plugin (isityael fork)                                          |
-| `searxng`                 | 0.2.8   | Privacy-respecting metasearch                                               |
-| `tailscale-webhook-relay` | 0.3.3   | Relay Tailscale webhook events to ntfy                                      |
-| `traefik`                 | 0.1.0   | Traefik wrapper based on Docker Hardened Images with m0sh1 edge defaults    |
-| `wakapi-dhi`              | 1.2.19  | Hardened WakaTime-compatible coding statistics                              |
-| `youtarr`                 | 0.1.8   | YouTube downloader with DHI MariaDB support                                 |
+| Chart | Description |
+| --- | --- |
+| `basic-memory` | Basic Memory MCP server with an optional Obsidian LiveSync integration |
+| `cloudflared` | Cloudflare Tunnel connector |
+| `cnpg-stack` | CloudNativePG operator, cluster, Barman Cloud plugin, PgBouncer pooler and scrape objects |
+| `csi-driver-nfs` | NFS CSI driver (isityael fork with configurable fsGroupPolicy) |
+| `csi-s3` | k8s-csi-s3 with an owned driver image and multiple StorageClasses |
+| `forgejo` | Forgejo with custom image defaults and an optional runner |
+| `forgejo-runner` | Forgejo Actions runner with optional Docker-in-Docker |
+| `m0sh1-exporter` | Network exporters for OPNsense, SNMP and Proxmox VE |
+| `proxmox-csi-plugin` | Proxmox CSI plugin (isityael fork) |
+| `tailscale-webhook-relay` | Relays Tailscale webhook events to ntfy |
+| `traefik` | Traefik on Docker Hardened Images with m0sh1 edge defaults |
+| `wakapi-dhi` | Wakapi, the WakaTime-compatible coding statistics server, on Docker Hardened Images |
+
+Current versions are in each `charts/<chart>/Chart.yaml` and on
+[GHCR](https://github.com/isityael?tab=packages).
+Retired charts are kept outside Git in `charts/deprecated/` (ignored).
 
 ## Publishing
 
-Charts are automatically published to GHCR OCI on push to `main` when `charts/**` files change (via Woodpecker CI). Manual trigger is also supported.
+On every push to `main` that touches `charts/**`, Woodpecker's `release-all`
+pipeline publishes each chart version that isn't on GHCR yet. It runs only
+after the `build` pipeline passes, and it can also be triggered manually.
 
-Tag-triggered releases (e.g. `cloudflared-v*`, `csi-driver-nfs-v*`) additionally create GitHub Releases with packaged `.tgz` artefacts.
+Forgejo Actions (`.forgejo/workflows/release-tag.yaml`) then tags each
+published version as `<chart>-v<version>`. It first waits for both Woodpecker
+pipelines to succeed on that commit.
 
 The publish script records pushed immutable OCI digest references in `.ci/published-oci-refs.txt`. If `COSIGN_PRIVATE_KEY` and `COSIGN_PASSWORD` are present in the script environment, those digest references are signed with `cosign sign --key env://COSIGN_PRIVATE_KEY`.
 
@@ -60,17 +65,18 @@ Verified Publisher status is needed; never reuse the legacy HTTP repository ID.
 ## Development
 
 ```bash
-# Lint a chart
-helm lint charts/<chart-name>
+# Install the prek hooks (YAML checks, chart version bump, Helm lint)
+mise run hooks-install
 
-# Lint all charts
+# Lint and render all charts, or only the ones given
 mise run helm-lint
+mise run helm-lint charts/<chart-name>
 
-# Verify vendored chart dependencies
-.ci/check-helm-dependencies.sh
-
-# Lint rendered manifests after generating .ci/rendered
+# Validate the rendered manifests in .ci/rendered
 mise run kube-linter
+
+# Run the repository contract tests
+mise run test-shell
 ```
 
 ## Licence
