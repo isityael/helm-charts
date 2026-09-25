@@ -17,8 +17,10 @@ if [ ! -f "$chart_file" ]; then
   exit 1
 fi
 
-chart_name="$(awk '$1 == "name:" { value = $2; gsub(/["'\'' ]/, "", value); print value; exit }' "$chart_file")"
-chart_version="$(awk '$1 == "version:" { value = $2; gsub(/["'\'' ]/, "", value); print value; exit }' "$chart_file")"
+# Top-level keys only: maintainers and dependencies carry their own
+# indented name:/version: entries, which may appear first.
+chart_name="$(awk '/^name:/ { value = $2; gsub(/["'\'' ]/, "", value); print value; exit }' "$chart_file")"
+chart_version="$(awk '/^version:/ { value = $2; gsub(/["'\'' ]/, "", value); print value; exit }' "$chart_file")"
 
 if [ "$chart_name" != "$chart" ]; then
   echo "release tag chart ${chart} does not match Chart.yaml name ${chart_name:-<missing>}" >&2

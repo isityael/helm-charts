@@ -141,6 +141,27 @@ test_missing_oci_version_fails() {
   (cd "$workdir" && assert_release_fails "$workdir" "example-chart-v1.2.3" 0)
 }
 
+test_nested_name_and_version_keys_are_ignored() {
+  local workdir="${tmpdir}/nested-keys"
+  setup_workdir "$workdir"
+  # Maintainer and dependency entries precede the top-level keys, as in
+  # charts/proxmox-csi-plugin (tag pipeline #1800 read "m0sh1").
+  cat >"$workdir/charts/example-chart/Chart.yaml" <<'YAML'
+apiVersion: v2
+maintainers:
+  - email: someone@example.org
+    name: m0sh1
+dependencies:
+  - name: common
+    version: 9.9.9
+name: example-chart
+version: 1.2.3
+YAML
+
+  (cd "$workdir" && run_release "$workdir" "example-chart-v1.2.3") \
+    || fail "expected top-level name/version to be used"
+}
+
 [ -f "$release_script" ] || fail "release implementation is missing: ${release_script}"
 
 test_valid_tag_pulls_exact_existing_oci_artifact
@@ -148,5 +169,6 @@ test_mismatched_version_fails
 test_malformed_tag_fails
 test_unknown_chart_fails
 test_missing_oci_version_fails
+test_nested_name_and_version_keys_are_ignored
 
 echo "release-tag tests passed"
