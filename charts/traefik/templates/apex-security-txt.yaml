@@ -45,7 +45,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: nginx
-          image: dhi.io/nginx:1.30.0-alpine3.23
+          image: {{ $.Values.securityTxt.image | quote }}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

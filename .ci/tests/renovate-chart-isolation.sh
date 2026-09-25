@@ -52,45 +52,14 @@ jq -e '
 
 echo "Renovate CSI-S3 image contract passed"
 
-jq -e '
-  any(
-    .customManagers[];
-    .description == "Youtarr Chart appVersion"
-      and .managerFilePatterns == ["/charts/youtarr/Chart\\.yaml$/"]
-      and .depNameTemplate == "docker.io/dialmaster/youtarr"
-      and .datasourceTemplate == "docker"
-  )
-' "$config" >/dev/null || {
-  echo "Renovate must track the Youtarr Chart appVersion alongside the default image" >&2
+# Rules for retired charts linger unnoticed; every charts/<name> path that
+# renovate.json mentions must be an active chart.
+stale="$(grep -oE 'charts/[a-z0-9-]+' "$config" | sort -u | while read -r path; do
+  [ "$path" = charts/deprecated ] || [ -f "$path/Chart.yaml" ] || printf '%s\n' "$path"
+done)"
+[ -z "$stale" ] || {
+  echo "Renovate rules reference charts that no longer exist: $stale" >&2
   exit 1
 }
 
-jq -e '
-  any(
-    .packageRules[];
-    .description == "Keep Youtarr image and appVersion in one update"
-      and .matchManagers == ["helm-values", "custom.regex"]
-      and .matchPackageNames == ["docker.io/dialmaster/youtarr"]
-      and .groupSlug == "youtarr-helm-chart"
-      and .separateMinorPatch == false
-  )
-' "$config" >/dev/null || {
-  echo "Renovate must group the Youtarr image and Chart appVersion updates" >&2
-  exit 1
-}
-
-echo "Renovate Youtarr appVersion contract passed"
-
-jq -e '
-  any(
-    .packageRules[];
-    .description == "Keep Youtarr chart appVersion version-only"
-      and .matchManagers == ["custom.regex"]
-      and .matchFileNames == ["charts/youtarr/Chart.yaml"]
-      and .matchPackageNames == ["docker.io/dialmaster/youtarr"]
-      and .pinDigests == false
-  )
-' "$config" >/dev/null || {
-  echo "Renovate must not append an image digest to Youtarr chart appVersion" >&2
-  exit 1
-}
+echo "Renovate chart paths contract passed"

@@ -35,12 +35,12 @@ so existing Kubernetes object names remain stable during the fork rename.
 
 ## Image Defaults
 
-By default, the chart runs `ghcr.io/isityael/wakapi-dhi:2.17.4-yaelmoshi.2` pinned by digest:
+By default, the chart runs `ghcr.io/isityael/wakapi-dhi:2.18.0-yael.1` pinned by digest:
 
 ```yaml
 image:
   repository: ghcr.io/isityael/wakapi-dhi
-  tag: 2.17.4-yaelmoshi.2@sha256:4c431455303060f0d2b0d6f4041da4cbb4fdb72ecbce893c46459a14946e258a
+  tag: 2.18.0-yael.1@sha256:7bdf8f7a864e9b236c839c1c6c2e68f92888b2f1836a8f4cc513445272003a97
 ```
 
 To run upstream Wakapi with this chart:
@@ -244,6 +244,14 @@ serviceMonitor:
 - `revisionHistoryLimit`, `podLabels`, `priorityClassName`, and `topologySpreadConstraints` are available for production scheduling policies.
 
 ## Upgrade Notes
+
+### 1.2.39
+
+- Default image moves to Wakapi 2.18.0 (`2.18.0-yael.1`). Image tags now
+  follow `<upstream>-yael.<n>`; the old `-yaelmoshi.<n>` tags are no longer
+  published.
+- 2.18.0 runs database migrations on first start. It also fixes the LRU cache
+  preallocation that made 2.17.x images use about 1 GiB of memory at startup.
 
 ### 1.2.1
 

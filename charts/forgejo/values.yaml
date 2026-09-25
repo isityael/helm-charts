@@ -5,7 +5,7 @@ forgejo:
   test:
     image:
       name: dhi.io/busybox
-      tag: "1.37.0-debian13"
+      tag: "1.37.0-debian13@sha256:8197d3ca6c46d836a9c336e1c3522fff421ea348798a84ade503fb43672d1599"
 
   strategy:
     type: Recreate
