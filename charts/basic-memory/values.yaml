@@ -52,7 +52,7 @@ busyboxTools:
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.6-debian13@sha256:0530f89a65687d661d2cec97be1425b110df5809ae2f1195b8e9b6cb6bced9b7"
+    tag: "2.9.7-debian13@sha256:76832c2b870ec35a7dc5b9501126befc5c9baca78872c21bd7dc82e22b93c38b"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
