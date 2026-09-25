@@ -26,7 +26,7 @@ One chart for a complete CloudNativePG setup, shared by the m0sh1 clusters
 ## Install
 
 ```bash
-helm install cnpg oci://ghcr.io/isityael/charts/cnpg-stack --version 0.14.0 \
+helm install cnpg oci://ghcr.io/isityael/charts/cnpg-stack --version 0.14.1 \
   --namespace cnpg-system --create-namespace -f values.yaml
 ```
 
@@ -36,7 +36,7 @@ nest all values under `cnpg-stack:`:
 ```yaml
 dependencies:
   - name: cnpg-stack
-    version: 0.14.0
+    version: 0.14.1
     repository: oci://ghcr.io/isityael/charts
 ```
 
@@ -107,6 +107,14 @@ cnpg:
 ```
 
 ## Upgrade notes
+
+### 0.14.1
+
+The sync hook only creates missing roles. CNPG `managed.roles` owns subsequent
+role and password reconciliation. Reapplying the same password from the hook
+regenerated its SCRAM verifier on every sync, invalidating credentials cached by
+existing PgBouncer sessions. Database bootstrap and pooler authentication grants
+remain idempotent and run as before.
 
 ### 0.14.0
 

@@ -134,6 +134,83 @@ test_cluster_scrape_is_configurable() {
     fail "expected scrapeKind=PodMonitor to render a PodMonitor"
 }
 
+test_init_roles_preserves_existing_passwords() {
+  local harness="${tmpdir}/role-bootstrap"
+  mkdir -p "${harness}/bin" "${harness}/secrets/ci-role" "${harness}/state"
+  # Synthetic test input only; never use or log a real Secret.
+  printf '%s' 'fixture-password' >"${harness}/secrets/ci-role/password"
+  helm template cnpg-stack "${chart}" \
+    --set-json 'cnpg.roles=[{"enabled":true,"name":"ci_app","passwordSecret":{"name":"ci-role"}},{"enabled":true,"name":"ci_nopassword"}]' \
+    --set-json 'cnpg.databases=[{"enabled":true,"name":"ci_app","owner":"ci_app"}]' |
+    yq eval-all -r 'select(.kind == "Job" and .metadata.name == "cnpg-main-init-roles") | .spec.template.spec.containers[0].command[2]' - |
+    sed "s|/secrets/|${harness}/secrets/|g" >"${harness}/bootstrap.sh"
+  cat >"${harness}/bin/pg_isready" <<'SH'
+#!/bin/sh
+exit 0
+SH
+  cat >"${harness}/bin/psql" <<'SH'
+#!/bin/sh
+set -eu
+sql=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -c|-Atc) shift; sql="$1" ;;
+  esac
+  shift
+done
+case "$sql" in
+  "SELECT 1 FROM pg_roles"*)
+    role="$(printf '%s' "$sql" | sed "s/.*rolname='\([^']*\)'.*/\1/")"
+    if [ -f "$TEST_STATE/role-$role" ]; then printf '1\n'; fi
+    ;;
+  "CREATE ROLE "*)
+    role="$(printf '%s' "$sql" | sed 's/^CREATE ROLE "\{0,1\}\([^" ]*\)"\{0,1\} .*/\1/')"
+    [ ! -f "$TEST_STATE/role-$role" ] || exit 21
+    touch "$TEST_STATE/role-$role"
+    case "$sql" in
+      *" PASSWORD "*) printf 'create-password\n' >>"$TEST_STATE/actions" ;;
+      *) printf 'create-role\n' >>"$TEST_STATE/actions" ;;
+    esac
+    ;;
+  "ALTER ROLE "*)
+    # Do not print SQL: it may contain a credential.
+    printf 'Unexpected mutation of existing role\n' >&2
+    exit 22
+    ;;
+  "SELECT 1 FROM pg_database"*)
+    if [ -f "$TEST_STATE/database" ]; then printf '1\n'; fi
+    ;;
+  "CREATE DATABASE "*)
+    [ ! -f "$TEST_STATE/database" ] || exit 23
+    touch "$TEST_STATE/database"
+    printf 'create-database\n' >>"$TEST_STATE/actions"
+    ;;
+  "CREATE OR REPLACE FUNCTION "*|"REVOKE "*|"GRANT "*)
+    printf 'pooler-auth\n' >>"$TEST_STATE/actions"
+    ;;
+  *) printf 'Unexpected bootstrap SQL operation\n' >&2; exit 24 ;;
+esac
+SH
+  chmod +x "${harness}/bin/psql" "${harness}/bin/pg_isready"
+  local run
+  for run in 1 2 3; do
+    if ! PATH="${harness}/bin:${PATH}" TEST_STATE="${harness}/state" sh "${harness}/bootstrap.sh" >/dev/null; then
+      fail "role bootstrap run ${run} must create missing roles without altering existing roles"
+      return
+    fi
+  done
+  [[ "$(grep -c '^create-password$' "${harness}/state/actions")" == "1" ]] ||
+    fail "expected exactly one password initialization across repeated hook runs"
+  [[ "$(grep -c '^create-role$' "${harness}/state/actions")" == "2" ]] ||
+    fail "expected passwordless application role and pooler role to bootstrap once"
+  [[ "$(grep -c '^create-database$' "${harness}/state/actions")" == "1" ]] ||
+    fail "expected database bootstrap exactly once"
+  [[ "$(grep -c '^pooler-auth$' "${harness}/state/actions")" == "15" ]] ||
+    fail "expected pooler authentication function and grants on every run"
+}
+
+test_init_roles_preserves_existing_passwords
+
 test_database_metadata_preserves_postgresql_name
 test_long_database_metadata_names_remain_unique
 test_operator_app_version_matches_vendored_chart

@@ -92,6 +92,9 @@ spec:
               psql -v ON_ERROR_STOP=1 -d postgres -c "GRANT CONNECT ON DATABASE postgres TO cnpg_pooler_pgbouncer;"
               psql -v ON_ERROR_STOP=1 -d postgres -c "GRANT CONNECT ON DATABASE template1 TO cnpg_pooler_pgbouncer;"
 
+              # Bootstrap missing roles only. CNPG managed.roles reconciles existing
+              # attributes/passwords; repeating PASSWORD would regenerate SCRAM salts
+              # and invalidate credentials cached by existing PgBouncer sessions.
               {{- range $roles }}
               {{- if .enabled }}
               echo "Ensuring role exists: {{ .name }}"
@@ -117,16 +120,12 @@ spec:
                   # so it is safe to embed in a single-quoted SQL literal here.
                   psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
                 fi
-
-                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag} PASSWORD '${role_password}';"
               else
                 role_exists="$(psql -v ON_ERROR_STOP=1 -d postgres -A -t \
                   -c "SELECT 1 FROM pg_roles WHERE rolname='${role}'")"
                 if [ "${role_exists}" != "1" ]; then
                   psql -v ON_ERROR_STOP=1 -d postgres -c "CREATE ROLE \"${role}\" ${login_flag};"
                 fi
-
-                psql -v ON_ERROR_STOP=1 -d postgres -c "ALTER ROLE \"${role}\" ${login_flag};"
               fi
               {{- end }}
               {{- end }}
