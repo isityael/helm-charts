@@ -13,7 +13,7 @@ fail() {
   status=1
 }
 
-expected_driver="ghcr.io/isityael/csi-s3-driver:v0.43.8-ym.3"
+expected_driver="ghcr.io/isityael/csi-s3-driver:v0.43.9-yael.1"
 actual_driver="$(
   yq '.maintainedImage.repository + ":" + .maintainedImage.tag' "${chart}/values.yaml"
 )"

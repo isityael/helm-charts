@@ -53,6 +53,8 @@
       "description": "Fork releases are <upstream>-yael.<n>: compare the fork build number instead of treating it as a compatibility suffix",
       "matchDatasources": ["docker"],
       "matchPackageNames": [
+        "ghcr.io/isityael/csi-s3-driver",
+        "ghcr.io/isityael/nfsplugin",
         "ghcr.io/isityael/proxmox-csi-controller",
         "ghcr.io/isityael/proxmox-csi-node",
         "ghcr.io/isityael/wakapi-dhi"
