@@ -1,1 +1,0 @@
-fail2ban-gotify-relay is rendered by the bjw-s-labs app-template dependency.

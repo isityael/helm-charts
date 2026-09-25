@@ -1,4 +1,0 @@
-SearXNG is deployed.
-
-Service:
-  {{ include "searxng.fullname" . }}:{{ .Values.service.port }}

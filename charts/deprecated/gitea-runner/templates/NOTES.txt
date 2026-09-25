@@ -1,4 +1,0 @@
-Thank you for installing the Gitea Actions runner!
-
-1. Ensure the registration token secret is present and runner.instanceURL is set.
-2. Watch the runner pod logs for successful registration.
