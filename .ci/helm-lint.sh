@@ -32,6 +32,8 @@ while IFS= read -r chart; do
   [ -n "${chart}" ] && [ -f "${chart}/Chart.yaml" ] && selected+=("${chart}")
 done <<<"${selected_list}"
 if [ "${#selected[@]}" -eq 0 ]; then
+  # Do not let later validators consume manifests from an earlier local run.
+  rm -rf .ci/rendered
   echo "No charts changed; nothing to lint."
   exit 0
 fi

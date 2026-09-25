@@ -3,8 +3,8 @@ set -euo pipefail
 
 bash .ci/check-local-artifacts.sh
 
-# Full runs (push, or PRs touching shared CI inputs) execute every test; a PR
-# that only touches charts runs the tests that reference those charts.
+# Shared CI inputs or an unknown base run every test; otherwise pushes and
+# pull requests run only tests that reference the changed charts.
 # Command substitution (not <(...)) so a helper failure aborts under set -e.
 selected_list="$(bash .ci/changed-charts.sh)"
 mapfile -t selected <<<"${selected_list}"

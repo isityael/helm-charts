@@ -1,5 +1,5 @@
-# helm-charts — CI: lint charts (all on push; only touched charts on PRs,
-# see .ci/changed-charts.sh). chart-version-guard enforces version bumps.
+# helm-charts — CI: lint changed charts on pushes and PRs, or all charts
+# when the previous revision is unavailable (see .ci/changed-charts.sh).
 # OCI publishing is handled by release-all.yaml; Forgejo Actions
 # (.forgejo/workflows/release-tag.yaml) tags each published chart version.
 when:
@@ -51,9 +51,10 @@ steps:
     commands:
       - |
         if ! ls .ci/rendered/*.yaml >/dev/null 2>&1; then echo "No rendered charts."; exit 0; fi
+        schema='https://raw.githubusercontent.com/datreeio/CRDs-catalog/main'
         /kubeconform -strict -summary -ignore-missing-schemas \
           -schema-location default \
-          -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+          -schema-location "$schema/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json" \
           .ci/rendered/*.yaml
 
   - name: kube-linter
