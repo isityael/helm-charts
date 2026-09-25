@@ -3,7 +3,7 @@
 #
 # Pull requests get only the charts they touch. Everything else (push,
 # manual, cron), an unknown merge base, or changes to shared CI inputs
-# (.ci/, .woodpecker/, mise.toml, ct.yaml, .kube-linter.yaml) yield all charts.
+# (.ci/, .woodpecker/, mise.toml, .kube-linter.yaml) yield all charts.
 set -euo pipefail
 
 all_charts() {

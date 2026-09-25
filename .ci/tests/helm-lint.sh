@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-script="${repo_root}/.ci/pre-commit/helm-lint.sh"
+script="${repo_root}/.ci/helm-lint.sh"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}" /tmp/helm-lint.out' EXIT
@@ -35,6 +35,9 @@ kind: ConfigMap
 metadata:
   name: demo
 YAML
+  mkdir -p "$workdir/charts/demo/charts" "$workdir/.ci"
+  printf 'vendored archive\n' >"$workdir/charts/demo/charts/child-1.0.0.tgz"
+  cp "${repo_root}/.ci/check-helm-dependencies.sh" "$workdir/.ci/"
 
   git -C "$workdir" add charts/demo
   git -C "$workdir" commit -qm "Initial chart"
@@ -73,14 +76,24 @@ OUT
     esac
     ;;
   dependency)
-    [ "\$2" = "build" ] || {
-      echo "unexpected helm dependency command: \$*" >&2
-      exit 2
-    }
-    mkdir -p "\$3/charts"
-    printf 'generated archive\n' > "\$3/charts/child-1.0.0.tgz"
+    case "\$2" in
+      list)
+        printf 'NAME\tVERSION\tREPOSITORY\tSTATUS\nchild\t1.0.0\trepo\tok\n'
+        ;;
+      build)
+        mkdir -p "\$3/charts"
+        printf 'rebuilt archive\n' > "\$3/charts/child-1.0.0.tgz"
+        ;;
+      *)
+        echo "unexpected helm dependency command: \$*" >&2
+        exit 2
+        ;;
+    esac
     ;;
-  lint)
+  show)
+    echo "name: child"
+    ;;
+  lint|template)
     ;;
   *)
     echo "unexpected helm command: \$*" >&2
@@ -102,7 +115,7 @@ test_repo_name_collision_uses_next_available_name() {
   printf '\nannotations: {}\n' >>"$workdir/charts/demo/Chart.yaml"
   git -C "$workdir" add charts/demo/Chart.yaml
 
-  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-lint.out 2>&1 ||
+  (cd "$workdir" && PATH="$bindir:$PATH" "$script" --staged) >/tmp/helm-lint.out 2>&1 ||
     fail "expected helm lint hook to avoid existing repo names"
 
   grep -qx "repo add repo-1 https://charts.christianhuth.de" "$log" ||
@@ -121,13 +134,13 @@ test_dhi_dependency_build_skipped_without_credentials() {
   rm -f "$workdir/charts/demo/Chart.yaml.bak"
   git -C "$workdir" add charts/demo/Chart.yaml
 
-  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script") >/tmp/helm-lint.out 2>&1 ||
+  (cd "$workdir" && env -u DHI_USERNAME -u DHI_PASSWORD PATH="$bindir:$PATH" "$script" --staged) >/tmp/helm-lint.out 2>&1 ||
     fail "expected the hook to skip DHI dependency builds without credentials"
 
   if grep -q "^dependency build " "$log"; then
     fail "expected the hook not to build DHI dependencies without credentials"
   fi
-  grep -Eq "^lint --with-subcharts .*/charts/demo$" "$log" ||
+  grep -Eq "^lint --with-subcharts charts/demo$" "$log" ||
     fail "expected the hook to lint vendored DHI dependencies"
 }
 
@@ -142,17 +155,16 @@ test_dependency_build_does_not_modify_checkout() {
   printf '\nannotations: {}\n' >>"$workdir/charts/demo/Chart.yaml"
   git -C "$workdir" add charts/demo/Chart.yaml
 
-  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >/tmp/helm-lint.out 2>&1 ||
+  (cd "$workdir" && PATH="$bindir:$PATH" "$script" --staged) >/tmp/helm-lint.out 2>&1 ||
     fail "expected dependency build and lint to succeed"
 
-  [[ ! -e "$workdir/charts/demo/charts/child-1.0.0.tgz" ]] ||
+  [[ "$(cat "$workdir/charts/demo/charts/child-1.0.0.tgz")" == "vendored archive" ]] ||
     fail "dependency validation must not rewrite vendored archives in the checkout"
   grep -q 'dependency build ' "$log" || fail "dependency validation must still run"
 }
 
 test_repo_name_collision_uses_next_available_name
 test_dhi_dependency_build_skipped_without_credentials
-
 test_dependency_build_does_not_modify_checkout
 
 echo "helm-lint tests passed"

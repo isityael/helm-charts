@@ -14,9 +14,6 @@ fail() {
 
 grep -q '^\[tasks\."helm:deps-update"\]$' "${repo_root}/mise.toml" ||
   fail "expected mise run helm:deps-update task"
-grep -A3 '^\[tasks\.helm-deps-update\]$' "${repo_root}/mise.toml" |
-  grep -q 'depends.*"helm:deps-update"' ||
-  fail "expected helm-deps-update compatibility alias"
 grep -q '^task\.run_auto_install[[:space:]]*=[[:space:]]*true$' "${repo_root}/mise.toml" ||
   fail "expected supported mise task.run_auto_install setting"
 if grep -q '^task_run_auto_install[[:space:]]*=' "${repo_root}/mise.toml"; then

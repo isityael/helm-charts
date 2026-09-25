@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-script="${repo_root}/.ci/pre-commit/chart-version-bump.sh"
+script="${repo_root}/.ci/chart-version-bump.sh"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}"' EXIT

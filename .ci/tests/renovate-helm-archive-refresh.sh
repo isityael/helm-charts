@@ -2,7 +2,7 @@
 set -euo pipefail
 
 config=renovate.json
-pipeline_script=.ci/woodpecker-helm-lint.sh
+pipeline_script=.ci/helm-lint.sh
 
 post_upgrade_contracts="$(yq -o=json -I=0 '[.packageRules[] | select(.postUpgradeTasks != null) | {"matchManagers": .matchManagers, "matchFileNames": .matchFileNames, "postUpgradeTasks": .postUpgradeTasks}]' "$config")"
 expected_post_upgrade_contracts='[{"matchManagers":["helmv3"],"matchFileNames":null,"postUpgradeTasks":{"commands":["node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"],"fileFilters":["{{{packageFileDir}}}/Chart.lock","{{{packageFileDir}}}/charts/**"],"executionMode":"update","installTools":{"helm":{}}}}]'
@@ -13,7 +13,7 @@ expected_post_upgrade_contracts='[{"matchManagers":["helmv3"],"matchFileNames":n
 }
 
 # This test itself runs via .ci/test-shell.sh (repository-contracts step).
-grep -Eqx 'bash \.ci/check-helm-dependencies\.sh( "\$\{selected\[@\]\}")?' "$pipeline_script" || {
+grep -Eqx 'bash "\$\{repo_root\}/\.ci/check-helm-dependencies\.sh" "\$\{selected\[@\]\}"' "$pipeline_script" || {
   echo "Woodpecker Helm lint does not run the dependency guard for pull requests" >&2
   exit 1
 }

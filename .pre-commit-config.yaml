@@ -33,14 +33,14 @@ repos:
     hooks:
       - id: chart-version-bump
         name: bump owning chart version for packaged chart changes
-        entry: .ci/pre-commit/chart-version-bump.sh
+        entry: .ci/chart-version-bump.sh
         language: system
         pass_filenames: false
         files: ^charts/[^/]+/
 
       - id: helm-lint
         name: helm lint (changed charts)
-        entry: .ci/pre-commit/helm-lint.sh
+        entry: .ci/helm-lint.sh --staged
         language: system
         pass_filenames: false
         files: ^charts/

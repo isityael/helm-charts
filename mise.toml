@@ -34,24 +34,13 @@ _.python.venv = { path = ".venv", create = true } # create the venv if it doesn'
 description = "Update Helm chart dependencies"
 run         = ".ci/helm-deps-update.sh"
 
-[tasks.helm-deps-update]
-description = "Compatibility alias for helm:deps-update"
-depends     = ["helm:deps-update"]
-
 [tasks.helm-deps-check]
 run         = ".ci/check-helm-dependencies.sh"
 description = "Verify committed Helm dependency archives match Chart.lock"
 
 [tasks.helm-lint]
-description = "Lint Helm charts"
-run = """
-set -euo pipefail
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
-  echo "Linting Helm chart ${chart}"
-  helm lint "${chart}" --with-subcharts --strict
-done
-"""
+description = "Lint and render Helm charts (all, or the charts given as arguments)"
+run         = ".ci/helm-lint.sh"
 
 [tasks.test-shell]
 run         = ".ci/test-shell.sh"
