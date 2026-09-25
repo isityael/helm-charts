@@ -1,34 +1,6 @@
 # This file demonstrates deploying the same chart to multiple environments
 # with different configurations.
 
-# OPTIONAL: App of Apps Pattern
-# Uncomment the following section if you want to use the App of Apps pattern.
-# You'll need to create the 'examples/argocd/apps' directory and place
-# individual Application manifests there.
-#
-# ---
-# apiVersion: argoproj.io/v1alpha1
-# kind: Application
-# metadata:
-#   name: example-app-of-apps
-#   namespace: argocd
-# spec:
-#   project: default
-#
-#   source:
-#     repoURL: 'https://github.com/isityael/helm-charts'
-#     path: examples/argocd/apps
-#     targetRevision: main
-#
-#   destination:
-#     server: https://kubernetes.default.svc
-#     namespace: argocd
-#
-#   syncPolicy:
-#     automated:
-#       prune: true
-#       selfHeal: true
-
 ---
 # Development Environment Application
 apiVersion: argoproj.io/v1alpha1
@@ -40,18 +12,32 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/isityael/helm-charts'
-    path: charts/example-app
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
+    path: charts/wakapi-dhi
     targetRevision: main
 
     helm:
       valueFiles:
         - values.yaml
+      values: |
+        config:
+          db:
+            host: postgres.example.com
+            user: wakapi
+            name: wakapi
+        existingSecrets:
+          dbPassword:
+            secretName: wakapi-secrets
+            key: db-password
+          passwordSalt:
+            secretName: wakapi-secrets
+            key: password-salt
+          cookieKey:
+            secretName: wakapi-secrets
+            key: cookie-key
       parameters:
         - name: replicaCount
           value: "1"
-        - name: image.tag
-          value: "latest"
         - name: resources.requests.memory
           value: "128Mi"
         - name: resources.requests.cpu
@@ -79,18 +65,32 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/isityael/helm-charts'
-    path: charts/example-app
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
+    path: charts/wakapi-dhi
     targetRevision: main
 
     helm:
       valueFiles:
         - values.yaml
+      values: |
+        config:
+          db:
+            host: postgres.example.com
+            user: wakapi
+            name: wakapi
+        existingSecrets:
+          dbPassword:
+            secretName: wakapi-secrets
+            key: db-password
+          passwordSalt:
+            secretName: wakapi-secrets
+            key: password-salt
+          cookieKey:
+            secretName: wakapi-secrets
+            key: cookie-key
       parameters:
         - name: replicaCount
           value: "2"
-        - name: image.tag
-          value: "v1.0.0"
         - name: resources.requests.memory
           value: "256Mi"
         - name: resources.requests.cpu
@@ -103,7 +103,7 @@ spec:
   syncPolicy:
     automated:
       prune: true
-      selfHeal: false  # Require manual approval for staging
+      selfHeal: false  # Disable automatic correction of live drift
     syncOptions:
       - CreateNamespace=true
 
@@ -118,18 +118,32 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/isityael/helm-charts'
-    path: charts/example-app
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
+    path: charts/wakapi-dhi
     targetRevision: main
 
     helm:
       valueFiles:
         - values.yaml
+      values: |
+        config:
+          db:
+            host: postgres.example.com
+            user: wakapi
+            name: wakapi
+        existingSecrets:
+          dbPassword:
+            secretName: wakapi-secrets
+            key: db-password
+          passwordSalt:
+            secretName: wakapi-secrets
+            key: password-salt
+          cookieKey:
+            secretName: wakapi-secrets
+            key: cookie-key
       parameters:
         - name: replicaCount
           value: "3"
-        - name: image.tag
-          value: "v1.0.0"
         - name: autoscaling.enabled
           value: "true"
         - name: autoscaling.minReplicas
@@ -152,7 +166,7 @@ spec:
   syncPolicy:
     automated:
       prune: false  # Never auto-prune in production
-      selfHeal: false  # Require manual approval for production
+      selfHeal: false  # Disable automatic correction of live drift
     syncOptions:
       - CreateNamespace=true
     retry:

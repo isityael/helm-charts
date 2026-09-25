@@ -13,10 +13,10 @@ spec:
   # Source of the application manifests
   source:
     # Repository URL
-    repoURL: 'https://github.com/isityael/helm-charts'
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
 
     # Path to the Helm chart
-    path: charts/example-app
+    path: charts/wakapi-dhi
 
     # Git branch/tag/commit to use
     targetRevision: main
@@ -26,19 +26,31 @@ spec:
       # Values files to use (relative to the chart path)
       valueFiles:
         - values.yaml
+      values: |
+        config:
+          db:
+            host: postgres.example.com
+            user: wakapi
+            name: wakapi
+        existingSecrets:
+          dbPassword:
+            secretName: wakapi-secrets
+            key: db-password
+          passwordSalt:
+            secretName: wakapi-secrets
+            key: password-salt
+          cookieKey:
+            secretName: wakapi-secrets
+            key: cookie-key
 
       # Optional: Override specific values
       # parameters:
-      #   - name: image.tag
-      #     value: "v1.0.0"
       #   - name: replicaCount
       #     value: "3"
 
       # Optional: Pass values inline
       # values: |
       #   replicaCount: 3
-      #   image:
-      #     tag: v1.0.0
 
   # Destination cluster and namespace
   destination:

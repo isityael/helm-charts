@@ -1,4 +1,27 @@
-## [unreleased]
+# Chart release history
+
+Charts are versioned independently. The current version of each chart is in
+`charts/<chart>/Chart.yaml`; there is no repository-wide release version.
+
+Woodpecker validates changes and publishes new chart versions to
+`oci://ghcr.io/isityael/charts` through `.woodpecker/release-all.yaml`.
+After the build and publish pipelines succeed, `.forgejo/workflows/release-tag.yaml`
+creates `<chart>-v<version>` tags in the canonical
+[Forgejo repository](https://git.m0sh1.cc/isityael/helm-charts/tags).
+
+Use `mise run changelog` for current chart commit history, or
+`git log --oneline -- charts/<chart>` for one chart. Review a release with
+`git diff <chart>-v<previous> <chart>-v<version> -- charts/<chart>`.
+
+## Historical snapshot (through 2026-07-06)
+
+The generated entries below are retained as history. Their old release headings
+sometimes group commits from multiple charts; they are not a current release
+index. The legacy "unreleased" section is frozen, and historical references to
+manual tags, GitHub release pipelines, and removed charts no longer describe the
+current release process.
+
+## Historical unreleased entries
 
 ### 🚀 Features
 

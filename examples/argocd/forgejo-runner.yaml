@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/isityael/helm-charts'
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
     path: charts/forgejo-runner
     targetRevision: main
     helm:

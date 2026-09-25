@@ -7,21 +7,42 @@ spec:
   project: default
 
   source:
-    repoURL: 'https://github.com/isityael/helm-charts'
-    path: charts/example-app
+    repoURL: 'https://git.m0sh1.cc/isityael/helm-charts'
+    path: charts/wakapi-dhi
     targetRevision: main
 
     helm:
       # Use default values.yaml plus custom overrides
       valueFiles:
         - values.yaml
+      values: |
+        ingress:
+          className: traefik
+          hosts:
+            - host: wakapi.example.com
+              paths:
+                - path: /
+                  pathType: Prefix
+        config:
+          db:
+            host: postgres.example.com
+            user: wakapi
+            name: wakapi
+        existingSecrets:
+          dbPassword:
+            secretName: wakapi-secrets
+            key: db-password
+          passwordSalt:
+            secretName: wakapi-secrets
+            key: password-salt
+          cookieKey:
+            secretName: wakapi-secrets
+            key: cookie-key
 
       # Override specific values using parameters
       parameters:
         - name: replicaCount
           value: "3"
-        - name: image.tag
-          value: "v2.0.0"
         - name: service.type
           value: "LoadBalancer"
         - name: ingress.enabled
@@ -33,11 +54,9 @@ spec:
         - name: autoscaling.maxReplicas
           value: "10"
 
-      # Alternatively, you can provide inline values
+      # Additional overrides can also be provided inline
       # values: |
       #   replicaCount: 3
-      #   image:
-      #     tag: v2.0.0
       #   service:
       #     type: LoadBalancer
       #   ingress:

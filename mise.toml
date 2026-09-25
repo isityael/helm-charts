@@ -50,64 +50,10 @@ description = "Run shell script tests"
 run         = "kube-linter lint .ci/rendered --config .kube-linter.yaml"
 description = "Lint rendered Kubernetes manifests with the repository policy"
 
-# === Changelog tasks ===
+# Chart releases have independent versions and automated Forgejo tags.
 [tasks.changelog]
-description = "Update unreleased section of CHANGELOG.md"
-run = """
-set -euo pipefail
-echo "📝 Updating CHANGELOG.md with unreleased changes..."
-
-# Check if CHANGELOG.md exists
-if [ ! -f CHANGELOG.md ]; then
-  echo "⚠️  CHANGELOG.md not found. Generating initial changelog..."
-  git-cliff -o CHANGELOG.md
-  echo "✅ Initial CHANGELOG.md created!"
-  exit 0
-fi
-
-# Regenerate the entire changelog to include new unreleased commits
-git-cliff -o CHANGELOG.md
-echo "✅ CHANGELOG.md updated!"
-"""
-
-[tasks.changelog-bump]
-description = "Bump version and update changelog for a release"
-run = """
-set -euo pipefail
-
-if [ -z "${1:-}" ]; then
-  echo "❌ Error: Version number required"
-  echo ""
-  echo "Usage: mise run changelog-bump <version>"
-  echo "Example: mise run changelog-bump 0.1.4"
-  exit 1
-fi
-
-VERSION="$1"
-
-# Validate version format (basic semver check)
-if ! echo "$VERSION" | grep -qE '^[0-9]+\\.[0-9]+\\.[0-9]+$'; then
-  echo "❌ Error: Invalid version format. Expected: X.Y.Z (e.g., 0.1.4)"
-  exit 1
-fi
-
-echo "📝 Creating release v$VERSION..."
-
-# Generate changelog for the new version
-git-cliff --tag "v$VERSION" -o CHANGELOG.md
-
-echo "✅ CHANGELOG.md updated for v$VERSION!"
-echo ""
-echo "Next steps:"
-echo "  1. Review CHANGELOG.md"
-echo "  2. Update any versioned references in docs/manifests if applicable"
-echo "  3. Commit changes:"
-echo "     git add CHANGELOG.md && git commit -m 'chore: release v$VERSION'"
-echo "  4. Create annotated tag:"
-echo "     git tag -a v$VERSION -m 'Release v$VERSION'"
-echo "  5. Push to GitHub:"
-echo "     git push && git push --tags"
-"""
+description = "Show current chart commit history (CHANGELOG.md retains a historical snapshot)"
+run = "git log --oneline --decorate -- charts/"
 
 [tasks.markdown-lint]
 description = "Lint Markdown files"
