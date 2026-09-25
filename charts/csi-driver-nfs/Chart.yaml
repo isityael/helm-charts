@@ -4,7 +4,7 @@ description: CSI NFS Driver for Kubernetes (isityael fork with configurable fsGr
 icon: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/logo/logo.png
 home: https://github.com/kubernetes-sigs/csi-driver-nfs
 type: application
-version: 4.14.9
+version: 4.14.10
 appVersion: "4.14.0-sm3"
 kubeVersion: ">=1.21.0-0"
 maintainers:
@@ -18,3 +18,15 @@ keywords:
   - csi
   - storage
   - kubernetes
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Add Artifact Hub license and links annotations.
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Upstream
+      url: https://github.com/kubernetes-csi/csi-driver-nfs
+    - name: Fork
+      url: https://github.com/isityael/csi-driver-nfs
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/csi-driver-nfs

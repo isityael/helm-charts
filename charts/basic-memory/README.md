@@ -9,7 +9,7 @@ This chart ships the upstream Basic Memory server with two **optional** sidecar 
 
 Both profiles are **disabled by default**. A plain `helm install` gives you a single clean Basic Memory pod and nothing else.
 
-## TL;DR
+## Install
 
 This chart is published as an **OCI artifact** on GitHub Container Registry. Helm 3.8+ can install directly from OCI — no `helm repo add` needed:
 
@@ -20,12 +20,12 @@ helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory
 Or pin a specific version:
 
 ```bash
-helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory --version 0.3.7
+helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory --version <version>
 ```
 
 See [all available versions](https://github.com/isityael/helm-charts/pkgs/container/charts%2Fbasic-memory) on GHCR.
 
-## Prerequisites
+## Requirements
 
 - Kubernetes 1.28+
 - A default `StorageClass` (or set `persistence.storageClass` and `basicMemoryHome.storageClass`)
@@ -275,6 +275,13 @@ See [`examples/`](./examples/) for full values files covering:
 - `gateway-api.yaml` — exposing Basic Memory with Gateway API HTTPRoute
 - `traefik-forward-auth.yaml` — protecting the ingress with Authentik/Authelia forward-auth
 - `full-stack.yaml` — all three components enabled
+
+## Tests
+
+`helm test <release>` runs a pod that checks the Service accepts TCP
+connections (the server has no HTTP health endpoint). Disable it with
+`tests.enabled=false`. Argo CD ignores Helm test hooks, so GitOps syncs never
+create the pod.
 
 ## Credits
 

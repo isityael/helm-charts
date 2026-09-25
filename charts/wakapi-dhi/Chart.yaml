@@ -4,7 +4,7 @@ description: Public Helm chart for the isityael Wakapi DHI distribution
 home: https://wakapi.dev
 icon: https://wakapi.dev/assets/images/logo.svg
 type: application
-version: 1.2.39
+version: 1.3.0
 appVersion: "2.18.0-yael.1"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -19,3 +19,17 @@ keywords:
   - coding-statistics
   - time-tracking
   - hardened
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: Helm test pod for `helm test` (`tests.enabled`); Argo CD ignores it.
+    - kind: changed
+      description: Add Artifact Hub license and links annotations.
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Wakapi
+      url: https://wakapi.dev
+    - name: Image source
+      url: https://git.m0sh1.cc/isityael/wakapi-dhi
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/wakapi-dhi

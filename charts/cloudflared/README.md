@@ -84,3 +84,9 @@ ingress:
     service: http://homepage.default.svc.cluster.local:3000
   - service: http_status:404
 ```
+
+## Tests
+
+`helm test <release>` runs a pod that requests `/ready` on the metrics Service. It renders only when the metrics Service exists (`metrics.service.enabled` or `metrics.serviceMonitor.enabled`). Disable it with
+`tests.enabled=false`. Argo CD ignores Helm test hooks, so GitOps syncs never
+create the pod.

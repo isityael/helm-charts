@@ -146,6 +146,11 @@ cnpg:
 
   databaseAnnotations: {}
 
+  # Helm test pod (`helm test <release>`): pg_isready against the primary and
+  # pooler, using the operand image. Argo CD ignores test hooks.
+  tests:
+    enabled: true
+
   pgbouncer:
     enabled: true
     replicas: 1

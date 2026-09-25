@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.43
+version: 0.1.44
 appVersion: "15.0.2"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/
@@ -31,7 +31,7 @@ annotations:
     - name: Upstream Helm chart
       url: https://code.forgejo.org/forgejo-helm/forgejo-helm
     - name: Custom image source
-      url: https://git.m0sh1.cc/m0sh1/infra-cli
+      url: https://git.m0sh1.cc/isityael/infra-cli
   artifacthub.io/images: |
     - name: forgejo
       image: ghcr.io/isityael/forgejo:2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07
@@ -40,38 +40,8 @@ annotations:
     - name: forgejo-job-alpine
       image: ghcr.io/isityael/forgejo-job-alpine:3.23
   artifacthub.io/changes: |
-    - kind: added
-      description: Add improved Forgejo wrapper chart based on upstream Forgejo Helm chart 17.1.0.
-    - kind: added
-      description: >-
-        Default to the custom ghcr.io/isityael/forgejo rootless-compatible image without upstream's automatic
-        -rootless suffix.
-    - kind: added
-      description: Include optional forgejo-runner subchart dependency for co-deploying Actions runners.
     - kind: changed
-      description: Depend on forgejo-runner chart 0.1.3 with the m0sh1.cc custom runner image default.
-    - kind: changed
-      description: Depend on forgejo-runner chart 0.1.4 with the m0sh1.cc Forgejo Runner 12.10.1 custom image.
-    - kind: changed
-      description: Depend on forgejo-runner chart 0.1.9 with the m0sh1.cc Forgejo Runner 12.12.0 custom image.
-    - kind: changed
-      description: Vendor forgejo-runner chart 0.1.10 to match Chart.lock.
-    - kind: changed
-      description: Default the optional runner labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
-    - kind: fixed
-      description: Depend on forgejo-runner 0.1.11 to fix duplicate Docker daemon listener bindings.
-    - kind: fixed
-      description: Depend on forgejo-runner 0.1.12 so runner PVC rollouts use a Recreate strategy.
-    - kind: fixed
-      description: Depend on forgejo-runner 0.1.13 to clear stale rollingUpdate state during migration.
-    - kind: fixed
-      description: Vendor forgejo-runner 0.1.14 so the checked-in dependency matches Chart.lock.
-    - kind: fixed
-      description: Vendor forgejo-runner 0.1.15 so the checked-in dependency matches Chart.lock.
-    - kind: fixed
-      description: Vendor forgejo-runner 0.1.18 so the checked-in dependency matches Chart.lock.
-    - kind: fixed
-      description: Vendor forgejo 17.1.7 so the checked-in dependency matches Chart.lock.
+      description: README gains a Configuration section; custom image link points at the isityael org.
 dependencies:
   - name: forgejo
     version: 17.1.7

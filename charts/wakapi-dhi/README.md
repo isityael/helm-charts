@@ -259,3 +259,9 @@ serviceMonitor:
 - `appVersion` changed to `2.17.3-yaelmoshi.2`.
 - Existing values remain compatible. Set `image.repository: ghcr.io/muety/wakapi` and an upstream tag to keep using the upstream image.
 - The chart schema now validates common values more strictly while still allowing additional Wakapi config keys under `config`.
+
+## Tests
+
+`helm test <release>` runs a pod that requests the readiness path (`probes.readiness.path`) through the Service. Disable it with
+`tests.enabled=false`. Argo CD ignores Helm test hooks, so GitOps syncs never
+create the pod.

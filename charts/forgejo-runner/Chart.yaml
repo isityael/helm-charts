@@ -4,7 +4,7 @@ description: Helm chart for Forgejo Actions runner with optional Docker-in-Docke
 icon: https://forgejo.org/favicon.png
 home: https://forgejo.org/docs/latest/admin/actions/
 type: application
-version: 0.1.21
+version: 0.1.22
 appVersion: "12.12.0"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -38,26 +38,5 @@ annotations:
     - name: docker-dind
       image: docker:29.6.1-dind-alpine3.24@sha256:66d292e5c26bd33a6f6f61cacb880de2186339a524ecba1ce098dbbaceed6515
   artifacthub.io/changes: |
-    - kind: added
-      description: Add a public Forgejo Runner chart with digest-pinned runner and Docker-in-Docker images.
-    - kind: added
-      description: Render Forgejo Runner config.yaml and support registration tokens from existing Kubernetes Secrets.
     - kind: changed
-      description: Default to the m0sh1.cc CVE-patched Forgejo Runner image.
-    - kind: added
-      description: Support namespaceOverride for runner deployments that keep CI workloads in a dedicated namespace.
-    - kind: changed
-      description: Default to the m0sh1.cc Forgejo Runner 12.12.0 custom image.
-    - kind: changed
-      description: Default Docker job labels to the m0sh1.cc DHI-based Forgejo job Alpine image.
-    - kind: fixed
-      description: Let the official DinD entrypoint configure its listeners to avoid duplicate port 2375 bindings.
-    - kind: changed
-      description: Upgrade Docker-in-Docker to 29.6.1 on Alpine 3.24.
-    - kind: fixed
-      description: >-
-        Default to a Recreate deployment strategy so a single ReadWriteOnce runner PVC can move between revisions.
-    - kind: fixed
-      description: Clear the previous rollingUpdate field when switching an existing Deployment to Recreate.
-    - kind: fixed
-      description: Align registry authentication with DOCKER_CONFIG and preserve an explicit zero replica count.
+      description: README gains Install and Configuration sections.

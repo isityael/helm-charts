@@ -17,10 +17,17 @@ sources:
   - https://github.com/sergelogvinov/proxmox-csi-plugin
   - https://github.com/isityael/proxmox-csi-plugin
 type: application
-version: 0.5.92
+version: 0.5.93
+kubeVersion: ">=1.28.0-0"
 annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Upstream
+      url: https://github.com/sergelogvinov/proxmox-csi-plugin
+    - name: Fork
+      url: https://github.com/isityael/proxmox-csi-plugin
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/proxmox-csi-plugin
   artifacthub.io/changes: |
-    - kind: security
-      description: Require existing Secrets for Proxmox credentials and mount them read-only.
-    - kind: fixed
-      description: Add supported CSI liveness checks to controller and node workloads.
+    - kind: changed
+      description: Add kubeVersion and Artifact Hub annotations; README uses the standard sections.

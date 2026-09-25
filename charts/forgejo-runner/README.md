@@ -14,6 +14,13 @@ non-root runner container by default.
 - A Forgejo instance with Actions enabled
 - A Kubernetes Secret containing a Forgejo Runner registration token, unless `runner.existingRunnerSecret` provides a pre-registered `.runner` file
 
+## Install
+
+```bash
+helm install forgejo-runner oci://ghcr.io/isityael/charts/forgejo-runner \
+  --namespace forgejo-runners --create-namespace -f values.yaml
+```
+
 ## Notes
 
 - Forgejo Runner executes remote workflow code. Treat every runner as a privileged workload boundary.
@@ -22,7 +29,7 @@ non-root runner container by default.
 - Provide registry authentication via `registryAuthSecret` and custom CA bundles via `registryCASecret`.
 - Runner labels use Forgejo's `<label>:<type>://<image>` format, for example `docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23`.
 
-## Values (overview)
+## Configuration
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |

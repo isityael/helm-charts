@@ -2,7 +2,7 @@ apiVersion: v2
 name: csi-s3
 description: Maintained k8s-csi-s3 wrapper with an owned driver image and multiple StorageClasses
 type: application
-version: 0.1.14
+version: 0.1.15
 appVersion: "0.43.8-ym.3"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/isityael/k8s-csi-s3
@@ -19,11 +19,17 @@ keywords:
   - storage
   - kubernetes
 annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Upstream
+      url: https://github.com/yandex-cloud/k8s-csi-s3
+    - name: Fork
+      url: https://github.com/isityael/k8s-csi-s3
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/csi-s3
   artifacthub.io/changes: |
-    - kind: added
-      description: >-
-        Support an optional immutable digest for the maintained CSI driver
-        image while preserving its version tag.
+    - kind: changed
+      description: Add Artifact Hub license and links annotations.
 dependencies:
   - name: csi-s3
     alias: upstream

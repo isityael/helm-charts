@@ -61,3 +61,9 @@ ingress:
       hosts:
         - tailscale-webhook.example.com
 ```
+
+## Tests
+
+`helm test <release>` runs a pod that requests `/healthz` through the Service. Disable it with
+`tests.enabled=false`. Argo CD ignores Helm test hooks, so GitOps syncs never
+create the pod.

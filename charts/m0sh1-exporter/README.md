@@ -16,10 +16,19 @@ Proxmox VE exporter integrations.
 
 ```bash
 helm install m0sh1-exporter oci://ghcr.io/isityael/charts/m0sh1-exporter \
-  --version 0.1.7 \
   --namespace monitoring \
   --create-namespace
 ```
+
+## Configuration
+
+| Key | Purpose |
+| --- | --- |
+| `opnsenseExporter.*` | OPNsense exporter: image, OPNsense address and API Secret, Service port, ServiceMonitor/VMServiceScrape, resources |
+| `snmpExporter.*` | Values for the upstream `prometheus-snmp-exporter` chart |
+| `pveexporter.*` | Values for the upstream `prometheus-pve-exporter` chart |
+| `serviceAccount.*`, `podSecurityContext`, `nodeSelector`, `podAnnotations` | Pod settings for the OPNsense exporter |
+| `tests.*` | Helm test pod |
 
 ## Values Example
 
@@ -60,3 +69,9 @@ Secrets. Do not put OPNsense or Proxmox tokens directly into values files.
 The chart supports Prometheus `ServiceMonitor` resources and VictoriaMetrics
 `VMServiceScrape` resources. Enable only the scrape type used by the target
 cluster.
+
+## Tests
+
+`helm test <release>` runs a pod that fetches the OPNsense exporter's `/metrics`, which also proves the exporter can reach the OPNsense API. Disable it with
+`tests.enabled=false`. Argo CD ignores Helm test hooks, so GitOps syncs never
+create the pod.

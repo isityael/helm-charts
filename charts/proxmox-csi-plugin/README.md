@@ -1,7 +1,5 @@
 # proxmox-csi-plugin
 
-![Version: 0.5.8-sm.1](https://img.shields.io/badge/Version-0.5.8--sm.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 8cd297d](https://img.shields.io/badge/AppVersion-8cd297d-informational?style=flat-square)
-
 Container Storage Interface plugin for Proxmox (isityael fork)
 
 The Container Storage Interface (CSI) plugin is a specification designed to standardize the way container orchestration systems like Kubernetes, interact with different storage systems. The CSI plugin abstracts the underlying storage, enabling the seamless integration of different storage solutions (such as local block devices, file systems, or cloud-based storage) with containerized applications.
@@ -30,7 +28,12 @@ Supported storage types:
 - <https://github.com/sergelogvinov/proxmox-csi-plugin>
 - <https://github.com/isityael/proxmox-csi-plugin>
 
-## Proxmox permissions
+## Requirements
+
+- Kubernetes `>=1.28.0-0`
+- A namespace that allows privileged pods (the node plugin mounts host
+  devices)
+- A Proxmox VE user and token with the role below
 
 ```shell
 # Create role CSI
@@ -44,7 +47,7 @@ pveum aclmod / -user kubernetes-csi@pve -role CSI
 pveum user token add kubernetes-csi@pve csi -privsep 0
 ```
 
-## Helm values example
+## Values example
 
 ```yaml
 # proxmox-csi.yaml
@@ -86,7 +89,7 @@ storageClass:
     cache: writethrough
 ```
 
-## Deploy
+## Install
 
 ```shell
 # Prepare namespace
@@ -97,7 +100,7 @@ helm upgrade -i --namespace=csi-proxmox -f proxmox-csi.yaml \
     proxmox-csi-plugin oci://ghcr.io/isityael/charts/proxmox-csi-plugin
 ```
 
-## Values
+## Configuration
 
 | Key                               | Type   | Default                                                                                                                                                                                                                                                  | Description                                                                                                                                                                                              |
 | --------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

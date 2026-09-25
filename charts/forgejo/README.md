@@ -21,8 +21,18 @@ This chart wraps the upstream Forgejo Helm chart and adds m0sh1.cc defaults:
 ## Install
 
 ```bash
-helm install forgejo oci://ghcr.io/isityael/charts/forgejo --version 0.1.11
+helm install forgejo oci://ghcr.io/isityael/charts/forgejo
 ```
+
+## Configuration
+
+| Key | Purpose |
+| --- | --- |
+| `forgejo.*` | Values for the upstream Forgejo chart (image, `gitea.config`, persistence, ingress/HTTPRoute, metrics) |
+| `forgejo.image.*` | Custom image reference; `rootless: true` without the upstream `-rootless` tag suffix |
+| `forgejo.test.image.*` | Pinned image for the upstream `helm test` pod |
+| `runner.enabled` | Deploys the optional `forgejo-runner` subchart |
+| `runner.*` | Values for [`forgejo-runner`](../forgejo-runner/README.md) |
 
 ## Values Example
 

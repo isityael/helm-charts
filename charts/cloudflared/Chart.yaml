@@ -4,7 +4,7 @@ description: Helm chart for Cloudflare Tunnel connector (cloudflared)
 icon: https://www.cloudflare.com/img/cf-facebook-card.png
 home: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
 type: application
-version: 1.4.20
+version: 1.5.0
 appVersion: "2026.9.3"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -18,3 +18,15 @@ keywords:
   - tunnel
   - ingress
   - cloudflared
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: Helm test pod for `helm test` (`tests.enabled`); Argo CD ignores it.
+    - kind: changed
+      description: Add Artifact Hub license and links annotations.
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: cloudflared
+      url: https://github.com/cloudflare/cloudflared
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/cloudflared

@@ -26,7 +26,7 @@ One chart for a complete CloudNativePG setup, shared by the m0sh1 clusters
 ## Install
 
 ```bash
-helm install cnpg oci://ghcr.io/isityael/charts/cnpg-stack --version 0.14.1 \
+helm install cnpg oci://ghcr.io/isityael/charts/cnpg-stack --version 0.15.0 \
   --namespace cnpg-system --create-namespace -f values.yaml
 ```
 
@@ -36,7 +36,7 @@ nest all values under `cnpg-stack:`:
 ```yaml
 dependencies:
   - name: cnpg-stack
-    version: 0.14.1
+    version: 0.15.0
     repository: oci://ghcr.io/isityael/charts
 ```
 
@@ -105,6 +105,13 @@ cnpg:
   metrics:
     releaseLabel: kube-prometheus-stack
 ```
+
+## Tests
+
+`helm test <release>` runs `pg_isready` from the operand image against the
+`<cluster>-rw` Service and, when PgBouncer is enabled, the `<cluster>-pooler`
+Service. Disable it with `cnpg.tests.enabled=false`. Argo CD ignores Helm test
+hooks, so GitOps syncs never create the pod.
 
 ## Upgrade notes
 

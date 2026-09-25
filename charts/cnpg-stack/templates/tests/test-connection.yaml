@@ -1,0 +1,48 @@
+{{- if and .Values.cnpg.tests.enabled .Values.cnpg.cluster.enabled }}
+# Run with `helm test <release>`. Argo CD ignores Helm test hooks.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.cnpg.cluster.name }}-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: cnpg-stack
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: test
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: test
+      image: {{ .Values.cnpg.cluster.imageName | quote }}
+      # The operand image ships pg_isready. Checks the primary and the pooler.
+      command: [sh, -c]
+      args:
+        - >-
+          pg_isready -t 10 -h {{ .Values.cnpg.cluster.name }}-rw.{{ .Values.cnpg.cluster.namespace }}.svc -p 5432
+          {{- if .Values.cnpg.pgbouncer.enabled }}
+          && pg_isready -t 10 -h {{ .Values.cnpg.cluster.name }}-pooler.{{ .Values.cnpg.cluster.namespace }}.svc -p 5432
+          {{- end }}
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+{{- end }}

@@ -2,11 +2,11 @@ apiVersion: v2
 name: m0sh1-exporter
 description: Network exporters bundle for OPNsense, SNMP, and Proxmox VE
 type: application
-version: 0.1.44
+version: 0.2.0
 appVersion: "0.0.15-m0sh1.3"
 kubeVersion: ">=1.28.0-0"
 icon: https://opnsense.org/wp-content/themes/flavor/assets/images/opnsense.png
-home: https://git.m0sh1.cc/m0sh1/helm-charts
+home: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/m0sh1-exporter
 sources:
   - https://github.com/AthennaMind/opnsense-exporter
   - https://github.com/prometheus/snmp_exporter
@@ -21,15 +21,23 @@ keywords:
   - proxmox
   - prometheus
 annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: OPNsense exporter
+      url: https://github.com/AthennaMind/opnsense-exporter
+    - name: SNMP exporter
+      url: https://github.com/prometheus/snmp_exporter
+    - name: PVE exporter
+      url: https://github.com/prometheus-pve/prometheus-pve-exporter
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/m0sh1-exporter
   artifacthub.io/changes: |
-    - kind: fixed
-      description: Verify Forgejo release tags without requiring a mirrored GitHub tag.
-    - kind: fixed
-      description: Vendor the declared prometheus-snmp-exporter 9.18.0 dependency.
-    - kind: fixed
-      description: Use a dedicated non-automount ServiceAccount for the PVE exporter.
-    - kind: security
-      description: Harden all exporter pods and disable unnecessary Kubernetes API credential mounts.
+    - kind: added
+      description: Helm test pod fetching the OPNsense exporter /metrics (`tests.enabled`).
+    - kind: changed
+      description: Add Artifact Hub license and links annotations.
+    - kind: changed
+      description: README gains a Configuration section.
 dependencies:
   - name: prometheus-snmp-exporter
     alias: snmpExporter

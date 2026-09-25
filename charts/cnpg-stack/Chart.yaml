@@ -3,7 +3,7 @@ name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
 icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
-version: 0.14.1
+version: 0.15.0
 appVersion: "1.30.0"
 kubeVersion: ">=1.29.0-0"
 maintainers:
@@ -15,18 +15,25 @@ keywords:
   - pgbouncer
   - barman
   - backup
+home: https://cloudnative-pg.io
+sources:
+  - https://github.com/cloudnative-pg/cloudnative-pg
+  - https://github.com/cloudnative-pg/plugin-barman-cloud
+  - https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/cnpg-stack
 annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: CloudNativePG
+      url: https://cloudnative-pg.io
+    - name: Barman Cloud plugin
+      url: https://github.com/cloudnative-pg/plugin-barman-cloud
+    - name: Chart source
+      url: https://git.m0sh1.cc/isityael/helm-charts/src/branch/main/charts/cnpg-stack
   artifacthub.io/changes: |
-    - kind: changed
-      description: Rebuild from the live cnpg-root/cnpg-home templates (zero rendered diff).
     - kind: added
-      description: Pooler PDB, anti-affinity and topology spread; manual Backup; configurable scrapes.
+      description: Helm test pod running pg_isready against the primary and pooler (`cnpg.tests.enabled`).
     - kind: changed
-      description: Database names map "_" to "-"; hash suffix only beyond 63 characters.
-    - kind: fixed
-      description: Render no operator Grafana dashboard when this chart is itself a dependency.
-    - kind: changed
-      description: Neutral operator and Cluster monitoring defaults; PgBouncer minPoolSize 0 and serverIdleTimeout 300.
+      description: Add home, sources and Artifact Hub annotations.
 dependencies:
   - name: cloudnative-pg-chart
     alias: cloudnative-pg

@@ -8,7 +8,7 @@ description: |
 home: https://memory.basicmachines.co
 icon: https://avatars.githubusercontent.com/u/180160560
 type: application
-version: 0.3.74
+version: 0.4.0
 appVersion: "0.23.2"
 kubeVersion: ">=1.28.0-0"
 maintainers:
@@ -42,15 +42,7 @@ annotations:
     - name: Chart source
       url: https://github.com/isityael/helm-charts/tree/main/charts/basic-memory
   artifacthub.io/changes: |
-    - kind: security
-      description: Bound MCP shim request bodies and client session state.
+    - kind: added
+      description: Helm test pod for `helm test` (`tests.enabled`); Argo CD ignores it.
     - kind: changed
-      description: Refresh the pinned DHI CouchDB image digest.
-    - kind: fixed
-      description: Accept Helm global values and Kubernetes seccomp profiles in the strict values schema.
-    - kind: fixed
-      description: Persist LiveSync checkpoints on the Basic Memory data PVC and expose configurable health probes.
-    - kind: security
-      description: Enforce LiveSync path exclusions on both CouchDB and filesystem peers.
-    - kind: security
-      description: Disable CouchDB CORS by default and reject credentialed wildcard origins.
+      description: README uses the standard Install/Requirements sections.
