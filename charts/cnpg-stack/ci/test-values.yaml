@@ -9,6 +9,7 @@ cnpg:
     name: cnpg-ci
     namespace: default
     instances: 1
+    livenessProbeTimeout: 90
     storage:
       class: standard
       size: 1Gi
@@ -20,6 +21,9 @@ cnpg:
       immediate: true
       destinationPath: s3://cnpg-ci/
       endpointURL: http://minio.default.svc.cluster.local:9000
+      manual:
+        enabled: true
+        name: cnpg-ci-backup-manual
     monitoring:
       enablePodMonitor: true
   roles:
@@ -35,6 +39,14 @@ cnpg:
       owner: ci_reader
   pgbouncer:
     enabled: true
-    replicas: 1
+    # Two replicas exercise the PodDisruptionBudget and anti-affinity paths.
+    replicas: 2
     metrics:
       enabled: true
+    affinity:
+      enablePodAntiAffinity: true
+      podAntiAffinityType: preferred
+  metrics:
+    releaseLabel: kube-prometheus-stack
+    clusterScrape:
+      name: cnpg-ci-cluster-metrics

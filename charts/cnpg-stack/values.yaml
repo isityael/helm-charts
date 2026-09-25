@@ -1,8 +1,15 @@
 # CNPG operator dependency values
 cloudnative-pg:
   imagePullSecrets: []
-  updateStrategy:
-    type: Recreate
+  # The operator chart ships its Grafana dashboard as a nested subchart
+  # gated by this condition. Set it explicitly: when cnpg-stack is itself a
+  # dependency (three chart levels), Helm cannot see the operator chart's own
+  # default and would render the dashboard ConfigMap.
+  monitoring:
+    grafanaDashboard:
+      create: false
+  # Operator Deployment strategy is left at the upstream default; set e.g.
+  # updateStrategy: {type: Recreate} to avoid two operators during rollouts.
   resources:
     requests:
       cpu: 50m
@@ -42,6 +49,15 @@ cnpg:
     psqlImage: dhi.io/postgres:18.6-alpine3.24@sha256:c7a3bdacc95c194d9a83ea000f5fdfc40def1cd1900c1d905ce77a7568d07739
     enableSuperuserAccess: true
     imagePullSecrets: []
+    # Optional Cluster settings, rendered only when set:
+    # primaryUpdateStrategy: unsupervised
+    # primaryUpdateMethod: switchover   # promote the updated standby on image updates
+    # priorityClassName: ""
+    # livenessProbeTimeout: 90          # seconds; failure threshold = ceil(value / 10)
+    # annotations: {}
+    # tolerations: []
+    # affinity: {}                      # CNPG Cluster affinity (enablePodAntiAffinity, topologyKey, ...)
+    # topologySpreadConstraints: []
 
     storage:
       class: local-path
@@ -51,8 +67,10 @@ cnpg:
       class: local-path
       size: 5Gi
 
-    monitoring:
-      enablePodMonitor: true
+    # CNPG's own generated PodMonitor (needs the Prometheus Operator CRDs).
+    # Unset by default; cnpg.metrics.clusterScrape below covers most setups.
+    # monitoring:
+    #   enablePodMonitor: true
 
     resources:
       requests:
@@ -117,6 +135,10 @@ cnpg:
         env:
           - name: AWS_DEFAULT_REGION
             value: us-east-1
+      # One-off Backup CR (GitOps-triggered). Disable after the run completes.
+      manual:
+        enabled: false
+        # name: <cluster>-backup-manual
 
   roles: []
 
@@ -133,11 +155,18 @@ cnpg:
     poolMode: transaction
     maxClientConn: 1000
     defaultPoolSize: 20
-    minPoolSize: 5
+    # Keep 0: a non-zero floor makes PgBouncer hold idle backends until
+    # PostgreSQL's idle_session_timeout terminates them.
+    minPoolSize: 0
     reservePoolSize: 5
     maxDbConnections: 50
     serverLifetime: 3600
-    serverIdleTimeout: 600
+    # Keep below PostgreSQL's idle_session_timeout so PgBouncer closes
+    # server sockets first.
+    serverIdleTimeout: 300
+    # Bump to force a pooler rollout (e.g. to refresh the auth cache after
+    # credential rotation).
+    rolloutNonce: ""
     resources:
       requests:
         cpu: 10m
@@ -148,7 +177,27 @@ cnpg:
     metrics:
       enabled: true
       interval: 30s
-      namespace: cnpg-system
-      vmPodScrape:
-        enabled: false
-        labels: {}
+    # PodDisruptionBudget (maxUnavailable: 1), only rendered when replicas > 1.
+    pdb:
+      enabled: true
+    # Pod anti-affinity between pooler pods:
+    # affinity:
+    #   enablePodAntiAffinity: true
+    #   podAntiAffinityType: required   # or preferred
+    #   topologyKey: kubernetes.io/hostname
+    affinity: {}
+    topologySpreadConstraints: []
+
+  # Scrape objects for the cluster and pooler exporters.
+  metrics:
+    # VMPodScrape (VictoriaMetrics operator) or PodMonitor (Prometheus operator).
+    scrapeKind: VMPodScrape
+    # Namespace for the scrape objects; defaults to the release namespace.
+    namespace: ""
+    releaseLabel: prometheus-agent
+    clusterScrape:
+      enabled: true
+      # Defaults to <cluster>-metrics.
+      name: ""
+      # Select only instance pods (cnpg.io/podRole=instance).
+      instancesOnly: true

@@ -33,7 +33,7 @@ spec:
     parameters:
       max_client_conn: {{ ($pgbouncer.maxClientConn | default 1000) | quote }}
       default_pool_size: {{ ($pgbouncer.defaultPoolSize | default 20) | quote }}
-      min_pool_size: {{ ($pgbouncer.minPoolSize | default 5) | quote }}
+      min_pool_size: {{ (get $pgbouncer "minPoolSize" | default 0) | quote }}
       reserve_pool_size: {{ ($pgbouncer.reservePoolSize | default 5) | quote }}
       max_db_connections: {{ ($pgbouncer.maxDbConnections | default 50) | quote }}
       server_lifetime: {{ ($pgbouncer.serverLifetime | default 3600) | quote }}
@@ -49,17 +49,87 @@ spec:
         app.kubernetes.io/name: pgbouncer
         app.kubernetes.io/component: pgbouncer
         app.kubernetes.io/part-of: {{ $cluster.name }}
+      annotations:
+        sm.m0sh1.cc/rollout-nonce: {{ default "" $pgbouncer.rolloutNonce | quote }}
     spec:
       {{- with $cluster.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- $affinity := $pgbouncer.affinity | default dict }}
+      {{- if $affinity.enablePodAntiAffinity }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq ($affinity.podAntiAffinityType | default "preferred") "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  cnpg.io/poolerName: {{ printf "%s-pooler" $cluster.name | quote }}
+              topologyKey: {{ $affinity.topologyKey | default "kubernetes.io/hostname" | quote }}
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    cnpg.io/poolerName: {{ printf "%s-pooler" $cluster.name | quote }}
+                topologyKey: {{ $affinity.topologyKey | default "kubernetes.io/hostname" | quote }}
+          {{- end }}
+      {{- end }}
       containers:
         - name: pgbouncer
+          command:
+            - /controller/manager
+            - pgbouncer
+            - run
           image: {{ $pgbouncer.image | quote }}
           imagePullPolicy: IfNotPresent
+          env:
+            - name: NAMESPACE
+              value: {{ $cluster.namespace | quote }}
+            - name: POOLER_NAME
+              value: {{ printf "%s-pooler" $cluster.name | quote }}
+            - name: PGUSER
+              value: pgbouncer
+            - name: PGDATABASE
+              value: pgbouncer
+            - name: PGHOST
+              value: /controller/run
+            - name: PSQL_HISTORY
+              value: /controller/tmp/.psql_history
+          ports:
+            - containerPort: 5432
+              name: pgbouncer
+              protocol: TCP
+            - containerPort: 9127
+              name: metrics
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: scratch-data
+              mountPath: /controller
           {{- with $pgbouncer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+      {{- with $pgbouncer.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

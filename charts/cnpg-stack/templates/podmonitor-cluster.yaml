@@ -1,9 +1,9 @@
 {{- $cnpg := .Values.cnpg | default dict -}}
 {{- $cluster := $cnpg.cluster | default dict -}}
-{{- $pgbouncer := $cnpg.pgbouncer | default dict -}}
 {{- $metrics := $cnpg.metrics | default dict -}}
 {{- $scrapeKind := $metrics.scrapeKind | default "VMPodScrape" -}}
-{{- if and $cluster.enabled $pgbouncer.enabled (dig "metrics" "enabled" false $pgbouncer) }}
+{{- $clusterScrape := $metrics.clusterScrape | default dict -}}
+{{- if and $cluster.enabled (dig "enabled" true $clusterScrape) }}
 {{- if eq $scrapeKind "PodMonitor" }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -12,7 +12,7 @@ apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMPodScrape
 {{- end }}
 metadata:
-  name: {{ $cluster.name }}-pooler
+  name: {{ $clusterScrape.name | default (printf "%s-metrics" $cluster.name) }}
   namespace: {{ $metrics.namespace | default .Release.Namespace }}
   labels:
     app: kube-prometheus-stack
@@ -23,9 +23,12 @@ spec:
       - {{ $cluster.namespace }}
   selector:
     matchLabels:
-      cnpg.io/poolerName: {{ $cluster.name }}-pooler
+      cnpg.io/cluster: {{ $cluster.name }}
+      {{- if dig "instancesOnly" true $clusterScrape }}
+      cnpg.io/podRole: instance
+      {{- end }}
   podMetricsEndpoints:
     - port: metrics
       path: /metrics
-      interval: {{ dig "metrics" "interval" "30s" $pgbouncer }}
+      interval: 30s
 {{- end }}

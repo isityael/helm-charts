@@ -17,15 +17,20 @@ metadata:
   {{- end }}
 spec:
   instances: {{ $cluster.instances }}
+  {{- with $cluster.primaryUpdateStrategy }}
+  primaryUpdateStrategy: {{ . }}
+  {{- end }}
+  {{- with $cluster.primaryUpdateMethod }}
+  primaryUpdateMethod: {{ . }}
+  {{- end }}
   imageName: {{ $cluster.imageName | quote }}
   enableSuperuserAccess: {{ $cluster.enableSuperuserAccess }}
+  {{- with $cluster.priorityClassName }}
+  priorityClassName: {{ . | quote }}
+  {{- end }}
   {{- with $cluster.livenessProbeTimeout }}
-  # Seconds allowed for the instance-manager's /healthz endpoint to respond
-  # before the postgres container is killed. The failure threshold is derived
-  # as ceil(livenessProbeTimeout / 10), so 90 → 9 consecutive failures over
-  # ~90s grace. Bumped on root01 2026-04-09 after the 4-core VPS CPU spike
-  # crash-looped postgres on probe timeouts while ZFS txg flushes + WAL
-  # archive uploads saturated the scheduler (see investigation note).
+  # Seconds the instance manager's /healthz may take before the postgres
+  # container is killed (failure threshold = ceil(livenessProbeTimeout / 10)).
   livenessProbeTimeout: {{ . }}
   {{- end }}
 
@@ -100,18 +105,20 @@ spec:
   {{- end }}
 
   {{- if $cnpg.roles }}
-  {{- $enabledRoles := list -}}
+  {{- $managedRoles := list -}}
   {{- range $cnpg.roles -}}
-  {{- if .enabled -}}
-  {{- $enabledRoles = append $enabledRoles . -}}
+  {{- $roleEnsure := default "present" .ensure -}}
+  {{- if or .enabled (eq $roleEnsure "absent") -}}
+  {{- $managedRoles = append $managedRoles . -}}
   {{- end -}}
   {{- end -}}
-  {{- if gt (len $enabledRoles) 0 }}
+  {{- if gt (len $managedRoles) 0 }}
   managed:
     roles:
-    {{- range $enabledRoles }}
+    {{- range $managedRoles }}
       - name: {{ .name | quote }}
-        ensure: present
+        ensure: {{ default "present" .ensure | quote }}
+        {{- if ne (default "present" .ensure) "absent" }}
         {{- if .comment }}
         comment: {{ .comment | quote }}
         {{- end }}
@@ -126,6 +133,7 @@ spec:
         {{- if .passwordSecret }}
         passwordSecret:
           name: {{ .passwordSecret.name | quote }}
+        {{- end }}
         {{- end }}
     {{- end }}
   {{- end }}

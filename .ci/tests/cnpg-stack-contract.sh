@@ -72,9 +72,75 @@ test_operator_app_version_matches_vendored_chart() {
     fail "expected Chart appVersion ${operator_app_version}, got ${wrapper_app_version}"
 }
 
+test_existing_database_names_are_preserved() {
+  # Live clusters already own Database resources named <cluster>-<name> with
+  # "_" mapped to "-" (e.g. cnpg-main-mautrix-discord). Changing that scheme
+  # would delete and recreate them, so short names must not gain a hash.
+  local rendered="${tmpdir}/existing-names.yaml"
+  local names
+
+  render_databases "${rendered}" '[{"enabled":false,"ensure":"absent","name":"mautrix_discord","owner":"x"},{"enabled":true,"name":"zipline","owner":"zipline"}]'
+  names="$(yq eval-all 'select(.kind == "Database") | .metadata.name' "${rendered}" | sed '/^---$/d' | sort | tr '\n' ' ')"
+  [[ "${names}" == "cnpg-main-mautrix-discord cnpg-main-zipline " ]] ||
+    fail "expected stable Database names, got: ${names}"
+}
+
+test_nested_dependency_renders_no_grafana_dashboard() {
+  # Infra wrappers consume cnpg-stack as a dependency, which puts the
+  # operator's dashboard subchart three levels deep where Helm cannot see the
+  # operator chart's own condition default.
+  local parent="${tmpdir}/parent"
+  mkdir -p "${parent}"
+  cat >"${parent}/Chart.yaml" <<YAML
+apiVersion: v2
+name: parent
+version: 0.0.0
+dependencies:
+  - name: cnpg-stack
+    version: "$(yq -r '.version' "${chart}/Chart.yaml")"
+    repository: file://${chart}
+YAML
+  helm dependency build "${parent}" >/dev/null
+  if helm template parent "${parent}" | yq eval-all 'select(.kind == "ConfigMap") | .metadata.name' - | grep -qx cnpg-grafana-dashboard; then
+    fail "expected no cnpg-grafana-dashboard ConfigMap when cnpg-stack is a dependency"
+  fi
+}
+
+test_pooler_pdb_follows_replicas() {
+  local count
+
+  count="$(helm template cnpg-stack "${chart}" --set cnpg.pgbouncer.replicas=1 | yq eval-all 'select(.kind == "PodDisruptionBudget") | .kind' - | grep -c . || true)"
+  [[ "${count}" == "0" ]] || fail "expected no pooler PDB with one replica"
+  count="$(helm template cnpg-stack "${chart}" --set cnpg.pgbouncer.replicas=2 | yq eval-all 'select(.kind == "PodDisruptionBudget") | .kind' - | grep -c . || true)"
+  [[ "${count}" == "1" ]] || fail "expected a pooler PDB with two replicas"
+  count="$(helm template cnpg-stack "${chart}" --set cnpg.pgbouncer.replicas=2 --set cnpg.pgbouncer.pdb.enabled=false | yq eval-all 'select(.kind == "PodDisruptionBudget") | .kind' - | grep -c . || true)"
+  [[ "${count}" == "0" ]] || fail "expected pdb.enabled=false to suppress the pooler PDB"
+}
+
+test_cluster_scrape_is_configurable() {
+  local rendered="${tmpdir}/scrape.yaml"
+
+  helm template cnpg-stack "${chart}" \
+    --set cnpg.metrics.clusterScrape.name=cnpg-cluster-metrics \
+    --set cnpg.metrics.clusterScrape.instancesOnly=false \
+    --set cnpg.metrics.releaseLabel=kube-prometheus-stack >"${rendered}"
+  [[ "$(yq eval-all 'select(.metadata.name == "cnpg-cluster-metrics") | .kind' "${rendered}")" == "VMPodScrape" ]] ||
+    fail "expected cluster scrape named by cnpg.metrics.clusterScrape.name"
+  [[ "$(yq eval-all 'select(.metadata.name == "cnpg-cluster-metrics") | .spec.selector.matchLabels | has("cnpg.io/podRole")' "${rendered}")" == "false" ]] ||
+    fail "expected instancesOnly=false to drop the podRole selector"
+  [[ "$(yq eval-all 'select(.metadata.name == "cnpg-cluster-metrics") | .metadata.labels.release' "${rendered}")" == "kube-prometheus-stack" ]] ||
+    fail "expected releaseLabel on scrape objects"
+  [[ "$(helm template cnpg-stack "${chart}" --set cnpg.metrics.scrapeKind=PodMonitor | yq eval-all 'select(.metadata.name == "cnpg-main-metrics") | .kind' -)" == "PodMonitor" ]] ||
+    fail "expected scrapeKind=PodMonitor to render a PodMonitor"
+}
+
 test_database_metadata_preserves_postgresql_name
 test_long_database_metadata_names_remain_unique
 test_operator_app_version_matches_vendored_chart
+test_existing_database_names_are_preserved
+test_nested_dependency_renders_no_grafana_dashboard
+test_pooler_pdb_follows_replicas
+test_cluster_scrape_is_configurable
 
 if ((status != 0)); then
   exit "${status}"

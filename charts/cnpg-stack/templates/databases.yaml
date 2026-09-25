@@ -3,13 +3,14 @@
 {{- $databases := $cnpg.databases | default list -}}
 {{- if $cluster.enabled }}
 {{- range $databases }}
-{{- if .enabled }}
-{{- $databaseName := toString .name -}}
-{{- $metadataSuffix := regexReplaceAll "[^a-z0-9-]+" (lower $databaseName) "-" | trimAll "-" -}}
-{{- $metadataName := printf "%s-%s" $cluster.name $metadataSuffix -}}
-{{- if or (ne $metadataSuffix $databaseName) (gt (len $metadataName) 63) -}}
-{{- $nameHash := sha256sum $databaseName | trunc 8 -}}
-{{- $metadataName = printf "%s-%s" ($metadataName | trunc 54 | trimSuffix "-") $nameHash -}}
+{{- if or .enabled .ensure }}
+{{- /* Sanitized name, e.g. mautrix_discord -> <cluster>-mautrix-discord.
+       Names that overflow 63 chars get a hash suffix so truncation cannot
+       make two Database resources collide. */ -}}
+{{- $suffix := regexReplaceAll "[^a-z0-9-]+" (lower (toString .name)) "-" | trimAll "-" -}}
+{{- $metadataName := printf "%s-%s" $cluster.name $suffix -}}
+{{- if gt (len $metadataName) 63 -}}
+{{- $metadataName = printf "%s-%s" ($metadataName | trunc 54 | trimSuffix "-") (sha256sum (toString .name) | trunc 8) -}}
 {{- end }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
@@ -25,6 +26,9 @@ metadata:
   {{- end }}
 spec:
   name: {{ .name | quote }}
+  {{- if .ensure }}
+  ensure: {{ .ensure | quote }}
+  {{- end }}
   owner: {{ .owner | quote }}
   cluster:
     name: {{ $cluster.name | quote }}

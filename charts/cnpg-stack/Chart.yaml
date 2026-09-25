@@ -2,7 +2,8 @@ apiVersion: v2
 name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
-version: 0.13.105
+icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
+version: 0.14.0
 appVersion: "1.30.0"
 kubeVersion: ">=1.29.0-0"
 maintainers:
@@ -16,16 +17,16 @@ keywords:
   - backup
 annotations:
   artifacthub.io/changes: |
-    - kind: fixed
-      description: Refresh the mutable CloudNativePG 0.29.0 dependency archive.
-    - kind: fixed
-      description: Scope the upstream Barman Cloud readiness-port lint exception to CI renders.
     - kind: changed
-      description: Run PostgreSQL 18.4 on the CNPG-compatible DHI Alpine 3.24 image.
-    - kind: fixed
-      description: Sanitize Database resource names while preserving PostgreSQL database names.
+      description: Rebuild from the live cnpg-root/cnpg-home templates (zero rendered diff).
+    - kind: added
+      description: Pooler PDB, anti-affinity and topology spread; manual Backup; configurable scrapes.
     - kind: changed
-      description: Align the wrapper app version with the vendored CloudNativePG operator.
+      description: Database names map "_" to "-"; hash suffix only beyond 63 characters.
+    - kind: fixed
+      description: Render no operator Grafana dashboard when this chart is itself a dependency.
+    - kind: changed
+      description: Neutral operator and Cluster monitoring defaults; PgBouncer minPoolSize 0 and serverIdleTimeout 300.
 dependencies:
   - name: cloudnative-pg-chart
     alias: cloudnative-pg

@@ -1,0 +1,23 @@
+{{- $cnpg := .Values.cnpg | default dict -}}
+{{- $cluster := $cnpg.cluster | default dict -}}
+{{- $pgbouncer := $cnpg.pgbouncer | default dict -}}
+{{- $pdb := $pgbouncer.pdb | default dict -}}
+{{- if and $cluster.enabled $pgbouncer.enabled (dig "enabled" true $pdb) (gt (int ($pgbouncer.replicas | default 1)) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $cluster.name }}-pooler
+  namespace: {{ $cluster.namespace }}
+  labels:
+    app.kubernetes.io/name: pgbouncer
+    app.kubernetes.io/component: pgbouncer
+    app.kubernetes.io/part-of: {{ $cluster.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "24"
+spec:
+  maxUnavailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      cnpg.io/poolerName: {{ $cluster.name }}-pooler
+{{- end }}
