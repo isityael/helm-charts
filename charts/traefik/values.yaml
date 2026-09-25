@@ -13,7 +13,7 @@ apexRedirect:
 securityTxt:
   enabled: false
   # Serves security.txt; unprivileged DHI nginx.
-  image: dhi.io/nginx:1.30.0-alpine3.23@sha256:8f238cd9e7b9b5e1bc578c3a612915a18abe5aed71962583465208840f0bec3d
+  image: dhi.io/nginx:1.30.5-alpine3.23@sha256:c6bcdb26220088fc93380fe9ad87751df6f1b0e8b454abe9fa0dbc50182b1a2f
   hostnames: []
   content: ""
 
