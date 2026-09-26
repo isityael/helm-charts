@@ -17,7 +17,7 @@ sources:
   - https://github.com/sergelogvinov/proxmox-csi-plugin
   - https://github.com/isityael/proxmox-csi-plugin
 type: application
-version: 0.5.95
+version: 0.5.96
 kubeVersion: ">=1.28.0-0"
 annotations:
   artifacthub.io/license: Apache-2.0
