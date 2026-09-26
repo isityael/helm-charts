@@ -3,8 +3,8 @@ name: cnpg-stack
 description: CloudNativePG stack wrapper (operator, cluster, barman plugin, pooler, metrics)
 type: application
 icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
-version: 0.15.1
-appVersion: "1.30.0"
+version: 0.15.2
+appVersion: "1.30.1"
 kubeVersion: ">=1.29.0-0"
 maintainers:
   - name: m0sh1
