@@ -159,7 +159,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.2.1-debian13@sha256:eabe0c4a54cc9a0c74b4fe393f7e3a17fd7ba93892fb09b8bd0201ca535d7643
+      tag: 2.2.1-debian13@sha256:a9c9d66128ded3063aff7dd419080d0269fd84d46365771add3653cd2e7ff736
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
