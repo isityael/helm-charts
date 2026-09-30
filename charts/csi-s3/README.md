@@ -33,7 +33,7 @@ upstream:
     name: csi-s3-secret
 
 maintainedImage:
-  tag: v0.43.9-yael.1
+  tag: v0.43.9-yael.2
   digest: sha256:a0936ccbe899e976689cba6963f181985338c410365777bc16e62c7255362a65
 
 storageClasses:
