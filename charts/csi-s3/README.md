@@ -34,7 +34,7 @@ upstream:
 
 maintainedImage:
   tag: v0.43.9-yael.2
-  digest: sha256:a0936ccbe899e976689cba6963f181985338c410365777bc16e62c7255362a65
+  digest: sha256:db3451d978a0dc6e5ea7a4955b4dd561ddc4a69a9f4b866c77e31d53706177e6
 
 storageClasses:
   - name: s3-archive
