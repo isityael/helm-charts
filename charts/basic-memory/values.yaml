@@ -324,7 +324,7 @@ obsidianSync:
   couchdb:
     image:
       repository: dhi.io/couchdb
-      tag: "3.5.2-debian13@sha256:90c8afca688ce6b092b96d483e416dd1f2c00fdef0cd3737e6532524af82c194"
+      tag: "3.5.2-debian13@sha256:024515574654f5b5fa092f14c957396a5c0f715d74f18f3d56d68c5cbf470bcd"
       pullPolicy: IfNotPresent
     # Self-hosted LiveSync clients should normally enable Obsidian's Request
     # API and leave browser CORS disabled. If browser CORS is unavoidable,
