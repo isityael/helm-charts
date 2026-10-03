@@ -5,7 +5,7 @@ config=renovate.json
 pipeline_script=.ci/helm-lint.sh
 
 post_upgrade_contracts="$(yq -o=json -I=0 '[.packageRules[] | select(.postUpgradeTasks != null) | {"matchManagers": .matchManagers, "matchFileNames": .matchFileNames, "postUpgradeTasks": .postUpgradeTasks}]' "$config")"
-expected_post_upgrade_contracts='[{"matchManagers":["helmv3"],"matchFileNames":null,"postUpgradeTasks":{"commands":["node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"],"fileFilters":["{{{packageFileDir}}}/Chart.lock","{{{packageFileDir}}}/charts/**"],"executionMode":"update","installTools":{"helm":{}}}}]'
+expected_post_upgrade_contracts='[{"matchManagers":["helmv3"],"matchFileNames":null,"postUpgradeTasks":{"commands":["node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"],"fileFilters":["{{{packageFileDir}}}/Chart.lock","{{{packageFileDir}}}/charts/**"],"executionMode":"update","installTools":{"helm":{}}}},{"matchManagers":["helm-values"],"matchFileNames":["charts/csi-s3/values.yaml"],"postUpgradeTasks":{"commands":["node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"],"fileFilters":["charts/csi-s3/**"],"executionMode":"branch","installTools":{"helm":{}}}}]'
 
 [[ "$post_upgrade_contracts" == "$expected_post_upgrade_contracts" ]] || {
   echo "Renovate Helm post-upgrade task contract is incomplete" >&2

@@ -124,7 +124,8 @@
       "postUpgradeTasks": {
         "commands": ["node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"],
         "fileFilters": ["charts/csi-s3/**"],
-        "executionMode": "branch"
+        "executionMode": "branch",
+        "installTools": {"helm": {}}
       }
     },
     {

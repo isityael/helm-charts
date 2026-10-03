@@ -72,7 +72,14 @@ function syncCsiMetadata(chartDirectory) {
   writeFileSync(chartPath, chart.replace(/^appVersion:.*$/m, `appVersion: "${tag.slice(1)}"`));
   const readmePath = join(chartDirectory, "README.md");
   const readme = readFileSync(readmePath, "utf8");
-  writeFileSync(readmePath, readme.replace(/^(\s*tag: )v\d+\.\d+\.\d+-yael\.\d+$/gm, `$1${tag}`));
+  writeFileSync(readmePath, readme.replace(/^maintainedImage:\n((?:[ \t].*\n?)*)/gm, (block) => {
+    const previousTag = block.match(/^  tag: (v\d+\.\d+\.\d+-yael\.\d+)$/m)?.[1];
+    if (!previousTag || previousTag === tag) return block;
+    // A digest belongs to one immutable release; don't retain the old release's
+    // pin when advancing this documentation example to a new tag.
+    return block.replace(/^  tag: .*$/m, `  tag: ${tag}`)
+      .replace(/^  digest: .*$/m, '  digest: ""');
+  }));
 }
 
 function main() {
