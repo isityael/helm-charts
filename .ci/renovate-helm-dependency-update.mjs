@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 function run(command, args, options = {}) {
   return execFileSync(command, args, {
@@ -53,6 +55,26 @@ function authenticateRegistries() {
   }
 }
 
+// CSI-S3's schema and image-updater contract require a v-prefixed owned tag,
+// while Helm appVersion records the same release without the prefix.
+function syncCsiMetadata(chartDirectory) {
+  if (chartDirectory !== "charts/csi-s3") return;
+  const values = readFileSync(join(chartDirectory, "values.yaml"), "utf8");
+  const maintained = values.match(/^maintainedImage:\n((?:[ \t].*\n?)*)/m)?.[1];
+  if (!maintained?.match(/^  repository: ghcr\.io\/isityael\/csi-s3-driver\s*$/m)) {
+    throw new Error("CSI-S3 maintained image repository contract changed");
+  }
+  const tag = maintained.match(/^  tag: ["']?(v\d+\.\d+\.\d+-yael\.[1-9]\d*)["']?\s*$/m)?.[1];
+  if (!tag) throw new Error("CSI-S3 maintained image must use a v-prefixed fork release");
+  const chartPath = join(chartDirectory, "Chart.yaml");
+  const chart = readFileSync(chartPath, "utf8");
+  if (!/^appVersion:.*$/m.test(chart)) throw new Error("CSI-S3 appVersion is missing");
+  writeFileSync(chartPath, chart.replace(/^appVersion:.*$/m, `appVersion: "${tag.slice(1)}"`));
+  const readmePath = join(chartDirectory, "README.md");
+  const readme = readFileSync(readmePath, "utf8");
+  writeFileSync(readmePath, readme.replace(/^(\s*tag: )v\d+\.\d+\.\d+-yael\.\d+$/gm, `$1${tag}`));
+}
+
 function main() {
   const chartDirectories = process.argv.slice(2);
   if (chartDirectories.length === 0) {
@@ -61,6 +83,7 @@ function main() {
   authenticateRegistries();
   for (const chartDirectory of chartDirectories) {
     run("helm", ["dependency", "update", chartDirectory]);
+    syncCsiMetadata(chartDirectory);
   }
 }
 

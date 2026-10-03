@@ -119,7 +119,13 @@
       "matchManagers": ["helm-values"],
       "matchFileNames": ["charts/csi-s3/values.yaml"],
       "matchPackageNames": ["ghcr.io/isityael/csi-s3-driver"],
-      "pinDigests": false
+      "pinDigests": false,
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-yael\\.(?<build>\\d+)$",
+      "postUpgradeTasks": {
+        "commands": ["node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"],
+        "fileFilters": ["charts/csi-s3/**"],
+        "executionMode": "branch"
+      }
     },
     {
       "description": "Patch-bump chart versions when Renovate changes chart values",
