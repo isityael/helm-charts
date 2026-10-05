@@ -33,7 +33,7 @@ upstream:
     name: csi-s3-secret
 
 maintainedImage:
-  tag: v0.43.9-yael.3
+  tag: v0.43.9-yael.4
   digest: ""
 
 storageClasses:
