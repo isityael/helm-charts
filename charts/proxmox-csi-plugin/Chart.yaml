@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: "v0.20.0-yael.2"
+appVersion: "v0.20.0-yael.3"
 description: Container Storage Interface plugin for Proxmox (isityael fork)
 home: https://github.com/isityael/proxmox-csi-plugin
 icon: https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/main/charts/proxmox-csi-plugin/icon.png
@@ -17,7 +17,7 @@ sources:
   - https://github.com/sergelogvinov/proxmox-csi-plugin
   - https://github.com/isityael/proxmox-csi-plugin
 type: application
-version: 0.5.106
+version: 0.5.107
 kubeVersion: ">=1.28.0-0"
 annotations:
   artifacthub.io/license: Apache-2.0
@@ -31,5 +31,5 @@ annotations:
   artifacthub.io/changes: |
     - kind: changed
       description: >-
-        Controller and node images use fork release v0.20.0-yael.2
+        Controller and node images use fork release v0.20.0-yael.3
         with verified registry digests.
