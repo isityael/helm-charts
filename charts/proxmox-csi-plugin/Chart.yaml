@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: "0.20.0-yael.2"
+appVersion: "v0.20.0-yael.2"
 description: Container Storage Interface plugin for Proxmox (isityael fork)
 home: https://github.com/isityael/proxmox-csi-plugin
 icon: https://raw.githubusercontent.com/sergelogvinov/proxmox-csi-plugin/main/charts/proxmox-csi-plugin/icon.png
