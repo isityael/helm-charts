@@ -55,7 +55,7 @@ snmpExporter:
   fullnameOverride: prometheus-snmp-exporter
   image:
     repository: ghcr.io/isityael/snmp-exporter
-    tag: "v0.30.1-m0sh1.1@sha256:d3baca4af71765d7ac61631860fa1334a71f26fa2262ebbee296313e91af4af3"
+    tag: "v0.30.1-m0sh1.1@sha256:5d25df6580cbd818d41d3e92cb887466c854b294d65a55403d684423628dc373"
     pullPolicy: IfNotPresent
   securityContext:
     seccompProfile:
