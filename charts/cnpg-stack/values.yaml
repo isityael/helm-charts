@@ -23,11 +23,11 @@ plugin-barman-cloud:
   image:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud
-    tag: "0.15.1-debian13@sha256:3d7aa0af9e06cbe8d87c6b1f516a82f97b52b5db00569cbd6875ec19d2195512"
+    tag: "0.15.1-debian13@sha256:943515d590b9e8cfe11b4e3425e25b9ad35216cdb189f59a596c0a423877a598"
   sidecarImage:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud-sidecar
-    tag: "0.15.1-debian13@sha256:1f3da7d63194bc86f056ff03561ad1b5f69b29cf31ad4b017439f9fc8651c49d"
+    tag: "0.15.1-debian13@sha256:0577630871b56085411d75352fe90eb2021fed897ae51a785a56ecd615309882"
   imagePullSecrets: []
   resources:
     requests:
