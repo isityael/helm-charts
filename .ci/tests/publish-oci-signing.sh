@@ -27,6 +27,8 @@ set -euo pipefail
 
 case "$1" in
   registry)
+    # Match Helm's --password-stdin behavior and avoid racing the pipe writer.
+    cat >/dev/null
     echo "helm registry $*" >>"$HELM_LOG"
     ;;
   show)
@@ -105,7 +107,9 @@ test_publish_requires_cosign_password_with_private_key() {
   export HELM_LOG="${workdir}/helm.log"
   export PATH="${workdir}/bin:$PATH"
   export GHCR_USERNAME="test-user"
-  export GHCR_TOKEN="test-token"
+  # Exceed the pipe buffer so login must consume stdin before the signing guard runs.
+  export GHCR_TOKEN
+  GHCR_TOKEN="$(printf '%65536s' '')"
   export COSIGN_PRIVATE_KEY="test-private-key"
   unset COSIGN_PASSWORD
 
