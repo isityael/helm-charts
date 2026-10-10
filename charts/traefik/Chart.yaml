@@ -2,7 +2,7 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.37
+version: 0.1.39
 appVersion: "3.7.5"
 kubeVersion: ">=1.29.0-0"
 home: https://traefik.io/traefik/
@@ -22,7 +22,7 @@ keywords:
 dependencies:
   - name: traefik-chart
     alias: traefik
-    version: 41.7.0
+    version: 41.7.1
     repository: oci://dhi.io
 annotations:
   artifacthub.io/links: |
