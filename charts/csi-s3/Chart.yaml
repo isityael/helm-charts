@@ -2,8 +2,8 @@ apiVersion: v2
 name: csi-s3
 description: Maintained k8s-csi-s3 wrapper with an owned driver image and multiple StorageClasses
 type: application
-version: 0.1.22
-appVersion: "0.43.9-yael.5"
+version: 0.1.23
+appVersion: "0.43.9-yael.8"
 kubeVersion: ">=1.23.0-0"
 home: https://github.com/isityael/k8s-csi-s3
 icon: https://raw.githubusercontent.com/yandex-cloud/geesefs/master/doc/geesefs.png
@@ -30,7 +30,7 @@ annotations:
   artifacthub.io/changes: |
     - kind: changed
       description: >-
-        Driver image v0.43.9-yael.1 (GeeseFS 0.43.9); fork releases are now
+        Driver image v0.43.9-yael.8 (GeeseFS 0.43.9); fork releases are now
         named v<geesefs>-yael.<n>.
 dependencies:
   - name: csi-s3

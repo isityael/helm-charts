@@ -4,8 +4,8 @@ description: CSI NFS Driver for Kubernetes (isityael fork with configurable fsGr
 icon: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/logo/logo.png
 home: https://github.com/kubernetes-sigs/csi-driver-nfs
 type: application
-version: 4.14.12
-appVersion: "4.14.0-yael.1"
+version: 4.14.13
+appVersion: "4.14.0-yael.12"
 kubeVersion: ">=1.21.0-0"
 maintainers:
   - name: m0sh1
@@ -22,7 +22,7 @@ annotations:
   artifacthub.io/changes: |
     - kind: changed
       description: >-
-        NFS plugin image v4.14.0-yael.1, the fork's current gated release; fork
+        NFS plugin image v4.14.0-yael.12, the fork's current gated release; fork
         releases are now named v<upstream>-yael.<n>.
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |

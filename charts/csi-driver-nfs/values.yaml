@@ -3,7 +3,7 @@ image:
   baseRepo: registry.k8s.io
   nfs:
     repository: ghcr.io/isityael/nfsplugin
-    tag: v4.14.0-yael.1@sha256:1ff4333f907f8d091b847e2bcdb22266d164760aa5b09730768e60a7f48ead55
+    tag: v4.14.0-yael.12@sha256:b6f3790ff4dfe5ef16bfdb4c15d69a52e63fe1457ba84474ae205da0d7d755ec
     pullPolicy: IfNotPresent
   csiProvisioner:
     repository: dhi.io/csi-provisioner
