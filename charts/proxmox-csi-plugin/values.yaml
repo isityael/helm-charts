@@ -125,7 +125,7 @@ controller:
     image:
       repository: dhi.io/csi-attacher
       pullPolicy: IfNotPresent
-      tag: 4.13.0-debian13@sha256:31d3177d3fa5117c883337fa6e373f3268201f2a7965dbd6fea7102c25d14168
+      tag: 4.13.0-debian13@sha256:cf6a30e9613e669ce5174e2dea038aafb371f61e116da2334b99b8bbfb9c90a6
     # -- Attacher arguments.
     # example: --default-fstype=ext4
     args:
@@ -142,7 +142,7 @@ controller:
     image:
       repository: dhi.io/csi-provisioner
       pullPolicy: IfNotPresent
-      tag: 6.3.0-debian13@sha256:15158054533f6a19e72f6f0ad2d43d903cfc021a1d9836d0b17e5883203a09dd
+      tag: 6.4.0-debian13@sha256:a09c9805d72aabfc091e4252254c3a0065b600adf9d8768ec36264f5e8649be1
     # -- Provisioner arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args:
@@ -159,7 +159,7 @@ controller:
     image:
       repository: dhi.io/csi-resizer
       pullPolicy: IfNotPresent
-      tag: 2.3.0-debian13@sha256:a0f4c4abe18ef47310fbf2f225aea2fadbf275aa1aa1d0473bbdf4ed9852548c
+      tag: 2.3.0-debian13@sha256:3b5ffc6f66684dde19b0e7e12723d8dea6c8f0a5f7e74c246654345b3ce85ab2
     # -- Resizer arguments.
     # example: --feature-gates=VolumeAttributesClass=true
     args: []
@@ -176,7 +176,7 @@ controller:
     image:
       repository: dhi.io/csi-snapshotter
       pullPolicy: IfNotPresent
-      tag: 8.6.0-debian13@sha256:4b3b9e8609ab7769d9dca0cfa4b315c92f51b5c0a2d3ff8ba29f88e2c41ae02b
+      tag: 8.7.0-debian13@sha256:3b09514994ec8b5478373c781a0724bd59af3af392867d0ba797062fc51dad3e
     # -- Snapshotter arguments.
     # example: --feature-gates=CSIVolumeGroupSnapshot=true
     args: []
@@ -204,7 +204,7 @@ node:
     image:
       repository: dhi.io/csi-node-driver-registrar
       pullPolicy: IfNotPresent
-      tag: 2.18.0-debian13@sha256:805dd86034c1c5b5dd5397820f97d433a5036075f6a622bd09709d4c16bde62f
+      tag: 2.18.0-debian13@sha256:d4dee272ea9b467151fa1a1a793e42f7797205a7b7ab4ce18396b98c921d26c7
     # -- Driver registrar arguments.
     # example: --timeout=60s
     args: []
