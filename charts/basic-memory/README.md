@@ -61,6 +61,16 @@ helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory -f values.y
 
 Your MCP client (Claude Desktop, Cursor, Continue, etc.) connects to `https://basic-memory.example.com/mcp`.
 
+The shim prioritizes the `mcp-session-id` protocol header, so clients can continue
+sessions without cookies. Clients that omit the header retain the legacy cookie
+fallback. Unknown, expired, or evicted session IDs return HTTP 404; clients must
+initialize a new session. Tool calls are never automatically replayed. DELETE
+requires an existing protocol or cookie session and never initializes one.
+The session limit counts upstream sessions, and LRU eviction sends an upstream
+DELETE before discarding the session. Failed cleanup is logged without session
+IDs; upstream termination remains best effort when the server is unavailable.
+
+
 If your cluster uses Gateway API, configure `httpRoute` instead of `ingress`:
 
 ```yaml
