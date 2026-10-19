@@ -39,6 +39,9 @@ data:
 
     const CLIENT_COOKIE = "mcp_shim_client";
     const clientToUpstreamSession = new Map<string, string>();
+    // Protocol IDs are authoritative; cookies are only a legacy fallback.
+    const upstreamSessions = new Map<string, string>();
+    const pendingSessions = new Map<string, Promise<string>>();
     const parsedMaxBodyBytes = Number(Deno.env.get("MCP_SHIM_MAX_BODY_BYTES") ?? "1048576");
     const MAX_BODY_BYTES = Number.isFinite(parsedMaxBodyBytes) && parsedMaxBodyBytes >= 1024
       ? Math.floor(parsedMaxBodyBytes)
@@ -70,22 +73,56 @@ data:
       }
     }
 
-    function lookupUpstreamSession(clientId: string): string | undefined {
-      const existing = clientToUpstreamSession.get(clientId);
-      if (!existing) return undefined;
-      clientToUpstreamSession.delete(clientId);
-      clientToUpstreamSession.set(clientId, existing);
-      return existing;
+    function touchSession(sessionId: string): boolean {
+      const clientId = upstreamSessions.get(sessionId);
+      if (clientId === undefined) return false;
+      upstreamSessions.delete(sessionId);
+      upstreamSessions.set(sessionId, clientId);
+      return true;
     }
 
-    function rememberUpstreamSession(clientId: string, sessionId: string): void {
-      clientToUpstreamSession.delete(clientId);
-      while (clientToUpstreamSession.size >= MAX_SESSIONS) {
-        const oldest = clientToUpstreamSession.keys().next().value;
-        if (oldest === undefined) break;
-        clientToUpstreamSession.delete(oldest);
+    function lookupUpstreamSession(clientId: string): string | undefined {
+      const existing = clientToUpstreamSession.get(clientId);
+      return existing && touchSession(existing) ? existing : undefined;
+    }
+
+    function forgetSession(sessionId: string): void {
+      const clientId = upstreamSessions.get(sessionId);
+      upstreamSessions.delete(sessionId);
+      if (clientId !== undefined && clientToUpstreamSession.get(clientId) === sessionId) {
+        clientToUpstreamSession.delete(clientId);
       }
+    }
+
+    async function terminateSession(sessionId: string): Promise<void> {
+      forgetSession(sessionId);
+      try {
+        const response = await fetchWithTimeout(`${upstreamBase}/mcp`, {
+          method: "DELETE",
+          headers: { "mcp-session-id": sessionId },
+        });
+        await response.body?.cancel();
+        if (!response.ok && response.status !== 404) {
+          console.error(`[mcp-shim] session cleanup failed status=${response.status}`);
+        }
+      } catch {
+        console.error("[mcp-shim] session cleanup failed");
+      }
+    }
+
+    async function rememberUpstreamSession(clientId: string, sessionId: string): Promise<void> {
+      if (touchSession(sessionId)) return;
+      const previous = clientToUpstreamSession.get(clientId);
+      if (previous && previous !== sessionId) await terminateSession(previous);
+      // Reserve the entry before awaiting cleanup so concurrent initializations
+      // cannot exceed the bound or orphan a session by overwriting an alias.
+      upstreamSessions.set(sessionId, clientId);
       clientToUpstreamSession.set(clientId, sessionId);
+      while (upstreamSessions.size > MAX_SESSIONS) {
+        const oldest = upstreamSessions.keys().next().value;
+        if (oldest === undefined) break;
+        await terminateSession(oldest);
+      }
     }
 
     // Optional policy enforcement to keep Basic Memory organized and prevent
@@ -245,6 +282,14 @@ data:
     }
 
     async function ensureUpstreamSessionId(clientId: string): Promise<string> {
+      const pending = pendingSessions.get(clientId);
+      if (pending) return await pending;
+      const creation = createUpstreamSessionId(clientId);
+      pendingSessions.set(clientId, creation);
+      try { return await creation; } finally { pendingSessions.delete(clientId); }
+    }
+
+    async function createUpstreamSessionId(clientId: string): Promise<string> {
       const existing = lookupUpstreamSession(clientId);
       if (existing) return existing;
       const initBody = JSON.stringify({
@@ -267,8 +312,8 @@ data:
       });
       const sid = resp.headers.get("mcp-session-id");
       try { await resp.arrayBuffer(); } catch { /* ignore */ }
-      if (!sid) throw new Error("Upstream did not return mcp-session-id");
-      rememberUpstreamSession(clientId, sid);
+      if (!resp.ok || !sid) throw new Error("Upstream session initialization failed");
+      await rememberUpstreamSession(clientId, sid);
       return sid;
     }
 
@@ -293,13 +338,17 @@ data:
         console.log(`[mcp-shim] ${req.method} /mcp hasSessionId=${hasSid} ua=${req.headers.get("user-agent") ?? ""}`);
       }
 
+      const explicitSid = req.headers.get("mcp-session-id");
+      if (url.pathname === "/mcp" && explicitSid !== null && !touchSession(explicitSid)) {
+        return new Response("Unknown or expired MCP session; initialize a new session", { status: 404 });
+      }
+
       if (url.pathname === "/mcp" && req.method !== "POST") {
-        try {
-          const sid = await ensureUpstreamSessionId(clientId);
-          headers.set("mcp-session-id", sid);
-        } catch (e) {
-          console.error(`[mcp-shim] failed to ensure upstream session id: ${String(e)}`);
+        const sid = explicitSid ?? lookupUpstreamSession(clientId);
+        if (req.method === "DELETE" && !sid) {
+          return new Response("mcp-session-id is required", { status: 400 });
         }
+        headers.set("mcp-session-id", sid ?? await ensureUpstreamSessionId(clientId));
       }
 
       if (req.method === "POST" && url.pathname === "/mcp") {
@@ -398,21 +447,25 @@ data:
             }
 
             if (method === "initialize") {
+              if (explicitSid !== null) {
+                return new Response("Initialize must start without mcp-session-id", { status: 400 });
+              }
               headers.delete("mcp-session-id");
             } else {
-              try {
-                const sid = await ensureUpstreamSessionId(clientId);
-                headers.set("mcp-session-id", sid);
-              } catch (e) {
-                console.error(`[mcp-shim] failed to ensure upstream session id: ${String(e)}`);
-              }
+              headers.set("mcp-session-id", explicitSid ?? await ensureUpstreamSessionId(clientId));
             }
           }
           const body = normalized === null ? "" : JSON.stringify(normalized);
           const upstreamResp = await fetchWithTimeout(upstreamUrl, { method: "POST", headers, body });
 
           const upstreamSid = upstreamResp.headers.get("mcp-session-id");
-          if (upstreamSid) rememberUpstreamSession(clientId, upstreamSid);
+          if (upstreamResp.ok && upstreamSid && isObject(normalized) && normalized.method === "initialize") {
+            await rememberUpstreamSession(clientId, upstreamSid);
+          }
+          if (upstreamResp.status === 404) {
+            const sid = headers.get("mcp-session-id");
+            if (sid) forgetSession(sid);
+          }
 
           const respHeaders = new Headers(upstreamResp.headers);
           if (setCookie) respHeaders.append("set-cookie", setCookie);
@@ -468,6 +521,11 @@ data:
         headers,
         body: req.body,
       });
+      const sid = headers.get("mcp-session-id");
+      if (sid && url.pathname === "/mcp" &&
+          (upstreamResp.status === 404 || (req.method === "DELETE" && upstreamResp.ok))) {
+        forgetSession(sid);
+      }
       if (!setCookie) return upstreamResp;
       const respHeaders = new Headers(upstreamResp.headers);
       respHeaders.append("set-cookie", setCookie);
