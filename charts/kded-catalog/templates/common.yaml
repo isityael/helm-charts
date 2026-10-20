@@ -2,6 +2,9 @@
 {{- if not (regexMatch "^[^ @]+@sha256:[a-f0-9]{64}$" .Values.image.spec) }}
 {{- fail "enabled kded-catalog requires image.spec pinned to a verified sha256 digest" }}
 {{- end }}
+{{- if not .Values.auth.existingSecret }}
+{{- fail "enabled kded-catalog requires auth.existingSecret" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,6 +49,8 @@ spec:
           env:
             - name: LISTEN_ADDR
               value: "0.0.0.0:8080"
+            - name: AUTH_TOKEN_FILE
+              value: /run/secrets/api/token
             - name: PGHOST
               value: {{ .Values.postgres.host | quote }}
             - name: PGPORT
@@ -85,6 +90,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            - name: api-auth
+              mountPath: /run/secrets/api
+              readOnly: true
             - name: credentials
               mountPath: /run/credentials
               readOnly: true
@@ -92,6 +100,13 @@ spec:
               mountPath: /run/postgres-ca
               readOnly: true
       volumes:
+        - name: api-auth
+          secret:
+            secretName: {{ .Values.auth.existingSecret }}
+            defaultMode: 0440
+            items:
+              - key: token
+                path: token
         - name: credentials
           secret:
             secretName: {{ .Values.postgres.existingSecret }}

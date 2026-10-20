@@ -6,7 +6,8 @@
     "image",
     "postgres",
     "worker",
-    "networkPolicy"
+    "networkPolicy",
+    "auth"
   ],
   "properties": {
     "enabled": {
@@ -60,6 +61,40 @@
           }
         }
       }
+    },
+    "auth": {
+      "type": "object",
+      "required": [
+        "existingSecret"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "existingSecret": {
+          "type": "string"
+        }
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "existingSecret": {
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

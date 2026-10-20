@@ -27,6 +27,15 @@ class Contract(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('pinned to a verified sha256', result.stderr)
 
+    def test_enabled_requires_auth_secret(self):
+        result = render('enabled=true', 'image.spec=' + FIXTURE, 'auth.existingSecret=')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('existingSecret', result.stderr)
+
+    def test_plaintext_auth_values_are_rejected(self):
+        result = render('auth.token=not-a-production-token')
+        self.assertNotEqual(result.returncode, 0)
+
     def test_source_wildcards_are_rejected(self):
         result = render('networkPolicy.sourceHosts[0]=*.example.org')
         self.assertNotEqual(result.returncode, 0)
@@ -38,10 +47,21 @@ class Contract(unittest.TestCase):
         pod = resources['Deployment']['spec']['template']['spec']
         self.assertFalse(pod['automountServiceAccountToken'])
         self.assertEqual(pod['securityContext']['runAsUser'], 65532)
-        self.assertEqual(pod['volumes'][1]['secret']['items'], [{'key': 'ca.crt', 'path': 'ca.crt'}])
+        volumes = {volume['name']: volume for volume in pod['volumes']}
+        self.assertEqual(volumes['postgres-ca']['secret']['items'], [{'key': 'ca.crt', 'path': 'ca.crt'}])
+        self.assertEqual(volumes['api-auth']['secret']['items'], [{'key': 'token', 'path': 'token'}])
+        self.assertEqual(volumes['api-auth']['secret']['secretName'], 'kded-catalog-api-auth')
+        mounts = {mount['name']: mount for mount in pod['containers'][0]['volumeMounts']}
+        self.assertEqual(mounts['api-auth']['mountPath'], '/run/secrets/api')
+        self.assertTrue(mounts['api-auth']['readOnly'])
         self.assertTrue(pod['containers'][0]['securityContext']['readOnlyRootFilesystem'])
         env = {x['name']: x['value'] for x in pod['containers'][0]['env']}
         self.assertEqual(env['PGSSLMODE'], 'verify-full')
+        self.assertEqual(env['AUTH_TOKEN_FILE'], '/run/secrets/api/token')
+        self.assertNotIn('AUTH_TOKEN', env)
+        self.assertNotIn('PGPASSWORD', env)
+        self.assertNotIn('PGUSER', env)
+        self.assertNotIn('ca.key', result.stdout)
         self.assertEqual(resources['Ingress']['spec']['ingressClassName'], 'tailscale')
         cnp = resources['CiliumNetworkPolicy']['spec']
         self.assertEqual(cnp['egress'][2]['toFQDNs'], [{'matchName': 'macked.app'}, {'matchName': 'appstorrent.ru'}])

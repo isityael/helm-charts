@@ -5,7 +5,7 @@ Private update catalog with PostgreSQL persistence and bounded source workers.
 ## Requirements
 
 Kubernetes >=1.28, an existing PostgreSQL database and dedicated basic-auth Secret,
-and the PostgreSQL CA certificate Secret. Tailscale Kubernetes operator and Cilium
+the PostgreSQL CA certificate Secret, and a dedicated API bearer-token Secret. Tailscale Kubernetes operator and Cilium
 are required when their integrations are enabled. No application PVC is used.
 
 ## Install
@@ -18,6 +18,10 @@ unpinned enabled images. Install using the infrastructure GitOps workflow.
 
 `postgres.existingSecret` must contain `username` and `password`. Only `ca.crt`
 from `postgres.caSecret` is mounted; connections require hostname verification.
+`auth.existingSecret` must contain a cryptographically random `token` of at least
+32 bytes. It is mounted read-only at `/run/secrets/api/token` and supplied via
+`AUTH_TOKEN_FILE`; tokens are never included in values or environment variables.
+Mutating POST endpoints require bearer authentication in addition to private ingress.
 Workers default to concurrency four, one request per source and a two-second
 source interval. All catalog state lives in PostgreSQL. Database creation and
 credentials are managed separately from this application chart.

@@ -14,6 +14,8 @@ postgres:
   database: kded_catalog
   existingSecret: kded-catalog-postgres-auth
   caSecret: cnpg-main-ca
+auth:
+  existingSecret: kded-catalog-api-auth
 worker:
   concurrency: 4
   sourceConcurrency: 1
