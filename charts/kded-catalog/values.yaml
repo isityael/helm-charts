@@ -1,0 +1,35 @@
+# Enable only after publishing and verifying an immutable application image.
+enabled: false
+image:
+  spec: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+replicaCount: 1
+revisionHistoryLimit: 2
+service:
+  port: 8080
+postgres:
+  host: cnpg-main-rw.apps.svc.cluster.local
+  port: 5432
+  database: kded_catalog
+  existingSecret: kded-catalog-postgres-auth
+  caSecret: cnpg-main-ca
+worker:
+  concurrency: 4
+  sourceConcurrency: 1
+  sourceIntervalSeconds: 2
+tailscale:
+  enabled: false
+  hostname: kded-catalog
+  proxyClass: ts-standalone-ingress
+networkPolicy:
+  enabled: true
+  # Exact source names only; matchPattern wildcards are deliberately unsupported.
+  sourceHosts: [macked.app, appstorrent.ru]
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

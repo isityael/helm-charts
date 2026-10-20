@@ -1,0 +1,126 @@
+{{- if .Values.enabled }}
+{{- if not (regexMatch "^[^ @]+@sha256:[a-f0-9]{64}$" .Values.image.spec) }}
+{{- fail "enabled kded-catalog requires image.spec pinned to a verified sha256 digest" }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kded-catalog.name" . }}
+  labels:
+    {{- include "kded-catalog.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "kded-catalog.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kded-catalog.labels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kded-catalog
+          image: {{ .Values.image.spec | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          env:
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:8080"
+            - name: PGHOST
+              value: {{ .Values.postgres.host | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgres.port | quote }}
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+            - name: PGUSER_FILE
+              value: /run/credentials/username
+            - name: PGPASSWORD_FILE
+              value: /run/credentials/password
+            - name: PGSSLROOTCERT
+              value: /run/postgres-ca/ca.crt
+            - name: PGSSLMODE
+              value: verify-full
+            - name: WORKER_CONCURRENCY
+              value: {{ .Values.worker.concurrency | quote }}
+            - name: SOURCE_CONCURRENCY
+              value: {{ .Values.worker.sourceConcurrency | quote }}
+            - name: SOURCE_INTERVAL_SECONDS
+              value: {{ .Values.worker.sourceIntervalSeconds | quote }}
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: credentials
+              mountPath: /run/credentials
+              readOnly: true
+            - name: postgres-ca
+              mountPath: /run/postgres-ca
+              readOnly: true
+      volumes:
+        - name: credentials
+          secret:
+            secretName: {{ .Values.postgres.existingSecret }}
+            defaultMode: 0440
+            items:
+              - key: username
+                path: username
+              - key: password
+                path: password
+        - name: postgres-ca
+          secret:
+            secretName: {{ .Values.postgres.caSecret }}
+            defaultMode: 0440
+            items:
+              - key: ca.crt
+                path: ca.crt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kded-catalog.name" . }}
+  labels:
+    {{- include "kded-catalog.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+  selector:
+    {{- include "kded-catalog.labels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,6 @@
+{{- if .Values.enabled }}
+kded-catalog uses the existing PostgreSQL database configured in postgres.
+The Tailscale Ingress is private to the authorised tailnet.
+{{- else }}
+kded-catalog is disabled. Verify and pin an application digest before enabling.
+{{- end }}

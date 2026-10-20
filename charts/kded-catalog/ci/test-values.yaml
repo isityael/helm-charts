@@ -1,0 +1,6 @@
+# Inert settings exercise the secure, disabled installation by default.
+enabled: false
+tailscale:
+  enabled: false
+networkPolicy:
+  sourceHosts: [downloads.example.org]

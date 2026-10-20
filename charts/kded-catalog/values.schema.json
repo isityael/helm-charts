@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "enabled",
+    "image",
+    "postgres",
+    "worker",
+    "networkPolicy"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "spec"
+      ],
+      "properties": {
+        "spec": {
+          "type": "string"
+        }
+      }
+    },
+    "worker": {
+      "type": "object",
+      "properties": {
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "sourceConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "sourceIntervalSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "sourceHosts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*\\.[a-z]{2,}$"
+          }
+        }
+      }
+    }
+  }
+}

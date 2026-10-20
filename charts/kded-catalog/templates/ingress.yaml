@@ -1,0 +1,17 @@
+{{- if and .Values.enabled .Values.tailscale.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kded-catalog.name" . }}-tailnet
+  annotations:
+    tailscale.com/proxy-class: {{ .Values.tailscale.proxyClass | quote }}
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: {{ include "kded-catalog.name" . }}
+      port:
+        number: {{ .Values.service.port }}
+  tls:
+    - hosts: [{{ .Values.tailscale.hostname | quote }}]
+{{- end }}

@@ -1,0 +1,46 @@
+{{- if and .Values.enabled .Values.networkPolicy.enabled }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "kded-catalog.name" . }}
+spec:
+  endpointSelector:
+    matchLabels:
+      {{- include "kded-catalog.labels" . | nindent 6 }}
+  ingress:
+    - fromEntities: [host, remote-node]
+      toPorts:
+        - ports: [{port: "8080", protocol: TCP}]
+    {{- if .Values.tailscale.enabled }}
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tailscale
+            tailscale.com/parent-resource: {{ printf "%s-tailnet" (include "kded-catalog.name" .) }}
+      toPorts:
+        - ports: [{port: "8080", protocol: TCP}]
+    {{- end }}
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports: [{port: "53", protocol: UDP}, {port: "53", protocol: TCP}]
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: apps
+            cnpg.io/cluster: cnpg-main
+      toPorts:
+        - ports: [{port: "5432", protocol: TCP}]
+    {{- if .Values.networkPolicy.sourceHosts }}
+    - toFQDNs:
+        {{- range .Values.networkPolicy.sourceHosts }}
+        - matchName: {{ . | quote }}
+        {{- end }}
+      toPorts:
+        - ports: [{port: "443", protocol: TCP}]
+    {{- end }}
+{{- end }}
