@@ -7,7 +7,8 @@
     "postgres",
     "worker",
     "networkPolicy",
-    "auth"
+    "auth",
+    "browser"
   ],
   "properties": {
     "enabled": {
@@ -73,6 +74,108 @@
           "type": "string"
         }
       }
+    },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "apiIntegration",
+        "image",
+        "publicOrigin",
+        "persistence",
+        "egressHosts",
+        "resources",
+        "proxyResources"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "apiIntegration": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "string",
+          "pattern": "^selenium/standalone-firefox@sha256:[a-f0-9]{64}$"
+        },
+        "publicOrigin": {
+          "type": "string"
+        },
+        "persistence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "storageClass",
+            "size"
+          ],
+          "properties": {
+            "storageClass": {
+              "type": "string"
+            },
+            "size": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(Mi|Gi)$"
+            }
+          }
+        },
+        "egressHosts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*\\.[a-z]{2,}$"
+          }
+        },
+        "resources": {
+          "type": "object"
+        },
+        "proxyResources": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "apiIntegration": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "publicOrigin": {
+                "pattern": "^https://[a-z0-9.-]+$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "persistence": {
+                "properties": {
+                  "storageClass": {
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "allOf": [

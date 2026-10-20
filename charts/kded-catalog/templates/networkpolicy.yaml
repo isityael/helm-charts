@@ -20,6 +20,15 @@ spec:
         - ports: [{port: "8080", protocol: TCP}]
     {{- end }}
   egress:
+    {{- if .Values.browser.enabled }}
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: kded-catalog-browser
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+      toPorts:
+        - ports: [{port: "4444", protocol: TCP}, {port: "7900", protocol: TCP}]
+    {{- end }}
     - toEndpoints:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: kube-system
@@ -43,4 +52,81 @@ spec:
       toPorts:
         - ports: [{port: "443", protocol: TCP}]
     {{- end }}
+{{- end }}
+{{- if and .Values.enabled .Values.browser.enabled }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "kded-catalog.name" . }}-browser
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: kded-catalog-browser
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            {{- include "kded-catalog.labels" . | nindent 12 }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+      toPorts:
+        - ports: [{port: "4444", protocol: TCP}, {port: "7900", protocol: TCP}]
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports: [{port: "53", protocol: UDP}, {port: "53", protocol: TCP}]
+          rules:
+            dns:
+              - matchName: {{ printf "%s-egress.%s.svc.cluster.local" (include "kded-catalog.name" .) .Release.Namespace }}
+              - matchName: {{ printf "%s-egress" (include "kded-catalog.name" .) }}
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: kded-catalog-egress
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+      toPorts:
+        - ports: [{port: "3128", protocol: TCP}]
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "kded-catalog.name" . }}-egress
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: kded-catalog-egress
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    # Kubelet TCP health checks only; browser remains inaccessible to hosts.
+    - fromEntities: [host]
+      toPorts:
+        - ports: [{port: "3128", protocol: TCP}]
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: kded-catalog-browser
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+      toPorts:
+        - ports: [{port: "3128", protocol: TCP}]
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: kube-system
+            k8s:k8s-app: kube-dns
+      toPorts:
+        - ports: [{port: "53", protocol: UDP}, {port: "53", protocol: TCP}]
+          rules:
+            dns:
+              {{- range .Values.browser.egressHosts }}
+              - matchName: {{ . | quote }}
+              {{- end }}
+    - toFQDNs:
+        {{- range .Values.browser.egressHosts }}
+        - matchName: {{ . | quote }}
+        {{- end }}
+      toPorts:
+        - ports: [{port: "443", protocol: TCP}]
 {{- end }}

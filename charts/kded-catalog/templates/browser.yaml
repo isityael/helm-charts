@@ -1,0 +1,226 @@
+{{- if and .Values.enabled .Values.browser.enabled }}
+{{- if not .Values.networkPolicy.enabled }}
+{{- fail "browser requires networkPolicy.enabled" }}
+{{- end }}
+{{- if not (regexMatch "^selenium/standalone-firefox@sha256:[a-f0-9]{64}$" .Values.browser.image) }}
+{{- fail "browser.image must pin the official Selenium Firefox image by sha256" }}
+{{- end }}
+{{- if not .Values.browser.persistence.storageClass }}
+{{- fail "browser requires an explicit persistent storageClass" }}
+{{- end }}
+{{- if and .Values.browser.apiIntegration (not (regexMatch "^https://[a-z0-9.-]+$" .Values.browser.publicOrigin)) }}
+{{- fail "browser API integration requires an HTTPS publicOrigin without a path" }}
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kded-catalog.name" . }}-browser-profile
+  labels:
+    app.kubernetes.io/name: kded-catalog-browser
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    velero.io/exclude-from-backup: "true"
+  annotations:
+    # Contains login credentials. Retain until explicitly destroyed, never export.
+    helm.sh/resource-policy: keep
+    argocd.argoproj.io/sync-options: Prune=false,Delete=false
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: {{ .Values.browser.persistence.storageClass | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.browser.persistence.size | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kded-catalog.name" . }}-browser
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kded-catalog-browser
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kded-catalog-browser
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        velero.io/exclude-from-backup: "true"
+      annotations:
+        backup.velero.io/backup-volumes-excludes: profile
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1200
+        runAsGroup: 1201
+        fsGroup: 1201
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: firefox
+          image: {{ .Values.browser.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: [/bin/bash, -ec]
+          args:
+            - 'umask 077; mkdir -p "$HOME"; exec /opt/bin/entry_point.sh'
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: webdriver
+              containerPort: 4444
+            - name: novnc
+              containerPort: 7900
+          env:
+            - name: HOME
+              value: /tmp/seluser
+            - name: CONFIG_FILE
+              value: /tmp/selenium-config.toml
+            - name: SEL_DOWNLOAD_DIR
+              value: /tmp/seluser/Downloads
+            - name: SE_NODE_MAX_SESSIONS
+              value: "1"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "86400"
+            - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+              value: "false"
+            - name: SE_ENABLE_TRACING
+              value: "false"
+            - name: SE_LOG_LEVEL
+              value: WARNING
+            - name: SE_HTTP_LOGS
+              value: "false"
+            - name: SE_VNC_NO_PASSWORD
+              value: "true"
+            - name: SE_START_XVFB
+              value: "true"
+            - name: SE_START_VNC
+              value: "true"
+            - name: SE_START_NO_VNC
+              value: "true"
+          readinessProbe:
+            exec:
+              command: [curl, --fail, --silent, --max-time, "3", "http://127.0.0.1:4444/status"]
+          startupProbe:
+            exec:
+              command: [curl, --fail, --silent, --max-time, "3", "http://127.0.0.1:4444/status"]
+            periodSeconds: 5
+            failureThreshold: 60
+          resources:
+            {{- toYaml .Values.browser.resources | nindent 12 }}
+          volumeMounts:
+            - name: profile
+              mountPath: /home/seluser/profile
+            - name: shm
+              mountPath: /dev/shm
+            - name: temporary
+              mountPath: /tmp
+            - name: temporary
+              mountPath: /var/tmp
+      volumes:
+        - name: profile
+          persistentVolumeClaim:
+            claimName: {{ include "kded-catalog.name" . }}-browser-profile
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: temporary
+          emptyDir:
+            sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kded-catalog.name" . }}-browser
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: kded-catalog-browser
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - name: webdriver
+      port: 4444
+      targetPort: webdriver
+    - name: novnc
+      port: 7900
+      targetPort: novnc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kded-catalog.name" . }}-egress
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kded-catalog-egress
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kded-catalog-egress
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: egress
+          image: {{ .Values.image.spec | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [/catalog-egress]
+          env:
+            - name: KDED_EGRESS_LISTEN
+              value: "0.0.0.0:3128"
+            - name: KDED_EGRESS_HOSTS
+              value: {{ join "," .Values.browser.egressHosts | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: proxy
+              containerPort: 3128
+          readinessProbe:
+            tcpSocket:
+              port: proxy
+          livenessProbe:
+            tcpSocket:
+              port: proxy
+          resources:
+            {{- toYaml .Values.browser.proxyResources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kded-catalog.name" . }}-egress
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: kded-catalog-egress
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+    - name: proxy
+      port: 3128
+      targetPort: proxy
+{{- end }}

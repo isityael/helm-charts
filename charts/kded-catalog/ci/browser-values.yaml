@@ -1,0 +1,13 @@
+# Inert registry digest is render-only; never deploy this fixture.
+enabled: true
+image:
+  spec: example.invalid/catalog@sha256:0000000000000000000000000000000000000000000000000000000000000000
+browser:
+  enabled: true
+  apiIntegration: true
+  publicOrigin: https://catalog.example.org
+  persistence:
+    storageClass: render-only-zfs
+  egressHosts: [downloads.example.org]
+tailscale:
+  enabled: true

@@ -71,6 +71,14 @@ spec:
               value: {{ .Values.worker.sourceConcurrency | quote }}
             - name: SOURCE_INTERVAL_SECONDS
               value: {{ .Values.worker.sourceIntervalSeconds | quote }}
+            {{- if and .Values.browser.enabled .Values.browser.apiIntegration }}
+            - name: KDED_BROWSER_WEBDRIVER_URL
+              value: {{ printf "http://%s-browser:4444" (include "kded-catalog.name" .) | quote }}
+            - name: KDED_BROWSER_NOVNC_URL
+              value: {{ printf "http://%s-browser:7900" (include "kded-catalog.name" .) | quote }}
+            - name: KDED_BROWSER_PUBLIC_ORIGIN
+              value: {{ .Values.browser.publicOrigin | quote }}
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /readyz

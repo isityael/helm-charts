@@ -6,6 +6,31 @@ image:
 imagePullSecrets: []
 replicaCount: 1
 revisionHistoryLimit: 2
+browser:
+  # Provision first; integrate only after runtime sandbox and egress proof.
+  enabled: false
+  apiIntegration: false
+  image: "selenium/standalone-firefox@sha256:2bb7d9e63088ba6dc7f4d5acd807f27d8410221f881853a97ac3c95f50e8d951"
+  publicOrigin: ""
+  persistence:
+    storageClass: ""
+    size: 2Gi
+  # Observe and approve exact static-resource names before extending this list.
+  egressHosts: [macked.app, appstorrent.ru, challenges.cloudflare.com]
+  resources:
+    requests:
+      cpu: "1"
+      memory: 2Gi
+    limits:
+      cpu: "2"
+      memory: 3Gi
+  proxyResources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 service:
   port: 8080
 postgres:
