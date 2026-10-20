@@ -12,6 +12,7 @@ browser:
   apiIntegration: false
   image: "selenium/standalone-firefox@sha256:2bb7d9e63088ba6dc7f4d5acd807f27d8410221f881853a97ac3c95f50e8d951"
   publicOrigin: ""
+  podAnnotations: {}
   persistence:
     storageClass: ""
     size: 2Gi

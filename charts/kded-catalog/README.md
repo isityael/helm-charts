@@ -93,3 +93,11 @@ direct/private/unapproved egress and private desktop access before enabling
 `browser.apiIntegration`. Integration sets all three `KDED_BROWSER_*` variables
 together and requires `browser.publicOrigin` to be the tailnet HTTPS origin.
 The existing Tailscale Ingress continues to route only to the Rust API.
+
+The temporary volume also covers the image's fixed `/var/log/supervisor` log
+directory so Xvfb, VNC and noVNC can start with a read-only root filesystem.
+Startup and readiness require the X11 Unix socket selected by `DISPLAY_NUM`, a
+VNC RFB greeting and successful WebDriver/noVNC HTTP responses.
+`browser.podAnnotations` accepts string annotations for declarative browser pod
+rollouts, including profile-persistence validation. The mandatory profile backup
+exclusion takes precedence over a conflicting custom annotation.

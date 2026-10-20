@@ -6,6 +6,8 @@ browser:
   enabled: true
   apiIntegration: true
   publicOrigin: https://catalog.example.org
+  podAnnotations:
+    kded.m0sh1.cc/profile-validation: render-only
   persistence:
     storageClass: render-only-zfs
   egressHosts: [downloads.example.org]

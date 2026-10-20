@@ -50,7 +50,9 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         velero.io/exclude-from-backup: "true"
       annotations:
-        backup.velero.io/backup-volumes-excludes: profile
+        {{- $annotations := mergeOverwrite (deepCopy .Values.browser.podAnnotations)
+              (dict "backup.velero.io/backup-volumes-excludes" "profile") }}
+        {{- toYaml $annotations | nindent 8 }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -106,11 +108,9 @@ spec:
             - name: SE_START_NO_VNC
               value: "true"
           readinessProbe:
-            exec:
-              command: [curl, --fail, --silent, --max-time, "3", "http://127.0.0.1:4444/status"]
+            {{- include "kded-catalog.browserProbe" . | nindent 12 }}
           startupProbe:
-            exec:
-              command: [curl, --fail, --silent, --max-time, "3", "http://127.0.0.1:4444/status"]
+            {{- include "kded-catalog.browserProbe" . | nindent 12 }}
             periodSeconds: 5
             failureThreshold: 60
           resources:
@@ -124,6 +124,8 @@ spec:
               mountPath: /tmp
             - name: temporary
               mountPath: /var/tmp
+            - name: temporary
+              mountPath: /var/log/supervisor
       volumes:
         - name: profile
           persistentVolumeClaim:
