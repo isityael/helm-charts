@@ -10,6 +10,12 @@ are required when their integrations are enabled. No application PVC is used.
 
 ## Install
 
+This chart is published to Forgejo at
+`oci://git.m0sh1.cc/m0sh1-internal/charts/kded-catalog`.
+Authenticate Helm to `git.m0sh1.cc` using the existing package registry credential
+through `--password-stdin` before retrieving it. KDED releases use Forgejo;
+the shared repository's GHCR publication route is excluded for this chart.
+
 Publish and verify an immutable application image, then provide its real digest
 in `image.spec` and set `enabled=true`. The chart defaults to disabled and refuses
 unpinned enabled images. Install using the infrastructure GitOps workflow.

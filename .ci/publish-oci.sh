@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publish all charts to GHCR OCI, skipping versions that already exist.
-# Expects GHCR_USERNAME and GHCR_TOKEN env vars.
+# Publish KDED privately to Forgejo and retain existing GHCR destinations for other charts.
+# Expects registry credentials for each configured destination; skips published versions.
 printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+if [ -f charts/kded-catalog/Chart.yaml ]; then
+  : "${FORGEJO_PACKAGE_USERNAME:?FORGEJO_PACKAGE_USERNAME is required for KDED publishing}"
+  : "${FORGEJO_PACKAGE_TOKEN:?FORGEJO_PACKAGE_TOKEN is required for KDED publishing}"
+  printf '%s\n' "$FORGEJO_PACKAGE_TOKEN" \
+    | helm registry login git.m0sh1.cc -u "$FORGEJO_PACKAGE_USERNAME" --password-stdin
+fi
 
 published_refs_file=".ci/published-oci-refs.txt"
 mkdir -p "$(dirname "$published_refs_file")"
@@ -53,9 +59,13 @@ for chart in charts/*/; do
 
   name="$(basename "$chart")"
   version="$(grep '^version:' "$chartfile" | awk '{print $2}')"
+  case "$name" in
+    kded-catalog) repository="git.m0sh1.cc/m0sh1-internal/charts" ;;
+    *) repository="ghcr.io/isityael/charts" ;;
+  esac
 
-  if helm show chart "oci://ghcr.io/isityael/charts/${name}" --version "${version}" >/dev/null 2>&1; then
-    echo "SKIP ${name}:${version} (already on GHCR)"
+  if helm show chart "oci://${repository}/${name}" --version "${version}" >/dev/null 2>&1; then
+    echo "SKIP ${name}:${version} (already on ${repository})"
     continue
   fi
 
@@ -67,7 +77,7 @@ for chart in charts/*/; do
 
   echo "Packaging and pushing ${name}:${version}..."
   pkg="$(helm package "$chart" -d /tmp/ | awk '{print $NF}')"
-  push_output="$(helm push "$pkg" oci://ghcr.io/isityael/charts 2>&1)"
+  push_output="$(helm push "$pkg" "oci://${repository}" 2>&1)"
   printf '%s\n' "$push_output"
 
   digest="$(printf '%s\n' "$push_output" | awk '/^Digest:/ {print $2; exit}')"
@@ -76,7 +86,7 @@ for chart in charts/*/; do
     exit 1
   fi
 
-  ref="ghcr.io/isityael/charts/${name}@${digest}"
+  ref="${repository}/${name}@${digest}"
   printf '%s\n' "$ref" >>"$published_refs_file"
   sign_ref "$ref"
 done

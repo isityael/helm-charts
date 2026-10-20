@@ -1,8 +1,8 @@
-# helm-charts — Publish all charts to GHCR OCI
+# helm-charts — Publish charts to their configured OCI registries
 #
 # Triggered on push to main when charts/ change, or manually.
-# Packages each chart and pushes to oci://ghcr.io/isityael/charts,
-# skipping versions that already exist.
+# KDED publishes privately to Forgejo; other chart destinations stay unchanged.
+# Registry routing and existing-version checks live in .ci/publish-oci.sh.
 #
 # Script is in .ci/publish-oci.sh to avoid Woodpecker's ${VAR}
 # pre-processing which strips shell-local variable expansions.
@@ -36,6 +36,10 @@ steps:
         from_secret: github_username
       GHCR_TOKEN:
         from_secret: github_token
+      FORGEJO_PACKAGE_USERNAME:
+        from_secret: forgejo_package_username
+      FORGEJO_PACKAGE_TOKEN:
+        from_secret: forgejo_package_token
       DHI_USERNAME:
         from_secret: dhi_username
       DHI_PASSWORD:

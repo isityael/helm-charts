@@ -46,8 +46,14 @@ chart_files=()
 if [ -s "$published_refs_file" ]; then
   while IFS= read -r published_ref; do
     [ -n "$published_ref" ] || continue
+    # Private Forgejo charts have no Artifact Hub metadata publication contract.
+    case "$published_ref" in
+      "${registry}/${namespace}/"*) ;;
+      *) continue ;;
+    esac
     published_name="${published_ref%@*}"
     published_name="${published_name##*/}"
+    [ "$published_name" != kded-catalog ] || continue
     chart_file="charts/${published_name}/Chart.yaml"
     if [ ! -f "$chart_file" ]; then
       echo "Published OCI reference has no matching chart: ${published_ref}" >&2
@@ -57,13 +63,14 @@ if [ -s "$published_refs_file" ]; then
   done <"$published_refs_file"
 else
   for chart_file in charts/*/Chart.yaml; do
+    [ "$chart_file" != charts/kded-catalog/Chart.yaml ] || continue
     [ -f "$chart_file" ] && chart_files+=("$chart_file")
   done
 fi
 
 if [ "${#chart_files[@]}" -eq 0 ]; then
-  echo "No Helm charts found under charts/." >&2
-  exit 1
+  echo "No charts require Artifact Hub metadata publication."
+  exit 0
 fi
 
 for chart_file in "${chart_files[@]}"; do
