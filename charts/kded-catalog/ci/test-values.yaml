@@ -4,3 +4,6 @@ tailscale:
   enabled: false
 networkPolicy:
   sourceHosts: [downloads.example.org]
+
+flareSolverr:
+  url: http://solver.example.invalid:30193
