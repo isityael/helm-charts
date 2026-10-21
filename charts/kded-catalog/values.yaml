@@ -61,3 +61,7 @@ resources:
   limits:
     cpu: "1"
     memory: 512Mi
+
+# Optional private, restricted Macked-only stateless solver bridge.
+flareSolverr:
+  url: ""

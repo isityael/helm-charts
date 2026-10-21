@@ -69,6 +69,10 @@ spec:
               value: {{ .Values.worker.concurrency | quote }}
             - name: SOURCE_CONCURRENCY
               value: {{ .Values.worker.sourceConcurrency | quote }}
+            {{- if .Values.flareSolverr.url }}
+            - name: KDED_FLARESOLVERR_URL
+              value: {{ .Values.flareSolverr.url | quote }}
+            {{- end }}
             - name: SOURCE_INTERVAL_SECONDS
               value: {{ .Values.worker.sourceIntervalSeconds | quote }}
             {{- if and .Values.browser.enabled .Values.browser.apiIntegration }}
