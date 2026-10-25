@@ -267,6 +267,8 @@ spec:
             - mcp
             - --transport
             - streamable-http
+            - --host
+            - {{ ternary "127.0.0.1" "0.0.0.0" .Values.mcpShim.enabled | quote }}
             - --port
             - {{ .Values.basicMemory.upstreamPort | quote }}
           ports:
@@ -292,22 +294,46 @@ spec:
             - name: pip-cache
               mountPath: /home/appuser/.cache
           startupProbe:
+            {{- if .Values.mcpShim.enabled }}
+            exec:
+              command:
+                - /app/.venv/bin/python
+                - -c
+                - {{ printf "import socket; socket.create_connection(('127.0.0.1', %d), timeout=2).close()" (int .Values.basicMemory.upstreamPort) | quote }}
+            {{- else }}
             tcpSocket:
               port: {{ .Values.basicMemory.upstreamPort }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.startupProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.startupProbe.failureThreshold }}
           livenessProbe:
+            {{- if .Values.mcpShim.enabled }}
+            exec:
+              command:
+                - /app/.venv/bin/python
+                - -c
+                - {{ printf "import socket; socket.create_connection(('127.0.0.1', %d), timeout=2).close()" (int .Values.basicMemory.upstreamPort) | quote }}
+            {{- else }}
             tcpSocket:
               port: {{ .Values.basicMemory.upstreamPort }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
           readinessProbe:
+            {{- if .Values.mcpShim.enabled }}
+            exec:
+              command:
+                - /app/.venv/bin/python
+                - -c
+                - {{ printf "import socket; socket.create_connection(('127.0.0.1', %d), timeout=2).close()" (int .Values.basicMemory.upstreamPort) | quote }}
+            {{- else }}
             tcpSocket:
               port: {{ .Values.basicMemory.upstreamPort }}
+            {{- end }}
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
