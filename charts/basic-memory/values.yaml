@@ -203,7 +203,8 @@ securityContext:
   fsGroup: 1000
 
 # The upstream Basic Memory server has no dedicated health endpoint,
-# so we use TCP probes on the listening port.
+# so we check its listening port. With the shim enabled, exec probes connect
+# over loopback to keep the unfiltered upstream private to the pod.
 startupProbe:
   initialDelaySeconds: 5
   periodSeconds: 5

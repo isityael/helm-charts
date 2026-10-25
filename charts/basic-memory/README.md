@@ -298,3 +298,7 @@ create the pod.
 - Upstream Basic Memory by [basicmachines-co](https://github.com/basicmachines-co/basic-memory) (AGPL-3.0)
 - MCP shim + LiveSync bridge by [@isityael](https://github.com/isityael)
 - Chart by [@isityael](https://github.com/isityael)
+
+### Server health checks
+
+With the MCP shim enabled, the Python server binds to pod loopback and health checks connect locally using its Python runtime. This keeps clients from reaching the server around the shim policy. When the shim is disabled, the server binds to all interfaces and uses Kubernetes TCP probes.
