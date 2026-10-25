@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.60
+version: 0.1.61
 appVersion: "17.0.0"
 kubeVersion: ">=1.28.0-0"
 home: https://forgejo.org/

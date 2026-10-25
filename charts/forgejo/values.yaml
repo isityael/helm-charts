@@ -13,7 +13,7 @@ forgejo:
   image:
     registry: ghcr.io
     repository: isityael/forgejo
-    tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+    tag: "2da683c2-1217@sha256:a5bc47c7f849d28b787a0ef5cfb536e1bada87a6cd41e93e90ac842050b45607"
     pullPolicy: IfNotPresent
     # Keep true so upstream selects rootless init paths, while this wrapper's
     # gitea.image override avoids appending "-rootless" to our already-rootless
