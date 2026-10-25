@@ -193,7 +193,7 @@ See [`values.yaml`](./values.yaml) for the full list. Highlights:
 | `busyboxTools.image.repository` | `dhi.io/busybox` | Hardened BusyBox runtime for chart-owned init containers |
 | `busyboxTools.image.tag` | `1.38.0-alpine3.24@sha256:…` | Digest-pinned runtime variant; no build toolchain |
 | `denoTools.image.repository` | `dhi.io/deno` | Deno utility image for chart-owned helper scripts |
-| `livesyncBridge.image.repository` | `ghcr.io/isityael/livesync-bridge` | Node runtime image for the LiveSync sync daemon |
+| `livesyncBridge.image.repository` | `git.m0sh1.cc/m0sh1-internal/livesync-bridge` | Private Node runtime image; configure `imagePullSecrets` when enabling the LiveSync sync daemon |
 | `livesyncBridge.image.tag` | *(pinned SHA)* | See *Image inheritance* below |
 | `persistence.enabled` | `true` | PVC for notes + model cache |
 | `persistence.size` | `5Gi` | Scale this to your vault size |

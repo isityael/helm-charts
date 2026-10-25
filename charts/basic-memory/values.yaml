@@ -24,7 +24,7 @@ image:
   repository: ghcr.io/basicmachines-co/basic-memory
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.23.2@sha256:939f1173d96626c280763e14622f2381d49fbbb7db17cae2e832f4f639405643"
+  tag: "0.24.1@sha256:61b168d6211a52c028fe70b5eaf5af814b2d11622d66482adefd02b4cac60b89"
 
 imagePullSecrets: []
 
@@ -52,7 +52,7 @@ busyboxTools:
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.7-debian13@sha256:22b9196a3156309798c9f66eac70bd5253aa68ec0ba4aada84acdc8612e0b7af"
+    tag: "2.9.8-debian13@sha256:803d034892c25435867eb746a2568b68ad0ea4f3499d08cafd4629c84ef592f3"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
@@ -61,16 +61,16 @@ denoTools:
 # The community-maintained Node runtime image used by the obsidianSync
 # livesync daemon when obsidianSync.enabled=true.
 #
-# Pinned to a full commit SHA for reproducibility. Auto-bumped by Renovate's
-# github-tags + currentDigest pattern.
+# Pinned to a full commit SHA and registry digest for reproducibility.
+# The optional daemon requires imagePullSecrets for the private Forgejo registry.
 #
-# Upstream: https://github.com/isityael/livesync-bridge
+# Source: https://git.m0sh1.cc/m0sh1-internal/livesync-bridge
 livesyncBridge:
   image:
-    repository: ghcr.io/isityael/livesync-bridge
-    # GHCR tag format: sha-<full-40-char-commit-sha> (set by publish-ghcr workflow).
+    repository: git.m0sh1.cc/m0sh1-internal/livesync-bridge
+    # Woodpecker tag format: sha-<full-40-char-commit-sha>.
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-34934a27d205258e92c01a51b5351a94a6871844@sha256:7a8296edbbd37f30bd24c246463edc5a6a0be13d2490d02a7df5adcb7f79d860"
+    tag: "sha-3b41a87952ed6da441a8b626e336ec8697fb1a9f@sha256:f09da8d7581e8e4783be007a39bc141dae5c77758527a580d21da2204c0f26ec"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
