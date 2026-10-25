@@ -22,6 +22,10 @@ actual_driver="$(
 if [[ "${actual_driver}" != "${expected_driver}" ]]; then
   fail "csi-s3 maintained image must keep repository and tag fields separate for ArgoCD Image Updater"
 fi
+expected_digest="$(yq '.maintainedImage.digest // ""' "${chart}/values.yaml")"
+if [[ -n "${expected_digest}" ]]; then
+  expected_driver="${expected_driver}@${expected_digest}"
+fi
 
 if grep -Eq -- '--version [0-9]+\.[0-9]+\.[0-9]+' "${chart}/README.md"; then
   fail "csi-s3 install documentation must not pin a chart version that can drift"
