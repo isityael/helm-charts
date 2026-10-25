@@ -97,3 +97,31 @@ test("keeps CSI-S3 appVersion and examples aligned with the maintained v-prefixe
   assert.match(invalid.stderr, /v-prefixed fork release/);
   assert.match(readFileSync(join(chart, "Chart.yaml"), "utf8"), /appVersion: "0\.43\.9-yael\.3"/);
 });
+
+
+test("uses mounted registry authentication when Renovate removes secret environment variables", () => {
+  const fixture = mkdtempSync(join(tmpdir(), "renovate-helm-mounted-auth-"));
+  const fakeBin = join(fixture, "bin");
+  const dockerConfig = join(fixture, "docker.json");
+  const registryConfig = join(fixture, "helm/config.json");
+  const callLog = join(fixture, "calls");
+  mkdirSync(fakeBin);
+  writeFileSync(dockerConfig, JSON.stringify({ auths: { "dhi.io": { auth: "fixture-only" } } }));
+  writeFileSync(join(fakeBin, "helm"), '#!/bin/sh\nprintf "%s\\n" "$*" > "$HELM_CALL_LOG"\n');
+  chmodSync(join(fakeBin, "helm"), 0o755);
+  const result = spawnSync(process.execPath, [command, "charts/example"], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      PATH: `${fakeBin}:${process.env.PATH}`,
+      HELM_CALL_LOG: callLog,
+      RENOVATE_HOST_RULES: "[]",
+      RENOVATE_DOCKER_CONFIG_FILE: dockerConfig,
+      RENOVATE_HELM_REGISTRY_CONFIG_FILE: registryConfig,
+    },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(readFileSync(registryConfig)), { auths: { "dhi.io": { auth: "fixture-only" } } });
+  assert.equal(readFileSync(callLog, "utf8").trim(), `dependency update --registry-config ${registryConfig} charts/example`);
+  assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /fixture-only/);
+});

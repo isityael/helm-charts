@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 function run(command, args, options = {}) {
   return execFileSync(command, args, {
@@ -11,6 +11,53 @@ function run(command, args, options = {}) {
     ...options,
   });
 }
+
+const dockerConfigFile = process.env.RENOVATE_DOCKER_CONFIG_FILE ?? "/renovate-docker-config/config.json";
+const helmRegistryConfigFile = process.env.RENOVATE_HELM_REGISTRY_CONFIG_FILE ?? "/tmp/renovate/helm-registry-config.json";
+
+function readRegistryConfig(path, required) {
+  try {
+    const config = JSON.parse(readFileSync(path, "utf8"));
+    if (!config || typeof config !== "object" || Array.isArray(config)) {
+      throw new Error("config must be a JSON object");
+    }
+    return config;
+  } catch (error) {
+    if (!required && error.code === "ENOENT") {
+      return {};
+    }
+    throw new Error(`cannot read registry config ${path}: ${error.message}`);
+  }
+}
+
+function prepareHelmRegistryConfig() {
+  const dockerConfig = readRegistryConfig(dockerConfigFile, Boolean(process.env.RENOVATE_DOCKER_CONFIG_FILE));
+  if (!dockerConfig.auths && !process.env.RENOVATE_DOCKER_CONFIG_FILE) return null;
+  if (
+    !dockerConfig.auths ||
+    typeof dockerConfig.auths !== "object" ||
+    Array.isArray(dockerConfig.auths)
+  ) {
+    throw new Error(`registry config ${dockerConfigFile} has no auths object`);
+  }
+
+  const helmConfig = readRegistryConfig(helmRegistryConfigFile, false);
+  const mergedConfig = {
+    ...helmConfig,
+    auths: {
+      ...(helmConfig.auths ?? {}),
+      ...dockerConfig.auths,
+    },
+  };
+  const temporaryConfig = `${helmRegistryConfigFile}.tmp-${process.pid}`;
+  mkdirSync(dirname(helmRegistryConfigFile), { recursive: true });
+  writeFileSync(temporaryConfig, `${JSON.stringify(mergedConfig)}\n`, {
+    mode: 0o600,
+  });
+  renameSync(temporaryConfig, helmRegistryConfigFile);
+  return helmRegistryConfigFile;
+}
+
 
 function dockerHostRules() {
   const raw = process.env.RENOVATE_HOST_RULES;
@@ -87,9 +134,10 @@ function main() {
   if (chartDirectories.length === 0) {
     throw new Error("at least one Helm chart directory is required");
   }
+  const registryConfig = prepareHelmRegistryConfig();
   authenticateRegistries();
   for (const chartDirectory of chartDirectories) {
-    run("helm", ["dependency", "update", chartDirectory]);
+    run("helm", ["dependency", "update", ...(registryConfig ? ["--registry-config", registryConfig] : []), chartDirectory]);
     syncCsiMetadata(chartDirectory);
   }
 }
