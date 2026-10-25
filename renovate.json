@@ -43,15 +43,21 @@
   "bumpVersions": [
     {
       "name": "Bump chart version for chart dependency updates",
-      "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
-      "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+      "filePatterns": [
+        "{{packageFileDir}}/Chart.yaml"
+      ],
+      "matchStrings": [
+        "version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"
+      ],
       "bumpType": "patch"
     }
   ],
   "packageRules": [
     {
       "description": "Fork releases are <upstream>-yael.<n>: compare the fork build number instead of treating it as a compatibility suffix",
-      "matchDatasources": ["docker"],
+      "matchDatasources": [
+        "docker"
+      ],
       "matchPackageNames": [
         "ghcr.io/isityael/csi-s3-driver",
         "ghcr.io/isityael/nfsplugin",
@@ -62,20 +68,30 @@
       "versioning": "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-yael\\.(?<build>\\d+)$"
     },
     {
-      "matchManagers": ["helmv3", "helm-values"],
+      "matchManagers": [
+        "helmv3",
+        "helm-values"
+      ],
       "groupName": "{{parentDir}} Helm chart",
       "groupSlug": "{{parentDir}}-helm-chart",
       "separateMinorPatch": true,
-      "labels": ["dependencies", "helm"]
+      "labels": [
+        "dependencies",
+        "helm"
+      ]
     },
     {
       "description": "Refresh committed locks and vendored archives for every chart dependency update",
-      "matchManagers": ["helmv3"],
+      "matchManagers": [
+        "helmv3"
+      ],
       "postUpgradeTasks": {
-        "commands": ["node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"],
+        "commands": [
+          "node .ci/renovate-helm-dependency-update.mjs {{{packageFileDir}}}"
+        ],
         "fileFilters": [
-          "{{{packageFileDir}}}/Chart.lock",
-          "{{{packageFileDir}}}/charts/**"
+          "charts/*/Chart.lock",
+          "charts/*/charts/**"
         ],
         "executionMode": "update",
         "installTools": {
@@ -85,74 +101,130 @@
     },
     {
       "description": "Keep csi-s3 upstream dependency and vendored archive in sync",
-      "matchManagers": ["helmv3"],
-      "matchFileNames": ["charts/csi-s3/Chart.yaml"],
+      "matchManagers": [
+        "helmv3"
+      ],
+      "matchFileNames": [
+        "charts/csi-s3/Chart.yaml"
+      ],
       "groupName": "csi-s3 upstream chart",
-      "labels": ["dependencies", "helm", "csi-s3"],
+      "labels": [
+        "dependencies",
+        "helm",
+        "csi-s3"
+      ],
       "bumpVersions": [
         {
           "name": "Patch-bump csi-s3 for upstream chart updates",
-          "filePatterns": ["charts/csi-s3/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "filePatterns": [
+            "charts/csi-s3/Chart.yaml"
+          ],
+          "matchStrings": [
+            "version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"
+          ],
           "bumpType": "patch"
         }
       ]
     },
     {
       "description": "Patch-bump csi-s3 when its image references change",
-      "matchManagers": ["helm-values"],
-      "matchFileNames": ["charts/csi-s3/values.yaml"],
-      "matchPackageNames": ["ghcr.io/isityael/csi-s3-driver"],
+      "matchManagers": [
+        "helm-values"
+      ],
+      "matchFileNames": [
+        "charts/csi-s3/values.yaml"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/isityael/csi-s3-driver"
+      ],
       "groupName": "csi-s3 images",
-      "labels": ["dependencies", "docker", "csi-s3"],
+      "labels": [
+        "dependencies",
+        "docker",
+        "csi-s3"
+      ],
       "bumpVersions": [
         {
           "name": "Patch-bump csi-s3 for image updates",
-          "filePatterns": ["charts/csi-s3/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "filePatterns": [
+            "charts/csi-s3/Chart.yaml"
+          ],
+          "matchStrings": [
+            "version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"
+          ],
           "bumpType": "patch"
         }
       ]
     },
     {
       "description": "Keep CSI-S3 maintained image tags compatible with ArgoCD Image Updater",
-      "matchManagers": ["helm-values"],
-      "matchFileNames": ["charts/csi-s3/values.yaml"],
-      "matchPackageNames": ["ghcr.io/isityael/csi-s3-driver"],
+      "matchManagers": [
+        "helm-values"
+      ],
+      "matchFileNames": [
+        "charts/csi-s3/values.yaml"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/isityael/csi-s3-driver"
+      ],
       "pinDigests": false,
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-yael\\.(?<build>\\d+)$",
       "postUpgradeTasks": {
-        "commands": ["node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"],
-        "fileFilters": ["charts/csi-s3/**"],
+        "commands": [
+          "node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"
+        ],
+        "fileFilters": [
+          "charts/csi-s3/**"
+        ],
         "executionMode": "branch",
-        "installTools": {"helm": {}}
+        "installTools": {
+          "helm": {}
+        }
       }
     },
     {
       "description": "Patch-bump chart versions when Renovate changes chart values",
-      "matchManagers": ["helm-values"],
-      "matchFileNames": ["charts/**/values*.yaml"],
+      "matchManagers": [
+        "helm-values"
+      ],
+      "matchFileNames": [
+        "charts/**/values*.yaml"
+      ],
       "bumpVersions": [
         {
           "name": "Patch-bump adjacent Helm Chart.yaml",
-          "filePatterns": ["{{packageFileDir}}/Chart.yaml"],
-          "matchStrings": ["version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"],
+          "filePatterns": [
+            "{{packageFileDir}}/Chart.yaml"
+          ],
+          "matchStrings": [
+            "version:\\s*\"?v?(?<version>\\d+\\.\\d+\\.\\d+)\"?"
+          ],
           "bumpType": "patch"
         }
       ]
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
       "separateMinorPatch": true,
-      "labels": ["dependencies", "ci"]
+      "labels": [
+        "dependencies",
+        "ci"
+      ]
     },
     {
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "groupName": "npm dependencies",
       "groupSlug": "npm-deps",
-      "labels": ["dependencies", "npm"]
+      "labels": [
+        "dependencies",
+        "npm"
+      ]
     }
   ]
 }
