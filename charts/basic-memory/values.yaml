@@ -70,7 +70,7 @@ livesyncBridge:
     repository: git.m0sh1.cc/m0sh1-internal/livesync-bridge
     # Woodpecker tag format: sha-<full-40-char-commit-sha>.
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-3b41a87952ed6da441a8b626e336ec8697fb1a9f@sha256:f09da8d7581e8e4783be007a39bc141dae5c77758527a580d21da2204c0f26ec"
+    tag: "sha-f3ed53ec7edc88676d0e47e643c8455db20070b0@sha256:9d80677be2476ff4af965c7b8bb52f6f28b1b50289c90a2092f01a9307e66535"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
