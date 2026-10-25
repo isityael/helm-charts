@@ -14,7 +14,7 @@ opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
     repository: ghcr.io/isityael/opnsense-exporter
-    tag: "v0.0.15-m0sh1.3@sha256:3551495d60f8f3491f98a7f06ef2055e988739fdd618ecbaa4b7e2fda60f98f9"
+    tag: "v0.0.15-m0sh1.4@sha256:8293e789f33da965f44bb71802713635983fd66ae89e8292181df2ade1eef6d1"
     pullPolicy: IfNotPresent
   opnsense:
     protocol: https
