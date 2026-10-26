@@ -5,10 +5,10 @@ replicaCount: 1
 revisionHistoryLimit: 3
 
 image:
-  repository: ghcr.io/isityael/wakapi-dhi
+  repository: git.m0sh1.cc/isityael/wakapi-dhi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
-  tag: "2.18.0-yael.20@sha256:0a3d707630858e6b62ab7114fafb510151bb0caf172e09496b566d38a4cb8264"
+  tag: "2.18.0-yael.21@sha256:27b86e054ab31155a28a78c3bbac5b0a437a6b0c182a3cf27cbe93f6c1f1bc4f"
 
 imagePullSecrets: []
 nameOverride: "wakapi"
