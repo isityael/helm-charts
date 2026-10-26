@@ -41,7 +41,7 @@
       "properties": {
         "repository": {
           "type": "string",
-          "const": "ghcr.io/isityael/csi-s3-driver"
+          "const": "git.m0sh1.cc/isityael/csi-s3-driver"
         },
         "tag": {
           "type": "string",

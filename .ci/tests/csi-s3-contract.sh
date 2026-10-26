@@ -13,7 +13,7 @@ fail() {
   status=1
 }
 
-expected_repository="ghcr.io/isityael/csi-s3-driver"
+expected_repository="git.m0sh1.cc/isityael/csi-s3-driver"
 expected_tag="v$(yq '.appVersion' "${chart}/Chart.yaml")"
 expected_driver="${expected_repository}:${expected_tag}"
 actual_driver="$(

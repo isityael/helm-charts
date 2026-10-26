@@ -12,7 +12,7 @@ Maintained wrapper around the upstream Yandex Cloud `csi-s3` chart. It deploys t
 ## Install
 
 ```bash
-helm install csi-s3 oci://ghcr.io/isityael/charts/csi-s3 \
+helm install csi-s3 oci://git.m0sh1.cc/isityael/charts/csi-s3 \
   --namespace csi-s3 \
   --create-namespace
 ```
