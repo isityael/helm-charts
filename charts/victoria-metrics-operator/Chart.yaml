@@ -1,0 +1,46 @@
+apiVersion: v2
+type: application
+description: VictoriaMetrics Operator
+name: victoria-metrics-operator
+home: https://github.com/VictoriaMetrics/operator
+sources:
+  - https://github.com/VictoriaMetrics/helm-charts
+  - https://github.com/VictoriaMetrics/operator
+version: 0.68.1-yael.1
+# renovate: image=victoriametrics/operator
+appVersion: v0.75.1
+icon: https://avatars.githubusercontent.com/u/43720803?s=200&v=4
+kubeVersion: ">=1.25.0-0"
+keywords:
+  - victoriametrics
+  - operator
+  - monitoring
+  - kubernetes
+  - observability
+  - tsdb
+  - metrics
+  - metricsql
+  - timeseries
+annotations:
+  m0sh1.cc/upstream-commit: "1f142a2b5e3e43e3667aa1b2cda86067457b0c1e"
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "true"
+  artifacthub.io/category: "monitoring-logging"
+  artifacthub.io/links: |
+    - name: Sources
+      url: https://github.com/VictoriaMetrics/helm-charts/tree/master/charts/victoria-metrics-operator
+    - name: Charts repo
+      url: https://victoriametrics.github.io/helm-charts/
+    - name: Docs
+      url: https://docs.victoriametrics.com/operator/
+    - name: Changelog
+      url: https://docs.victoriametrics.com/helm/victoria-metrics-operator/changelog/
+    - name: App Changelog
+      url: https://docs.victoriametrics.com/operator/changelog/
+dependencies:
+  - name: victoria-metrics-common
+    version: "0.4.*"
+    repository: oci://ghcr.io/victoriametrics/helm-charts
+  - name: crds
+    version: "0.0.*"
+    condition: crds.plain

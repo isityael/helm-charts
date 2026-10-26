@@ -54,8 +54,10 @@ for chart in "${charts[@]}"; do
 
   echo "==> Checking Helm dependencies for ${chart}"
 
+  # Helm labels embedded dependencies without a repository as unpacked.
+  # Their complete source is still checked by the before/after snapshot below.
   list_before="$(helm dependency list "${chart}")"
-  if printf '%s\n' "${list_before}" | awk 'NR > 1 && $NF != "ok" { bad = 1 } END { exit bad ? 0 : 1 }'; then
+  if printf '%s\n' "${list_before}" | awk 'NR > 1 && $NF != "ok" && !($NF == "unpacked" && NF == 3) { bad = 1 } END { exit bad ? 0 : 1 }'; then
     printf '%s\n' "${list_before}" >&2
     failed=1
   fi
