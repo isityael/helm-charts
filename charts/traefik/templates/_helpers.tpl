@@ -10,3 +10,21 @@ image.repository, leaving image.registry empty.
 {{- printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
 {{- end -}}
 {{- end -}}
+
+{{/* Internal HTTP only: TLS and certificates belong to the shared gateway. */}}
+{{- define "traefik.securityTxtCaddyfile" -}}
+{
+    admin off
+    auto_https off
+    persist_config off
+}
+:8080 {
+    root * /usr/share/caddy
+    header -Server
+    file_server
+    handle_errors {
+        header -Server
+        respond "" {err.status_code}
+    }
+}
+{{- end -}}

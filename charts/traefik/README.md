@@ -42,7 +42,7 @@ helm install traefik oci://ghcr.io/isityael/charts/traefik \
 | `crowdsecBouncer.*` | Renders the `crowdsec-bouncer` Middleware: LAPI host, scheme and key file, mode, AppSec settings, trusted client IPs |
 | `securityHeaders.*` | Renders the `security-headers` Middleware (HSTS always; frame options, referrer policy and CSP when set) |
 | `apexRedirect.*` | HTTPRoute that redirects `hostnames` to `hostname`; `name` keeps an existing route name |
-| `securityTxt.*` | Serves `content` at `/.well-known/security.txt` for `hostnames` from an unprivileged nginx (`image`) |
+| `securityTxt.*` | Serves `content` at `/.well-known/security.txt` for `hostnames` from an non-root Caddy (`image`) |
 
 Enabled apex and `security.txt` resources fail to render until their hostnames
 and content are set.
@@ -93,7 +93,7 @@ shows the pattern this chart uses (`parentRefs` to `traefik-gateway`,
 
 ### 0.1.26
 
-The `security.txt` nginx image moved from the template to
+The `security.txt` server image moved from the template to
 `securityTxt.image` and is pinned by digest. Override it there if you mirror
 images.
 
@@ -104,3 +104,8 @@ Enabled apex resources now require deployment values: `apexRedirect.hostnames`,
 `apexRedirect.name` to preserve an existing route name. Security text changes
 trigger a pod rollout through a content checksum. The vendored DHI Traefik
 dependency now matches the declared 41.6.0 lock.
+
+The static server uses Docker Hardened Caddy over internal HTTP on port 8080.
+Traefik retains TLS termination. Caddy runs with a read-only filesystem, with
+its admin API, automatic HTTPS, and configuration persistence disabled.
+Image overrides must provide a Caddy-compatible runtime.

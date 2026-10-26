@@ -11,6 +11,8 @@ metadata:
     app.kubernetes.io/name: apex-security-txt
     app.kubernetes.io/component: apex-static
 data:
+  Caddyfile: |
+    {{- include "traefik.securityTxtCaddyfile" $ | nindent 4 }}
   security.txt: |
     {{- required "securityTxt.content is required" .content | nindent 4 }}
 ---
@@ -30,12 +32,16 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/content: {{ .content | sha256sum }}
+        checksum/content: {{ printf "%s:%s" (include "traefik.securityTxtCaddyfile" $) .content | sha256sum }}
       labels:
         app.kubernetes.io/name: apex-security-txt
         app.kubernetes.io/component: apex-static
     spec:
       automountServiceAccountToken: false
+      {{- with ($.Values.traefik.deployment).imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
@@ -44,9 +50,10 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: nginx
+        - name: caddy
           image: {{ $.Values.securityTxt.image | quote }}
           imagePullPolicy: IfNotPresent
+          args: [run, --config, /etc/caddy/Caddyfile, --adapter, caddyfile]
           ports:
             - containerPort: 8080
               name: http
@@ -76,32 +83,17 @@ spec:
                 - ALL
           volumeMounts:
             - name: content
-              mountPath: /usr/share/nginx/html/.well-known/security.txt
+              mountPath: /usr/share/caddy/.well-known/security.txt
               subPath: security.txt
               readOnly: true
-            # nginx-unprivileged needs writable /tmp and /var/cache/nginx
-            - name: tmp
-              mountPath: /tmp
-            - name: cache
-              mountPath: /var/cache/nginx
-            - name: run
-              mountPath: /var/run
+            - name: content
+              mountPath: /etc/caddy/Caddyfile
+              subPath: Caddyfile
+              readOnly: true
       volumes:
         - name: content
           configMap:
             name: apex-security-txt
-            items:
-              - key: security.txt
-                path: security.txt
-        - name: tmp
-          emptyDir:
-            sizeLimit: 1Mi
-        - name: cache
-          emptyDir:
-            sizeLimit: 1Mi
-        - name: run
-          emptyDir:
-            sizeLimit: 1Mi
 ---
 apiVersion: v1
 kind: Service
