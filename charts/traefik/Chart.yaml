@@ -2,8 +2,8 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.45
-appVersion: "3.7.5"
+version: 0.1.46
+appVersion: "3.7.16"
 kubeVersion: ">=1.29.0-0"
 home: https://traefik.io/traefik/
 icon: https://raw.githubusercontent.com/traefik/traefik/master/docs/content/assets/img/traefik.logo.png
@@ -37,12 +37,12 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/images: |
     - name: traefik
-      image: ghcr.io/isityael/traefik:5f2456c@sha256:5d8b4063b3ff0112d6075ad2128c37f3ea79b6beba2377c5a98c666d545f91fb
+      image: ghcr.io/isityael/traefik:traefik-v2026.10.26.2@sha256:36e10c8e5652045f8432f4113d9837f3b5cecf8f098cdaf2e9c607230f74dacd
     - name: dhi-traefik
-      image: dhi.io/traefik:3.7.5-alpine3.24@sha256:38126c9632cf7b93ad9db950323bb896a87c65048b3e3e99cd7aa16e5aaad7e8
+      image: dhi.io/traefik:3.7.16-alpine3.24@sha256:cf4a8e5d9ebb10fd22c67260685cbcc60a53b793f0ad02cbc835bf414de9adbc
   artifacthub.io/changes: |
     - kind: changed
-      description: Refresh the rebuilt DHI dependency with its current Traefik 3.7.14 image digest.
+      description: Deploy Traefik 3.7.16 with the CrowdSec 1.8.1 plugin and verified Forgejo stream handling.
     - kind: changed
       description: >-
         README documents requirements, install, configuration and values;
