@@ -46,7 +46,7 @@ case "$1" in
     ;;
   push)
     echo "helm push $*" >>"$HELM_LOG"
-    printf 'Pushed: ghcr.io/isityael/charts/demo:1.2.3\n' >&2
+    printf 'Pushed: git.m0sh1.cc/isityael/charts/demo:1.2.3\n' >&2
     printf 'Digest: sha256:abc123\n' >&2
     ;;
   *)
@@ -65,6 +65,8 @@ test_publish_records_digest_reference_for_signing() {
   export HELM_LOG="${workdir}/helm.log"
   export PATH="${workdir}/bin:$PATH"
   export GHCR_USERNAME="test-user"
+  export FORGEJO_PACKAGE_USERNAME="test-user"
+  export FORGEJO_PACKAGE_TOKEN="test-token"
   export GHCR_TOKEN="test-token"
   unset COSIGN_PRIVATE_KEY COSIGN_PASSWORD
 
@@ -72,7 +74,7 @@ test_publish_records_digest_reference_for_signing() {
 
   local refs_file="${workdir}/.ci/published-oci-refs.txt"
   [ -f "$refs_file" ] || fail "expected published refs file"
-  grep -qx "ghcr.io/isityael/charts/demo@sha256:abc123" "$refs_file" \
+  grep -qx "git.m0sh1.cc/isityael/charts/demo@sha256:abc123" "$refs_file" \
     || fail "expected immutable digest ref in published refs file"
 }
 
@@ -90,13 +92,15 @@ SH
   export COSIGN_LOG="${workdir}/cosign.log"
   export PATH="${workdir}/bin:$PATH"
   export GHCR_USERNAME="test-user"
+  export FORGEJO_PACKAGE_USERNAME="test-user"
+  export FORGEJO_PACKAGE_TOKEN="test-token"
   export GHCR_TOKEN="test-token"
   export COSIGN_PRIVATE_KEY="test-private-key"
   export COSIGN_PASSWORD="test-password"
 
   (cd "$workdir" && "$publish_script")
 
-  grep -qx "sign --yes --key env://COSIGN_PRIVATE_KEY ghcr.io/isityael/charts/demo@sha256:abc123" "$COSIGN_LOG" \
+  grep -qx "sign --yes --key env://COSIGN_PRIVATE_KEY git.m0sh1.cc/isityael/charts/demo@sha256:abc123" "$COSIGN_LOG" \
     || fail "expected cosign to sign immutable digest ref"
 }
 
@@ -107,6 +111,8 @@ test_publish_requires_cosign_password_with_private_key() {
   export HELM_LOG="${workdir}/helm.log"
   export PATH="${workdir}/bin:$PATH"
   export GHCR_USERNAME="test-user"
+  export FORGEJO_PACKAGE_USERNAME="test-user"
+  export FORGEJO_PACKAGE_TOKEN="test-token"
   # Exceed the pipe buffer so login must consume stdin before the signing guard runs.
   export GHCR_TOKEN
   GHCR_TOKEN="$(printf '%65536s' '')"

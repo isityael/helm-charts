@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-registry="${OCI_REGISTRY:-ghcr.io}"
+registry="${OCI_REGISTRY:-git.m0sh1.cc}"
 namespace="${OCI_NAMESPACE:-isityael/charts}"
 metadata_file="${ARTIFACTHUB_METADATA_FILE:-artifacthub-repo.yml}"
 published_refs_file="${ARTIFACTHUB_PUBLISHED_REFS_FILE:-.ci/published-oci-refs.txt}"
@@ -11,8 +11,8 @@ if [ ! -s "$metadata_file" ]; then
   echo "Artifact Hub repository metadata file is missing or empty: ${metadata_file}" >&2
   exit 1
 fi
-if [ -z "${GHCR_USERNAME:-}" ] || [ -z "${GHCR_TOKEN:-}" ]; then
-  echo "GHCR_USERNAME and GHCR_TOKEN are required to publish Artifact Hub metadata." >&2
+if [ -z "${FORGEJO_PACKAGE_USERNAME:-}" ] || [ -z "${FORGEJO_PACKAGE_TOKEN:-}" ]; then
+  echo "FORGEJO_PACKAGE_USERNAME and FORGEJO_PACKAGE_TOKEN are required to publish Artifact Hub metadata." >&2
   exit 1
 fi
 if ! command -v "$oras_bin" >/dev/null 2>&1; then
@@ -39,8 +39,8 @@ if ! grep -q '^owners:[[:space:]]*$' "$oci_metadata_file" \
   exit 1
 fi
 
-printf '%s\n' "$GHCR_TOKEN" \
-  | "$oras_bin" login "$registry" --username "$GHCR_USERNAME" --password-stdin
+printf '%s\n' "$FORGEJO_PACKAGE_TOKEN" \
+  | "$oras_bin" login "$registry" --username "$FORGEJO_PACKAGE_USERNAME" --password-stdin
 
 chart_files=()
 if [ -s "$published_refs_file" ]; then

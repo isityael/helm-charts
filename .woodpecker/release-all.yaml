@@ -1,7 +1,7 @@
 # helm-charts — Publish charts to their configured OCI registries
 #
 # Triggered on push to main when charts/ change, or manually.
-# KDED publishes privately to Forgejo; other chart destinations stay unchanged.
+# Charts publish to Forgejo; recovery charts retain independent GHCR copies.
 # Registry routing and existing-version checks live in .ci/publish-oci.sh.
 #
 # Script is in .ci/publish-oci.sh to avoid Woodpecker's ${VAR}

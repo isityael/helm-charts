@@ -56,17 +56,17 @@ test_publishes_metadata_for_every_chart_repository() {
     ORAS_LOG="${workdir}/oras.log" \
       ORAS_PAYLOADS_DIR="$workdir" \
       PATH="${workdir}/bin:${PATH}" \
-      GHCR_USERNAME="test-user" \
-      GHCR_TOKEN="test-token" \
+      FORGEJO_PACKAGE_USERNAME="test-user" \
+      FORGEJO_PACKAGE_TOKEN="test-token" \
       "$publish_script"
   )
 
   grep -Fxq 'password=test-token' "${workdir}/oras.log" || fail "expected token on oras standard input"
-  grep -Fxq 'login ghcr.io --username test-user --password-stdin' "${workdir}/oras.log" \
+  grep -Fxq 'login git.m0sh1.cc --username test-user --password-stdin' "${workdir}/oras.log" \
     || fail "expected GHCR login"
-  local expected_alpha='push ghcr.io/isityael/charts/alpha:artifacthub.io'
+  local expected_alpha='push git.m0sh1.cc/isityael/charts/alpha:artifacthub.io'
   expected_alpha+=' --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml'
-  local expected_bravo='push ghcr.io/isityael/charts/bravo:artifacthub.io'
+  local expected_bravo='push git.m0sh1.cc/isityael/charts/bravo:artifacthub.io'
   expected_bravo+=' --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml'
   grep -F "$expected_alpha" "${workdir}/oras.log" \
     | grep -F './.artifacthub-repo-oci.' \
@@ -97,7 +97,7 @@ test_requires_repository_metadata() {
 
   if (
     cd "$workdir"
-    PATH="${workdir}/bin:${PATH}" GHCR_USERNAME=test-user GHCR_TOKEN=test-token "$publish_script"
+    PATH="${workdir}/bin:${PATH}" FORGEJO_PACKAGE_USERNAME=test-user FORGEJO_PACKAGE_TOKEN=test-token "$publish_script"
   ) >"${workdir}/stdout" 2>"${workdir}/stderr"; then
     fail "expected empty repository metadata to fail"
   fi
@@ -109,7 +109,7 @@ test_limits_metadata_to_published_charts() {
   local workdir="${tmpdir}/published-only"
   setup_workdir "$workdir"
   printf '%s\n' \
-    'ghcr.io/isityael/charts/alpha@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \
+    'git.m0sh1.cc/isityael/charts/alpha@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' \
     >"${workdir}/published-refs.txt"
 
   (
@@ -118,14 +118,14 @@ test_limits_metadata_to_published_charts() {
       ORAS_PAYLOADS_DIR="$workdir" \
       ARTIFACTHUB_PUBLISHED_REFS_FILE="${workdir}/published-refs.txt" \
       PATH="${workdir}/bin:${PATH}" \
-      GHCR_USERNAME="test-user" \
-      GHCR_TOKEN="test-token" \
+      FORGEJO_PACKAGE_USERNAME="test-user" \
+      FORGEJO_PACKAGE_TOKEN="test-token" \
       "$publish_script"
   )
 
-  grep -Fq 'push ghcr.io/isityael/charts/alpha:artifacthub.io' "${workdir}/oras.log" \
+  grep -Fq 'push git.m0sh1.cc/isityael/charts/alpha:artifacthub.io' "${workdir}/oras.log" \
     || fail "expected metadata push for published alpha chart"
-  if grep -Fq 'push ghcr.io/isityael/charts/bravo:artifacthub.io' "${workdir}/oras.log"; then
+  if grep -Fq 'push git.m0sh1.cc/isityael/charts/bravo:artifacthub.io' "${workdir}/oras.log"; then
     fail "metadata push must skip charts that were not published"
   fi
 }
