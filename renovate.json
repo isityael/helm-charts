@@ -61,6 +61,7 @@
       ],
       "matchPackageNames": [
         "ghcr.io/isityael/csi-s3-driver",
+        "git.m0sh1.cc/isityael/csi-s3-driver",
         "ghcr.io/isityael/nfsplugin",
         "ghcr.io/isityael/proxmox-csi-controller",
         "ghcr.io/isityael/proxmox-csi-node",
@@ -136,7 +137,8 @@
         "charts/csi-s3/values.yaml"
       ],
       "matchPackageNames": [
-        "ghcr.io/isityael/csi-s3-driver"
+        "ghcr.io/isityael/csi-s3-driver",
+        "git.m0sh1.cc/isityael/csi-s3-driver"
       ],
       "groupName": "csi-s3 images",
       "labels": [
@@ -166,7 +168,8 @@
         "charts/csi-s3/values.yaml"
       ],
       "matchPackageNames": [
-        "ghcr.io/isityael/csi-s3-driver"
+        "ghcr.io/isityael/csi-s3-driver",
+        "git.m0sh1.cc/isityael/csi-s3-driver"
       ],
       "pinDigests": false,
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-yael\\.(?<build>\\d+)$",
