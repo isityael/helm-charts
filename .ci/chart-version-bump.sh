@@ -12,7 +12,8 @@ for chart in $charts; do
   chart_file="${chart}/Chart.yaml"
   [ -f "$chart_file" ] || continue
 
-  if git diff --cached --unified=0 -- "$chart_file" | grep -qE '^[-+][[:space:]]*version:[[:space:]]*'; then
+  staged_diff="$(git diff --cached --unified=0 -- "$chart_file")"
+  if grep -qE '^[-+][[:space:]]*version:[[:space:]]*' <<<"$staged_diff"; then
     echo "chart version already staged: ${chart_file}"
     continue
   fi

@@ -68,7 +68,9 @@ assert_staged() {
   local workdir="$1"
   local path="$2"
 
-  git -C "$workdir" diff --cached --name-only | grep -qx "$path" || fail "expected ${path} to be staged"
+  local staged
+  staged="$(git -C "$workdir" diff --cached --name-only)"
+  grep -qx "$path" <<<"$staged" || fail "expected ${path} to be staged"
 }
 
 test_values_change_bumps_chart_version() {
