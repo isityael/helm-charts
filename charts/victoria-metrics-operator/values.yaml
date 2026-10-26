@@ -36,7 +36,7 @@ image:
   repository: victoriametrics/operator
   # -- Image tag
   # override Chart.AppVersion
-  tag: ""
+  tag: "@sha256:2f7b70119faa099b830086ceb8cef91a4b49a49ae0565aee10d79066974fc7c4"
   # Variant of the image to use.
   # e.g. scratch
   variant: ""
@@ -86,7 +86,7 @@ crds:
     busybox:
       image:
         repository: busybox
-        tag: latest
+        tag: latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
         pullPolicy: IfNotPresent
     kubectl:
       image:
