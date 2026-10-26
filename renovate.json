@@ -15,7 +15,8 @@
     "helm-values",
     "custom.regex",
     "github-actions",
-    "npm"
+    "npm",
+    "woodpecker"
   ],
   "ignorePaths": [
     "charts/**/charts/**",
