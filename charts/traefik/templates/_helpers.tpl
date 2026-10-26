@@ -17,6 +17,7 @@ image.repository, leaving image.registry empty.
     admin off
     auto_https off
     persist_config off
+    storage_clean_interval off
 }
 :8080 {
     root * /usr/share/caddy

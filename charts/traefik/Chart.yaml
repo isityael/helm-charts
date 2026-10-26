@@ -2,7 +2,7 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.48
+version: 0.1.49
 appVersion: "3.7.16"
 kubeVersion: ">=1.29.0-0"
 home: https://traefik.io/traefik/
