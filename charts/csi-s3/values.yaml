@@ -63,4 +63,4 @@ maintainedImage:
   repository: git.m0sh1.cc/isityael/csi-s3-driver
   # renovate: datasource=docker depName=git.m0sh1.cc/isityael/csi-s3-driver
   tag: v0.43.9-yael.13
-  digest: "sha256:c11aa8a34be3e6fe877ae30c05a161483c71d5a0bab97d73ce89546f6239b9d3"
+  digest: "sha256:f6ae348b047ee8dcd0d1bdffad7584ed103787f1c099ddc63684be97715fcd22"

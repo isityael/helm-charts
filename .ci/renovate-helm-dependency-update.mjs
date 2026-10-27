@@ -108,7 +108,10 @@ function syncCsiMetadata(chartDirectory) {
   if (chartDirectory !== "charts/csi-s3") return;
   const values = readFileSync(join(chartDirectory, "values.yaml"), "utf8");
   const maintained = values.match(/^maintainedImage:\n((?:[ \t].*\n?)*)/m)?.[1];
-  if (!maintained?.match(/^  repository: ghcr\.io\/isityael\/csi-s3-driver\s*$/m)) {
+  const schema = JSON.parse(readFileSync(join(chartDirectory, "values.schema.json"), "utf8"));
+  const expectedRepository = schema.properties.maintainedImage.properties.repository.const;
+  const repository = maintained?.match(/^  repository: ["']?([^\s"']+)["']?\s*$/m)?.[1];
+  if (!expectedRepository || repository !== expectedRepository) {
     throw new Error("CSI-S3 maintained image repository contract changed");
   }
   const tag = maintained.match(/^  tag: ["']?(v\d+\.\d+\.\d+-yael\.[1-9]\d*)["']?\s*$/m)?.[1];

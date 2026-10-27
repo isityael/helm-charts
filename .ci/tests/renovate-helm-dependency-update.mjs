@@ -11,6 +11,20 @@ import { fileURLToPath } from "node:url";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const command = join(repoRoot, ".ci/renovate-helm-dependency-update.mjs");
 
+test("the current CSI-S3 registry is covered by Renovate metadata synchronization", () => {
+  const schema = JSON.parse(readFileSync(join(repoRoot, "charts/csi-s3/values.schema.json"), "utf8"));
+  const repository = schema.properties.maintainedImage.properties.repository.const;
+  const config = JSON.parse(readFileSync(join(repoRoot, "renovate.json"), "utf8"));
+  const rule = config.packageRules.find((rule) =>
+    rule.matchManagers?.includes("helm-values") &&
+    rule.matchFileNames?.includes("charts/csi-s3/values.yaml") &&
+    rule.matchPackageNames?.includes(repository) &&
+    rule.postUpgradeTasks?.commands?.includes("node .ci/renovate-helm-dependency-update.mjs charts/csi-s3"));
+  assert.ok(rule, "image updates must synchronize metadata for the schema's current registry");
+  assert.ok(rule.postUpgradeTasks.fileFilters.includes("charts/csi-s3/**"),
+    "Renovate must retain the synchronized Chart.yaml and README.md");
+});
+
 test("authenticates OCI registries before refreshing dependencies without exposing credentials", () => {
   const fixture = mkdtempSync(join(tmpdir(), "renovate-helm-auth-"));
   const fakeBin = join(fixture, "bin");
@@ -74,8 +88,9 @@ test("keeps CSI-S3 appVersion and examples aligned with the maintained v-prefixe
   mkdirSync(fakeBin);
   writeFileSync(join(fakeBin, "helm"), "#!/bin/sh\nexit 0\n");
   chmodSync(join(fakeBin, "helm"), 0o755);
+  writeFileSync(join(chart, "values.schema.json"), readFileSync(join(repoRoot, "charts/csi-s3/values.schema.json")));
   writeFileSync(join(chart, "Chart.yaml"), 'name: csi-s3\nversion: 0.1.20\nappVersion: "0.43.9-yael.2"\n');
-  writeFileSync(join(chart, "values.yaml"), 'maintainedImage:\n  repository: ghcr.io/isityael/csi-s3-driver\n  tag: v0.43.9-yael.3\n  digest: ""\n');
+  writeFileSync(join(chart, "values.yaml"), 'maintainedImage:\n  repository: git.m0sh1.cc/isityael/csi-s3-driver\n  tag: v0.43.9-yael.3\n  digest: ""\n');
   writeFileSync(join(chart, "README.md"), 'Example:\nmaintainedImage:\n  tag: v0.43.9-yael.2\n  digest: sha256:old-release\n');
   const result = spawnSync(process.execPath, [command, "charts/csi-s3"], {
     cwd: fixture,
@@ -86,8 +101,19 @@ test("keeps CSI-S3 appVersion and examples aligned with the maintained v-prefixe
   assert.equal(readFileSync(join(chart, "Chart.yaml"), "utf8"), 'name: csi-s3\nversion: 0.1.20\nappVersion: "0.43.9-yael.3"\n');
   assert.equal(readFileSync(join(chart, "README.md"), "utf8"), 'Example:\nmaintainedImage:\n  tag: v0.43.9-yael.3\n  digest: ""\n');
 
+  // Reject the obsolete registry using the production schema as the authority.
+  const values = readFileSync(join(chart, "values.yaml"), "utf8");
+  writeFileSync(join(chart, "values.yaml"), values.replace("git.m0sh1.cc/isityael", "ghcr.io/isityael"));
+  const obsolete = spawnSync(process.execPath, [command, "charts/csi-s3"], {
+    cwd: fixture,
+    encoding: "utf8",
+    env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}`, RENOVATE_HOST_RULES: "[]" },
+  });
+  assert.equal(obsolete.status, 1);
+  assert.match(obsolete.stderr, /repository contract changed/);
+
   // Reject the exact malformed tag that previously passed Renovate lookup.
-  writeFileSync(join(chart, "values.yaml"), 'maintainedImage:\n  repository: ghcr.io/isityael/csi-s3-driver\n  tag: 0.43.9-yael.4\n');
+  writeFileSync(join(chart, "values.yaml"), 'maintainedImage:\n  repository: git.m0sh1.cc/isityael/csi-s3-driver\n  tag: 0.43.9-yael.4\n');
   const invalid = spawnSync(process.execPath, [command, "charts/csi-s3"], {
     cwd: fixture,
     encoding: "utf8",

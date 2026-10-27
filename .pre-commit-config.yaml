@@ -37,6 +37,20 @@ repos:
 
   - repo: local
     hooks:
+      - id: csi-s3-contract
+        name: validate CSI-S3 image metadata and rendered contract
+        entry: bash .ci/tests/csi-s3-contract.sh
+        language: system
+        pass_filenames: false
+        files: ^(charts/csi-s3/|\.ci/(renovate-helm-dependency-update\.mjs|tests/csi-s3-contract\.sh)$)
+
+      - id: renovate-helm-auth
+        name: test Renovate metadata synchronization against the chart schema
+        entry: node --test .ci/tests/renovate-helm-dependency-update.mjs
+        language: system
+        pass_filenames: false
+        files: ^(renovate\.json$|charts/csi-s3/|\.ci/(renovate-helm-dependency-update\.mjs|tests/renovate-helm-dependency-update\.mjs)$)
+
       - id: chart-version-bump
         name: bump owning chart version for packaged chart changes
         entry: .ci/chart-version-bump.sh
