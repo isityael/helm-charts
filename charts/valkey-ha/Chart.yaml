@@ -25,4 +25,4 @@ sources:
   - https://github.com/CloudPirates-io/helm-charts/tree/main/charts/valkey
   - https://github.com/valkey-io/valkey
 type: application
-version: 0.1.3
+version: 0.1.5
