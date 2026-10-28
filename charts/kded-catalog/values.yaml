@@ -10,7 +10,7 @@ browser:
   # Provision first; integrate only after runtime sandbox and egress proof.
   enabled: false
   apiIntegration: false
-  image: "selenium/standalone-firefox:4.51.0-20261010"
+  image: "selenium/standalone-firefox:157.0.1-20261010"
   publicOrigin: ""
   podAnnotations: {}
   persistence:
