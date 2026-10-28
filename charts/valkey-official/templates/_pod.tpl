@@ -1,0 +1,380 @@
+{{/*
+Pod template shared by the standalone Deployment and the replicated
+StatefulSet, so that an option added to one cannot silently miss the other.
+The parts that only apply to one mode are gated on replica.enabled (and on
+sentinel.enabled, which the validation only allows with replication).
+Include it under the workload's spec.template with nindent 4.
+*/}}
+{{- define "valkey.podTemplate" -}}
+{{- $replicated := .Values.replica.enabled }}
+{{- $sentinel := and $replicated .Values.sentinel.enabled }}
+{{- $preStopFailover := and $sentinel .Values.sentinel.preStopFailover }}
+{{- $storage := .Values.persistence -}}
+{{- include "valkey.validateMountPaths" . }}
+metadata:
+  labels:
+    {{- include "valkey.selectorLabels" . | nindent 4 }}
+    {{- /* Not part of the selectors, which are immutable: only a label */}}
+    app.kubernetes.io/component: valkey
+    {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.podLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.podAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    checksum/initconfig: {{ include (print $.Template.BasePath "/init_config.yaml") . | sha256sum | trunc 32 | quote }}
+    {{- if .Values.extraConfig }}
+    checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum | trunc 32 | quote }}
+    {{- end }}
+    {{- with (include "valkey.authSecretChecksum" .) }}
+    checksum/secret: {{ . | quote }}
+    {{- end }}
+spec:
+  {{- include "valkey.imagePullSecrets" . | nindent 2 }}
+  terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+  automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+  serviceAccountName: {{ include "valkey.serviceAccountName" . }}
+  {{- if .Values.priorityClassName }}
+  priorityClassName: {{ .Values.priorityClassName | quote }}
+  {{- end }}
+  {{- if .Values.runtimeClassName }}
+  runtimeClassName: {{ .Values.runtimeClassName | quote }}
+  {{- end }}
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}
+  initContainers:
+    - name: init
+      image: {{ include "valkey.image" . }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      {{- with .Values.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      command: [ "/scripts/init.sh" ]
+      {{- if $replicated }}
+      env:
+        - name: POD_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+        # Where the ordinal comes from when the pod-index label is missing
+        # (Kubernetes < 1.28); unlike HOSTNAME, always set and never an FQDN
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      {{- end }}
+      volumeMounts:
+        - name: valkey-data
+          mountPath: /data
+          {{- with $storage.subPath }}
+          subPath: {{ . }}
+          {{- end }}
+        - name: valkey-conf
+          mountPath: /valkey-conf
+        - name: scripts
+          mountPath: /scripts
+        {{- if $sentinel }}
+        - name: sentinel-auth
+          mountPath: /sentinel-auth
+          readOnly: true
+        {{- end }}
+        {{- if and .Values.tls.enabled $sentinel }}
+        # This container asks Sentinel which node is the master, and over
+        # TLS that query needs the CA to verify the answer. Without Sentinel
+        # it makes no connection at all, so it gets no key material.
+        - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+          mountPath: /tls
+          readOnly: true
+        {{- end }}
+        {{- if .Values.extraConfig }}
+        - name: valkey-config
+          mountPath: /usr/local/etc/valkey/valkey.conf
+          subPath: valkey.conf
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        {{- if .Values.auth.usersExistingSecret }}
+        - name: valkey-users-secret
+          mountPath: /valkey-users-secret
+          readOnly: true
+        {{- end }}
+        {{- if (include "valkey.renderAuthSecret" .) | eq "true" }}
+        - name: valkey-auth-secret
+          mountPath: /valkey-auth-secret
+          readOnly: true
+        {{- end }}
+        {{- end }}
+      {{- with .Values.initResources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with .Values.extraInitContainers }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  containers:
+    - name: valkey
+      image: {{ include "valkey.image" . }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      {{- if $sentinel }}
+      # A wrapper that keeps the credential free master record on the data
+      # volume in step with the config Sentinel makes the server rewrite.
+      # It execs the server, so valkey-server is still PID 1.
+      command: [ "/scripts/valkey-start.sh" ]
+      {{- else }}
+      command: [ "valkey-server" ]
+      {{- end }}
+      args: [ "/valkey-conf/valkey.conf" ]
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      env:
+        {{- if $replicated }}
+        - name: POD_INDEX
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- end }}
+        {{- with (include "valkey.probeAuthEnv" .) }}
+        {{- . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.extraEnv }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - name: tcp
+          containerPort: {{ .Values.service.port }}
+          protocol: TCP
+      {{- with (include "valkey.healthProbes" .) }}
+      {{- . | nindent 6 }}
+      {{- end }}
+      {{- if $preStopFailover }}
+      lifecycle:
+        preStop:
+          exec:
+            command: [ "/sentinel-scripts/sentinel-prestop.sh" ]
+      {{- end }}
+      resources:
+        {{- toYaml .Values.resources | nindent 8 }}
+      volumeMounts:
+        - name: valkey-data
+          mountPath: /data
+          {{- with $storage.subPath }}
+          subPath: {{ . }}
+          {{- end }}
+        - name: valkey-conf
+          mountPath: /valkey-conf
+        {{- if $sentinel }}
+        - name: scripts
+          mountPath: /scripts
+        {{- end }}
+        {{- if $preStopFailover }}
+        - name: sentinel-scripts
+          mountPath: /sentinel-scripts
+        - name: sentinel-auth
+          mountPath: /sentinel-auth
+          readOnly: true
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+          mountPath: /tls
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        {{- if $preStopFailover }}
+        {{- if .Values.auth.usersExistingSecret }}
+        - name: valkey-users-secret
+          mountPath: /valkey-users-secret
+          readOnly: true
+        {{- end }}
+        {{- if (include "valkey.renderAuthSecret" .) | eq "true" }}
+        - name: valkey-auth-secret
+          mountPath: /valkey-auth-secret
+          readOnly: true
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    {{- if .Values.metrics.enabled }}
+    - name: metrics
+      image: {{ include "valkey.metrics.exporter.image" . }}
+      imagePullPolicy: {{ .Values.metrics.exporter.image.pullPolicy | quote }}
+      {{- with .Values.metrics.exporter.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metrics.exporter.command }}
+      command:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metrics.exporter.args }}
+      args:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      ports:
+        - name: metrics
+          containerPort: {{ .Values.metrics.exporter.port }}
+      startupProbe:
+        tcpSocket:
+          port: metrics
+      livenessProbe:
+        tcpSocket:
+          port: metrics
+      readinessProbe:
+        httpGet:
+          path: /
+          port: metrics
+      {{- with .Values.metrics.exporter.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- /* Names set through metrics.exporter.extraEnv, which replace the
+             chart's own entry of the same name */}}
+      {{- $exporterEnvs := dict }}
+      {{- range .Values.metrics.exporter.extraEnv }}
+      {{- $_ := set $exporterEnvs .name true }}
+      {{- end }}
+      {{- if or .Values.metrics.exporter.extraVolumeMounts .Values.tls.enabled }}
+      volumeMounts:
+        {{- if .Values.tls.enabled }}
+        - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+          mountPath: /tls
+        {{- end }}
+        {{- with .Values.metrics.exporter.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      env:
+        - name: REDIS_ALIAS
+          value: {{ include "valkey.fullname" . }}
+        {{- /* A variable also set in metrics.exporter.extraEnv is left to that
+               entry, so the container never carries the same name twice */}}
+        {{- if not (hasKey $exporterEnvs "REDIS_ADDR") }}
+        - name: REDIS_ADDR
+          value: {{ printf "%s://localhost:%v" (ternary "rediss" "redis" .Values.tls.enabled) .Values.service.port | quote }}
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        {{- $tlsEnvs := dict
+              "REDIS_EXPORTER_TLS_CA_CERT_FILE" (printf "/tls/%s" .Values.tls.caPublicKey)
+              "REDIS_EXPORTER_TLS_CLIENT_CERT_FILE" (printf "/tls/%s" .Values.tls.serverPublicKey)
+              "REDIS_EXPORTER_TLS_CLIENT_KEY_FILE" (printf "/tls/%s" .Values.tls.serverKey)
+              "REDIS_EXPORTER_TLS_SERVER_NAME" (.Values.metrics.exporter.tlsServerName | default (include "valkey.fullname" .)) }}
+        {{- range $name := list "REDIS_EXPORTER_TLS_CA_CERT_FILE" "REDIS_EXPORTER_TLS_CLIENT_CERT_FILE" "REDIS_EXPORTER_TLS_CLIENT_KEY_FILE" "REDIS_EXPORTER_TLS_SERVER_NAME" }}
+        {{- if not (hasKey $exporterEnvs $name) }}
+        - name: {{ $name }}
+          value: {{ index $tlsEnvs $name | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- /* The default user's password is only known when that user is in
+               auth.aclUsers. With auth.aclConfig alone there is no secret key
+               to point at, so REDIS_PASSWORD is left to metrics.exporter.extraEnv */}}
+        {{- if and .Values.auth.enabled (hasKey .Values.auth.aclUsers "default") (not (hasKey $exporterEnvs "REDIS_PASSWORD")) }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              {{- if .Values.auth.usersExistingSecret }}
+              {{- $defaultUser := index .Values.auth.aclUsers "default" | default dict }}
+              {{- $passwordKey := $defaultUser.passwordKey | default "default" }}
+              name: {{ tpl .Values.auth.usersExistingSecret . }}
+              key: {{ $passwordKey }}
+              {{- else }}
+              name: {{ include "valkey.fullname" . }}-auth
+              key: default-password
+              {{- end }}
+        {{- end }}
+        {{- with .Values.metrics.exporter.extraEnv }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+  {{- with .Values.extraContainers }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  volumes:
+    # Holds valkey.conf and users.acl, which init.sh generates there. Memory
+    # backed because valkey.conf carries credentials in plain text, and with
+    # replication CONFIG REWRITE rewrites them into it whenever Sentinel
+    # changes the topology.
+    - name: valkey-conf
+      emptyDir:
+        medium: Memory
+    - name: scripts
+      configMap:
+        name: {{ include "valkey.fullname" . }}-init-scripts
+        defaultMode: 0555
+    {{- if $sentinel }}
+    - name: sentinel-scripts
+      configMap:
+        name: {{ include "valkey.fullname" . }}-sentinel-scripts
+        defaultMode: 0555
+    {{- include "valkey.sentinel.authVolume" . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.extraConfig }}
+    - name: valkey-config
+      configMap:
+        name: {{ include "valkey.fullname" . }}-config
+    {{- end }}
+    {{- if .Values.tls.enabled }}
+    - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+      {{- include "valkey.tls.volumeSource" . | nindent 6 }}
+    {{- end }}
+    {{- if .Values.auth.enabled }}
+    {{- if .Values.auth.usersExistingSecret }}
+    - name: valkey-users-secret
+      secret:
+        secretName: {{ tpl .Values.auth.usersExistingSecret . }}
+        defaultMode: 0400
+    {{- end }}
+    {{- if (include "valkey.renderAuthSecret" .) | eq "true" }}
+    - name: valkey-auth-secret
+      secret:
+        secretName: {{ include "valkey.fullname" . }}-auth
+        defaultMode: 0400
+    {{- end }}
+    {{- end }}
+    {{- /* The StatefulSet provides the data volume through its volumeClaimTemplate */}}
+    {{- if not $replicated }}
+    - name: valkey-data
+    {{- if not $storage.enabled }}
+      emptyDir: {}
+    {{- else if $storage.existingClaim }}
+      persistentVolumeClaim:
+        claimName: {{ $storage.existingClaim }}
+    {{- else if $storage.size }}
+      persistentVolumeClaim:
+        claimName: {{ include "valkey.fullname" . }}
+    {{- else if $storage.hostPath }}
+      hostPath:
+        path: {{ $storage.hostPath }}
+        type: DirectoryOrCreate
+    {{- else }}
+      emptyDir: {}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.extraVolumes }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.topologySpreadConstraints }}
+  topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end -}}

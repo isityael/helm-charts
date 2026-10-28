@@ -1,0 +1,11 @@
+{{- if .Values.extraConfig }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "valkey.fullname" . }}-config
+  labels:
+    {{- include "valkey.labels" . | nindent 4 }}
+data:
+  valkey.conf: |
+    {{- tpl .Values.extraConfig . | nindent 4 }}
+{{- end }}
