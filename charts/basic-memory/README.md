@@ -109,6 +109,10 @@ mcpShim:
 
 ### With Obsidian LiveSync
 
+The internal CouchDB Service publishes the pod during startup so the
+database-initialization Job can create `_users` and the vault database before
+the LiveSync sidecar becomes ready.
+
 First, create the CouchDB credentials Secret:
 
 ```bash

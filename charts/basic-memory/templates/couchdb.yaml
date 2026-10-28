@@ -8,6 +8,9 @@ metadata:
     app.kubernetes.io/component: couchdb
 spec:
   type: ClusterIP
+  # The database initializer must reach CouchDB while the LiveSync sidecar
+  # waits for the databases that the initializer creates.
+  publishNotReadyAddresses: true
   {{- with .Values.service.ipFamilyPolicy }}
   ipFamilyPolicy: {{ . }}
   {{- end }}
