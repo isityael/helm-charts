@@ -52,7 +52,15 @@ data:
     frontend health
       bind *:{{ .Values.haproxy.config.healthPort }}
       mode http
+      {{- if .Values.haproxy.requireReadyBackend }}
+      # Liveness remains independent of the data plane; readiness follows the
+      # exact unique-majority routing condition used by the write backend.
+      monitor-uri /readyz
+      monitor fail unless{{ range $i := until $pods }}{{ if gt $i 0 }} or{{ end }} { srv_is_up(valkey_master/{{ include "valkey.statefulsetName" $ }}-{{ $i }}) } { nbsrv(sentinel_master_{{ $i }}) ge {{ $majority }} }{{ range $j := until $pods }}{{ if ne $i $j }} { nbsrv(sentinel_master_{{ $j }}) lt {{ $majority }} }{{ end }}{{ end }}{{ end }}
+      http-request return status 200 if { path /healthz }
+      {{- else }}
       monitor-uri /healthz
+      {{- end }}
       option dontlog-normal
 
     # A node receives traffic only while it answers "role:master" and a

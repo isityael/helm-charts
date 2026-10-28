@@ -300,6 +300,18 @@ data:
       -t 2 -p {{ $sentinelPort }} ping)
 
     [ "$REPLY" = "PONG" ]
+  sentinel-ready.sh: |-
+    #!/bin/sh
+    # Health probe for the Sentinel container. It lives here rather than inline
+    # in the pod spec so that the credentials stay in the mounted secret.
+    set -eu
+
+    PASSWORD=$(cat /sentinel-auth/password 2>/dev/null)
+
+    REPLY=$(REDISCLI_AUTH="$PASSWORD" valkey-cli {{ include "valkey.sentinel.cliTlsFlags" . }} --user sentinel \
+      -t 2 -p {{ $sentinelPort }} sentinel ckquorum {{ .Values.sentinel.masterSet }})
+
+    case "$REPLY" in OK*) exit 0;; *) exit 1;; esac
   {{- if .Values.sentinel.preStopFailover }}
 
   sentinel-prestop.sh: |-

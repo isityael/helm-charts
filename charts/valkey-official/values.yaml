@@ -536,6 +536,8 @@ sentinel:
 # It health checks every Valkey node and forwards writes to whichever one answers
 # "role:master", so a failover needs no client support and no extra watcher.
 haproxy:
+  # Disable only while warming migration replicas behind an external writer.
+  requireReadyBackend: true
   # Enable HAProxy (requires replica.enabled and sentinel.enabled)
   enabled: false
 

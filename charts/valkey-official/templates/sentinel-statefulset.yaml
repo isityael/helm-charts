@@ -13,6 +13,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  minReadySeconds: 10
   serviceName: {{ include "valkey.sentinel.headlessServiceName" . }}
   replicas: {{ .Values.sentinel.replicas }}
   podManagementPolicy: Parallel
@@ -97,7 +98,7 @@ spec:
             periodSeconds: 10
           readinessProbe:
             exec:
-              command: [ "/sentinel-scripts/sentinel-ping.sh" ]
+              command: [ "/sentinel-scripts/sentinel-ready.sh" ]
             periodSeconds: 10
           resources:
             {{- toYaml .Values.sentinel.resources | nindent 12 }}

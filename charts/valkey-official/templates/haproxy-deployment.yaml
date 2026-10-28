@@ -12,6 +12,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  minReadySeconds: 10
   replicas: {{ .Values.haproxy.replicas }}
   selector:
     matchLabels:
@@ -91,9 +92,8 @@ spec:
             - name: health
               containerPort: {{ .Values.haproxy.config.healthPort }}
               protocol: TCP
-          # Probes hit HAProxy's own monitor endpoint. They deliberately do not
-          # depend on a backend being up: during a failover every HAProxy pod
-          # would otherwise go unready at once, exactly when clients need it.
+          # Keep the process alive during failover, but do not advertise a new
+          # proxy until its backend role and Sentinel quorum checks have warmed.
           startupProbe:
             httpGet:
               path: /healthz
@@ -104,7 +104,7 @@ spec:
               port: health
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: {{ ternary "/readyz" "/healthz" .Values.haproxy.requireReadyBackend }}
               port: health
           resources:
             {{- toYaml .Values.haproxy.resources | nindent 12 }}
