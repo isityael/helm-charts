@@ -13,7 +13,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  minReadySeconds: 10
+  minReadySeconds: {{ .Values.sentinel.minReadySeconds }}
   serviceName: {{ include "valkey.sentinel.headlessServiceName" . }}
   replicas: {{ .Values.sentinel.replicas }}
   podManagementPolicy: Parallel
