@@ -1,0 +1,78 @@
+{{- if and .Values.externalReplica.enabled .Values.sentinel.enabled }}
+{{- fail "External replica mode cannot be used with Sentinel. Sentinel manages internal replication, while external replica connects to an external Redis/Valkey server. These are mutually exclusive. Set either externalReplica.enabled=false or sentinel.enabled=false." }}
+{{- end }}
+{{- if not .Values.config.existingConfigmap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "valkey.fullname" . }}
+  namespace: {{ include "cloudpirates.namespace" . }}
+  labels:
+    {{- include "valkey.labels" . | nindent 4 }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "valkey.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  valkey.conf: |
+    # Valkey configuration file
+    
+    # Network
+    bind 0.0.0.0
+    {{- if .Values.tls.enabled }}
+    port 0
+    tls-port {{ .Values.tls.port }}
+    tls-cert-file /etc/valkey/tls/{{ .Values.tls.certFilename }}
+    tls-key-file /etc/valkey/tls/{{ .Values.tls.certKeyFilename }}
+    tls-ca-cert-file /etc/valkey/tls/{{ .Values.tls.certCAFilename }}
+    {{- if .Values.tls.authClients }}
+    tls-auth-clients yes
+    {{- else }}
+    tls-auth-clients no
+    {{- end }}
+    tls-replication yes
+    {{- else }}
+    port {{ .Values.service.targetPort }}
+    {{- end }}
+    
+    # General
+    daemonize no
+    supervised no
+    
+    # Logging
+    loglevel notice
+    logfile ""
+    
+    # Persistence
+    dir {{ include "valkey.dataDir" . }}
+    {{- if .Values.config.save }}
+    save {{ .Values.config.save }}
+    {{- else }}
+    save ""
+    {{- end }}
+    
+    # Memory management
+    {{- if .Values.config.maxMemory }}
+    maxmemory {{ .Values.config.maxMemory }}
+    maxmemory-policy {{ .Values.config.maxMemoryPolicy }}
+    {{- end }}
+    
+    # Security
+    {{- if .Values.auth.enabled }}
+    protected-mode yes
+    {{- else }}
+    protected-mode no
+    {{- end }}
+    
+    {{- if .Values.externalReplica.enabled }}
+    # External replication
+    # Replicate from external Redis/Valkey server
+    replicaof {{ required "externalReplica.host is required when externalReplica.enabled is true" .Values.externalReplica.host }} {{ .Values.externalReplica.port }}
+    # masterauth is injected via init container when externalReplica.auth.enabled is true
+    {{- end }}
+    
+    # Additional configuration
+    {{- range .Values.config.extraConfig }}
+    {{ . }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,4 @@
+Derived from CloudPirates-io/helm-charts valkey chart 0.25.13 (Apache-2.0).
+Modified by m0sh1.cc: persistent Sentinel state, replication-aware readiness,
+peer DNS, bounded discovery, synchronized planned handoff, and proxy fencing.
+Upstream source: https://github.com/CloudPirates-io/helm-charts/tree/main/charts/valkey
