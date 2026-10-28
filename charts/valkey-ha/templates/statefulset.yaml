@@ -99,6 +99,13 @@ spec:
                 fi
               done
 
+              {{- if .Values.sentinel.bootstrapMaster }}
+              if [ "$SENTINEL_FOUND" = false ]; then
+                CURRENT_MASTER={{ .Values.sentinel.bootstrapMaster | quote }}
+                SENTINEL_FOUND=true
+              fi
+              {{- end }}
+
               # Configuration logic
               if [ "$SENTINEL_FOUND" = true ] && [ -n "$CURRENT_MASTER" ]; then
                 # Sentinel knows the master - configure accordingly
@@ -411,6 +418,13 @@ spec:
                 fi
               done
 
+              {{- if .Values.sentinel.bootstrapMaster }}
+              if [ "$SENTINEL_FOUND_MASTER" = false ]; then
+                MASTER_HOST={{ .Values.sentinel.bootstrapMaster | quote }}
+                SENTINEL_FOUND_MASTER=true
+              fi
+              {{- end }}
+
               # Second priority: If no Sentinels found master, check if any Valkey instance claims to be master
               if [ "$SENTINEL_FOUND_MASTER" = false ]; then
                 echo "No Sentinels available, checking Valkey instances directly..."
@@ -610,6 +624,9 @@ spec:
                   tcp-check expect string master_failover_state:no-failover
                   tcp-check send "QUIT\r\n"
                   tcp-check expect string +OK
+                  {{- if .Values.sentinel.bootstrapMaster }}
+                  server bootstrap {{ .Values.sentinel.bootstrapMaster }}:{{ .Values.service.port }} check inter 1s rise 1 fall 1 resolvers cluster_dns init-addr none on-marked-down shutdown-sessions
+                  {{- end }}
                   {{- range $i := until (int $.Values.replicaCount) }}
                   server {{ include "valkey.fullname" $ }}-{{ $i }} {{ include "valkey.fullname" $ }}-{{ $i }}.{{ include "valkey.fullname" $ }}-headless.{{ include "cloudpirates.namespace" $ }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.service.port }} check inter {{ $.Values.sentinel.masterProxy.checkInterval }} rise {{ $.Values.sentinel.masterProxy.checkRise }} fall {{ $.Values.sentinel.masterProxy.checkFall }} resolvers cluster_dns resolve-prefer {{ if eq $.Values.ipFamily "ipv6" }}ipv6{{ else }}ipv4{{ end }} init-addr none on-marked-down shutdown-sessions
                   {{- end }}

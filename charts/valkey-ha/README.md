@@ -47,3 +47,8 @@ Retain `fullnameOverride` and dependency alias to reuse existing volumes.
 The first upgrade persists Sentinel configuration from the current primary.
 Replication remains asynchronous; abrupt crashes can lose unreplicated writes.
 Test planned rollovers and abrupt primary failure before production promotion.
+
+For a data-preserving migration, set `sentinel.bootstrapMaster` to a dedicated
+Service for the old standalone primary. Wait for all replicas to synchronize,
+route clients through the new proxy, then perform a synchronized Sentinel handoff.
+Remove the bootstrap backend only after verifying the elected primary and data.
