@@ -1,2 +1,4 @@
 Unmodified upstream templates and values from https://github.com/valkey-io/valkey-helm at d8457f13531d0346729cfb0838b331d0dc0c4f1d. Distribution metadata uses a distinct chart name and version pending an upstream HA release.
 Local readiness-only changes: require Sentinel quorum before readiness; gate proxy readiness on the same elected-primary predicate as routing; retain independent liveness; add rollout stabilization. Upstream topology and failover scripts remain unchanged.
+
+Sentinel rolling availability uses sentinel.minReadySeconds so deployments can wait beyond their DNS cache TTL before replacing the next voter.
