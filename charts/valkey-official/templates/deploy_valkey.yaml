@@ -1,0 +1,25 @@
+{{- if not .Values.replica.enabled }}
+{{- include "valkey.validateAuthConfig" . }}
+{{- include "valkey.validatePersistence" . }}
+{{- include "valkey.validateSentinelConfig" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "valkey.fullname" . }}
+  labels:
+    {{- include "valkey.labels" . | nindent 4 }}
+    app.kubernetes.io/component: valkey
+  {{- with .Values.workloadAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  strategy:
+    type: {{ .Values.deploymentStrategy }}
+  selector:
+    matchLabels:
+      {{- include "valkey.selectorLabels" . | nindent 6 }}
+  template:
+    {{- include "valkey.podTemplate" . | nindent 4 }}
+{{- end }}

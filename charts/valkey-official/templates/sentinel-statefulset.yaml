@@ -1,0 +1,187 @@
+{{- if and .Values.replica.enabled .Values.sentinel.enabled }}
+{{- include "valkey.validateAuthConfig" . }}
+{{- include "valkey.validateReplicaAuth" . }}
+{{- include "valkey.validateSentinelConfig" . }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "valkey.sentinel.fullname" . }}
+  labels:
+    {{- include "valkey.sentinel.labels" . | nindent 4 }}
+  {{- with .Values.workloadAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  serviceName: {{ include "valkey.sentinel.headlessServiceName" . }}
+  replicas: {{ .Values.sentinel.replicas }}
+  podManagementPolicy: Parallel
+  {{- if .Values.sentinel.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+    {{- toYaml .Values.sentinel.persistentVolumeClaimRetentionPolicy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "valkey.sentinel.selectorLabels" . | nindent 6 }}
+  {{- if .Values.sentinel.persistence.enabled }}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: sentinel-data
+      spec:
+        accessModes: {{ toYaml .Values.sentinel.persistence.accessModes | nindent 10 }}
+        {{- if .Values.sentinel.persistence.storageClass }}
+        storageClassName: {{ .Values.sentinel.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.sentinel.persistence.size | quote }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "valkey.sentinel.selectorLabels" . | nindent 8 }}
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.sentinel.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with .Values.sentinel.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        checksum/sentinelconfig: {{ include (print $.Template.BasePath "/sentinel-configmap.yaml") . | sha256sum | trunc 32 | quote }}
+        {{- with (include "valkey.authSecretChecksum" .) }}
+        checksum/secret: {{ . | quote }}
+        {{- end }}
+    spec:
+      {{- (include "valkey.imagePullSecrets" .) | nindent 6 }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
+      serviceAccountName: {{ include "valkey.serviceAccountName" . }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.runtimeClassName }}
+      runtimeClassName: {{ .Values.runtimeClassName | quote }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: sentinel
+          image: {{ include "valkey.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "/sentinel-scripts/sentinel-start.sh" ]
+          {{- with (default .Values.securityContext .Values.sentinel.securityContext) }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: sentinel
+              containerPort: {{ .Values.sentinel.port }}
+              protocol: TCP
+          startupProbe:
+            exec:
+              command: [ "/sentinel-scripts/sentinel-ping.sh" ]
+            periodSeconds: 5
+            failureThreshold: {{ div (add .Values.sentinel.startupTimeoutSeconds 30) 5 }}
+          livenessProbe:
+            exec:
+              command: [ "/sentinel-scripts/sentinel-ping.sh" ]
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: [ "/sentinel-scripts/sentinel-ping.sh" ]
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.sentinel.resources | nindent 12 }}
+          volumeMounts:
+            - name: sentinel-data
+              mountPath: /sentinel-data
+            - name: sentinel-scripts
+              mountPath: /sentinel-scripts
+            - name: sentinel-auth
+              mountPath: /sentinel-auth
+              readOnly: true
+            {{- if .Values.tls.enabled }}
+            - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+              mountPath: /tls
+            {{- end }}
+            {{- if .Values.auth.enabled }}
+            {{- if .Values.auth.usersExistingSecret }}
+            - name: valkey-users-secret
+              mountPath: /valkey-users-secret
+              readOnly: true
+            {{- end }}
+            {{- if (include "valkey.renderAuthSecret" .) | eq "true" }}
+            - name: valkey-auth-secret
+              mountPath: /valkey-auth-secret
+              readOnly: true
+            {{- end }}
+            {{- end }}
+      volumes:
+        {{- if not .Values.sentinel.persistence.enabled }}
+        # Memory backed: Sentinel rewrites its own credentials into
+        # sentinel.conf, so a disk backed emptyDir would put them on the node.
+        - name: sentinel-data
+          emptyDir:
+            medium: Memory
+        {{- end }}
+        - name: sentinel-scripts
+          configMap:
+            name: {{ include "valkey.fullname" . }}-sentinel-scripts
+            defaultMode: 0555
+        {{- include "valkey.sentinel.authVolume" . | nindent 8 }}
+        {{- if .Values.tls.enabled }}
+        - name: {{ include "valkey.fullnameWithSuffix" (list . "tls") }}
+          {{- include "valkey.tls.volumeSource" . | nindent 10 }}
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        {{- if .Values.auth.usersExistingSecret }}
+        - name: valkey-users-secret
+          secret:
+            secretName: {{ tpl .Values.auth.usersExistingSecret . }}
+            defaultMode: 0400
+        {{- end }}
+        {{- if (include "valkey.renderAuthSecret" .) | eq "true" }}
+        - name: valkey-auth-secret
+          secret:
+            secretName: {{ include "valkey.fullname" . }}-auth
+            defaultMode: 0400
+        {{- end }}
+        {{- end }}
+      {{- /* Unset (null) inherits the top level value; an explicit empty value
+             means no nodeSelector for these pods. */}}
+      {{- $nodeSelector := .Values.sentinel.nodeSelector }}
+      {{- if kindIs "invalid" $nodeSelector }}
+      {{- $nodeSelector = .Values.nodeSelector }}
+      {{- end }}
+      {{- with $nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sentinel.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sentinel.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- /* Unset (null) inherits the top level value; an explicit empty value
+             means no tolerations for these pods. */}}
+      {{- $tolerations := .Values.sentinel.tolerations }}
+      {{- if kindIs "invalid" $tolerations }}
+      {{- $tolerations = .Values.tolerations }}
+      {{- end }}
+      {{- with $tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
