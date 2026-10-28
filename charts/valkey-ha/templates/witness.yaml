@@ -100,16 +100,4 @@ spec:
         resources:
           requests:
             storage: {{ .Values.sentinel.witness.size }}
----
-apiVersion: policy/v1
-kind: PodDisruptionBudget
-metadata:
-  name: {{ include "valkey.fullname" . }}-witness
-  namespace: {{ include "cloudpirates.namespace" . }}
-spec:
-  minAvailable: 1
-  selector:
-    matchLabels:
-      {{- include "valkey.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: sentinel-witness
 {{- end }}
