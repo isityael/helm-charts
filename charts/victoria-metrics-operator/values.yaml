@@ -36,7 +36,7 @@ image:
   repository: victoriametrics/operator
   # -- Image tag
   # override Chart.AppVersion
-  tag: "v0.75.1"
+  tag: "v0.75.2"
   # Variant of the image to use.
   # e.g. scratch
   variant: ""
