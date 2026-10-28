@@ -24,7 +24,7 @@ image:
   repository: ghcr.io/basicmachines-co/basic-memory
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.24.1@sha256:61b168d6211a52c028fe70b5eaf5af814b2d11622d66482adefd02b4cac60b89"
+  tag: "0.24.1"
 
 imagePullSecrets: []
 
@@ -37,7 +37,7 @@ imagePullSecrets: []
 busyboxTools:
   image:
     repository: dhi.io/busybox
-    tag: "1.38.0-alpine3.24@sha256:59ec745ef4b2e553eafea215cf9550f545daf68edf151bdb88a2abbe392da132"
+    tag: "1.38.0-alpine3.24"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ busyboxTools:
 denoTools:
   image:
     repository: dhi.io/deno
-    tag: "2.9.8-debian13@sha256:803d034892c25435867eb746a2568b68ad0ea4f3499d08cafd4629c84ef592f3"
+    tag: "2.9.8-debian13"
     pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ livesyncBridge:
     repository: git.m0sh1.cc/m0sh1-internal/livesync-bridge
     # Woodpecker tag format: sha-<full-40-char-commit-sha>.
     # Bump to the sha-<sha> tag for the latest main commit.
-    tag: "sha-43d23bec9a90a2c0c3c58021d7a34cf29ab85629@sha256:84e62d8ad0735246e8b3ac9390981a6866eaa984665bd91130b99b6e2030fd56"
+    tag: "sha-43d23bec9a90a2c0c3c58021d7a34cf29ab85629"
     pullPolicy: IfNotPresent
 
 # Basic Memory upstream (Python) server port inside the pod.
@@ -325,7 +325,7 @@ obsidianSync:
   couchdb:
     image:
       repository: dhi.io/couchdb
-      tag: "3.5.3-debian13@sha256:083d3ab212ec347530ead96713eef74bb9ec6004062de5191cd317b6c76cb1c4"
+      tag: "3.5.3-debian13"
       pullPolicy: IfNotPresent
     # Self-hosted LiveSync clients should normally enable Obsidian's Request
     # API and leave browser CORS disabled. If browser CORS is unavoidable,
@@ -460,4 +460,4 @@ obsidianSync:
 # Helm test pod for `helm test <release>`. Argo CD ignores test hooks.
 tests:
   enabled: true
-  image: dhi.io/busybox:1.38.0-alpine3.24@sha256:59ec745ef4b2e553eafea215cf9550f545daf68edf151bdb88a2abbe392da132
+  image: dhi.io/busybox:1.38.0-alpine3.24

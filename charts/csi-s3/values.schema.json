@@ -16,11 +16,11 @@
           "properties": {
             "registrar": {
               "type": "string",
-              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+@sha256:[a-f0-9]{64}$"
+              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+$"
             },
             "provisioner": {
               "type": "string",
-              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+@sha256:[a-f0-9]{64}$"
+              "pattern": "^[^\\s@:]+(?:/[^\\s@:]+)*:[^\\s@]+$"
             },
             "csi": {
               "type": "string",

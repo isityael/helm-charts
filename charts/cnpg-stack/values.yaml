@@ -23,11 +23,11 @@ plugin-barman-cloud:
   image:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud
-    tag: "0.15.1-debian13@sha256:ce9ecaec5cfea42d084002ac6e45fbb68e698e5a364eaf13c328d6f852780d54"
+    tag: "0.15.1-debian13"
   sidecarImage:
     registry: dhi.io
     repository: cloudnative-pg-plugin-barman-cloud-sidecar
-    tag: "0.15.1-debian13@sha256:7e0b2f7d2e038b121dbafc46da886d142d2d4121c3936b65a644059c6b77bb7e"
+    tag: "0.15.1-debian13"
   imagePullSecrets: []
   resources:
     requests:
@@ -45,8 +45,8 @@ cnpg:
     instances: 1
     # CNPG-compatible wrapper around DHI Postgres Alpine with UID/GID 26 mapping.
     # CNPG admission rejects :latest tags for operand images.
-    imageName: "ghcr.io/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8@sha256:674301250f5d5c9c6a2923c53167f3817ec0607891a10f34b4d8d9a5c602f390"
-    psqlImage: dhi.io/postgres:18.6-alpine3.24@sha256:8a84bc7e09c6109d8709df6a342f88532561783db2e07c4836a22f17d6c429cd
+    imageName: "ghcr.io/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8"
+    psqlImage: dhi.io/postgres:18.6-alpine3.24
     enableSuperuserAccess: true
     imagePullSecrets: []
     # Optional Cluster settings, rendered only when set:
@@ -156,7 +156,7 @@ cnpg:
     replicas: 1
     # CNPG Pooler manager needs /usr/bin/pgbouncer. The image below is
     # intended to keep DHI content while adding that compatibility path.
-    image: "ghcr.io/isityael/pgbouncer-cnpg:1.25.2-cnpg-a1a383f9@sha256:c5d0d00eca1918012df6fdd728a6d52ef4364910e8b60093d13419a962f62f3b"
+    image: "ghcr.io/isityael/pgbouncer-cnpg:1.25.2-cnpg-a1a383f9"
     poolMode: transaction
     maxClientConn: 1000
     defaultPoolSize: 20

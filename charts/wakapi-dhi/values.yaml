@@ -8,7 +8,7 @@ image:
   repository: git.m0sh1.cc/isityael/wakapi-dhi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
-  tag: "2.18.0-yael.21@sha256:27b86e054ab31155a28a78c3bbac5b0a437a6b0c182a3cf27cbe93f6c1f1bc4f"
+  tag: "2.18.0-yael.21"
 
 imagePullSecrets: []
 nameOverride: "wakapi"
@@ -218,4 +218,4 @@ config:
 # Helm test pod for `helm test <release>`. Argo CD ignores test hooks.
 tests:
   enabled: true
-  image: dhi.io/busybox:1.38.0-alpine3.24@sha256:59ec745ef4b2e553eafea215cf9550f545daf68edf151bdb88a2abbe392da132
+  image: dhi.io/busybox:1.38.0-alpine3.24

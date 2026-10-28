@@ -3,9 +3,9 @@ upstream:
 
   images:
     # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar
-    registrar: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar:v2.16.0@sha256:080b91dd6672ad452697775546c86193c818c7ba6b4cd05dbd41a026b6213bff
+    registrar: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-node-driver-registrar:v2.16.0
     # renovate: datasource=docker depName=cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner
-    provisioner: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner:v6.2.0@sha256:da5da1117687afc445d15f02ec67ab2879352123af3d8da03593be983234ed87
+    provisioner: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-provisioner:v6.2.0
     csi: cr.yandex/crp9ftr22d26age3hulg/yandex-cloud/csi-s3/csi-s3-driver:0.43.7
 
   secret:
@@ -63,4 +63,4 @@ maintainedImage:
   repository: git.m0sh1.cc/isityael/csi-s3-driver
   # renovate: datasource=docker depName=git.m0sh1.cc/isityael/csi-s3-driver
   tag: v0.43.9-yael.13
-  digest: "sha256:f6ae348b047ee8dcd0d1bdffad7584ed103787f1c099ddc63684be97715fcd22"
+  digest: ""

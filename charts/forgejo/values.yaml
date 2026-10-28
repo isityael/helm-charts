@@ -5,7 +5,7 @@ forgejo:
   test:
     image:
       name: dhi.io/busybox
-      tag: "1.37.0-debian13@sha256:8197d3ca6c46d836a9c336e1c3522fff421ea348798a84ade503fb43672d1599"
+      tag: "1.37.0-debian13"
 
   strategy:
     type: Recreate
@@ -13,7 +13,7 @@ forgejo:
   image:
     registry: ghcr.io
     repository: isityael/forgejo
-    tag: "2da683c2-1217@sha256:a5bc47c7f849d28b787a0ef5cfb536e1bada87a6cd41e93e90ac842050b45607"
+    tag: "2da683c2-1217"
     pullPolicy: IfNotPresent
     # Keep true so upstream selects rootless init paths, while this wrapper's
     # gitea.image override avoids appending "-rootless" to our already-rootless

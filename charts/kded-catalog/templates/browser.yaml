@@ -2,8 +2,8 @@
 {{- if not .Values.networkPolicy.enabled }}
 {{- fail "browser requires networkPolicy.enabled" }}
 {{- end }}
-{{- if not (regexMatch "^selenium/standalone-firefox@sha256:[a-f0-9]{64}$" .Values.browser.image) }}
-{{- fail "browser.image must pin the official Selenium Firefox image by sha256" }}
+{{- if not (regexMatch "^selenium/standalone-firefox:[A-Za-z0-9_][A-Za-z0-9_.-]*$" .Values.browser.image) }}
+{{- fail "browser.image must pin the official Selenium Firefox image by version tag" }}
 {{- end }}
 {{- if not .Values.browser.persistence.storageClass }}
 {{- fail "browser requires an explicit persistent storageClass" }}

@@ -32,7 +32,7 @@
         "/charts/.+/examples/.+\\.yaml$/"
       ],
       "matchStrings": [
-        ":\\s*[\"']?(?<depName>dhi\\.io/[^:\"'\\s]+):(?<currentValue>[^@\"'\\s]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?"
+        ":\\s*[\"']?(?<depName>dhi\\.io/[^:\"'\\s]+):(?<currentValue>[^@\"'\\s]+)(?:)?[\"']?"
       ],
       "autoReplaceStringTemplate": ": {{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}",
       "datasourceTemplate": "docker"
@@ -229,6 +229,16 @@
         "dependencies",
         "npm"
       ]
+    },
+    {
+      "description": "Use container version tags only.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
     }
+  ],
+  "ignorePresets": [
+    "docker:pinDigests"
   ]
 }

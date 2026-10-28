@@ -1,6 +1,6 @@
 {{- if .Values.enabled }}
-{{- if not (regexMatch "^[^ @]+@sha256:[a-f0-9]{64}$" .Values.image.spec) }}
-{{- fail "enabled kded-catalog requires image.spec pinned to a verified sha256 digest" }}
+{{- if or (not (regexMatch "^[^ @]+:[A-Za-z0-9_][A-Za-z0-9_.-]*$" .Values.image.spec)) (regexMatch ":(latest|main|master|dev)$" .Values.image.spec) }}
+{{- fail "enabled kded-catalog requires image.spec pinned to a verified version tag" }}
 {{- end }}
 {{- if not .Values.auth.existingSecret }}
 {{- fail "enabled kded-catalog requires auth.existingSecret" }}

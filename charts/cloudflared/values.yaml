@@ -22,7 +22,7 @@ image:
   # -- Image pull policy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag (defaults to chart appVersion)
-  tag: "@sha256:1b1d34d0a9c0bfca9de72db8460d328db3f19edd2b96169114e3e893a97bbe53"
+  tag: "2026.10.0"
 
 # -- DaemonSet update strategy (only used when replica.allNodes: true)
 updateStrategy:
@@ -222,4 +222,4 @@ affinity: {}
 # Helm test pod for `helm test <release>`. Argo CD ignores test hooks.
 tests:
   enabled: true
-  image: dhi.io/busybox:1.38.0-alpine3.24@sha256:59ec745ef4b2e553eafea215cf9550f545daf68edf151bdb88a2abbe392da132
+  image: dhi.io/busybox:1.38.0-alpine3.24

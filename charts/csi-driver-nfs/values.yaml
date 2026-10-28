@@ -3,31 +3,31 @@ image:
   baseRepo: registry.k8s.io
   nfs:
     repository: ghcr.io/isityael/nfsplugin
-    tag: v4.14.0-yael.12@sha256:b6f3790ff4dfe5ef16bfdb4c15d69a52e63fe1457ba84474ae205da0d7d755ec
+    tag: v4.14.0-yael.12
     pullPolicy: IfNotPresent
   csiProvisioner:
     repository: dhi.io/csi-provisioner
-    tag: 6.4.0-debian13@sha256:a09c9805d72aabfc091e4252254c3a0065b600adf9d8768ec36264f5e8649be1
+    tag: 6.4.0-debian13
     pullPolicy: IfNotPresent
   csiResizer:
     repository: dhi.io/csi-resizer
-    tag: 2.3.0-debian13@sha256:3b5ffc6f66684dde19b0e7e12723d8dea6c8f0a5f7e74c246654345b3ce85ab2
+    tag: 2.3.0-debian13
     pullPolicy: IfNotPresent
   csiSnapshotter:
     repository: dhi.io/csi-snapshotter
-    tag: 8.7.0-debian13@sha256:3b09514994ec8b5478373c781a0724bd59af3af392867d0ba797062fc51dad3e
+    tag: 8.7.0-debian13
     pullPolicy: IfNotPresent
   livenessProbe:
     repository: dhi.io/livenessprobe
-    tag: 2.20.0-debian13@sha256:dbea9cf9afcf223a154b4c3236f8bc8f9511ef3aa939d76077d501a55168a539
+    tag: 2.20.0-debian13
     pullPolicy: IfNotPresent
   nodeDriverRegistrar:
     repository: dhi.io/csi-node-driver-registrar
-    tag: 2.18.0-debian13@sha256:d4dee272ea9b467151fa1a1a793e42f7797205a7b7ab4ce18396b98c921d26c7
+    tag: 2.18.0-debian13
     pullPolicy: IfNotPresent
   externalSnapshotter:
     repository: dhi.io/snapshot-controller
-    tag: 8.6.0-debian13@sha256:7c5731900a2c5f2ab45d4b00ddf44db46741eaf5e3b28e474b9e93a456584c6d
+    tag: 8.6.0-debian13
     pullPolicy: IfNotPresent
 
 serviceAccount:

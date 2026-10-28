@@ -97,7 +97,7 @@
         },
         "image": {
           "type": "string",
-          "pattern": "^selenium/standalone-firefox@sha256:[a-f0-9]{64}$"
+          "pattern": "^selenium/standalone-firefox:[A-Za-z0-9_][A-Za-z0-9_.-]*$"
         },
         "publicOrigin": {
           "type": "string"

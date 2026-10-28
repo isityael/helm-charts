@@ -1,7 +1,7 @@
 # Inert registry digest is render-only; never deploy this fixture.
 enabled: true
 image:
-  spec: example.invalid/catalog@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  spec: example.invalid/catalog:1.0.0
 browser:
   enabled: true
   apiIntegration: true

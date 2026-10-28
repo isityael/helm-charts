@@ -13,7 +13,7 @@ apexRedirect:
 securityTxt:
   enabled: false
   # Serves security.txt; non-root DHI Caddy.
-  image: dhi.io/caddy:2.11.7-debian13@sha256:5d86af54328d18435d20da2b5e373dd9ae89917d5fdeaf657fde3a4a82ddea62
+  image: dhi.io/caddy:2.11.7-debian13
   hostnames: []
   content: ""
 
@@ -21,5 +21,5 @@ traefik:
   image:
     registry: ""
     repository: ghcr.io/isityael/traefik
-    tag: "traefik-v2026.10.26.2@sha256:36e10c8e5652045f8432f4113d9837f3b5cecf8f098cdaf2e9c607230f74dacd"
+    tag: "traefik-v2026.10.26.2"
   versionOverride: "3.7.16"

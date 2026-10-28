@@ -25,12 +25,12 @@ depends_on:
 
 steps:
   - name: install-oras
-    image: alpine:3.24@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
+    image: alpine:3.24
     commands:
       - ORAS_INSTALL_DIR=.ci/oras-bin sh .ci/install-oras.sh
 
   - name: publish-oci
-    image: dhi.io/helm:4.3.1-debian13-dev@sha256:8d77e0b84c3923b7823e562216ffe63574432ad298f4da23b30ae70485b46eec
+    image: dhi.io/helm:4.3.1-debian13-dev
     environment:
       GHCR_USERNAME:
         from_secret: github_username

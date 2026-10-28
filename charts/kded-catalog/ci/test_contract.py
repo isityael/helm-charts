@@ -6,7 +6,7 @@ import yaml
 
 CHART = Path(__file__).resolve().parents[1]
 # Explicitly inert fixture used only as Helm input, never installation values.
-FIXTURE = 'example.invalid/kded-catalog@sha256:' + '0' * 64
+FIXTURE = 'example.invalid/kded-catalog:1.0.0'
 
 
 def render(*overrides):
@@ -25,7 +25,7 @@ class Contract(unittest.TestCase):
     def test_enabled_requires_immutable_image(self):
         result = render('enabled=true', 'image.spec=example.invalid/catalog:latest')
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('pinned to a verified sha256', result.stderr)
+        self.assertIn('pinned to a verified version tag', result.stderr)
 
     def test_enabled_requires_auth_secret(self):
         result = render('enabled=true', 'image.spec=' + FIXTURE, 'auth.existingSecret=')

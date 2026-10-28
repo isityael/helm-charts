@@ -10,23 +10,23 @@ when:
 
 steps:
   - name: renovate-helm-auth
-    image: dhi.io/node:26.12.1-alpine3.24-dev@sha256:0614d22bcdfe1f5fbf985e68b455e61aefba8bc697894a6e91a8542a3e5f26b4
+    image: dhi.io/node:26.12.1-alpine3.24-dev
     commands:
       - node --test .ci/tests/renovate-helm-dependency-update.mjs
 
   - name: chart-version-guard
-    image: ghcr.io/isityael/chart-version-guard:a5263c4c@sha256:67427f5e9321deff52ad83cd67aea7dcdb092b34cff8c324db2a77e963d66ec2
+    image: ghcr.io/isityael/chart-version-guard:a5263c4c
     commands:
       - chart-version-guard check --ci woodpecker --repo .
 
   - name: repository-contracts
-    image: harbor.m0sh1.cc/apps/k8s-lint-tools:ci-contract-955439a6-600@sha256:08ded45a856932cfaec69c72dc9efddc24fd97083a143131497ccf8998f06bf3
+    image: harbor.m0sh1.cc/apps/k8s-lint-tools:ci-contract-955439a6-600
     commands:
       - apk add --no-cache deno jq perl perl-utils ripgrep
       - bash .ci/test-shell.sh
 
   - name: helm-lint-pr
-    image: &helm dhi.io/helm:4.3.1-debian13-dev@sha256:8d77e0b84c3923b7823e562216ffe63574432ad298f4da23b30ae70485b46eec
+    image: &helm dhi.io/helm:4.3.1-debian13-dev
     commands: &helm-lint
       - bash .ci/helm-lint.sh
     when:
@@ -47,7 +47,7 @@ steps:
 
   # CRDs resolve from the datreeio catalog; kinds it lacks are skipped.
   - name: kubeconform
-    image: ghcr.io/yannh/kubeconform:v0.8.0-alpine@sha256:6b90a5f23d846140ce0194fe050b1995e546eba938f3a6bf10c039dd5e24588f
+    image: ghcr.io/yannh/kubeconform:v0.8.0-alpine
     commands:
       - |
         if ! ls .ci/rendered/*.yaml >/dev/null 2>&1; then echo "No rendered charts."; exit 0; fi
@@ -58,7 +58,7 @@ steps:
           .ci/rendered/*.yaml
 
   - name: kube-linter
-    image: docker.io/stackrox/kube-linter:v0.8.3-alpine@sha256:b8311611c27032d4922bc67719225e373e4a0ab0c767bbdcf5f20a9306b1a3bb
+    image: docker.io/stackrox/kube-linter:v0.8.3-alpine
     commands:
       - |
         if ! ls .ci/rendered/*.yaml >/dev/null 2>&1; then echo "No rendered charts."; exit 0; fi
