@@ -169,4 +169,3 @@ All notable changes to this chart will be documented in this file.
 ## [0.1.6] - 2025-08-26
 
 - Initial release
-
