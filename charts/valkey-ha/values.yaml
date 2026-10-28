@@ -433,6 +433,17 @@ metrics:
 ## When enabled, Valkey instances use dynamic master/replica role assignment managed by Sentinel
 ## When disabled with replication architecture, pod-0 is always the master and other pods are replicas
 sentinel:
+<<<<<<< HEAD
+=======
+  witness:
+    enabled: false
+    storageClass: ""
+    size: 64Mi
+  # Allow a quorum-confirmed primary to serve while its sole replica restarts.
+  allowUnreplicatedWrites: false
+  # Optional existing standalone primary, used only when no Sentinel state exists.
+  bootstrapMaster: ""
+>>>>>>> origin/main
   ## @param sentinel.enabled Enable Valkey Sentinel for high availability
   ## IMPORTANT: When enabled, applications should use Sentinel-aware clients to discover the current master
   ## When disabled, pod-0 is the master and can be accessed via the -master service
