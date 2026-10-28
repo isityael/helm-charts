@@ -13,7 +13,7 @@ metadata:
     app.kubernetes.io/component: pgbouncer
     app.kubernetes.io/part-of: {{ $cluster.name }}
   annotations:
-    argocd.argoproj.io/sync-wave: "24"
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   maxUnavailable: 1
   unhealthyPodEvictionPolicy: AlwaysAllow

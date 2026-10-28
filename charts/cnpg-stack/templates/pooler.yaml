@@ -12,7 +12,10 @@ metadata:
     app.kubernetes.io/component: pgbouncer
     app.kubernetes.io/part-of: {{ $cluster.name }}
   annotations:
-    argocd.argoproj.io/sync-wave: "25"
+    # Pooler resources must be created alongside the Cluster CR. Waiting for
+    # the full Cluster health gate here deadlocks apps when a replica is
+    # pending but the primary is already accepting connections.
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   cluster:
     name: {{ $cluster.name }}

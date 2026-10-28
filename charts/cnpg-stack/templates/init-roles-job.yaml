@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/component: init-roles
     app.kubernetes.io/part-of: {{ $cluster.name }}
   annotations:
-    argocd.argoproj.io/sync-wave: "12"
+    argocd.argoproj.io/sync-wave: "10"
     # Jobs are effectively immutable once created (selector + pod template). Model this as a
     # sync hook so ArgoCD deletes/recreates it on every sync where it is needed.
     argocd.argoproj.io/hook: Sync
@@ -179,5 +179,5 @@ metadata:
     app.kubernetes.io/component: init-roles
     app.kubernetes.io/part-of: {{ $cluster.name }}
   annotations:
-    argocd.argoproj.io/sync-wave: "11"
+    argocd.argoproj.io/sync-wave: "10"
 {{- end }}
