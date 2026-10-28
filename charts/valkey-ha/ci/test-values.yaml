@@ -1,0 +1,8 @@
+architecture: replication
+replicaCount: 3
+auth:
+  enabled: false
+sentinel:
+  enabled: true
+  masterProxy:
+    enabled: true

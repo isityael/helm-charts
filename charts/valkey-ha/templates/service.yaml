@@ -1,0 +1,52 @@
+{{/* Modified by m0sh1.cc from CloudPirates valkey 0.25.13: safe rolling updates. */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "valkey.fullname" . }}
+  namespace: {{ include "cloudpirates.namespace" . }}
+  labels:
+    {{- include "valkey.labels" . | nindent 4 }}
+  {{- $annotations := merge .Values.service.annotations .Values.commonAnnotations }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ if .Values.tls.enabled }}{{ .Values.tls.port }}{{ else }}{{ .Values.service.port }}{{ end }}
+      targetPort: {{ if .Values.tls.enabled }}{{ .Values.tls.port }}{{ else }}{{ .Values.service.targetPort }}{{ end }}
+      protocol: TCP
+      name: valkey
+  selector:
+    {{- include "valkey.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "valkey.fullname" . }}-headless
+  namespace: {{ include "cloudpirates.namespace" . }}
+  labels:
+    {{- include "valkey.labels" . | nindent 4 }}
+  {{- $annotations := merge .Values.service.annotations .Values.commonAnnotations }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - port: {{ if .Values.tls.enabled }}{{ .Values.tls.port }}{{ else }}{{ .Values.service.port }}{{ end }}
+      targetPort: {{ if .Values.tls.enabled }}{{ .Values.tls.port }}{{ else }}{{ .Values.service.targetPort }}{{ end }}
+      protocol: TCP
+      name: valkey
+    {{- if and .Values.sentinel.enabled (eq .Values.architecture "replication") }}
+    - port: {{ .Values.sentinel.port }}
+      targetPort: sentinel
+      protocol: TCP
+      name: sentinel
+    {{- end }}
+  selector:
+    {{- include "valkey.selectorLabels" . | nindent 4 }}
