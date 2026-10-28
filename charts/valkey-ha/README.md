@@ -52,3 +52,14 @@ For a data-preserving migration, set `sentinel.bootstrapMaster` to a dedicated
 Service for the old standalone primary. Wait for all replicas to synchronize,
 route clients through the new proxy, then perform a synchronized Sentinel handoff.
 Remove the bootstrap backend only after verifying the elected primary and data.
+
+### Two data pods with a Sentinel witness
+
+For the internal unauthenticated endpoint, set `replicaCount: 2`,
+`sentinel.witness.enabled: true`, and `sentinel.allowUnreplicatedWrites: true`.
+Set `min-replicas-to-write 0` in `config.extraConfig` to retain write availability
+while the sole replica restarts. This temporarily leaves acknowledged writes on
+one data pod; a second failure can lose those writes. The witness stores only
+Sentinel state on a small persistent volume, never a third dataset.
+The proxy requires two Sentinel votes for the selected backend and checks its
+primary role. Authenticated/TLS witness deployments are rejected pending validation.

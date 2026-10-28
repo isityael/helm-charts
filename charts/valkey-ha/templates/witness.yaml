@@ -1,0 +1,115 @@
+{{- if .Values.sentinel.witness.enabled }}
+{{- if or (not .Values.sentinel.enabled) (ne .Values.architecture "replication") .Values.auth.enabled .Values.tls.enabled }}
+{{- fail "Sentinel witness requires internal unauthenticated, non-TLS Sentinel replication" }}
+{{- end }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "valkey.fullname" . }}-witness
+  namespace: {{ include "cloudpirates.namespace" . }}
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "valkey.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: sentinel-witness
+  ports:
+    - name: sentinel
+      port: {{ .Values.sentinel.port }}
+      targetPort: sentinel
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "valkey.fullname" . }}-witness
+  namespace: {{ include "cloudpirates.namespace" . }}
+spec:
+  replicas: 1
+  serviceName: {{ include "valkey.fullname" . }}-witness
+  selector:
+    matchLabels:
+      {{- include "valkey.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sentinel-witness
+  template:
+    metadata:
+      labels:
+        {{- include "valkey.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: sentinel-witness
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {{ include "cloudpirates.renderPodSecurityContext" . | nindent 8 }}
+      containers:
+        - name: sentinel
+          image: {{ include "valkey.sentinel.image" . }}
+          securityContext: {{ include "cloudpirates.renderContainerSecurityContext" . | nindent 12 }}
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 100m, memory: 64Mi}
+          ports:
+            - name: sentinel
+              containerPort: {{ .Values.sentinel.port }}
+          volumeMounts:
+            - name: state
+              mountPath: /data
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              if [ ! -s /data/sentinel.conf ]; then
+                master=""
+                for i in $(seq 0 {{ sub .Values.replicaCount 1 }}); do
+                  master=$(valkey-cli -t 2 -h "{{ include "valkey.fullname" . }}-$i.{{ include "valkey.fullname" . }}-headless" -p {{ .Values.sentinel.port }} --raw SENTINEL get-master-addr-by-name {{ .Values.sentinel.masterName }} 2>/dev/null | head -1 || true)
+                  [ -z "$master" ] || break
+                done
+                if [ -z "$master" ]; then
+                  master="{{ .Values.sentinel.bootstrapMaster | default (printf "%s-0.%s-headless.%s.svc.%s" (include "valkey.fullname" .) (include "valkey.fullname" .) (include "cloudpirates.namespace" .) .Values.clusterDomain) }}"
+                fi
+                cat > /data/sentinel.conf <<CONFIG
+              port {{ .Values.sentinel.port }}
+              bind 0.0.0.0
+              protected-mode no
+              dir /data
+              sentinel resolve-hostnames yes
+              sentinel announce-hostnames yes
+              sentinel announce-ip {{ include "valkey.fullname" . }}-witness.{{ include "cloudpirates.namespace" . }}.svc.{{ .Values.clusterDomain }}
+              sentinel announce-port {{ .Values.sentinel.port }}
+              sentinel monitor {{ .Values.sentinel.masterName }} $master {{ .Values.service.port }} {{ .Values.sentinel.quorum }}
+              sentinel down-after-milliseconds {{ .Values.sentinel.masterName }} {{ .Values.sentinel.downAfterMilliseconds }}
+              sentinel failover-timeout {{ .Values.sentinel.masterName }} {{ .Values.sentinel.failoverTimeout }}
+              sentinel parallel-syncs {{ .Values.sentinel.masterName }} {{ .Values.sentinel.parallelSyncs }}
+              sentinel deny-scripts-reconfig yes
+              CONFIG
+              fi
+              exec valkey-sentinel /data/sentinel.conf
+          readinessProbe:
+            exec:
+              command: [sh, -ec, 'valkey-cli -t 2 -p {{ .Values.sentinel.port }} PING | grep -qx PONG']
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: sentinel}
+            periodSeconds: 10
+      terminationGracePeriodSeconds: 30
+  volumeClaimTemplates:
+    - metadata:
+        name: state
+      spec:
+        accessModes: [ReadWriteOnce]
+        {{- with .Values.sentinel.witness.storageClass }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.sentinel.witness.size }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "valkey.fullname" . }}-witness
+  namespace: {{ include "cloudpirates.namespace" . }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "valkey.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: sentinel-witness
+{{- end }}

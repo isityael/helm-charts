@@ -18,6 +18,10 @@ spec:
   maxUnavailable: {{ .Values.pdb.maxUnavailable }}
   {{- end }}
   selector:
+    matchExpressions:
+      - key: app.kubernetes.io/component
+        operator: NotIn
+        values: [sentinel-witness]
     matchLabels:
       {{- include "valkey.selectorLabels" . | nindent 6 }}
 {{- end }}

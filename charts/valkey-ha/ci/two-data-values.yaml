@@ -1,0 +1,14 @@
+architecture: replication
+replicaCount: 2
+auth:
+  enabled: false
+config:
+  extraConfig:
+    - min-replicas-to-write 0
+sentinel:
+  enabled: true
+  witness:
+    enabled: true
+  allowUnreplicatedWrites: true
+  masterProxy:
+    enabled: true
