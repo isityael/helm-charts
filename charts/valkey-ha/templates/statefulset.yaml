@@ -69,7 +69,7 @@ spec:
               if [ -f "{{ include "valkey.configFullName" . }}" ]; then
                 cat {{ include "valkey.configFullName" . }} >> /tmp/valkey/valkey.conf
               fi
-              
+
               # Add masterauth if external replica auth is enabled
               {{- if .Values.externalReplica.auth.enabled }}
               echo "" >> /tmp/valkey/valkey.conf
@@ -210,7 +210,7 @@ spec:
               port {{ .Values.service.port }}
               EOF
               fi
-              
+
               # Add masterauth for external replica if enabled (for replication without sentinel)
               {{- if and .Values.externalReplica.enabled .Values.externalReplica.auth.enabled (not .Values.sentinel.enabled) }}
               echo "" >> /tmp/valkey/valkey.conf

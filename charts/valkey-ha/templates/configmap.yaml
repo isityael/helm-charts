@@ -16,7 +16,7 @@ metadata:
 data:
   valkey.conf: |
     # Valkey configuration file
-    
+
     # Network
     bind 0.0.0.0
     {{- if .Values.tls.enabled }}
@@ -34,15 +34,15 @@ data:
     {{- else }}
     port {{ .Values.service.targetPort }}
     {{- end }}
-    
+
     # General
     daemonize no
     supervised no
-    
+
     # Logging
     loglevel notice
     logfile ""
-    
+
     # Persistence
     dir {{ include "valkey.dataDir" . }}
     {{- if .Values.config.save }}
@@ -50,27 +50,27 @@ data:
     {{- else }}
     save ""
     {{- end }}
-    
+
     # Memory management
     {{- if .Values.config.maxMemory }}
     maxmemory {{ .Values.config.maxMemory }}
     maxmemory-policy {{ .Values.config.maxMemoryPolicy }}
     {{- end }}
-    
+
     # Security
     {{- if .Values.auth.enabled }}
     protected-mode yes
     {{- else }}
     protected-mode no
     {{- end }}
-    
+
     {{- if .Values.externalReplica.enabled }}
     # External replication
     # Replicate from external Redis/Valkey server
     replicaof {{ required "externalReplica.host is required when externalReplica.enabled is true" .Values.externalReplica.host }} {{ .Values.externalReplica.port }}
     # masterauth is injected via init container when externalReplica.auth.enabled is true
     {{- end }}
-    
+
     # Additional configuration
     {{- range .Values.config.extraConfig }}
     {{ . }}

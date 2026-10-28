@@ -142,7 +142,8 @@ externalReplica:
   ## @param externalReplica.auth.enabled Enable authentication to the external master server
   auth:
     enabled: false
-    ## @param externalReplica.auth.existingSecret Name of existing secret containing the password for the external master
+    # @param externalReplica.auth.existingSecret Name of existing secret containing the password for the external
+    # master
     ## The secret should contain a key with the password value
     existingSecret: ""
     ## @param externalReplica.auth.existingSecretPasswordKey Key in the existing secret that contains the password
@@ -263,9 +264,11 @@ persistence:
 persistentVolumeClaimRetentionPolicy:
   ## @param persistentVolumeClaimRetentionPolicy.enabled Enable Persistent volume retention policy for the StatefulSet
   enabled: false
-  ## @param persistentVolumeClaimRetentionPolicy.whenScaled Volume retention behavior when the replica count of the StatefulSet is reduced
+  # @param persistentVolumeClaimRetentionPolicy.whenScaled Volume retention behavior when the replica count of the
+  # StatefulSet is reduced
   whenScaled: Retain
-  ## @param persistentVolumeClaimRetentionPolicy.whenDeleted Volume retention behavior that applies when the StatefulSet is deleted
+  # @param persistentVolumeClaimRetentionPolicy.whenDeleted Volume retention behavior that applies when the
+  # StatefulSet is deleted
   whenDeleted: Retain
 
 ## @section Liveness and readiness probes
@@ -401,7 +404,8 @@ metrics:
     port: 9121
   ## Prometheus Operator ServiceMonitor configuration
   serviceMonitor:
-    ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
+    # @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using
+    # PrometheusOperator
     enabled: false
     ## @param metrics.serviceMonitor.namespace The namespace in which the ServiceMonitor will be created
     namespace: ""
@@ -413,11 +417,13 @@ metrics:
     selector: {}
     ## @param metrics.serviceMonitor.annotations ServiceMonitor annotations
     annotations: {}
-    ## @param metrics.serviceMonitor.honorLabels honorLabels chooses the metric's labels on collisions with target labels
+    # @param metrics.serviceMonitor.honorLabels honorLabels chooses the metric's labels on collisions with target
+    # labels
     honorLabels: false
     ## @param metrics.serviceMonitor.relabelings ServiceMonitor relabel configs to apply to samples before scraping
     relabelings: []
-    ## @param metrics.serviceMonitor.metricRelabelings ServiceMonitor metricRelabelings configs to apply to samples before ingestion
+    # @param metrics.serviceMonitor.metricRelabelings ServiceMonitor metricRelabelings configs to apply to samples
+    # before ingestion
     metricRelabelings: []
     ## @param metrics.serviceMonitor.namespaceSelector ServiceMonitor namespace selector
     namespaceSelector: {}
@@ -469,7 +475,8 @@ sentinel:
     # requests:
     #   cpu: 25m
     #   memory: 64Mi
-  ## @param sentinel.valkeyShutdownWaitFailover Whether the Valkey container should wait for Sentinel failover before shutting down
+  # @param sentinel.valkeyShutdownWaitFailover Whether the Valkey container should wait for Sentinel failover before
+  # shutting down
   ## When true: on master termination the preStop hook triggers a failover and
   ## waits for it to complete (graceful, near zero-downtime handoff).
   ## When false: the Valkey container shuts down immediately without waiting.
