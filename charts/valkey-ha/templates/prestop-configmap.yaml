@@ -12,8 +12,6 @@ metadata:
     {{- include "valkey.annotations" . | nindent 4 }}
   {{- end }}
 data:
-<<<<<<< HEAD
-=======
   {{- if .Values.sentinel.allowUnreplicatedWrites }}
   primary-check.sh: |
     #!/bin/sh
@@ -25,7 +23,7 @@ data:
       *) expected="$HAPROXY_SERVER_NAME.{{ include "valkey.fullname" . }}-headless.{{ include "cloudpirates.namespace" . }}.svc.{{ .Values.clusterDomain }}" ;;
     esac
     votes=0
-    for host in {{ include "valkey.fullname" . }}-0.{{ include "valkey.fullname" . }}-headless {{ include "valkey.fullname" . }}-1.{{ include "valkey.fullname" . }}-headless {{ include "valkey.fullname" . }}-witness; do
+    for host in {{ include "valkey.fullname" . }}-0.{{ include "valkey.fullname" . }}-headless.{{ include "cloudpirates.namespace" . }}.svc.{{ .Values.clusterDomain }} {{ include "valkey.fullname" . }}-1.{{ include "valkey.fullname" . }}-headless.{{ include "cloudpirates.namespace" . }}.svc.{{ .Values.clusterDomain }} {{ include "valkey.fullname" . }}-witness.{{ include "cloudpirates.namespace" . }}.svc.{{ .Values.clusterDomain }}; do
       elected=$(printf 'SENTINEL get-master-addr-by-name {{ .Values.sentinel.masterName }}\r\nQUIT\r\n' | nc -w 1 "$host" {{ .Values.sentinel.port }} | tr -d '\r' | sed -n '3p') || elected=""
       [ "$elected" != "$expected" ] || votes=$((votes + 1))
     done
@@ -34,7 +32,6 @@ data:
     printf '%s\n' "$info" | grep -qx 'role:master'
     printf '%s\n' "$info" | grep -qx 'master_failover_state:no-failover'
   {{- end }}
->>>>>>> origin/main
   ready.sh: |
     #!/bin/sh
     set -eu
@@ -52,13 +49,9 @@ data:
       applied=$(valkey-cli -t 2 --raw INFO replication | tr -d '\r' | sed -n 's/^slave_repl_offset://p')
       [ -n "$target" ] && [ -n "$applied" ] && [ "$applied" -ge "$target" ]
     elif [ "$role" = master ]; then
-<<<<<<< HEAD
-      printf '%s\n' "$info" | grep -Eq '^connected_slaves:[1-9][0-9]*$'
-=======
       {{- if not .Values.sentinel.allowUnreplicatedWrites }}
       printf '%s\n' "$info" | grep -Eq '^connected_slaves:[1-9][0-9]*$'
       {{- end }}
->>>>>>> origin/main
       printf '%s\n' "$info" | grep -qx 'master_failover_state:no-failover'
     else
       exit 1
@@ -154,10 +147,7 @@ data:
         # Fence writes while every currently attached replica catches up.
         # WAIT on a new CLI connection does not cover previous clients' writes.
         # Compare replica offsets against the primary offset captured after pause.
-<<<<<<< HEAD
-=======
         run_valkey_command CONFIG SET min-replicas-to-write 1
->>>>>>> origin/main
         run_valkey_command CLIENT PAUSE 60000 WRITE
         TARGET_OFFSET=$(run_valkey_command INFO replication | tr -d '\r' | sed -n 's/^master_repl_offset://p')
         CAUGHT_UP=false
@@ -199,11 +189,6 @@ data:
             echo "Warning: Failover may still be in progress or Sentinel unavailable"
         fi
 
-<<<<<<< HEAD
-        # Additional delay to ensure new master is fully established
-        echo "Allowing additional time for new master to stabilize..."
-        sleep 3
-=======
         # PAUSE can hold Sentinel's demotion command. Fence queued writes
         # through min-replicas-to-write before unpausing the former primary.
         for attempt in $(seq 1 20); do
@@ -217,7 +202,6 @@ data:
         fi
         run_valkey_command CLIENT UNPAUSE
         sleep 2
->>>>>>> origin/main
 
     elif is_master; then
         echo "I am the master but sentinel.valkeyShutdownWaitFailover is disabled, skipping failover wait"

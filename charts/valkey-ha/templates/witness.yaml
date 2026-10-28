@@ -7,6 +7,8 @@ kind: Service
 metadata:
   name: {{ include "valkey.fullname" . }}-witness
   namespace: {{ include "cloudpirates.namespace" . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   clusterIP: None
   publishNotReadyAddresses: true
@@ -23,8 +25,11 @@ kind: StatefulSet
 metadata:
   name: {{ include "valkey.fullname" . }}-witness
   namespace: {{ include "cloudpirates.namespace" . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   replicas: 1
+  minReadySeconds: 10
   serviceName: {{ include "valkey.fullname" . }}-witness
   selector:
     matchLabels:

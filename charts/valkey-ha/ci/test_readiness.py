@@ -1,10 +1,6 @@
 import os, pathlib, subprocess, tempfile, unittest
 chart=str(pathlib.Path(__file__).resolve().parents[1])
-<<<<<<< HEAD
-rendered=subprocess.check_output(['helm','template','cache',chart,'-f',chart+'/ci/test-values.yaml','--show-only','templates/prestop-configmap.yaml'],text=True)
-=======
 rendered=subprocess.check_output(['helm','template','cache',chart,'--namespace','default','-f',chart+'/ci/test-values.yaml','--show-only','templates/prestop-configmap.yaml'],text=True)
->>>>>>> origin/main
 block=rendered.split('  ready.sh: |\n',1)[1].split('  prestop.sh:',1)[0]
 script='\n'.join(line[4:] for line in block.splitlines())+'\n'
 class Readiness(unittest.TestCase):
@@ -29,8 +25,6 @@ esac
  def test_disconnected_replica(self): self.assertNotEqual(self.check('down'),0)
  def test_primary_without_replica(self): self.assertNotEqual(self.check('primary'),0)
  def test_quorum_missing(self): self.assertNotEqual(self.check('quorum'),0)
-<<<<<<< HEAD
-=======
 class PrimaryRouting(unittest.TestCase):
  def check(self, scenario):
   output=subprocess.check_output(['helm','template','cache',chart,'--namespace','default','-f',chart+'/ci/test-values.yaml','--set','replicaCount=2','--set','sentinel.witness.enabled=true','--set','sentinel.allowUnreplicatedWrites=true','--show-only','templates/prestop-configmap.yaml'],text=True)
@@ -43,7 +37,7 @@ read query
 case "$query" in
  SENTINEL*)
    [ "$SCENARIO" = unavailable ] && exit 1
-   if [ "$SCENARIO" = minority ] && [ "$3" != cache-valkey-ha-0.cache-valkey-ha-headless ]; then exit 1; fi
+   if [ "$SCENARIO" = minority ] && [ "$3" != cache-valkey-ha-0.cache-valkey-ha-headless.default.svc.cluster.local ]; then exit 1; fi
    master=cache-valkey-ha-0.cache-valkey-ha-headless.default.svc.cluster.local
    [ "$SCENARIO" = stale ] && master=another-primary
    printf '*2\\r\\n$80\\r\\n%s\\r\\n$4\\r\\n6379\\r\\n' "$master";;
@@ -58,5 +52,4 @@ esac
  def test_stale_primary_rejected(self): self.assertNotEqual(self.check('stale'),0)
  def test_replica_rejected(self): self.assertNotEqual(self.check('replica'),0)
  def test_unavailable_sentinels_rejected(self): self.assertNotEqual(self.check('unavailable'),0)
->>>>>>> origin/main
 unittest.main()

@@ -47,8 +47,6 @@ Retain `fullnameOverride` and dependency alias to reuse existing volumes.
 The first upgrade persists Sentinel configuration from the current primary.
 Replication remains asynchronous; abrupt crashes can lose unreplicated writes.
 Test planned rollovers and abrupt primary failure before production promotion.
-<<<<<<< HEAD
-=======
 
 For a data-preserving migration, set `sentinel.bootstrapMaster` to a dedicated
 Service for the old standalone primary. Wait for all replicas to synchronize,
@@ -65,4 +63,7 @@ one data pod; a second failure can lose those writes. The witness stores only
 Sentinel state on a small persistent volume, never a third dataset.
 The proxy requires two Sentinel votes for the selected backend and checks its
 primary role. Authenticated/TLS witness deployments are rejected pending validation.
->>>>>>> origin/main
+
+ArgoCD applies the witness Service and StatefulSet at wave -2, before the data
+pods. Keep that ordering when updating all Sentinel images together; plain Helm
+users must sequence witness and data updates themselves to retain a voting majority.

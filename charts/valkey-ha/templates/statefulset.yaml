@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 {{- if and .Values.sentinel.allowUnreplicatedWrites (or .Values.auth.enabled .Values.tls.enabled (not .Values.sentinel.witness.enabled) (ne (int .Values.replicaCount) 2)) }}
 {{- fail "Two-data-pod routing requires two replicas, a witness, and currently supports only the unauthenticated internal non-TLS endpoint" }}
 {{- end }}
->>>>>>> origin/main
 {{/* Modified by m0sh1.cc from CloudPirates valkey 0.25.13: safe rolling updates. */}}
 apiVersion: apps/v1
 kind: StatefulSet
@@ -105,8 +102,6 @@ spec:
                 fi
               done
 
-<<<<<<< HEAD
-=======
               {{- if .Values.sentinel.witness.enabled }}
               if [ "$SENTINEL_FOUND" = false ]; then
                 MASTER_INFO=$(valkey-cli -t 2 -h "{{ include "valkey.fullname" . }}-witness" -p {{ .Values.sentinel.port }} --raw SENTINEL get-master-addr-by-name {{ .Values.sentinel.masterName }} 2>/dev/null | head -1 || true)
@@ -123,7 +118,6 @@ spec:
               fi
               {{- end }}
 
->>>>>>> origin/main
               # Configuration logic
               if [ "$SENTINEL_FOUND" = true ] && [ -n "$CURRENT_MASTER" ]; then
                 # Sentinel knows the master - configure accordingly
@@ -436,8 +430,6 @@ spec:
                 fi
               done
 
-<<<<<<< HEAD
-=======
               {{- if .Values.sentinel.bootstrapMaster }}
               if [ "$SENTINEL_FOUND_MASTER" = false ]; then
                 MASTER_HOST={{ .Values.sentinel.bootstrapMaster | quote }}
@@ -445,7 +437,6 @@ spec:
               fi
               {{- end }}
 
->>>>>>> origin/main
               # Second priority: If no Sentinels found master, check if any Valkey instance claims to be master
               if [ "$SENTINEL_FOUND_MASTER" = false ]; then
                 echo "No Sentinels available, checking Valkey instances directly..."
@@ -597,14 +588,11 @@ spec:
           volumeMounts:
             - name: haproxy-config
               mountPath: /tmp
-<<<<<<< HEAD
-=======
             {{- if .Values.sentinel.allowUnreplicatedWrites }}
             - name: prestop-script
               mountPath: /scripts
               readOnly: true
             {{- end }}
->>>>>>> origin/main
           command:
             - /bin/sh
             - -c
@@ -613,13 +601,10 @@ spec:
               cat > /tmp/haproxy.cfg << 'EOF'
               global
                   maxconn 2000
-<<<<<<< HEAD
-=======
                   {{- if .Values.sentinel.allowUnreplicatedWrites }}
                   external-check
                   insecure-fork-wanted
                   {{- end }}
->>>>>>> origin/main
 
               defaults
                   mode tcp
@@ -646,15 +631,12 @@ spec:
               # knows it's still in the middle of a handoff.
               backend valkey_master_strict
                   mode tcp
-<<<<<<< HEAD
-=======
                   {{- if .Values.sentinel.allowUnreplicatedWrites }}
                   option external-check
                   external-check path /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
                   external-check command /scripts/primary-check.sh
                   timeout check 5s
                   {{- else }}
->>>>>>> origin/main
                   option tcp-check
                   tcp-check connect
                   {{- if .Values.auth.enabled }}
@@ -669,13 +651,10 @@ spec:
                   tcp-check expect string master_failover_state:no-failover
                   tcp-check send "QUIT\r\n"
                   tcp-check expect string +OK
-<<<<<<< HEAD
-=======
                   {{- end }}
                   {{- if .Values.sentinel.bootstrapMaster }}
                   server bootstrap {{ .Values.sentinel.bootstrapMaster }}:{{ .Values.service.port }} check inter 1s rise 1 fall 1 resolvers cluster_dns init-addr none on-marked-down shutdown-sessions
                   {{- end }}
->>>>>>> origin/main
                   {{- range $i := until (int $.Values.replicaCount) }}
                   server {{ include "valkey.fullname" $ }}-{{ $i }} {{ include "valkey.fullname" $ }}-{{ $i }}.{{ include "valkey.fullname" $ }}-headless.{{ include "cloudpirates.namespace" $ }}.svc.{{ $.Values.clusterDomain }}:{{ $.Values.service.port }} check inter {{ $.Values.sentinel.masterProxy.checkInterval }} rise {{ $.Values.sentinel.masterProxy.checkRise }} fall {{ $.Values.sentinel.masterProxy.checkFall }} resolvers cluster_dns resolve-prefer {{ if eq $.Values.ipFamily "ipv6" }}ipv6{{ else }}ipv4{{ end }} init-addr none on-marked-down shutdown-sessions
                   {{- end }}
