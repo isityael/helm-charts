@@ -22,7 +22,7 @@ image:
   # -- Image pull policy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag (defaults to chart appVersion)
-  tag: "2026.10.6"
+  tag: "2026.10.7"
 
 # -- DaemonSet update strategy (only used when replica.allNodes: true)
 updateStrategy:
