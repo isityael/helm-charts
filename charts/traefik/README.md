@@ -30,7 +30,7 @@ The embedded DHI chart values are nested under `traefik`.
 ## Install
 
 ```bash
-helm install traefik oci://ghcr.io/isityael/charts/traefik \
+helm install traefik oci://git.m0sh1.cc/isityael/charts/traefik \
   --namespace traefik --create-namespace -f values.yaml
 ```
 

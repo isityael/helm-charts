@@ -1,15 +1,15 @@
 # Helm Charts
 
-Helm charts published as OCI artefacts to `oci://ghcr.io/isityael/charts`.
+Helm charts published as OCI artefacts to `oci://git.m0sh1.cc/isityael/charts`.
 
 ## Usage
 
 ```bash
 # Pull a chart
-helm pull oci://ghcr.io/isityael/charts/<chart-name> --version <version>
+helm pull oci://git.m0sh1.cc/isityael/charts/<chart-name> --version <version>
 
 # Install directly from OCI
-helm install <release-name> oci://ghcr.io/isityael/charts/<chart-name> --version <version>
+helm install <release-name> oci://git.m0sh1.cc/isityael/charts/<chart-name> --version <version>
 ```
 
 ## Charts
@@ -56,7 +56,7 @@ Artifact Hub requires one repository registration per OCI chart. Register each
 chart in the Artifact Hub control panel with a URL in this form:
 
 ```text
-oci://ghcr.io/isityael/charts/<chart-name>
+oci://git.m0sh1.cc/isityael/charts/<chart-name>
 ```
 
 Each registration receives a unique repository ID. Add per-chart IDs only if

@@ -45,7 +45,7 @@ cnpg:
     instances: 1
     # CNPG-compatible wrapper around DHI Postgres Alpine with UID/GID 26 mapping.
     # CNPG admission rejects :latest tags for operand images.
-    imageName: "ghcr.io/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8"
+    imageName: "git.m0sh1.cc/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8"
     psqlImage: dhi.io/postgres:18.6-alpine3.24
     enableSuperuserAccess: true
     imagePullSecrets: []
@@ -156,7 +156,7 @@ cnpg:
     replicas: 1
     # CNPG Pooler manager needs /usr/bin/pgbouncer. The image below is
     # intended to keep DHI content while adding that compatibility path.
-    image: "ghcr.io/isityael/pgbouncer-cnpg:1.25.2-cnpg-a1a383f9"
+    image: "git.m0sh1.cc/isityael/pgbouncer-cnpg:1.25.2-cnpg-a1a383f9"
     poolMode: transaction
     maxClientConn: 1000
     defaultPoolSize: 20

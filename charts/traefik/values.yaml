@@ -20,6 +20,6 @@ securityTxt:
 traefik:
   image:
     registry: ""
-    repository: ghcr.io/isityael/traefik
+    repository: git.m0sh1.cc/isityael/traefik
     tag: "traefik-v2026.10.26.2"
   versionOverride: "3.7.16"

@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publish charts to Forgejo. Keep independent GHCR copies of recovery charts.
+# Publish charts to their configured Forgejo namespaces.
 # Expects registry credentials for each configured destination; skips published versions.
-printf '%s\n' "$GHCR_TOKEN" | helm registry login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 : "${FORGEJO_PACKAGE_USERNAME:?FORGEJO_PACKAGE_USERNAME is required for chart publishing}"
 : "${FORGEJO_PACKAGE_TOKEN:?FORGEJO_PACKAGE_TOKEN is required for chart publishing}"
 printf '%s\n' "$FORGEJO_PACKAGE_TOKEN" \
@@ -45,21 +44,6 @@ for chart in charts/*/; do
 
   if helm show chart "oci://${repository}/${name}" --version "${version}" >/dev/null 2>&1; then
     echo "SKIP ${name}:${version} (already on ${repository})"
-    # Repair a missing recovery mirror from the published package, preserving bytes.
-    case "$name" in
-      forgejo|forgejo-runner|cloudflared|traefik|cnpg-stack)
-        if ! helm show chart "oci://ghcr.io/isityael/charts/${name}" --version "${version}" >/dev/null 2>&1; then
-          mirror_dir="$(mktemp -d)"
-          helm pull "oci://${repository}/${name}" --version "$version" --destination "$mirror_dir"
-          mirror_output="$(helm push "${mirror_dir}/${name}-${version}.tgz" oci://ghcr.io/isityael/charts 2>&1)"
-          printf '%s\n' "$mirror_output"
-          mirror_digest="$(printf '%s\n' "$mirror_output" | awk '/^Digest:/ {print $2; exit}')"
-          test -n "$mirror_digest"
-          sign_ref "ghcr.io/isityael/charts/${name}@${mirror_digest}"
-          rm -rf "$mirror_dir"
-        fi
-        ;;
-    esac
     continue
   fi
 
@@ -89,16 +73,4 @@ for chart in charts/*/; do
   printf '%s\n' "$ref" >>"$published_refs_file"
   sign_ref "$ref"
 
-  case "$name" in
-    forgejo|forgejo-runner|cloudflared|traefik|cnpg-stack)
-      recovery_repository="ghcr.io/isityael/charts"
-      if ! helm show chart "oci://${recovery_repository}/${name}" --version "${version}" >/dev/null 2>&1; then
-        recovery_output="$(helm push "$pkg" "oci://${recovery_repository}" 2>&1)"
-        printf '%s\n' "$recovery_output"
-        recovery_digest="$(printf '%s\n' "$recovery_output" | awk '/^Digest:/ {print $2; exit}')"
-        test -n "$recovery_digest"
-        sign_ref "${recovery_repository}/${name}@${recovery_digest}"
-      fi
-      ;;
-  esac
 done

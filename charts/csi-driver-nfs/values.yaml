@@ -2,7 +2,7 @@ customLabels: {}
 image:
   baseRepo: registry.k8s.io
   nfs:
-    repository: ghcr.io/isityael/nfsplugin
+    repository: git.m0sh1.cc/isityael/nfsplugin
     tag: v4.14.0-yael.12
     pullPolicy: IfNotPresent
   csiProvisioner:

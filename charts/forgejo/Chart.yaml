@@ -2,7 +2,7 @@ apiVersion: v2
 name: forgejo
 description: Improved Forgejo chart wrapper with custom image defaults and optional Forgejo Runner
 type: application
-version: 0.1.66
+version: 0.1.67
 
 appVersion: "17.0.0"
 kubeVersion: ">=1.28.0-0"
@@ -35,11 +35,11 @@ annotations:
       url: https://git.m0sh1.cc/isityael/infra-cli
   artifacthub.io/images: |
     - name: forgejo
-      image: ghcr.io/isityael/forgejo:2b3887b6
+      image: git.m0sh1.cc/isityael/forgejo:2b3887b6
     - name: forgejo-runner
-      image: ghcr.io/isityael/forgejo-runner:12.12.0-a1a383f9
+      image: git.m0sh1.cc/isityael/forgejo-runner:12.12.0-a1a383f9
     - name: forgejo-job-alpine
-      image: ghcr.io/isityael/forgejo-job-alpine:3.23
+      image: git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1
   artifacthub.io/changes: |
     - kind: changed
       description: Refresh the vendored Forgejo archive to match the locked chart version 17.3.1.
@@ -50,5 +50,5 @@ dependencies:
   - name: forgejo-runner
     alias: runner
     version: 0.1.30
-    repository: oci://ghcr.io/isityael/charts
+    repository: oci://git.m0sh1.cc/isityael/charts
     condition: runner.enabled

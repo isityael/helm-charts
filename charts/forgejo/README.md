@@ -4,7 +4,7 @@ Improved public Forgejo chart for OCI distribution.
 
 This chart wraps the upstream Forgejo Helm chart and adds m0sh1.cc defaults:
 
-- custom `ghcr.io/isityael/forgejo` image support without the upstream `-rootless` tag suffix issue
+- custom `git.m0sh1.cc/isityael/forgejo` image support without the upstream `-rootless` tag suffix issue
 - version-tagged default Forgejo image
 - pinned non-`latest` Helm test image
 - hardened rootless security context defaults
@@ -21,7 +21,7 @@ This chart wraps the upstream Forgejo Helm chart and adds m0sh1.cc defaults:
 ## Install
 
 ```bash
-helm install forgejo oci://ghcr.io/isityael/charts/forgejo
+helm install forgejo oci://git.m0sh1.cc/isityael/charts/forgejo
 ```
 
 ## Configuration
@@ -80,7 +80,7 @@ runner:
   runner:
     instanceURL: http://forgejo-http.default.svc.cluster.local:3000/
     registrationTokenSecret: forgejo-runner-registration
-    labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23
+    labels: docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1
 ```
 
 ## Ingress Example
@@ -106,4 +106,4 @@ forgejo:
 
 Most upstream Forgejo values are passed through under `forgejo.*`.
 The optional runner is configured under `runner.*` and uses `forgejo-runner` from
-`oci://ghcr.io/isityael/charts`.
+`oci://git.m0sh1.cc/isityael/charts`.

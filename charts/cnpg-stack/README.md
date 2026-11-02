@@ -26,7 +26,7 @@ One chart for a complete CloudNativePG setup, shared by the m0sh1 clusters
 ## Install
 
 ```bash
-helm install cnpg oci://ghcr.io/isityael/charts/cnpg-stack --version 0.15.0 \
+helm install cnpg oci://git.m0sh1.cc/isityael/charts/cnpg-stack --version 0.15.0 \
   --namespace cnpg-system --create-namespace -f values.yaml
 ```
 
@@ -37,7 +37,7 @@ nest all values under `cnpg-stack:`:
 dependencies:
   - name: cnpg-stack
     version: 0.15.0
-    repository: oci://ghcr.io/isityael/charts
+    repository: oci://git.m0sh1.cc/isityael/charts
 ```
 
 ## Configuration

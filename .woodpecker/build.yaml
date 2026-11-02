@@ -15,7 +15,7 @@ steps:
       - node --test .ci/tests/renovate-helm-dependency-update.mjs
 
   - name: chart-version-guard
-    image: ghcr.io/isityael/chart-version-guard:a5263c4c
+    image: git.m0sh1.cc/isityael/chart-version-guard:a5263c4c
     commands:
       - chart-version-guard check --ci woodpecker --repo .
 

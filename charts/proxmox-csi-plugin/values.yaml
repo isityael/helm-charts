@@ -109,7 +109,7 @@ controller:
   plugin:
     # -- Controller CSI Driver.
     image:
-      repository: ghcr.io/isityael/proxmox-csi-controller
+      repository: git.m0sh1.cc/isityael/proxmox-csi-controller
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: v0.21.0-yael.3
@@ -191,7 +191,7 @@ node:
   plugin:
     # -- Node CSI Driver.
     image:
-      repository: ghcr.io/isityael/proxmox-csi-node
+      repository: git.m0sh1.cc/isityael/proxmox-csi-node
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: v0.21.0-yael.3

@@ -2,7 +2,7 @@ apiVersion: v2
 name: traefik
 description: m0sh1 Traefik wrapper chart based on the Docker Hardened Images Traefik chart
 type: application
-version: 0.1.52
+version: 0.1.53
 
 appVersion: "3.7.16"
 kubeVersion: ">=1.29.0-0"
@@ -38,7 +38,7 @@ annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/images: |
     - name: traefik
-      image: ghcr.io/isityael/traefik:traefik-v2026.10.26.2
+      image: git.m0sh1.cc/isityael/traefik:traefik-v2026.10.26.2
     - name: dhi-traefik
       image: dhi.io/traefik:3.7.16-alpine3.24
   artifacthub.io/changes: |

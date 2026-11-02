@@ -15,7 +15,7 @@ Proxmox VE exporter integrations.
 ## Install
 
 ```bash
-helm install m0sh1-exporter oci://ghcr.io/isityael/charts/m0sh1-exporter \
+helm install m0sh1-exporter oci://git.m0sh1.cc/isityael/charts/m0sh1-exporter \
   --namespace monitoring \
   --create-namespace
 ```

@@ -18,7 +18,7 @@ configuration generic enough to run the upstream image when desired.
 ## Install
 
 ```bash
-helm install wakapi oci://ghcr.io/isityael/charts/wakapi-dhi \
+helm install wakapi oci://git.m0sh1.cc/isityael/charts/wakapi-dhi \
   --version 1.2.18 \
   --namespace wakapi \
   --create-namespace
@@ -27,7 +27,7 @@ helm install wakapi oci://ghcr.io/isityael/charts/wakapi-dhi \
 Pull the chart without installing:
 
 ```bash
-helm pull oci://ghcr.io/isityael/charts/wakapi-dhi --version 1.2.18
+helm pull oci://git.m0sh1.cc/isityael/charts/wakapi-dhi --version 1.2.18
 ```
 
 The OCI package name is `wakapi-dhi`, but the chart defaults `nameOverride` and `fullnameOverride` to `wakapi`
@@ -35,11 +35,11 @@ so existing Kubernetes object names remain stable during the fork rename.
 
 ## Image Defaults
 
-By default, the chart runs `ghcr.io/isityael/wakapi-dhi:2.18.0-yael.1` selected by version tag:
+By default, the chart runs `git.m0sh1.cc/isityael/wakapi-dhi:2.18.0-yael.1` selected by version tag:
 
 ```yaml
 image:
-  repository: ghcr.io/isityael/wakapi-dhi
+  repository: git.m0sh1.cc/isityael/wakapi-dhi
   tag: 2.18.0-yael.1
 ```
 
@@ -255,7 +255,7 @@ serviceMonitor:
 
 ### 1.2.1
 
-- Default image changed from `ghcr.io/muety/wakapi` to `ghcr.io/isityael/wakapi-dhi`.
+- Default image changed from `ghcr.io/muety/wakapi` to `git.m0sh1.cc/isityael/wakapi-dhi`.
 - `appVersion` changed to `2.17.3-yaelmoshi.2`.
 - Existing values remain compatible. Set `image.repository: ghcr.io/muety/wakapi` and an upstream tag to keep using the upstream image.
 - The chart schema now validates common values more strictly while still allowing additional Wakapi config keys under `config`.

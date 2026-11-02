@@ -1,7 +1,7 @@
 # Contributing
 
 This repository publishes Helm charts as OCI artefacts to
-`oci://ghcr.io/isityael/charts`.
+`oci://git.m0sh1.cc/isityael/charts`.
 
 ## Prerequisites
 

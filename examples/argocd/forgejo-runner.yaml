@@ -21,7 +21,7 @@ spec:
           registrationTokenSecret: forgejo-runner-registration
           registrationTokenKey: REGISTRATION_TOKEN
           name: runner-01
-          labels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23,node22:docker://node:22-bookworm
+          labels: docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1,node22:docker://node:22-bookworm
 
         persistence:
           enabled: true

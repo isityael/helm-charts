@@ -37,7 +37,7 @@ dind:
 # -- Forgejo Actions runner container
 runner:
   image:
-    repository: ghcr.io/isityael/forgejo-runner
+    repository: git.m0sh1.cc/isityael/forgejo-runner
     tag: "12.12.0-a1a383f9"
     pullPolicy: IfNotPresent
   # -- Forgejo instance URL used for first registration when /data/.runner is absent.
@@ -47,7 +47,7 @@ runner:
   registrationTokenKey: REGISTRATION_TOKEN
   name: ""
   # -- Default labels passed during first registration. Use Forgejo's <label>:<type>://<image> format.
-  baseLabels: "docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23"
+  baseLabels: "docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1"
   jobLabel: ""
   jobImage: ""
   labels: ""

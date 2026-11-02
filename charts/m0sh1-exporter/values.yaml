@@ -13,8 +13,8 @@ serviceAccount:
 opnsenseExporter:
   nameOverride: opnsense-exporter
   image:
-    repository: ghcr.io/isityael/opnsense-exporter
-    tag: "v0.0.15-m0sh1.4"
+    repository: git.m0sh1.cc/isityael/opnsense-exporter
+    tag: "v0.0.15-m0sh1.4-migration.1"
     pullPolicy: IfNotPresent
   opnsense:
     protocol: https
@@ -54,8 +54,8 @@ podAnnotations: {}
 snmpExporter:
   fullnameOverride: prometheus-snmp-exporter
   image:
-    repository: ghcr.io/isityael/snmp-exporter
-    tag: "v0.30.1-m0sh1.1"
+    repository: git.m0sh1.cc/isityael/snmp-exporter
+    tag: "v0.30.1-m0sh1.1-migration.1"
     pullPolicy: IfNotPresent
   securityContext:
     seccompProfile:

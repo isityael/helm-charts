@@ -14,13 +14,13 @@ Both profiles are **disabled by default**. A plain `helm install` gives you a si
 This chart is published as an **OCI artifact** on GitHub Container Registry. Helm 3.8+ can install directly from OCI — no `helm repo add` needed:
 
 ```bash
-helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory
+helm install basic-memory oci://git.m0sh1.cc/isityael/charts/basic-memory
 ```
 
 Or pin a specific version:
 
 ```bash
-helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory --version <version>
+helm install basic-memory oci://git.m0sh1.cc/isityael/charts/basic-memory --version <version>
 ```
 
 See [all available versions](https://github.com/isityael/helm-charts/pkgs/container/charts%2Fbasic-memory) on GHCR.
@@ -56,7 +56,7 @@ ingress:
 ```
 
 ```bash
-helm install basic-memory oci://ghcr.io/isityael/charts/basic-memory -f values.yaml
+helm install basic-memory oci://git.m0sh1.cc/isityael/charts/basic-memory -f values.yaml
 ```
 
 Your MCP client (Claude Desktop, Cursor, Continue, etc.) connects to `https://basic-memory.example.com/mcp`.

@@ -2,7 +2,7 @@ runner:
   instanceURL: https://forgejo.bogusdomain.test
   registrationTokenSecret: forgejo-runner-ci
   name: ci-runner
-  baseLabels: docker:docker://ghcr.io/isityael/forgejo-job-alpine:3.23
+  baseLabels: docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1
   jobLabel: node22
   jobImage: node:22-bookworm
 

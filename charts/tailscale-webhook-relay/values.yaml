@@ -1,7 +1,7 @@
 # Default values for tailscale-webhook-relay.
 
 image:
-  repository: ghcr.io/isityael/tailscale-webhook-relay
+  repository: git.m0sh1.cc/isityael/tailscale-webhook-relay
   pullPolicy: IfNotPresent
   tag: "4cb886bb"
 
