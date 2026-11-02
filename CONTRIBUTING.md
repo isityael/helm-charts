@@ -60,7 +60,7 @@ only lint and test the charts they touch, unless they change shared CI inputs.
 ## Release process
 
 1. Merge to `main` with a bumped chart version.
-2. Woodpecker `release-all` publishes every chart version that isn't on GHCR
+2. Woodpecker `release-all` publishes every chart version that isn't on Forgejo
    yet, plus the Artifact Hub metadata.
 3. Forgejo Actions tags each published version as `<chart>-v<version>`.
 

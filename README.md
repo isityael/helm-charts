@@ -30,13 +30,13 @@ helm install <release-name> oci://git.m0sh1.cc/isityael/charts/<chart-name> --ve
 | `wakapi-dhi` | Wakapi, the WakaTime-compatible coding statistics server, on Docker Hardened Images |
 
 Current versions are in each `charts/<chart>/Chart.yaml` and on
-[GHCR](https://github.com/isityael?tab=packages).
+[Forgejo Packages](https://git.m0sh1.cc/isityael/-/packages).
 Retired charts are kept outside Git in `charts/deprecated/` (ignored).
 
 ## Publishing
 
 On every push to `main` that touches `charts/**`, Woodpecker's `release-all`
-pipeline publishes each chart version that isn't on GHCR yet. It runs only
+pipeline publishes each chart version that isn't on Forgejo yet. It runs only
 after the `build` pipeline passes, and it can also be triggered manually.
 
 Forgejo Actions (`.forgejo/workflows/release-tag.yaml`) then tags each
