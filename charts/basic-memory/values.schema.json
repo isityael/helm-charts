@@ -126,7 +126,7 @@
       "description": "Values Helm shares with all subcharts.",
       "additionalProperties": true
     },
-    "replicaCount": { "type": "integer", "minimum": 1 },
+    "replicaCount": { "type": "integer", "minimum": 0 },
     "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
