@@ -78,6 +78,41 @@
     }
   },
   "properties": {
+    "extraEnv": {
+      "type": "array",
+      "description": "Additional Kubernetes EnvVar entries. Keep credentials in Secret references.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string"
+          },
+          "valueFrom": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "value"
+            ]
+          },
+          {
+            "required": [
+              "valueFrom"
+            ]
+          }
+        ]
+      }
+    },
     "tests": {
       "type": "object",
       "additionalProperties": false,

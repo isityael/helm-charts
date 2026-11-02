@@ -11,6 +11,12 @@
 persistence:
   enabled: false
 
+extraEnv:
+  - name: CHART_ENV_CONTRACT
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+
 basicMemoryHome:
   enabled: false
 

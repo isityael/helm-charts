@@ -306,3 +306,11 @@ create the pod.
 ### Server health checks
 
 With the MCP shim enabled, the Python server binds to pod loopback and health checks connect locally using its Python runtime. This keeps clients from reaching the server around the shim policy. When the shim is disabled, the server binds to all interfaces and uses Kubernetes TCP probes.
+
+## Secret-backed environment variables
+
+Use `extraEnv` for Kubernetes EnvVar entries such as `valueFrom.secretKeyRef`.
+Keep names distinct from `env`. For PostgreSQL, set `BASIC_MEMORY_DATABASE_BACKEND`
+to `postgres`, use a password-free `BASIC_MEMORY_DATABASE_URL`, and provide
+`PGPASSWORD` from an existing Secret. This keeps credentials out of configuration
+and database URL logs.

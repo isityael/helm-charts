@@ -275,11 +275,14 @@ spec:
             - name: upstream
               containerPort: {{ .Values.basicMemory.upstreamPort }}
               protocol: TCP
-          {{- with .Values.env }}
+          {{- if or .Values.env .Values.extraEnv }}
           env:
-            {{- range $key, $value := . }}
+            {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
           volumeMounts:
