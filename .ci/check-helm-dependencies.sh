@@ -26,22 +26,18 @@ if [ "${#charts[@]}" -eq 0 ]; then
   exit 0
 fi
 
-dependency_snapshot() {
-  local chart="$1"
+# A remote version can be republished (DHI refreshes image digests in place).
+# Validate lock consistency in isolation; lint/render must consume Git's archives.
+validation_root="$(mktemp -d)"
+trap 'rm -rf "${validation_root}"' EXIT
+cp -R charts "${validation_root}/charts"
 
-  {
-    [ -f "${chart}/Chart.lock" ] && printf '%s\n' "${chart}/Chart.lock"
-    [ -d "${chart}/charts" ] && find "${chart}/charts" -type f
-  } | sort | while IFS= read -r file; do
-    case "${file}" in
-      *.tgz)
-        printf '%s %s\n' "$(helm show all "${file}" | cksum)" "${file}"
-        ;;
-      *)
-        cksum "$file"
-        ;;
-    esac
-  done
+lock_snapshot() {
+  if [ -f "$1/Chart.lock" ]; then
+    cksum <"$1/Chart.lock"
+  else
+    printf '%s\n' '<missing>'
+  fi
 }
 
 # Refresh repository indexes once instead of once per chart.
@@ -55,22 +51,22 @@ for chart in "${charts[@]}"; do
   echo "==> Checking Helm dependencies for ${chart}"
 
   # Helm labels embedded dependencies without a repository as unpacked.
-  # Their complete source is still checked by the before/after snapshot below.
+  # Helm lint/render subsequently validate the committed source and archives.
   list_before="$(helm dependency list "${chart}")"
   if printf '%s\n' "${list_before}" | awk 'NR > 1 && $NF != "ok" && !($NF == "unpacked" && NF == 3) { bad = 1 } END { exit bad ? 0 : 1 }'; then
     printf '%s\n' "${list_before}" >&2
     failed=1
   fi
 
-  status_before="$(dependency_snapshot "${chart}")"
-  if ! helm dependency build "${chart}" --skip-refresh; then
+  status_before="$(lock_snapshot "${chart}")"
+  if ! (cd "${validation_root}" && helm dependency build "${chart}" --skip-refresh); then
     failed=1
     continue
   fi
-  status_after="$(dependency_snapshot "${chart}")"
+  status_after="$(lock_snapshot "${validation_root}/${chart}")"
 
   if [ "${status_before}" != "${status_after}" ]; then
-    echo "Helm dependencies for ${chart} changed during dependency build:" >&2
+    echo "Helm lock for ${chart} changed during dependency build:" >&2
     printf 'Before:\n%s\nAfter:\n%s\n' "${status_before:-<empty>}" "${status_after:-<empty>}" >&2
     failed=1
   fi

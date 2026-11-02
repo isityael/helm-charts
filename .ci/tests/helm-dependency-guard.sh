@@ -65,6 +65,9 @@ OUT
     if [ "${mutate}" = "true" ]; then
       echo "changed by build" >> "\$3/Chart.lock"
     fi
+    if [ "${mutate}" = "archive" ]; then
+      echo "republished upstream content" > "\$3/charts/child-1.0.0.tgz"
+    fi
     ;;
   *)
     echo "unexpected helm command: \$*" >&2
@@ -125,7 +128,7 @@ test_fails_on_wrong_dependency_status() {
     fail "expected output to mention wrong version"
 }
 
-test_fails_when_build_mutates_vendored_files() {
+test_fails_when_build_mutates_lock() {
   local workdir="${tmpdir}/mutated"
   local bindir="${workdir}/bin"
   mkdir -p "$workdir" "$bindir"
@@ -194,8 +197,21 @@ test_checks_dhi_build_with_credentials() {
     fail "expected dependency build to run for DHI chart with credentials"
 }
 
+test_republished_archive_does_not_fail_or_replace_vendor() {
+  local workdir="${tmpdir}/republished"
+  local bindir="${workdir}/bin"
+  mkdir -p "$workdir" "$bindir"
+  setup_repo "$workdir" demo
+  write_fake_helm "$bindir" "ok" "archive"
+  (cd "$workdir" && PATH="$bindir:$PATH" "$script") >"${tmpdir}/republished.out" 2>&1 ||
+    fail "upstream republication must not fail validation of committed dependencies"
+  [ ! -s "$workdir/charts/demo/charts/child-1.0.0.tgz" ] ||
+    fail "validation must preserve the committed archive"
+}
+
+test_republished_archive_does_not_fail_or_replace_vendor
 test_fails_on_wrong_dependency_status
-test_fails_when_build_mutates_vendored_files
+test_fails_when_build_mutates_lock
 test_passes_when_dependencies_are_current
 test_passes_without_git_available
 test_skips_dhi_build_without_credentials

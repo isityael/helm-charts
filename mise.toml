@@ -36,7 +36,7 @@ run         = ".ci/helm-deps-update.sh"
 
 [tasks.helm-deps-check]
 run         = ".ci/check-helm-dependencies.sh"
-description = "Verify committed Helm dependency archives match Chart.lock"
+description = "Verify vendored dependency versions and Helm lock consistency"
 
 [tasks.helm-lint]
 description = "Lint and render Helm charts (all, or the charts given as arguments)"

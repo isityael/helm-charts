@@ -6,7 +6,7 @@
 #   .ci/helm-lint.sh charts/x    the given charts
 #
 # Dependencies are built in a copy of charts/ so the checkout's vendored
-# archives are never rewritten; .ci/check-helm-dependencies.sh fails on drift.
+# archives are never rewritten; the dependency check validates versions and locks.
 # Rendered manifests land in .ci/rendered for kubeconform and kube-linter.
 set -euo pipefail
 
@@ -74,7 +74,7 @@ trap 'rm -rf "${validation_root}"' EXIT
 cp -R charts "${validation_root}/charts"
 cd "${validation_root}"
 
-# Builds dependencies for the selected charts and fails on vendored drift.
+# Validate dependencies in isolation; lint/render use the committed archives.
 bash "${repo_root}/.ci/check-helm-dependencies.sh" "${selected[@]}"
 
 for chart in "${selected[@]}"; do

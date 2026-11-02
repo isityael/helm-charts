@@ -35,6 +35,7 @@ case "$1" in
     exit 1
     ;;
   dependency)
+    [ "$2" = "list" ] || { echo "publishing must not rebuild dependencies" >&2; exit 1; }
     echo "helm dependency $*" >>"$HELM_LOG"
     ;;
   lint)

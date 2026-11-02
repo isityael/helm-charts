@@ -32,25 +32,6 @@ sign_ref() {
   cosign sign --yes --key env://COSIGN_PRIVATE_KEY "$ref"
 }
 
-if grep -RqsE '^\s*repository:\s+oci://dhi\.io' charts/*/Chart.yaml; then
-  if [ -z "${DHI_USERNAME:-}" ] || [ -z "${DHI_PASSWORD:-}" ]; then
-    echo "DHI credentials are required for charts that depend on oci://dhi.io."
-    echo "Set DHI_USERNAME and DHI_PASSWORD in CI secrets."
-    exit 1
-  fi
-  printf '%s\n' "$DHI_PASSWORD" | helm registry login dhi.io -u "$DHI_USERNAME" --password-stdin
-fi
-
-# Register dependency repos for charts using BJW-S common library
-for chart in charts/*/; do
-  [ -f "${chart}Chart.yaml" ] || continue
-  grep -qE '^\s*repository:\s+https?://' "${chart}Chart.yaml" 2>/dev/null || continue
-  grep -E '^\s*repository:\s+https?://' "${chart}Chart.yaml" | awk '{print $2}' | sort -u | while read -r repo; do
-    rname="repo-$(echo "$repo" | md5sum | cut -c1-8)"
-    helm repo add "$rname" "$repo" 2>/dev/null || true
-  done
-done
-
 for chart in charts/*/; do
   chartfile="${chart}Chart.yaml"
   [ -f "$chartfile" ] || continue
@@ -82,8 +63,13 @@ for chart in charts/*/; do
     continue
   fi
 
-  echo "Building deps for ${name}..."
-  helm dependency build "$chart"
+  # Publish the same committed dependencies that passed build validation.
+  # Rebuilding here could silently fetch a republished upstream chart version.
+  dependencies="$(helm dependency list "$chart")"
+  if printf '%s\n' "$dependencies" | awk 'NR > 1 && $NF != "ok" && !($NF == "unpacked" && NF == 3) { bad = 1 } END { exit bad ? 0 : 1 }'; then
+    printf '%s\n' "$dependencies" >&2
+    exit 1
+  fi
 
   echo "Linting ${name}..."
   helm lint --with-subcharts "$chart"
