@@ -4,6 +4,6 @@ dependencies:
   version: 17.3.2
 - name: forgejo-runner
   repository: oci://git.m0sh1.cc/isityael/charts
-  version: 0.1.30
-digest: sha256:9821dc42929f7cba1c8db1db9eacb65c35ebdf5a9b35411656071efb29a9a93c
-generated: "2026-11-02T17:39:46.846366+01:00"
+  version: 0.1.31
+digest: sha256:211f7e70f1179059183240d65d5eaffe6e821af65e03690b7515d1f545c08aeb
+generated: "2026-11-02T18:09:03.930071+01:00"
