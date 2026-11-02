@@ -25,7 +25,7 @@ depends_on:
 
 steps:
   - name: install-oras
-    image: alpine:3.24
+    image: dhi.io/alpine-base:3.24-dev
     commands:
       - ORAS_INSTALL_DIR=.ci/oras-bin sh .ci/install-oras.sh
 
