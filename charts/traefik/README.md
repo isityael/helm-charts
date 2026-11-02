@@ -94,7 +94,7 @@ shows the pattern this chart uses (`parentRefs` to `traefik-gateway`,
 ### 0.1.26
 
 The `security.txt` server image moved from the template to
-`securityTxt.image` and is pinned by digest. Override it there if you mirror
+`securityTxt.image` and is selected by version tag. Override it there if you mirror
 images.
 
 ### 0.1.24

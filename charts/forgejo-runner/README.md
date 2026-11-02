@@ -5,7 +5,7 @@
 Helm chart for [Forgejo Runner](https://forgejo.org/docs/latest/admin/actions/) with an optional Docker-in-Docker sidecar.
 
 This chart is inspired by the upstream `forgejo-helm/forgejo-runner` chart, but keeps a smaller public
-surface: digest-pinned images, no plaintext registration token value, rendered `config.yaml`, and a
+surface: version-tagged images, no plaintext registration token value, rendered `config.yaml`, and a
 non-root runner container by default.
 
 ## Requirements
@@ -34,7 +34,7 @@ helm install forgejo-runner oci://ghcr.io/isityael/charts/forgejo-runner \
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 | runner.image.repository | string | `ghcr.io/isityael/forgejo-runner` | Runner image repository |
-| runner.image.tag | string | `12.12.0-a1a383f9@sha256:7edf0bf1125982fea00a357e4226f919ed1fd10df34d39b4494400c142363c85` | Runner image tag and digest |
+| runner.image.tag | string | `12.12.0-a1a383f9` | Runner image version tag |
 | dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
 | runner.instanceURL | string | `""` | Forgejo instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |

@@ -35,12 +35,12 @@ so existing Kubernetes object names remain stable during the fork rename.
 
 ## Image Defaults
 
-By default, the chart runs `ghcr.io/isityael/wakapi-dhi:2.18.0-yael.1` pinned by digest:
+By default, the chart runs `ghcr.io/isityael/wakapi-dhi:2.18.0-yael.1` selected by version tag:
 
 ```yaml
 image:
   repository: ghcr.io/isityael/wakapi-dhi
-  tag: 2.18.0-yael.1@sha256:7bdf8f7a864e9b236c839c1c6c2e68f92888b2f1836a8f4cc513445272003a97
+  tag: 2.18.0-yael.1
 ```
 
 To run upstream Wakapi with this chart:

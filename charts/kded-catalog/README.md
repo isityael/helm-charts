@@ -65,7 +65,7 @@ This creates a tailnet HTTPS Ingress. No public Ingress or DNS record is created
 
 `browser.enabled` provisions one headful official Selenium Firefox pod, a 2Gi
 profile PVC and a separate validating CONNECT proxy using the catalogue image.
-The Firefox image is pinned by digest, runs as UID 1200/GID 1201, drops all
+The Firefox image is selected by version tag, runs as UID 1200/GID 1201, drops all
 capabilities and is configured to retain RuntimeDefault seccomp and the Firefox
 content sandbox. Runtime sandbox verification is required before API integration.
 Generated Selenium/X11 configuration and the desktop home use bounded ephemeral

@@ -5,7 +5,7 @@ Improved public Forgejo chart for OCI distribution.
 This chart wraps the upstream Forgejo Helm chart and adds m0sh1.cc defaults:
 
 - custom `ghcr.io/isityael/forgejo` image support without the upstream `-rootless` tag suffix issue
-- digest-pinned default Forgejo image
+- version-tagged default Forgejo image
 - pinned non-`latest` Helm test image
 - hardened rootless security context defaults
 - optional `forgejo-runner` subchart dependency for Actions runners
@@ -41,7 +41,7 @@ forgejo:
   image:
     registry: ghcr.io
     repository: isityael/forgejo
-    tag: "2b3887b6@sha256:f6060e8de865ee543c97689994755d43278c2750e087ed192c28b0aac5be5f07"
+    tag: "2b3887b6"
     rootless: true
 
   httpRoute:
