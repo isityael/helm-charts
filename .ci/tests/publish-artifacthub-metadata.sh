@@ -63,7 +63,7 @@ test_publishes_metadata_for_every_chart_repository() {
 
   grep -Fxq 'password=test-token' "${workdir}/oras.log" || fail "expected token on oras standard input"
   grep -Fxq 'login git.m0sh1.cc --username test-user --password-stdin' "${workdir}/oras.log" \
-    || fail "expected GHCR login"
+    || fail "expected Forgejo login"
   local expected_alpha='push git.m0sh1.cc/isityael/charts/alpha:artifacthub.io'
   expected_alpha+=' --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml'
   local expected_bravo='push git.m0sh1.cc/isityael/charts/bravo:artifacthub.io'
