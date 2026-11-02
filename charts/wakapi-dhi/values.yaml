@@ -8,7 +8,7 @@ image:
   repository: git.m0sh1.cc/isityael/wakapi-dhi
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion
-  tag: "2.18.0-yael.21"
+  tag: "2.18.0-yael.24"
 
 imagePullSecrets: []
 nameOverride: "wakapi"
