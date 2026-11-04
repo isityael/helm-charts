@@ -17,7 +17,7 @@ dind:
   enabled: true
   image:
     repository: docker
-    tag: "29.9.2-dind-alpine3.24"
+    tag: "29.9.3-dind-alpine3.24"
     pullPolicy: IfNotPresent
   args:
     - --tls=false
