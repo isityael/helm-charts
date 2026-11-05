@@ -13,7 +13,7 @@ apexRedirect:
 securityTxt:
   enabled: false
   # Serves security.txt; non-root DHI Caddy.
-  image: dhi.io/caddy:2.11.7-debian13
+  image: dhi.io/caddy:2.11.9-debian13
   hostnames: []
   content: ""
 
