@@ -56,6 +56,8 @@ tailscale:
   proxyClass: ts-standalone-ingress
 networkPolicy:
   enabled: true
+  # Keep policy enabled but delegate manifests to an existing policy-owning chart.
+  external: false
   # Exact source names only; matchPattern wildcards are deliberately unsupported.
   sourceHosts: [macked.app, appstorrent.ru]
 resources:

@@ -90,6 +90,13 @@ class Contract(unittest.TestCase):
         self.assertTrue(browser_policy['spec']['enableDefaultDeny']['ingress'])
         self.assertNotIn('secretName: kded-catalog-postgres-auth', result.stdout)
         self.assertNotIn('secretName: kded-catalog-api-auth', result.stdout)
+        external = render('enabled=true', 'api.enabled=false', 'auth.existingSecret=',
+                          'image.spec=' + FIXTURE, 'browser.enabled=true',
+                          'browser.persistence.storageClass=fixture-retain', 'networkPolicy.external=true')
+        self.assertEqual(external.returncode, 0, external.stderr)
+        self.assertFalse(any(x and x['kind'] == 'CiliumNetworkPolicy'
+                             for x in yaml.safe_load_all(external.stdout)))
+
 
 
 if __name__ == '__main__':

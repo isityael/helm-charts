@@ -114,3 +114,7 @@ both the browser and proxy while retaining the protected profile PVC and Service
 Freeze the old browser before copying a profile; never run two browsers against
 copies of the same login state during migration. The default API/browser behavior
 is unchanged.
+
+Set `networkPolicy.external: true` only when an independent policy-owning chart
+has already installed equivalent policies for all enabled components. `networkPolicy.enabled`
+remains true and browser isolation must be established before raising replicas.

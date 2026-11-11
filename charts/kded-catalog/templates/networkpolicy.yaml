@@ -1,4 +1,4 @@
-{{- if and .Values.enabled .Values.api.enabled .Values.networkPolicy.enabled }}
+{{- if and .Values.enabled .Values.api.enabled .Values.networkPolicy.enabled (not .Values.networkPolicy.external) }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -53,7 +53,7 @@ spec:
         - ports: [{port: "443", protocol: TCP}]
     {{- end }}
 {{- end }}
-{{- if and .Values.enabled .Values.browser.enabled }}
+{{- if and .Values.enabled .Values.browser.enabled (not .Values.networkPolicy.external) }}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
