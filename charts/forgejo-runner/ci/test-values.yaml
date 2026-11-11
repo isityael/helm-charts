@@ -1,10 +1,18 @@
 runner:
+  configStorage: configMap
   instanceURL: https://forgejo.bogusdomain.test
   registrationTokenSecret: forgejo-runner-ci
   name: ci-runner
   baseLabels: docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1
   jobLabel: node22
   jobImage: node:22-bookworm
+
+terminationGracePeriodSeconds: 10860
+dind:
+  lifecycle:
+    preStop:
+      exec:
+        command: ["/bin/sh", "-c", "while docker ps --quiet | grep -q .; do sleep 2; done"]
 
 daemonConfig:
   registryMirrors:

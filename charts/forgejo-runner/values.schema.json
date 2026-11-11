@@ -5,12 +5,14 @@
   "properties": {
     "replicaCount": { "type": "integer", "minimum": 0 },
     "revisionHistoryLimit": { "type": "integer", "minimum": 0 },
+    "terminationGracePeriodSeconds": { "type": ["integer", "null"], "minimum": 0 },
     "strategy": { "type": "object" },
     "imagePullSecrets": { "type": "array" },
     "dind": {
       "type": "object",
       "properties": {
         "enabled": { "type": "boolean" },
+        "lifecycle": { "type": "object" },
         "image": { "type": "object" },
         "args": { "type": "array" },
         "securityContext": { "type": "object" },
@@ -31,6 +33,7 @@
         "labels": { "type": "string" },
         "dataMountPath": { "type": "string" },
         "existingRunnerSecret": { "type": "string" },
+        "configStorage": { "type": "string", "enum": ["secret", "configMap"] },
         "existingConfigSecret": { "type": "string" },
         "extraEnv": { "type": "array" },
         "config": { "type": "object" },

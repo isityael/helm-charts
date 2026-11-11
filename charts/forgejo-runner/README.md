@@ -36,12 +36,15 @@ helm install forgejo-runner oci://git.m0sh1.cc/isityael/charts/forgejo-runner \
 | runner.image.repository | string | `git.m0sh1.cc/isityael/forgejo-runner` | Runner image repository |
 | runner.image.tag | string | `12.12.0-a1a383f9` | Runner image version tag |
 | dind.enabled | bool | `true` | Enable Docker-in-Docker sidecar |
+| dind.lifecycle | object | `{}` | Container lifecycle hooks, such as keeping Docker alive during runner shutdown |
+| terminationGracePeriodSeconds | integer/null | `null` | Override Kubernetes termination grace period |
 | runner.instanceURL | string | `""` | Forgejo instance URL |
 | runner.registrationTokenSecret | string | `""` | Secret name holding registration token |
 | runner.registrationTokenKey | string | `REGISTRATION_TOKEN` | Key in the secret for the token |
 | runner.baseLabels | string | `docker:docker://git.m0sh1.cc/isityael/forgejo-job-alpine:3.23-migration.1` | Default Forgejo Actions job label and image |
 | runner.labels | string | `""` | Full comma-separated label set; overrides `baseLabels` composition when set |
 | runner.config | object | Forgejo defaults | Rendered into `/etc/forgejo-runner/config.yaml` |
+| runner.configStorage | string | `secret` | Use `configMap` when `runner.config` contains only nonsecret configuration |
 | runner.dataMountPath | string | `/data` | Runner data directory mount path |
 | persistence.enabled | bool | `false` | Persist `/data`, including `.runner` and cache data, with a PVC |
 | registryAuthSecret | string | `""` | Secret with `.dockerconfigjson` for registry auth |
@@ -49,6 +52,16 @@ helm install forgejo-runner oci://git.m0sh1.cc/isityael/charts/forgejo-runner \
 | namespaceOverride | string | `""` | Render runner resources into a namespace other than the Helm release namespace |
 
 For full configuration options, see `values.yaml`.
+
+`runner.configStorage: configMap` keeps nonsecret daemon settings in a ConfigMap.
+Keep credentials in the existing registration and registry Secrets; never place
+them in `runner.config` when selecting this option. The default remains `secret`
+for compatibility. `configMap` cannot be combined with `runner.existingConfigSecret`.
+
+For graceful job completion during rollouts, set `runner.config.runner.shutdown_timeout`,
+allow a longer `terminationGracePeriodSeconds`, and use a DinD `preStop` hook that
+waits for job containers to finish before stopping Docker. Admission must be drained
+separately when upgrading a deployment that previously cancelled jobs on termination.
 
 ## Registration Secret
 

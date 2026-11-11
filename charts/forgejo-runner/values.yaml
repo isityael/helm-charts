@@ -1,5 +1,6 @@
 replicaCount: 1
 revisionHistoryLimit: 2
+terminationGracePeriodSeconds: null
 
 # -- Recreate avoids a rollout deadlock when the runner data PVC is ReadWriteOnce.
 strategy:
@@ -15,6 +16,7 @@ imagePullSecrets: []
 # -- Docker-in-Docker sidecar container
 dind:
   enabled: true
+  lifecycle: {}
   image:
     repository: docker
     tag: "29.9.3-dind-alpine3.24"
@@ -53,6 +55,8 @@ runner:
   labels: ""
   dataMountPath: /data
   existingRunnerSecret: ""
+  # -- Storage for generated nonsecret runner configuration: secret or configMap.
+  configStorage: secret
   existingConfigSecret: ""
   extraEnv: []
   config:

@@ -1,4 +1,7 @@
 {{- $dockerConfigDir := "/tmp/.docker" }}
+{{- if and (eq .Values.runner.configStorage "configMap") .Values.runner.existingConfigSecret }}
+{{- fail "runner.configStorage=configMap cannot be combined with runner.existingConfigSecret" }}
+{{- end }}
 {{- if .Values.registryAuthSecret }}
 {{- $dockerConfigDir = dir .Values.registryAuthMountPath }}
 {{- end }}
@@ -40,6 +43,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -77,6 +83,10 @@ spec:
         {{/* Docker-in-Docker sidecar */}}
         - name: dind
           image: "{{ .Values.dind.image.repository }}:{{ .Values.dind.image.tag }}"
+          {{- with .Values.dind.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           imagePullPolicy: {{ .Values.dind.image.pullPolicy }}
           {{- with .Values.dind.args }}
           args:
@@ -208,8 +218,13 @@ spec:
             {{- toYaml .Values.runner.resources | nindent 12 }}
       volumes:
         - name: runner-config
+          {{- if eq .Values.runner.configStorage "configMap" }}
+          configMap:
+            name: {{ printf "%s-config" (include "forgejo-runner.fullname" .) }}
+          {{- else }}
           secret:
             secretName: {{ default (printf "%s-config" (include "forgejo-runner.fullname" .)) .Values.runner.existingConfigSecret }}
+          {{- end }}
         {{- if .Values.dind.enabled }}
         - name: docker-graph
           emptyDir: {}
