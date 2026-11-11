@@ -1,5 +1,7 @@
 # Enable only after publishing and verifying an immutable application image.
 enabled: false
+api:
+  enabled: true
 image:
   spec: ""
   pullPolicy: IfNotPresent
@@ -9,6 +11,8 @@ revisionHistoryLimit: 2
 browser:
   # Provision first; integrate only after runtime sandbox and egress proof.
   enabled: false
+  replicaCount: 1
+  nodeSelector: {}
   apiIntegration: false
   image: "selenium/standalone-firefox:157.0.1-20261010"
   publicOrigin: ""

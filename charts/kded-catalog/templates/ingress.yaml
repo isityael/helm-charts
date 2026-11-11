@@ -1,4 +1,4 @@
-{{- if and .Values.enabled .Values.tailscale.enabled }}
+{{- if and .Values.enabled .Values.api.enabled .Values.tailscale.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

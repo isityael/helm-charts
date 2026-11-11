@@ -70,6 +70,27 @@ class Contract(unittest.TestCase):
         self.assertNotIn('Secret', resources)
         self.assertNotIn('clusterIP', resources['Service']['spec'])
 
+    def test_browser_only_can_be_fenced_without_api_credentials(self):
+        result = render('enabled=true', 'api.enabled=false', 'auth.existingSecret=',
+                        'image.spec=' + FIXTURE, 'browser.enabled=true',
+                        'browser.replicaCount=0', 'browser.persistence.storageClass=fixture-retain',
+                        r'browser.nodeSelector.kubernetes\.io/hostname=horse03')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        resources = [x for x in yaml.safe_load_all(result.stdout) if x]
+        deployments = [x for x in resources if x['kind'] == 'Deployment']
+        self.assertEqual({x['metadata']['name'] for x in deployments},
+                         {'kded-catalog-browser', 'kded-catalog-egress'})
+        self.assertTrue(all(x['spec']['replicas'] == 0 for x in deployments))
+        self.assertTrue(all(x['spec']['template']['spec']['nodeSelector'] ==
+                            {'kubernetes.io/hostname': 'horse03'} for x in deployments))
+        self.assertFalse(any(x['kind'] in {'Secret', 'Ingress'} for x in resources))
+        browser_policy = next(x for x in resources if x['kind'] == 'CiliumNetworkPolicy'
+                              and x['metadata']['name'] == 'kded-catalog-browser')
+        self.assertEqual(browser_policy['spec']['ingress'], [])
+        self.assertTrue(browser_policy['spec']['enableDefaultDeny']['ingress'])
+        self.assertNotIn('secretName: kded-catalog-postgres-auth', result.stdout)
+        self.assertNotIn('secretName: kded-catalog-api-auth', result.stdout)
+
 
 if __name__ == '__main__':
     unittest.main()

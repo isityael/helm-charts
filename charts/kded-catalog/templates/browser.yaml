@@ -1,4 +1,10 @@
 {{- if and .Values.enabled .Values.browser.enabled }}
+{{- if and .Values.browser.apiIntegration (not .Values.api.enabled) }}
+{{- fail "browser API integration requires api.enabled" }}
+{{- end }}
+{{- if or (not (regexMatch "^[^ @]+:[A-Za-z0-9_][A-Za-z0-9_.-]*$" .Values.image.spec)) (regexMatch ":(latest|main|master|dev)$" .Values.image.spec) }}
+{{- fail "browser egress requires image.spec pinned to a verified version tag" }}
+{{- end }}
 {{- if not .Values.networkPolicy.enabled }}
 {{- fail "browser requires networkPolicy.enabled" }}
 {{- end }}
@@ -35,7 +41,7 @@ kind: Deployment
 metadata:
   name: {{ include "kded-catalog.name" . }}-browser
 spec:
-  replicas: 1
+  replicas: {{ .Values.browser.replicaCount }}
   revisionHistoryLimit: 2
   strategy:
     type: Recreate
@@ -55,6 +61,10 @@ spec:
         {{- toYaml $annotations | nindent 8 }}
     spec:
       automountServiceAccountToken: false
+      {{- with .Values.browser.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 1200
@@ -160,7 +170,7 @@ kind: Deployment
 metadata:
   name: {{ include "kded-catalog.name" . }}-egress
 spec:
-  replicas: 1
+  replicas: {{ .Values.browser.replicaCount }}
   revisionHistoryLimit: 2
   strategy:
     type: Recreate
@@ -175,6 +185,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       automountServiceAccountToken: false
+      {{- with .Values.browser.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}

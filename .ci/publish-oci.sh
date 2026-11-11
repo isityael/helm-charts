@@ -37,10 +37,7 @@ for chart in charts/*/; do
 
   name="$(basename "$chart")"
   version="$(grep '^version:' "$chartfile" | awk '{print $2}')"
-  case "$name" in
-    kded-catalog) repository="git.m0sh1.cc/m0sh1-internal/charts" ;;
-    *) repository="git.m0sh1.cc/isityael/charts" ;;
-  esac
+  repository="git.m0sh1.cc/isityael/charts"
 
   if helm show chart "oci://${repository}/${name}" --version "${version}" >/dev/null 2>&1; then
     echo "SKIP ${name}:${version} (already on ${repository})"

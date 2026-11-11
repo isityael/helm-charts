@@ -1,6 +1,9 @@
-{{- if .Values.enabled }}
+{{- if and .Values.enabled .Values.api.enabled }}
 kded-catalog uses the existing PostgreSQL database configured in postgres.
 The Tailscale Ingress is private to the authorised tailnet.
+{{- else if and .Values.enabled .Values.browser.enabled }}
+Only the private browser and allowlisted egress proxy are enabled.
+No API, PostgreSQL credentials, or public browser endpoint are created.
 {{- else }}
 kded-catalog is disabled. Verify and pin an application version before enabling.
 {{- end }}

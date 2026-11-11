@@ -1,4 +1,4 @@
-{{- if .Values.enabled }}
+{{- if and .Values.enabled .Values.api.enabled }}
 {{- if or (not (regexMatch "^[^ @]+:[A-Za-z0-9_][A-Za-z0-9_.-]*$" .Values.image.spec)) (regexMatch ":(latest|main|master|dev)$" .Values.image.spec) }}
 {{- fail "enabled kded-catalog requires image.spec pinned to a verified version tag" }}
 {{- end }}

@@ -139,6 +139,17 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "nodeSelector": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "allOf": [
@@ -182,6 +193,18 @@
           }
         }
       ]
+    },
+    "api": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
     }
   },
   "allOf": [
@@ -190,6 +213,13 @@
         "properties": {
           "enabled": {
             "const": true
+          },
+          "api": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
           }
         }
       },

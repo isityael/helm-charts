@@ -101,3 +101,16 @@ VNC RFB greeting and successful WebDriver/noVNC HTTP responses.
 `browser.podAnnotations` accepts string annotations for declarative browser pod
 rollouts, including profile-persistence validation. The mandatory profile backup
 exclusion takes precedence over a conflicting custom annotation.
+
+### Browser-only placement and fencing
+
+Set `enabled: true`, `api.enabled: false`, `browser.enabled: true`, and
+`browser.apiIntegration: false` for a private browser/proxy installation without
+an API Deployment, database credentials, bearer-auth Secret, or Ingress. Pin
+`image.spec` for the proxy and reuse an existing image-pull Secret as needed.
+Browser-only ingress is denied; use authenticated Kubernetes port-forwarding.
+`browser.nodeSelector` places both workloads. `browser.replicaCount: 0` fences
+both the browser and proxy while retaining the protected profile PVC and Services.
+Freeze the old browser before copying a profile; never run two browsers against
+copies of the same login state during migration. The default API/browser behavior
+is unchanged.
