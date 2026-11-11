@@ -8,7 +8,7 @@
   ],
   "pinDigests": false,
   "prHourlyLimit": 2,
-  "prConcurrentLimit": 2,
+  "prConcurrentLimit": 1,
   "rangeStrategy": "bump",
   "enabledManagers": [
     "helmv3",
@@ -74,9 +74,6 @@
         "helmv3",
         "helm-values"
       ],
-      "groupName": "{{parentDir}} Helm chart",
-      "groupSlug": "{{parentDir}}-helm-chart",
-      "separateMinorPatch": true,
       "labels": [
         "dependencies",
         "helm"
@@ -109,7 +106,6 @@
       "matchFileNames": [
         "charts/csi-s3/Chart.yaml"
       ],
-      "groupName": "csi-s3 upstream chart",
       "labels": [
         "dependencies",
         "helm",
@@ -140,7 +136,6 @@
         "git.m0sh1.cc/isityael/csi-s3-driver",
         "git.m0sh1.cc/isityael/csi-s3-driver"
       ],
-      "groupName": "csi-s3 images",
       "labels": [
         "dependencies",
         "docker",
@@ -211,9 +206,6 @@
       "matchManagers": [
         "github-actions"
       ],
-      "groupName": "GitHub Actions",
-      "groupSlug": "github-actions",
-      "separateMinorPatch": true,
       "labels": [
         "dependencies",
         "ci"
@@ -223,8 +215,6 @@
       "matchManagers": [
         "npm"
       ],
-      "groupName": "npm dependencies",
-      "groupSlug": "npm-deps",
       "labels": [
         "dependencies",
         "npm"
@@ -247,9 +237,37 @@
         "pinDigest"
       ],
       "enabled": false
+    },
+    {
+      "description": "One reviewed weekly dependency refresh, including majors, charts, images and tooling.",
+      "matchPackageNames": [
+        "*"
+      ],
+      "groupName": "weekly dependencies",
+      "groupSlug": "weekly-dependencies",
+      "groupSingleUpdates": true,
+      "minimumGroupSize": 1,
+      "additionalBranchPrefix": "",
+      "separateMajorMinor": false,
+      "separateMinorPatch": false,
+      "separateMultipleMajor": false,
+      "separateMultipleMinor": false,
+      "schedule": [
+        "* 0-5 * * 1"
+      ],
+      "automerge": false
     }
   ],
   "ignorePresets": [
     "docker:pinDigests"
-  ]
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "* 0-5 * * 1"
+  ],
+  "separateMajorMinor": false,
+  "separateMinorPatch": false,
+  "separateMultipleMajor": false,
+  "separateMultipleMinor": false,
+  "automerge": false
 }
