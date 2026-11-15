@@ -46,7 +46,7 @@ cnpg:
     # CNPG-compatible wrapper around DHI Postgres Alpine with UID/GID 26 mapping.
     # CNPG admission rejects :latest tags for operand images.
     imageName: "git.m0sh1.cc/isityael/postgres-cnpg:18.4-alpine3.24-cnpg-dd386ee8"
-    psqlImage: dhi.io/postgres:18.6-alpine3.24
+    psqlImage: dhi.io/postgres:18.7-alpine3.24
     enableSuperuserAccess: true
     imagePullSecrets: []
     # Optional Cluster settings, rendered only when set:
