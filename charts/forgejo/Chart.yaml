@@ -45,7 +45,7 @@ annotations:
       description: Refresh the vendored Forgejo archive to match the locked chart version 17.3.1.
 dependencies:
   - name: forgejo
-    version: 17.3.2
+    version: 17.3.3
     repository: oci://code.forgejo.org/forgejo-helm
   - name: forgejo-runner
     alias: runner

@@ -19,7 +19,7 @@ dind:
   lifecycle: {}
   image:
     repository: docker
-    tag: "29.9.3-dind-alpine3.24"
+    tag: "29.10.0-dind-alpine3.24"
     pullPolicy: IfNotPresent
   args:
     - --tls=false

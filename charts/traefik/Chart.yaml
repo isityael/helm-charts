@@ -23,7 +23,7 @@ keywords:
 dependencies:
   - name: traefik-chart
     alias: traefik
-    version: 42.4.0
+    version: 42.4.1
     repository: oci://dhi.io
 annotations:
   artifacthub.io/links: |
