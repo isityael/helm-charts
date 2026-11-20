@@ -18,8 +18,8 @@ dind:
   enabled: true
   lifecycle: {}
   image:
-    repository: docker
-    tag: "29.10.0-dind-alpine3.24"
+    repository: dhi.io/docker-dind
+    tag: "29.10.0-alpine3.24"
     pullPolicy: IfNotPresent
   args:
     - --tls=false
