@@ -27,7 +27,7 @@ image:
   ## @param image.repository Valkey image repository
   repository: valkey/valkey
   ## @param image.tag Valkey image tag (immutable tags are recommended)
-  tag: "9.1.4-alpine"
+  tag: "9.2.0-alpine"
   ## @param image.imagePullPolicy Valkey image pull policy
   imagePullPolicy: Always
 
@@ -451,7 +451,7 @@ sentinel:
     ## @param sentinel.image.repository Valkey Sentinel image repository
     repository: valkey/valkey
     ## @param sentinel.image.tag Valkey Sentinel image tag
-    tag: "9.1.4-alpine"
+    tag: "9.2.0-alpine"
     ## @param sentinel.image.pullPolicy Valkey Sentinel image pull policy
     pullPolicy: Always
   ## @param sentinel.config.announceHostnames Use the hostnames instead of the IP in "announce-ip" commands
