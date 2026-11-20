@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+title = "m0sh1.cc helm-charts — gitleaks allowlist"
+
+# CI scans a clean checkout, where neither path exists, so this allowlist only
+# keeps local `gitleaks detect` runs honest. Both trees are gitignored:
+#   .ci/rendered/     helm template output; reproduces whatever values declare
+#   charts/deprecated/ retired charts, excluded from Renovate and publishing
+[allowlist]
+description = "Generated render output and retired charts are not source"
+paths = [
+  '''^\.ci/rendered/''',
+  '''^charts/deprecated/''',
+]

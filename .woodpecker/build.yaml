@@ -9,6 +9,12 @@ when:
     branch: main
 
 steps:
+  # Runs first, on a clean checkout, before helm-lint writes .ci/rendered.
+  - name: gitleaks
+    image: dhi.io/gitleaks:8.30.1-debian13-dev
+    commands:
+      - gitleaks detect --source . --no-git --config .gitleaks.toml
+
   - name: renovate-helm-auth
     image: dhi.io/node:26.13.1-alpine3.24-dev
     commands:
@@ -20,9 +26,13 @@ steps:
       - chart-version-guard check --ci woodpecker --repo .
 
   - name: repository-contracts
-    image: &lint-tools harbor.m0sh1.cc/apps/k8s-lint-tools:ci-contract-53944bfb-1456
+    # harbor.m0sh1.cc/apps/* is disabled for Renovate in the shared base preset
+    # ("Ignore self-built images"), so the previous ci-contract-* pin could
+    # never be updated. Track the released tag that infra also runs; jq and
+    # python3 ship in the image, so only the genuinely absent tools are added.
+    image: &lint-tools git.m0sh1.cc/isityael/k8s-lint-tools:v1.0.1749
     commands:
-      - apk add --no-cache deno jq perl perl-utils ripgrep python3
+      - apk add --no-cache deno perl perl-utils ripgrep
       - bash .ci/test-shell.sh
 
   - name: helm-lint-pr

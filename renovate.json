@@ -16,7 +16,9 @@
     "custom.regex",
     "github-actions",
     "npm",
-    "woodpecker"
+    "woodpecker",
+    "mise",
+    "pre-commit"
   ],
   "ignorePaths": [
     "charts/**/charts/**",
